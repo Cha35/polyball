@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRD — 폴리볼 직관/집관 기록 & 내 지갑 리뉴얼 v0.3</title>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F7F5;
+    --surface: #FFFFFF;
+    --border: #E8E8E4;
+    --border-strong: #D0D0C8;
+    --text-primary: #1A1A18;
+    --text-secondary: #5C5C56;
+    --text-muted: #9B9B93;
+    --accent: #2563EB;
+    --accent-light: #EFF4FF;
+    --accent-muted: #BFCFFC;
+    --green: #16A34A;
+    --green-light: #EDFAF3;
+    --red: #DC2626;
+    --red-light: #FEF2F2;
+    --orange: #D97706;
+    --orange-light: #FFFBEB;
+    --purple: #7C3AED;
+    --purple-light: #F5F3FF;
+    --purple-muted: #C4B5FD;
+    --tag-bg: #F0F0EC;
+    --code-bg: #F3F3EF;
+    --new-bg: #F0FDF4;
+    --new-border: #BBF7D0;
+    --del-bg: #FEF2F2;
+    --del-border: #FECACA;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Pretendard', -apple-system, sans-serif; background: var(--bg); color: var(--text-primary); font-size: 14px; line-height: 1.7; -webkit-font-smoothing: antialiased; }
+  .wrapper { max-width: 900px; margin: 0 auto; padding: 60px 40px 120px; }
+
+  .doc-header { margin-bottom: 56px; padding-bottom: 40px; border-bottom: 2px solid var(--text-primary); }
+  .doc-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); background: var(--accent-light); border: 1px solid var(--accent-muted); padding: 4px 10px; border-radius: 4px; margin-bottom: 20px; }
+  .doc-title { font-size: 36px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 8px; }
+  .doc-subtitle { font-size: 16px; color: var(--text-secondary); margin-bottom: 28px; }
+  .doc-meta { display: flex; flex-wrap: wrap; gap: 24px; }
+  .meta-item { display: flex; flex-direction: column; gap: 2px; }
+  .meta-label { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+  .meta-value { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+  .status-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--orange); background: var(--orange-light); border: 1px solid #FDE68A; padding: 2px 8px; border-radius: 20px; }
+  .status-dot { width: 6px; height: 6px; background: var(--orange); border-radius: 50%; }
+
+  .toc { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px 28px; margin-bottom: 56px; }
+  .toc-title { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px; }
+  .toc-list { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 40px; }
+  .toc-list a { font-size: 13px; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+  .toc-list a:hover { text-decoration: underline; }
+  .toc-num { font-size: 11px; color: var(--text-muted); font-weight: 600; min-width: 18px; }
+
+  .part-divider { margin: 64px 0 48px; padding: 20px 24px; background: var(--text-primary); border-radius: 10px; display: flex; align-items: center; gap: 16px; }
+  .part-divider-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.45); }
+  .part-divider-title { font-size: 18px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.01em; }
+  .part-divider-desc { font-size: 13px; color: rgba(255,255,255,0.5); margin-left: auto; }
+
+  .section { margin-bottom: 56px; }
+  .section-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  .section-num { font-size: 12px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.05em; min-width: 24px; }
+  .section-title { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+  .subsection { margin-bottom: 32px; }
+  .subsection-title { font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .subsection-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  p { color: var(--text-secondary); margin-bottom: 12px; font-size: 14px; line-height: 1.75; }
+
+  .goal-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .goal-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--text-secondary); padding: 10px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+  .goal-list.positive li { border-left: 3px solid var(--green); }
+  .goal-list.negative li { border-left: 3px solid var(--red); }
+  .goal-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 20px; }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { background: var(--tag-bg); }
+  th { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { font-size: 13px; color: var(--text-secondary); padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.6; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--bg); }
+  td:first-child { font-weight: 600; color: var(--text-primary); white-space: nowrap; }
+
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+  .badge-green { background: var(--green-light); color: var(--green); border: 1px solid #BBF7D0; }
+  .badge-blue { background: var(--accent-light); color: var(--accent); border: 1px solid var(--accent-muted); }
+  .badge-gray { background: var(--tag-bg); color: var(--text-muted); border: 1px solid var(--border); }
+  .badge-orange { background: var(--orange-light); color: var(--orange); border: 1px solid #FDE68A; }
+  .badge-red { background: var(--del-bg); color: var(--red); border: 1px solid var(--del-border); }
+  .badge-purple { background: var(--purple-light); color: var(--purple); border: 1px solid var(--purple-muted); }
+
+  .note { display: flex; gap: 10px; align-items: flex-start; background: var(--orange-light); border: 1px solid #FDE68A; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 13px; color: var(--orange); line-height: 1.6; }
+  .note-blue { background: var(--accent-light); border-color: var(--accent-muted); color: var(--accent); }
+  .note-green { background: var(--new-bg); border-color: var(--new-border); color: var(--green); }
+  .note-purple { background: var(--purple-light); border-color: var(--purple-muted); color: var(--purple); }
+
+  .feature-block { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 16px; }
+  .feature-block-header { padding: 12px 18px; background: var(--tag-bg); border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+  .feature-block-num { font-size: 11px; color: var(--text-muted); font-weight: 600; background: var(--border); padding: 1px 6px; border-radius: 3px; }
+  .feature-block-body { padding: 16px 18px; }
+
+  /* 감정선 카드 */
+  .emotion-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .emotion-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+  .emotion-card.best { border-top: 3px solid var(--green); }
+  .emotion-card.irony { border-top: 3px solid var(--purple); }
+  .emotion-card.relief { border-top: 3px solid var(--accent); }
+  .emotion-card.comfort { border-top: 3px solid var(--text-muted); }
+  .emotion-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+  .emotion-phrase { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; line-height: 1.4; }
+  .emotion-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+  .emotion-condition { font-size: 11px; color: var(--text-muted); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+
+  /* 카드 구조 */
+  .card-structure { background: var(--code-bg); border: 1px solid var(--border-strong); border-radius: 10px; padding: 20px 24px; margin-bottom: 16px; }
+  .card-structure-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .card-structure-label::after { content: ''; flex: 1; height: 1px; background: var(--border-strong); }
+
+  /* 레이어 */
+  .layer-list { display: flex; flex-direction: column; gap: 8px; }
+  .layer-item { display: flex; gap: 14px; align-items: flex-start; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; }
+  .layer-num { font-size: 11px; font-weight: 700; color: var(--accent); background: var(--accent-light); border: 1px solid var(--accent-muted); padding: 2px 7px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; }
+  .layer-content { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+  .layer-content strong { color: var(--text-primary); font-weight: 600; display: block; margin-bottom: 2px; }
+
+  .tbd-card { background: #FAFAF7; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
+  .tbd-header { padding: 12px 16px; background: var(--tag-bg); border-bottom: 1px solid var(--border); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+
+  .changelog { display: flex; flex-direction: column; }
+  .changelog-item { display: flex; gap: 20px; padding: 16px 0; border-bottom: 1px solid var(--border); }
+  .changelog-item:last-child { border-bottom: none; }
+  .changelog-version { font-size: 12px; font-weight: 700; color: var(--accent); background: var(--accent-light); padding: 3px 8px; border-radius: 4px; white-space: nowrap; height: fit-content; }
+  .changelog-meta { flex: 1; }
+  .changelog-date { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+  .changelog-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+  .scope-tag { display: inline-flex; align-items: center; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; margin-left: 6px; }
+  .scope-out { background: var(--del-bg); color: var(--red); }
+  .scope-tbd { background: var(--orange-light); color: var(--orange); }
+  .scope-confirmed { background: var(--new-bg); color: var(--green); }
+
+  .diff-box { background: var(--new-bg); border: 1px solid var(--new-border); border-radius: 8px; padding: 14px 18px; margin-bottom: 16px; font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+  .diff-box-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--green); margin-bottom: 6px; }
+
+  @media (max-width: 700px) {
+    .wrapper { padding: 32px 20px 80px; }
+    .toc-list { grid-template-columns: 1fr; }
+    .emotion-grid { grid-template-columns: 1fr; }
+    .part-divider-desc { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <div class="doc-header">
+    <div class="doc-tag">📄 Product Requirements Document</div>
+    <div class="doc-title">직관/집관 기록 & 내 지갑 리뉴얼</div>
+    <div class="doc-subtitle">Polyball — Record Feature & Wallet Renewal PRD</div>
+    <div class="doc-meta">
+      <div class="meta-item"><span class="meta-label">버전</span><span class="meta-value">v0.3</span></div>
+      <div class="meta-item"><span class="meta-label">최종 업데이트</span><span class="meta-value">2026.04</span></div>
+      <div class="meta-item"><span class="meta-label">작성자</span><span class="meta-value">PM 강다은</span></div>
+      <div class="meta-item"><span class="meta-label">관련 문서</span><span class="meta-value">기능정의서 S-01~S-09 · 유저 리서치 인사이트 v0.1</span></div>
+      <div class="meta-item"><span class="meta-label">상태</span><span class="status-badge"><span class="status-dot"></span>방향성 재정립 중</span></div>
+    </div>
+  </div>
+
+  <!-- v0.3 변경 요약 -->
+  <div class="diff-box">
+    <div class="diff-box-label">v0.3 핵심 변경 — 방향성 재정립</div>
+    v0.2까지 "인증 체계"를 중심으로 기획했으나, 근본적인 방향을 재검토했다. "공신력"과 "인증"이라는 단어에 끌려다니며 기록 진입장벽을 높이는 방향으로 설계되고 있었음을 인지하고, 기능의 목적과 차별점을 원점에서 재정의했다. <strong>기록 신뢰도의 본질은 기술적 인증이 아니라, 폴리볼이 보유한 예측 데이터와의 연결에 있다.</strong>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">목차</div>
+    <ul class="toc-list">
+      <li><a href="#s1"><span class="toc-num">01</span> 배경 및 목적</a></li>
+      <li><a href="#s2"><span class="toc-num">02</span> 핵심 정의 재정립</a></li>
+      <li><a href="#s3"><span class="toc-num">03</span> 기능 범위</a></li>
+      <li><a href="#s4"><span class="toc-num">04</span> 직관 기록 카드</a></li>
+      <li><a href="#s5"><span class="toc-num">05</span> 감정선 문구</a></li>
+      <li><a href="#s6"><span class="toc-num">06</span> 프로필 카드</a></li>
+      <li><a href="#s7"><span class="toc-num">07</span> 자랑 구조</a></li>
+      <li><a href="#s8"><span class="toc-num">08</span> 내 지갑</a></li>
+      <li><a href="#s9"><span class="toc-num">09</span> 목표 지표</a></li>
+      <li><a href="#s10"><span class="toc-num">10</span> 미결 사항</a></li>
+      <li><a href="#s11"><span class="toc-num">11</span> 변경 이력</a></li>
+    </ul>
+  </div>
+
+  <!-- ============ PART 1 ============ -->
+  <div class="part-divider">
+    <div>
+      <div class="part-divider-label">Part 1</div>
+      <div class="part-divider-title">방향성 재정립</div>
+    </div>
+    <div class="part-divider-desc">목적 · 정의 · 범위</div>
+  </div>
+
+  <!-- S1 -->
+  <div class="section" id="s1">
+    <div class="section-header"><span class="section-num">01</span><span class="section-title">배경 및 목적</span></div>
+
+    <div class="subsection">
+      <div class="subsection-title">기능 도입 배경</div>
+      <p>폴리볼은 현재 승부 예측과 응모 외에 유저가 서비스에 머물 이유가 부족하다. 예측 유저 1,487명(주간 기준) 중 응모로 전환되지 않는 유저가 약 36%에 달하며, 이 유저들을 서비스에 묶어두는 추가 가치가 필요하다.</p>
+      <p>동시에 KBO 직관 기록 시장(야구보구, 직관일기 등)에서는 서버 불안정으로 인한 데이터 유실이 핵심 이탈 원인으로 확인된다. 기업 수준의 인프라와 승부 예측 데이터가 결합된 기록 경험에 대한 니즈가 존재한다.</p>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">1차 목적 — 리텐션</div>
+      <div class="note note-blue">📌 이 기능의 1차 목적은 리텐션이다. 기록이 쌓일수록 유저가 폴리볼을 떠나기 어려운 구조를 만드는 것이 핵심이며, 바이럴과 신규 유저 획득은 2차 목적이다. BEP 달성이라는 최종 목표와의 연결 경로는 다음과 같다.</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>경로</th><th>흐름</th><th>현재 단계</th></tr></thead>
+          <tbody>
+            <tr><td>리텐션</td><td>기록 축적 → 재방문 증가 → 광고 노출 → 매출</td><td><span class="badge badge-green">1차 목적</span></td></tr>
+            <tr><td>바이럴</td><td>카드 공유 → SNS 유입 → 신규 유저 → 광고 노출 → 매출</td><td><span class="badge badge-gray">2차 목적</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Non-Goals</div>
+      <ul class="goal-list negative">
+        <li><span class="goal-icon">❌</span>기록의 진위를 기술적으로 100% 증명하는 것. 기록 자체에 경제적 보상이 없으므로 어뷰징 동기가 약하며, 기록 진위는 유저 양심에 맡긴다.</li>
+        <li><span class="goal-icon">❌</span>복잡한 인증 허들로 기록 진입장벽을 높이는 것. 기록량이 쌓여야 소셜 확산과 BM이 작동한다.</li>
+        <li><span class="goal-icon">❌</span>폴리볼 내부 커뮤니티 기능 신규 구축. 외부 SNS 공유로 대체한다.</li>
+        <li><span class="goal-icon">❌</span>집관 기록의 카드 공유. 집관은 리텐션용 라이트 기능으로만 제공한다.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- S2 -->
+  <div class="section" id="s2">
+    <div class="section-header"><span class="section-num">02</span><span class="section-title">핵심 정의 재정립</span></div>
+
+    <div class="subsection">
+      <div class="subsection-title">신뢰도란 무엇인가</div>
+      <p>v0.2까지는 신뢰도를 "기록이 진짜인지 확인하는 것"으로 정의하고 기술적 인증 방식을 탐색했다. v0.3에서는 신뢰도를 두 가지로 재정의한다.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>신뢰도 유형</th><th>정의</th><th>폴리볼의 대응</th></tr></thead>
+          <tbody>
+            <tr><td>보존의 신뢰</td><td>내가 남긴 기록이 사라지지 않고, 내가 남긴 시점 그대로 보존된다</td><td>기업 수준의 클라우드 인프라. 타 서비스 유실 문제 해결이 핵심 차별점</td></tr>
+            <tr><td>예측 데이터 연결</td><td>경기 전에 이미 예측에 참여했다는 데이터가 폴리볼 안에 존재한다</td><td>"이 기록은 경기 전부터 이 경기에 관심을 갖고 있던 사람이, 경기가 끝난 직후에 남긴 기록"이라는 문장을 폴리볼만 줄 수 있다</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note note-blue">📌 기록의 진위(실제로 직관 갔는지)는 유저 양심에 맡긴다. 레터박스드, 굿리즈, 스트라바 모두 자기신고 방식으로 운영된다. 기록에 경제적 보상이 연계되지 않는 한 어뷰징 동기는 약하다. 경제적 가치 연계(NFT 발행, 보상 연동 등) 시점에 인증 체계 도입을 재검토한다.</div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">카드란 무엇인가 — NFT 형태의 의미</div>
+      <p>카드가 NFT 형태인 이유는 두 가지다. 희소성(이 카드는 세상에 하나뿐이다)과 소유권(이건 내 것이다)이다. 이 두 가지는 예측 이력 없이도 카드 자체의 구조에서 나온다.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>카드 가치 레이어</th><th>내용</th><th>예측 필요 여부</th></tr></thead>
+          <tbody>
+            <tr><td>기본 가치</td><td>그 경기, 그 날의 유일한 기록. 고유 발행 번호로 소유권 확인</td><td>불필요</td></tr>
+            <tr><td>서사 레이어</td><td>경기 전 예측 결과가 카드에 연결되어 이야기가 생김</td><td>있으면 추가</td></tr>
+            <tr><td>희소성 극대화</td><td>당첨 직관, 역사적 경기(한국시리즈, 끝내기 등)</td><td>불필요</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note note-blue">📌 예측 연동은 카드의 존재 이유가 아니라 카드에 서사를 더하는 레이어다. 예측에 참여하지 않은 유저도 카드를 만들 수 있어야 한다.</div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">직관 vs 집관 역할 분리</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>구분</th><th>기능 목적</th><th>카드 발행</th><th>공유</th></tr></thead>
+          <tbody>
+            <tr><td>직관 기록</td><td>자랑 소재 + 리텐션</td><td>O — 공유 가능 카드</td><td>O</td></tr>
+            <tr><td>집관 기록</td><td>리텐션 전용</td><td>X 또는 낮은 등급 카드</td><td>X</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>집관은 "내가 끝까지 챙겨봤다"는 기록이지만 직관처럼 "내가 거기 있었다"는 특별한 경험이 아니다. 카드의 가치를 희석하지 않기 위해 집관은 리텐션용 라이트 기능으로만 제공하며, 프로필 통계에는 반영한다.</p>
+    </div>
+  </div>
+
+  <!-- S3 -->
+  <div class="section" id="s3">
+    <div class="section-header"><span class="section-num">03</span><span class="section-title">기능 범위</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>기능</th><th>범위</th><th>비고</th></tr></thead>
+        <tbody>
+          <tr><td>직관 기록 카드 생성</td><td><span class="badge badge-green">✓ In Scope</span></td><td>공유 가능. 감정선 문구 4가지 분기</td></tr>
+          <tr><td>집관 기록 (라이트)</td><td><span class="badge badge-green">✓ In Scope</span></td><td>카드 없음 또는 낮은 등급. 통계 반영만</td></tr>
+          <tr><td>응모 당첨 카드 특별 처리</td><td><span class="badge badge-green">✓ In Scope</span></td><td>희소성 극대화. 특별 프레임 디자인</td></tr>
+          <tr><td>프로필 카드 (통계)</td><td><span class="badge badge-green">✓ In Scope</span></td><td>예측 통계 + 직관 통계. 공유 가능</td></tr>
+          <tr><td>카드 공유 3채널</td><td><span class="badge badge-green">✓ In Scope</span></td><td>인스타 스토리 · 카카오톡 · URL 링크</td></tr>
+          <tr><td>내 지갑 리뉴얼</td><td><span class="badge badge-green">✓ In Scope</span></td><td>타임라인 뷰. 카드 + 배지 + 티켓 통합</td></tr>
+          <tr><td>인증 체계 (OCR/GPS)</td><td><span class="badge badge-orange">보류</span></td><td>경제적 가치 연계 시점에 재검토. 지금은 기록량 확보 우선</td></tr>
+          <tr><td>시즌 단위 통계</td><td><span class="badge badge-orange">v2</span></td><td>현재는 누적 기준. 추후 시즌 분리 검토</td></tr>
+          <tr><td>시즌 Wrapped</td><td><span class="badge badge-orange">v2</span></td><td>기록이 충분히 쌓인 후</td></tr>
+          <tr><td>폴리볼 내부 커뮤니티</td><td><span class="badge badge-red">✕ Out of Scope</span></td><td>외부 SNS 공유로 대체</td></tr>
+          <tr><td>NFT 실제 발행</td><td><span class="badge badge-red">✕ Out of Scope</span></td><td>장기 로드맵</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============ PART 2 ============ -->
+  <div class="part-divider">
+    <div>
+      <div class="part-divider-label">Part 2</div>
+      <div class="part-divider-title">기능 상세</div>
+    </div>
+    <div class="part-divider-desc">카드 · 문구 · 프로필 · 자랑 구조</div>
+  </div>
+
+  <!-- S4 -->
+  <div class="section" id="s4">
+    <div class="section-header"><span class="section-num">04</span><span class="section-title">직관 기록 카드</span></div>
+
+    <div class="subsection">
+      <div class="subsection-title">카드 구성 항목</div>
+      <div class="feature-block">
+        <div class="feature-block-header"><span class="feature-block-num">자동</span> 폴리볼이 채워주는 항목</div>
+        <div class="feature-block-body">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>항목</th><th>내용</th><th>비고</th></tr></thead>
+              <tbody>
+                <tr><td>날짜</td><td>기록 생성 시점 기준</td><td></td></tr>
+                <tr><td>홈팀 / 원정팀</td><td>KBO 데이터 연동</td><td>연동 불가 시 유저 선택</td></tr>
+                <tr><td>경기 결과</td><td>최종 스코어 + 승패</td><td>경기 종료 후 자동 반영</td></tr>
+                <tr><td>예측 참여 여부</td><td>해당 경기 예측 이력 자동 연결</td><td>참여 이력 없으면 미표시</td></tr>
+                <tr><td>예측 적중 여부</td><td>감정선 문구 분기에 사용</td><td>S5 참조</td></tr>
+                <tr><td>카드 고유번호</td><td>발행 순서 기반 고유 번호</td><td>예: #00847</td></tr>
+                <tr><td>감정선 문구</td><td>예측 결과 × 경기 결과 조합으로 자동 선택</td><td>S5 참조</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-block">
+        <div class="feature-block-header"><span class="feature-block-num">선택</span> 유저가 채우는 항목</div>
+        <div class="feature-block-body">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>항목</th><th>내용</th></tr></thead>
+              <tbody>
+                <tr><td>사진</td><td>업로드 장수 제한 정책 별도 정의 필요</td></tr>
+                <tr><td>한 줄 소감</td><td>자유 텍스트</td></tr>
+                <tr><td>동행인 태그</td><td>폴리볼 유저 → 카드 연결 / 비유저 → 초대 링크</td></tr>
+                <tr><td>날씨 / 기분</td><td>이모지 셀렉터</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="note note-blue">📌 선택 항목이 하나도 없어도 카드가 완성된 것처럼 보여야 한다. 빈 항목이 "비어있다"는 느낌을 주면 안 됨.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">공개 설정</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>설정</th><th>내용</th></tr></thead>
+          <tbody>
+            <tr><td>기본값</td><td>비공개. 내 지갑에만 저장</td></tr>
+            <tr><td>공유 시</td><td>공유 버튼 탭 시 채널 선택 → 외부 노출. 공유 범위 고지 선행</td></tr>
+            <tr><td>URL 공개</td><td>링크 복사 시 비유저도 조회 가능. 개인정보 최소화 노출</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- S5 -->
+  <div class="section" id="s5">
+    <div class="section-header"><span class="section-num">05</span><span class="section-title">감정선 문구</span></div>
+    <p>카드에 표시되는 대표 문구는 예측 결과와 경기 결과의 조합으로 자동 분기된다. 결과를 "맞다/틀리다"로 표현하지 않고 팬의 감정 언어로 표현하여 공유 욕구를 높인다.</p>
+
+    <div class="emotion-grid">
+      <div class="emotion-card best">
+        <div class="emotion-tag">예측 ✅ + 직관 승</div>
+        <div class="emotion-phrase">"예측도 맞추고,<br>직관도 이겼다" 🔥</div>
+        <div class="emotion-desc">최고조의 감정. 자랑 욕구가 가장 강한 케이스. 공유 확률 최고.</div>
+        <div class="emotion-condition">조건: 예측 참여 O + 예측 적중 O + 경기 승리</div>
+      </div>
+      <div class="emotion-card irony">
+        <div class="emotion-tag">예측 ✅ + 직관 패</div>
+        <div class="emotion-phrase">"내가 이럴 줄<br>알았지" 😏</div>
+        <div class="emotion-desc">아이러니한 감정. "질 거라고 예측했는데 역시나"의 자조적 자랑. 공유 욕구 존재.</div>
+        <div class="emotion-condition">조건: 예측 참여 O + 예측 적중 O + 경기 패배</div>
+      </div>
+      <div class="emotion-card relief">
+        <div class="emotion-tag">예측 ❌ + 직관 승</div>
+        <div class="emotion-phrase">"예측은 빗나갔지만,<br>직관은 이겼다" 🎉</div>
+        <div class="emotion-desc">안도와 기쁨. 예측이 틀렸어도 결과가 좋아서 공유 가능.</div>
+        <div class="emotion-condition">조건: 예측 참여 O + 예측 적중 X + 경기 승리</div>
+      </div>
+      <div class="emotion-card comfort">
+        <div class="emotion-tag">예측 ❌ + 직관 패</div>
+        <div class="emotion-phrase">"오늘은 졌지만,<br>기록은 남긴다" ⚾</div>
+        <div class="emotion-desc">위로가 필요한 감정. 공유는 안 하더라도 기록은 남기고 싶음. 리텐션 핵심 케이스.</div>
+        <div class="emotion-condition">조건: 예측 참여 O + 예측 적중 X + 경기 패배</div>
+      </div>
+    </div>
+
+    <div class="note">⚠️ 예측에 참여하지 않은 경우: 감정선 문구 없이 경기 결과만 표시. 예측 참여 유도 넛지를 카드 하단에 노출하는 방안 검토 필요. <span class="scope-tag scope-tbd">TBD</span></div>
+  </div>
+
+  <!-- S6 -->
+  <div class="section" id="s6">
+    <div class="section-header"><span class="section-num">06</span><span class="section-title">프로필 카드</span></div>
+    <p>프로필은 단순한 설정 페이지가 아닌 <strong>공유 가능한 카드 형태</strong>로 제공된다. 예측 통계와 직관 통계가 하나의 카드에 함께 보일 때 "예측도 잘하고 직관도 많이 가는 진짜 팬"의 정체성이 만들어진다. 이것이 타 서비스 프로필과의 차별점이다.</p>
+
+    <div class="subsection">
+      <div class="subsection-title">프로필 카드 구성</div>
+      <div class="feature-block">
+        <div class="feature-block-header"><span class="feature-block-num">예측</span> 예측 통계 (누적)</div>
+        <div class="feature-block-body">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>항목</th><th>내용</th></tr></thead>
+              <tbody>
+                <tr><td>총 예측 참여 횟수</td><td>전체 누적</td></tr>
+                <tr><td>예측 적중률</td><td>적중 횟수 / 전체 참여 횟수</td></tr>
+                <tr><td>연속 적중 최고 기록</td><td>역대 최고 연속 적중 일수</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="feature-block">
+        <div class="feature-block-header"><span class="feature-block-num">직관</span> 직관 통계 (누적)</div>
+        <div class="feature-block-body">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>항목</th><th>내용</th></tr></thead>
+              <tbody>
+                <tr><td>총 직관 횟수</td><td>전체 누적 (집관 별도 표기)</td></tr>
+                <tr><td>직관 승률</td><td>직관 경기 중 승리 비율</td></tr>
+                <tr><td>가장 많이 간 구장</td><td>방문 횟수 기준 1위 구장</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">통계 기준 및 공유</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>항목</th><th>결정 내용</th></tr></thead>
+          <tbody>
+            <tr><td>집계 기준</td><td>누적 기준으로 시작. 추후 고도화 시 시즌 단위 분리 여부 검토</td></tr>
+            <tr><td>공유 방식</td><td>프로필 카드 자체를 이미지로 공유 가능. 3채널 동일 지원</td></tr>
+            <tr><td>공개 범위</td><td>기본 비공개. 공유 시에만 외부 노출</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- S7 -->
+  <div class="section" id="s7">
+    <div class="section-header"><span class="section-num">07</span><span class="section-title">자랑 구조</span></div>
+    <p>유저가 자랑하는 조건은 두 가지다. 내가 특별한 경험을 했을 때, 그리고 내가 남들보다 잘했을 때. 폴리볼 카드는 이 두 가지를 모두 제공할 수 있다.</p>
+
+    <div class="layer-list">
+      <div class="layer-item">
+        <span class="layer-num">레이어 1</span>
+        <div class="layer-content">
+          <strong>카드 디자인 — 올리고 싶게 생겨야 한다</strong>
+          팀 컬러, 경기 결과, 감정선 문구가 한눈에 보이는 카드. 못생기면 아무도 올리지 않는다. 여성 관람객 비율 56.7% 기반 포토카드 수집 감성 우선 설계.
+        </div>
+      </div>
+      <div class="layer-item">
+        <span class="layer-num">레이어 2</span>
+        <div class="layer-content">
+          <strong>숫자 — 비교와 자랑의 소재</strong>
+          프로필 카드의 통계 숫자(직관 횟수, 승률, 예측 적중률)가 비교 욕구를 만든다. "나 직관 승률 75%야"는 숫자가 있어야 자랑이 된다.
+        </div>
+      </div>
+      <div class="layer-item">
+        <span class="layer-num">레이어 3</span>
+        <div class="layer-content">
+          <strong>타이밍 — 흥분 상태를 잡아야 한다</strong>
+          경기 종료 후 푸시 알림으로 카드 완성 유도. 흥분 상태일 때 공유 확률이 높다. 시간이 지나면 식는다. 기본값 경기 종료 1시간 후, 유저 설정 가능.
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" style="margin-top: 24px;">
+      <div class="subsection-title">공유 채널 — 3가지</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>채널</th><th>형식</th><th>포함 정보</th></tr></thead>
+          <tbody>
+            <tr><td>인스타 스토리</td><td>9:16 비율 이미지</td><td>카드 디자인 + 감정선 문구 + 팀 컬러 배경</td></tr>
+            <tr><td>카카오톡</td><td>이미지 + 텍스트</td><td>카드 썸네일 + 경기 결과 텍스트 + 앱 링크</td></tr>
+            <tr><td>URL 링크 복사</td><td>polyball.com/card/xxxxx</td><td>카드 퍼블릭 페이지. 비유저도 조회 가능</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- S8 -->
+  <div class="section" id="s8">
+    <div class="section-header"><span class="section-num">08</span><span class="section-title">내 지갑</span></div>
+    <div class="note note-purple">🎯 목적: 당첨자 전용 공간 → 모든 유저의 팬 경험 컬렉션 공간. 직관 기록 기능과 동시 출시 필수. 별도 출시 시 빈 슬롯이 노출되어 역효과.</div>
+
+    <div class="subsection">
+      <div class="subsection-title">지갑 구성 아이템</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>아이템</th><th>종류</th><th>비고</th></tr></thead>
+          <tbody>
+            <tr><td>티켓류</td><td>응모 당첨 티켓</td><td>기존 유지</td></tr>
+            <tr><td>직관 카드</td><td>공유 가능 카드. 감정선 문구 포함</td><td>신규</td></tr>
+            <tr><td>응모 당첨 직관 카드</td><td>특별 프레임. 희소성 극대화</td><td>신규</td></tr>
+            <tr><td>집관 기록</td><td>카드 없음 또는 낮은 등급. 타임라인 표기만</td><td>신규 (라이트)</td></tr>
+            <tr><td>배지류</td><td>응모 도전 배지 등</td><td>신규 (MVP 최소)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">화면 구성</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>영역</th><th>내용</th></tr></thead>
+          <tbody>
+            <tr><td>상단 요약</td><td>직관 카드 N장 · 배지 N개 · 티켓 N장</td></tr>
+            <tr><td>메인 뷰</td><td>타임라인 뷰 (최신순)</td></tr>
+            <tr><td>필터</td><td>전체 / 티켓 / 기록 카드 / 배지</td></tr>
+            <tr><td>진입 경로</td><td>마이 메뉴 / 기록 생성 후 토스트 / 홈 숏컷</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PART 3 ============ -->
+  <div class="part-divider">
+    <div>
+      <div class="part-divider-label">Part 3</div>
+      <div class="part-divider-title">지표 & 미결 사항</div>
+    </div>
+    <div class="part-divider-desc">목표 지표 · TBD</div>
+  </div>
+
+  <!-- S9 -->
+  <div class="section" id="s9">
+    <div class="section-header"><span class="section-num">09</span><span class="section-title">목표 지표</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>지표</th><th>방향</th><th>비고</th></tr></thead>
+        <tbody>
+          <tr><td>직관 기록 기능 활성 유저 비율</td><td>↑ 증가</td><td>수치는 출시 후 기준선 설정</td></tr>
+          <tr><td>기록 기능 진입 후 재방문율 (D7)</td><td>↑ 증가</td><td>리텐션 핵심 지표</td></tr>
+          <tr><td>카드 공유 발생 수</td><td>신규 측정</td><td>채널별(인스타/카카오/URL) 분리 측정</td></tr>
+          <tr><td>내 지갑 탭 방문 빈도</td><td>↑ 증가</td><td>현재 당첨자 외 거의 없음</td></tr>
+          <tr><td>예측 참여 → 기록 생성 전환율</td><td>신규 측정</td><td>예측 후 기록까지 이어지는 비율</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- S10 -->
+  <div class="section" id="s10">
+    <div class="section-header"><span class="section-num">10</span><span class="section-title">미결 사항 (TBD)</span></div>
+    <div class="tbd-card">
+      <div class="tbd-header">🕐 결정 필요 항목</div>
+      <div class="table-wrap" style="border:none;border-radius:0;">
+        <table>
+          <thead><tr><th>#</th><th>항목</th><th>내용</th><th>담당</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>집관 기록 카드 등급 설계</td><td>카드 없음 vs 낮은 등급 카드 중 결정. 낮은 등급으로 간다면 등급 기준과 시각 처리 방식 정의 필요.</td><td>기획 + PD</td></tr>
+            <tr><td>2</td><td>예측 미참여 직관 기록 문구</td><td>예측에 참여하지 않은 경우 감정선 문구 없이 경기 결과만 표시할지, 예측 참여 유도 넛지를 카드에 포함할지 결정.</td><td>기획</td></tr>
+            <tr><td>3</td><td>카드 디자인 방향</td><td>팀 컬러, 포토카드 감성, 배경 커스터마이징 등 상세 디자인 가이드 별도 작업 필요.</td><td>PD</td></tr>
+            <tr><td>4</td><td>프로필 카드 공유 시 노출 범위</td><td>공유 시 닉네임 외 어떤 정보까지 외부에 노출할지 정의. 개인정보 최소화 원칙 적용.</td><td>기획 + 법무</td></tr>
+            <tr><td>5</td><td>KBO 데이터 연동 법무 검토</td><td>공식 API 여부 및 크롤링 가능 여부 확인. 결과에 따라 자동 완성 범위 결정. 착수 전 필수.</td><td>법무 + 개발</td></tr>
+            <tr><td>6</td><td>사진 업로드 장수 제한 정책</td><td>무료 제공 범위 및 유료 포토패스 기준 정의.</td><td>기획 + 비즈니스</td></tr>
+            <tr><td>7</td><td>내 지갑 IA 위치 변경</td><td>마이 메뉴 내 현재 위치 확인 및 우선순위 상향 범위 정의.</td><td>UX + 기획</td></tr>
+            <tr><td>8</td><td>인증 체계 재검토 시점</td><td>경제적 가치 연계(NFT 발행, 보상 연동 등) 단계에서 OCR/GPS 인증 도입 여부 재검토.</td><td>기획 + 법무</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- S11 -->
+  <div class="section" id="s11">
+    <div class="section-header"><span class="section-num">11</span><span class="section-title">변경 이력</span></div>
+    <div class="changelog">
+      <div class="changelog-item">
+        <span class="changelog-version">v0.3</span>
+        <div class="changelog-meta">
+          <div class="changelog-date">2026.04</div>
+          <div class="changelog-desc">방향성 전면 재정립. "인증 체계" 중심 설계에서 "기록 가치" 중심 설계로 전환. 주요 변경 내용: 기능 목적 재정의(리텐션 1차 / 바이럴 2차) · 신뢰도 정의 재정립(보존의 신뢰 + 예측 데이터 연결) · 인증 체계 보류(경제적 가치 연계 시점 재검토) · 집관 기록 역할 분리(리텐션 전용 라이트 기능) · 감정선 문구 4가지 케이스 확정 · 프로필 카드 공유 가능 형태로 설계 · 예측 통계 + 직관 통계 누적 기준 확정.</div>
+        </div>
+      </div>
+      <div class="changelog-item">
+        <span class="changelog-version">v0.2</span>
+        <div class="changelog-meta">
+          <div class="changelog-date">2026.04</div>
+          <div class="changelog-desc">유저 리서치 인사이트 12개 항목 반영. 인증 체계 다단계 구조 설계. GPS MVP 제외 처리.</div>
+        </div>
+      </div>
+      <div class="changelog-item">
+        <span class="changelog-version">v0.1</span>
+        <div class="changelog-meta">
+          <div class="changelog-date">2026.04</div>
+          <div class="changelog-desc">초안 작성. PO·PM 1:1 MVP 범위 정의 논의 기반.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

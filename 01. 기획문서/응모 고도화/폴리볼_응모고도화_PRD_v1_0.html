@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRD — 폴리볼 응모 고도화 v1.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F7F5;
+    --surface: #FFFFFF;
+    --border: #E8E8E4;
+    --border-strong: #D0D0C8;
+    --text-primary: #1A1A18;
+    --text-secondary: #5C5C56;
+    --text-muted: #9B9B93;
+    --accent: #2563EB;
+    --accent-light: #EFF4FF;
+    --accent-muted: #BFCFFC;
+    --green: #16A34A;
+    --green-light: #EDFAF3;
+    --red: #DC2626;
+    --red-light: #FEF2F2;
+    --orange: #D97706;
+    --orange-light: #FFFBEB;
+    --purple: #7C3AED;
+    --purple-light: #F5F3FF;
+    --tag-bg: #F0F0EC;
+    --code-bg: #F3F3EF;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Pretendard', -apple-system, sans-serif; background: var(--bg); color: var(--text-primary); font-size: 14px; line-height: 1.7; -webkit-font-smoothing: antialiased; }
+  .wrapper { max-width: 900px; margin: 0 auto; padding: 60px 40px 120px; }
+
+  .doc-header { margin-bottom: 56px; padding-bottom: 40px; border-bottom: 2px solid var(--text-primary); }
+  .doc-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); background: var(--accent-light); border: 1px solid var(--accent-muted); padding: 4px 10px; border-radius: 4px; margin-bottom: 20px; }
+  .doc-title { font-size: 36px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 8px; }
+  .doc-subtitle { font-size: 16px; color: var(--text-secondary); margin-bottom: 28px; }
+  .doc-meta { display: flex; flex-wrap: wrap; gap: 24px; }
+  .meta-item { display: flex; flex-direction: column; gap: 2px; }
+  .meta-label { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+  .meta-value { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+  .status-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--orange); background: var(--orange-light); border: 1px solid #FDE68A; padding: 2px 8px; border-radius: 20px; }
+  .status-dot { width: 6px; height: 6px; background: var(--orange); border-radius: 50%; }
+
+  .toc { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px 28px; margin-bottom: 56px; }
+  .toc-title { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px; }
+  .toc-list { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 40px; }
+  .toc-list a { font-size: 13px; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+  .toc-list a:hover { text-decoration: underline; }
+  .toc-num { font-size: 11px; color: var(--text-muted); font-weight: 600; min-width: 18px; }
+
+  .section { margin-bottom: 56px; }
+  .section-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  .section-num { font-size: 12px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.05em; min-width: 24px; }
+  .section-title { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+  .subsection { margin-bottom: 32px; }
+  .subsection-title { font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .subsection-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  p { color: var(--text-secondary); margin-bottom: 12px; font-size: 14px; line-height: 1.75; }
+
+  .goal-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .goal-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--text-secondary); padding: 10px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+  .goal-list.positive li { border-left: 3px solid var(--green); }
+  .goal-list.negative li { border-left: 3px solid var(--red); }
+  .goal-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+
+  .hypothesis-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 16px; }
+  .hypothesis-header { padding: 12px 18px; background: var(--purple-light); border-bottom: 1px solid #DDD6FE; font-size: 13px; font-weight: 700; color: var(--purple); display: flex; align-items: center; gap: 8px; }
+  .hypothesis-num { font-size: 11px; color: var(--text-muted); font-weight: 600; background: #EDE9FE; padding: 1px 6px; border-radius: 3px; }
+  .hypothesis-body { padding: 16px 18px; }
+  .hypothesis-row { display: flex; gap: 8px; margin-bottom: 8px; font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+  .hypothesis-row:last-child { margin-bottom: 0; }
+  .hypothesis-label { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; color: var(--text-muted); min-width: 56px; flex-shrink: 0; padding-top: 2px; }
+
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 20px; }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { background: var(--tag-bg); }
+  th { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { font-size: 13px; color: var(--text-secondary); padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.6; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--bg); }
+  td:first-child { font-weight: 600; color: var(--text-primary); white-space: nowrap; }
+
+  .scenario-list { display: flex; flex-direction: column; gap: 10px; }
+  .scenario-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; display: flex; gap: 16px; align-items: flex-start; }
+  .scenario-label { font-size: 11px; font-weight: 700; color: var(--accent); background: var(--accent-light); border: 1px solid var(--accent-muted); padding: 3px 8px; border-radius: 4px; white-space: nowrap; letter-spacing: 0.04em; }
+  .scenario-text { font-size: 13px; color: var(--text-secondary); line-height: 1.65; }
+  .scenario-text strong { color: var(--text-primary); font-weight: 600; display: block; margin-bottom: 3px; }
+
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+  .badge-green { background: var(--green-light); color: var(--green); border: 1px solid #BBF7D0; }
+  .badge-blue { background: var(--accent-light); color: var(--accent); border: 1px solid var(--accent-muted); }
+  .badge-orange { background: var(--orange-light); color: var(--orange); border: 1px solid #FDE68A; }
+  .badge-red { background: var(--red-light); color: var(--red); border: 1px solid #FECACA; }
+  .badge-gray { background: var(--tag-bg); color: var(--text-muted); border: 1px solid var(--border); }
+  .badge-purple { background: var(--purple-light); color: var(--purple); border: 1px solid #DDD6FE; }
+
+  .note { display: flex; gap: 10px; align-items: flex-start; background: var(--orange-light); border: 1px solid #FDE68A; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 13px; color: var(--orange); line-height: 1.6; }
+  .note-blue { background: var(--accent-light); border-color: var(--accent-muted); color: var(--accent); }
+  .note-green { background: var(--green-light); border-color: #BBF7D0; color: var(--green); }
+
+  .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .metric-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+  .metric-card-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+  .metric-card-value { font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+  .metric-card-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+
+  .tbd-card { background: #FAFAF7; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
+  .tbd-header { padding: 12px 16px; background: var(--tag-bg); border-bottom: 1px solid var(--border); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+
+  .feature-overview { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 16px; }
+  .feature-overview-header { padding: 14px 18px; background: var(--accent-light); border-bottom: 1px solid var(--accent-muted); font-size: 14px; font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 10px; }
+  .feature-overview-body { padding: 16px 18px; }
+  .feature-overview-item { display: flex; gap: 8px; margin-bottom: 8px; font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+  .feature-overview-item:last-child { margin-bottom: 0; }
+  .feature-overview-bullet { color: var(--accent); font-weight: 700; flex-shrink: 0; }
+
+  @media (max-width: 640px) {
+    .wrapper { padding: 32px 16px 80px; }
+    .doc-title { font-size: 26px; }
+    .toc-list { grid-template-columns: 1fr; }
+    .metric-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <div class="doc-header">
+    <div class="doc-tag">📄 Product Requirements Document</div>
+    <div class="doc-title">폴리볼 응모 고도화</div>
+    <div class="doc-subtitle">동행자 초대 · 함께 응모 — Entry Upgrade PRD</div>
+    <div class="doc-meta">
+      <div class="meta-item"><span class="meta-label">버전</span><span class="meta-value">v1.0</span></div>
+      <div class="meta-item"><span class="meta-label">작성일</span><span class="meta-value">2026.04.23</span></div>
+      <div class="meta-item"><span class="meta-label">작성자</span><span class="meta-value">PM</span></div>
+      <div class="meta-item"><span class="meta-label">상태</span><span class="status-badge"><span class="status-dot"></span>내부 검토 중</span></div>
+    </div>
+  </div>
+
+  <div class="toc">
+    <div class="toc-title">목차</div>
+    <ul class="toc-list">
+      <li><a href="#s1"><span class="toc-num">01</span> 개요 및 배경</a></li>
+      <li><a href="#s2"><span class="toc-num">02</span> 문제 정의</a></li>
+      <li><a href="#s3"><span class="toc-num">03</span> 목표</a></li>
+      <li><a href="#s4"><span class="toc-num">04</span> 가설</a></li>
+      <li><a href="#s5"><span class="toc-num">05</span> 핵심 기능 개요</a></li>
+      <li><a href="#s6"><span class="toc-num">06</span> 성공 지표</a></li>
+      <li><a href="#s7"><span class="toc-num">07</span> 사용자 시나리오</a></li>
+      <li><a href="#s8"><span class="toc-num">08</span> 범위 외 항목</a></li>
+      <li><a href="#s9"><span class="toc-num">09</span> 리스크 및 고려사항</a></li>
+      <li><a href="#s10"><span class="toc-num">10</span> 미결 사항 (TBD)</a></li>
+    </ul>
+  </div>
+
+  <!-- ══════════════════════════════════
+       01. 개요 및 배경
+  ══════════════════════════════════ -->
+  <div class="section" id="s1">
+    <div class="section-header"><span class="section-num">01</span><span class="section-title">개요 및 배경</span></div>
+    <p><strong>폴리볼</strong>은 KBO 경기 승부 예측(픽)으로 응모권을 적립하고, 직관 티켓에 응모하는 모바일 서비스다. 응모 → 당첨 → 티켓 수령이 서비스의 핵심 전환 퍼널이며, 당첨 경험이 리텐션과 입소문의 최대 동력이다.</p>
+    <p>현재 1인 당첨 시 <strong>2~3매의 티켓</strong>이 제공되지만(구단별 상이), 앱 유저로 확보되는 것은 당첨자 1명뿐이다. 동행자는 앱과 무관하게 오프라인에서 티켓을 함께 수령할 뿐, 서비스 접점이 전혀 없다. 또한 내부 재무 처리를 위해 동행자의 실명 정보(이름 + 휴대전화번호)를 수집할 필요가 있으나, 이를 합리적으로 수집할 수 있는 프로세스가 부재하다.</p>
+    <p>이에 따라 <strong>응모 시점의 "함께 응모"</strong>와 <strong>당첨 후 "동행자 초대"</strong> 두 기능을 도입하여, 동행자 정보 수집의 당위성 확보 · 신규 유저 획득 · 응모 경험 강화를 동시에 달성하고자 한다.</p>
+  </div>
+
+  <!-- ══════════════════════════════════
+       02. 문제 정의
+  ══════════════════════════════════ -->
+  <div class="section" id="s2">
+    <div class="section-header"><span class="section-num">02</span><span class="section-title">문제 정의</span></div>
+
+    <div class="subsection">
+      <div class="subsection-title">비즈니스 문제</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>문제</th><th>현황</th><th>영향</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>동행자 정보 미확보</td>
+              <td>내부 재무 명단 처리에 필요한 동행자 실명·연락처 수집 프로세스 없음</td>
+              <td>동행자 정보 기반 내부 처리 불가. 운영 리스크 증가</td>
+            </tr>
+            <tr>
+              <td>당첨 1건당 유저 획득 = 1명</td>
+              <td>2~3매 티켓 제공에도 앱 유저는 당첨자 1명만 확보</td>
+              <td>티켓 비용 대비 유저 획득 효율이 낮음</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">유저 문제</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>문제</th><th>현황</th><th>영향</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>응모의 개인적 경험</td>
+              <td>응모가 1인 단위로만 가능. 직관은 함께 가지만 응모는 혼자</td>
+              <td>친구와 공유하는 재미가 없어 응모 동기가 제한적</td>
+            </tr>
+            <tr>
+              <td>동행자의 서비스 접점 부재</td>
+              <td>동행자는 당첨자의 티켓에 의존. 경기 정보를 앱에서 확인할 수 없음</td>
+              <td>동행자의 서비스 유입 기회 상실</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       03. 목표
+  ══════════════════════════════════ -->
+  <div class="section" id="s3">
+    <div class="section-header"><span class="section-num">03</span><span class="section-title">목표</span></div>
+
+    <div class="subsection">
+      <div class="subsection-title">Goals</div>
+      <ul class="goal-list positive">
+        <li><span class="goal-icon">✅</span>당첨 시 동행자를 앱 내에서 초대하여 실명 정보를 합리적으로 수집하고, 내부 재무 명단 처리 근거를 확보한다</li>
+        <li><span class="goal-icon">✅</span>당첨 1건당 확보 유저 수를 1명 → 2~3명으로 확대하여, 티켓 비용 대비 유저 획득 효율을 개선한다</li>
+        <li><span class="goal-icon">✅</span>응모 시점에 친구와 함께 응모할 수 있는 경로를 제공하여 응모 빈도 및 응모권 소진 속도를 높이고, 이에 따른 광고 노출을 증가시킨다</li>
+        <li><span class="goal-icon">✅</span>함께 응모 시 보너스 응모권(10장당 +1장)을 제공하여 협력 응모의 실질적 인센티브를 부여한다</li>
+      </ul>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Non-Goals</div>
+      <ul class="goal-list negative">
+        <li><span class="goal-icon">❌</span>기존 1인 응모 플로우를 변경하거나 대체하지 않는다. 혼자 응모는 현행 그대로 유지</li>
+        <li><span class="goal-icon">❌</span>동행자 초대를 강제하지 않는다. 선택적 프로세스이며, 미초대 시에도 티켓 교환에 지장 없음</li>
+        <li><span class="goal-icon">❌</span>레퍼럴(친구 초대) 보상 체계를 변경하지 않는다. 동행자 초대와 레퍼럴은 별도 채널로 분리 운영</li>
+        <li><span class="goal-icon">❌</span>티켓 교환 프로세스(편의점/매표소 방문) 자체를 변경하지 않는다. 교환 주체는 여전히 당첨자 1인</li>
+        <li><span class="goal-icon">❌</span>동행자에게 QR/난수번호를 노출하지 않는다. 물리적 교환 구조와의 정합성을 유지</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       04. 가설
+  ══════════════════════════════════ -->
+  <div class="section" id="s4">
+    <div class="section-header"><span class="section-num">04</span><span class="section-title">가설</span></div>
+
+    <div class="hypothesis-card">
+      <div class="hypothesis-header"><span class="hypothesis-num">H1</span>동행자 초대를 통한 신규 유저 획득</div>
+      <div class="hypothesis-body">
+        <div class="hypothesis-row"><span class="hypothesis-label">IF</span>당첨자에게 동행자 초대 기능을 제공하고, 티켓 상세 · CRM 푸시를 통해 자연스럽게 넛지하면</div>
+        <div class="hypothesis-row"><span class="hypothesis-label">THEN</span>당첨 1건당 동행자 초대 완료율이 60% 이상 달성되고, 동행자 중 신규 가입자 비율이 40% 이상이 될 것이다</div>
+        <div class="hypothesis-row"><span class="hypothesis-label">BECAUSE</span>"무료 직관 티켓"이라는 강한 동기가 있어, 동행자가 앱 설치 + 가입 + 본인인증의 높은 허들을 넘을 충분한 이유가 된다. 일반 레퍼럴(보상: 응모권 30장) 대비 전환율이 현저히 높을 것으로 예상</div>
+        <div class="hypothesis-row"><span class="hypothesis-label">METRIC</span>동행자 초대 완료율, 동행자 신규 가입 비율, 동행자 D+7 리텐션</div>
+      </div>
+    </div>
+
+    <div class="hypothesis-card">
+      <div class="hypothesis-header"><span class="hypothesis-num">H2</span>함께 응모를 통한 응모 빈도 및 광고 노출 증가</div>
+      <div class="hypothesis-body">
+        <div class="hypothesis-row"><span class="hypothesis-label">IF</span>응모 상세에서 "함께 응모" 경로를 제공하고 보너스 응모권(10장당 +1)을 인센티브로 부여하면</div>
+        <div class="hypothesis-row"><span class="hypothesis-label">THEN</span>전체 응모 건 중 함께 응모 비율이 20% 이상이 되고, 함께 응모 참여자의 주간 응모 빈도가 1인 응모 대비 1.5배 이상 증가할 것이다</div>
+        <div class="hypothesis-row"><span class="hypothesis-label">BECAUSE</span>함께 응모는 응모권을 더 빨리 소진시키고, 이는 픽(예측) 참여로 이어져 광고 노출 기회가 늘어난다. 또한 함께 응모 완료 시 호스트 + 게스트 각각 RV 광고가 노출되므로 광고 인벤토리가 팀 인원 수만큼 배가된다</div>
+        <div class="hypothesis-row"><span class="hypothesis-label">METRIC</span>함께 응모 비율, 주간 1인당 응모 횟수, 함께 응모 시 광고 노출 수</div>
+      </div>
+    </div>
+
+    <div class="hypothesis-card">
+      <div class="hypothesis-header"><span class="hypothesis-num">H3</span>동행자의 직관 후 리텐션</div>
+      <div class="hypothesis-body">
+        <div class="hypothesis-row"><span class="hypothesis-label">IF</span>동행자(신규 가입)에게 직관 경험 + 웰컴 응모권(5장)을 제공하면</div>
+        <div class="hypothesis-row"><span class="hypothesis-label">THEN</span>동행자의 직관 후 D+7 재방문율이 일반 신규 가입자 대비 2배 이상일 것이다</div>
+        <div class="hypothesis-row"><span class="hypothesis-label">BECAUSE</span>직관이라는 강한 첫 경험이 서비스와의 긍정적 연결을 만들고, 웰컴 응모권이 "다음 경기에도 응모해 볼까"라는 재방문 트리거가 된다</div>
+        <div class="hypothesis-row"><span class="hypothesis-label">METRIC</span>동행자 D+7/D+14/D+30 리텐션, 동행자 첫 픽 참여율, 동행자 첫 응모 전환율</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       05. 핵심 기능 개요
+  ══════════════════════════════════ -->
+  <div class="section" id="s5">
+    <div class="section-header"><span class="section-num">05</span><span class="section-title">핵심 기능 개요</span></div>
+
+    <div class="note note-blue">📌 아래는 기능의 방향성과 범위를 정의한 것이며, 구체적인 화면 정의·스펙은 기능정의서에서 다룬다.</div>
+
+    <div class="feature-overview">
+      <div class="feature-overview-header">🎟️ 기능 A — 동행자 초대하기 (당첨 후)</div>
+      <div class="feature-overview-body">
+        <div class="feature-overview-item"><span class="feature-overview-bullet">→</span>당첨 확정 후 티켓 상세(MY-03) 준비중 상태부터 동행자 초대 영역 상시 노출</div>
+        <div class="feature-overview-item"><span class="feature-overview-bullet">→</span>초대 방식: 공유 시트(카카오톡 / 링크 복사). 서류 제출 여부와 독립적으로 진행</div>
+        <div class="feature-overview-item"><span class="feature-overview-bullet">→</span>동행자는 앱 가입 + 본인인증 완료 후 초대 수락. 신규 가입자는 온보딩 수행</div>
+        <div class="feature-overview-item"><span class="feature-overview-bullet">→</span>동행자 초대는 선택. 스킵 가능하며, 미초대 시에도 티켓 교환에 지장 없음</div>
+        <div class="feature-overview-item"><span class="feature-overview-bullet">→</span>동행자 지갑에는 경기 정보 카드만 노출. QR/난수번호는 당첨자(호스트)에게만 노출</div>
+        <div class="feature-overview-item"><span class="feature-overview-bullet">→</span>매수별 동행자 수: 2매 → 1명, 3매(기아 3매 응모) → 2명</div>
+        <div class="feature-overview-item"><span class="feature-overview-bullet">→</span>신규 가입 동행자에게 웰컴 응모권(5장) 지급. 기존 회원은 미지급</div>
+        <div class="feature-overview-item"><span class="feature-overview-bullet">→</span>레퍼럴 보상 자동 지급 안 함. 별도 채널(RF-01 ⑦) 분리 운영</div>
+      </div>
+    </div>
+
+    <div class="feature-overview">
+      <div class="feature-overview-header">👥 기능 B — 함께 응모하기 (응모 시점)</div>
+      <div class="feature-overview-body">
+        <div class="feature-overview-item"><span class="feature-overview-bullet">→</span>응모 상세에서 "혼자 응모" / "함께 응모" 분기 제공. 기존 혼자 응모 플로우 유지</div>
+        <div class="feature-overview-item"><span class="feature-overview-bullet">→</span>호스트가 게스트를 초대. 당첨 매수에 맞게 팀 구성(2인 또는 3인)</div>
+        <div class="feature-overview-item"><span class="feature-overview-bullet">→</span>호스트 + 게스트 각각 응모권을 사용하여 합산 처리. 합산 금액 기준 보너스(10장당 +1장) 적용</div>
+        <div class="feature-overview-item"><span class="feature-overview-bullet">→</span>응모 완료 시 호스트 · 게스트 각각에게 RV 광고 노출 (광고 인벤토리 배가)</div>
+        <div class="feature-overview-item"><span class="feature-overview-bullet">→</span>당첨 시 호스트 이름으로 처리. 게스트는 동행자 자동 확정 (당첨 후 초대 프로세스 스킵)</div>
+        <div class="feature-overview-item"><span class="feature-overview-bullet">→</span>티켓은 호스트 지갑에만 적재. 게스트 지갑에는 경기 정보 카드 노출</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       06. 성공 지표
+  ══════════════════════════════════ -->
+  <div class="section" id="s6">
+    <div class="section-header"><span class="section-num">06</span><span class="section-title">성공 지표</span></div>
+
+    <div class="subsection">
+      <div class="subsection-title">Primary Metrics</div>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-card-label">동행자 초대 완료율</div>
+          <div class="metric-card-value">≥ 60%</div>
+          <div class="metric-card-desc">당첨 건 중 동행자 초대를 완료한 비율. 초대율이 높을수록 유저 획득 + 동행자 정보 확보 효과 극대화</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card-label">함께 응모 비율</div>
+          <div class="metric-card-value">≥ 20%</div>
+          <div class="metric-card-desc">전체 응모 건 중 함께 응모로 진행된 비율. 광고 노출 배가 효과의 기반</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card-label">동행자 정보 확보율</div>
+          <div class="metric-card-value">≥ 70%</div>
+          <div class="metric-card-desc">당첨 건 중 동행자 정보(초대 확정 또는 내부 처리)가 확보된 비율</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card-label">당첨 1건당 유저 획득</div>
+          <div class="metric-card-value">≥ 1.5명</div>
+          <div class="metric-card-desc">기존 1명 → 동행자 신규 가입 포함 평균 유저 획득 수</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Secondary Metrics</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>지표</th><th>정의</th><th>기대 방향</th></tr></thead>
+          <tbody>
+            <tr><td>동행자 D+7 리텐션</td><td>동행자(신규 가입)의 7일 후 재방문율</td><td>일반 신규 가입자 대비 ≥ 2배</td></tr>
+            <tr><td>함께 응모 시 광고 노출</td><td>함께 응모 완료 건당 RV 광고 노출 수</td><td>1인 응모 대비 2배</td></tr>
+            <tr><td>주간 1인당 응모 횟수</td><td>함께 응모 참여자의 주간 평균 응모 횟수</td><td>기존 대비 ≥ 1.5배</td></tr>
+            <tr><td>동행자 첫 픽 참여율</td><td>신규 가입 동행자의 첫 승부예측 참여 비율</td><td>≥ 50%</td></tr>
+            <tr><td>동행자 초대 미수락률</td><td>초대 발송 후 미수락으로 만료된 비율</td><td>≤ 30% (높을 경우 알림톡 도입 검토)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       07. 사용자 시나리오
+  ══════════════════════════════════ -->
+  <div class="section" id="s7">
+    <div class="section-header"><span class="section-num">07</span><span class="section-title">사용자 시나리오</span></div>
+    <div class="scenario-list">
+      <div class="scenario-item">
+        <span class="scenario-label">A-1</span>
+        <div class="scenario-text"><strong>당첨 후 동행자를 초대한다 (동행자 = 비회원)</strong>유저 A가 LG 홈경기에 당첨. 티켓 상세에서 "동행자 초대하기"를 탭하고 카카오톡으로 친구 B에게 공유. B는 링크를 통해 앱 설치 → 가입 → 온보딩(응원팀 선택) → 본인인증 → 초대 수락. B의 마이 지갑에 경기 정보 카드가 노출되고, A의 티켓에 "동행자: B" 확정 표시.</div>
+      </div>
+      <div class="scenario-item">
+        <span class="scenario-label">A-2</span>
+        <div class="scenario-text"><strong>당첨 후 동행자를 초대한다 (동행자 = 기존 회원)</strong>유저 A가 KT 홈경기에 당첨. 기존 회원인 친구 C에게 초대 링크 발송. C는 앱 진입 → 초대 수락(본인인증 완료 상태). 전체 과정이 3스텝으로 완료.</div>
+      </div>
+      <div class="scenario-item">
+        <span class="scenario-label">A-3</span>
+        <div class="scenario-text"><strong>동행자를 초대하지 않고 혼자 간다</strong>유저 A가 SSG 홈경기에 당첨. 혼자 직관하기로 결정하고 동행자 초대를 스킵. 동행자 정보는 내부적으로 처리되며, 유저 경험에 영향 없이 티켓 교환이 진행됨.</div>
+      </div>
+      <div class="scenario-item">
+        <span class="scenario-label">B-1</span>
+        <div class="scenario-text"><strong>친구와 함께 응모한다</strong>유저 A가 응모 상세에서 "함께 응모"를 선택하고 기존 회원 친구 D를 초대. D가 합류하여 A가 80장, D가 40장을 사용. 합계 120장 + 보너스 12장 = 총 132장으로 응모. 양쪽 모두 응모 완료 후 RV 광고 시청.</div>
+      </div>
+      <div class="scenario-item">
+        <span class="scenario-label">B-2</span>
+        <div class="scenario-text"><strong>함께 응모 후 당첨된다</strong>A+D 팀이 당첨. 티켓은 호스트 A의 지갑에 적재되고, D는 동행자로 자동 확정. 당첨 후 동행자 초대 프로세스 없이 바로 서류 제출 → 준비완료 → 교환 가능 흐름으로 진행.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       08. 범위 외 항목
+  ══════════════════════════════════ -->
+  <div class="section" id="s8">
+    <div class="section-header"><span class="section-num">08</span><span class="section-title">범위 외 항목</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>항목</th><th>사유</th></tr></thead>
+        <tbody>
+          <tr><td>동행자에게 카카오 알림톡 발송</td><td>동행자 전화번호 수집 전 단계에서는 불가. 초대 미수락률 데이터 확인 후 2차 검토</td></tr>
+          <tr><td>레퍼럴 보상 체계 변경</td><td>동행자 초대와 레퍼럴은 별도 채널. 기존 보상 정책(초대자 10장 / 피초대자 30장) 유지</td></tr>
+          <tr><td>티켓 교환 프로세스 변경</td><td>편의점/매표소 물리적 교환 구조는 대행사 제휴 기반이므로 변경 불가. 교환 주체는 당첨자 1인 유지</td></tr>
+          <tr><td>동행자에게 QR/난수번호 노출</td><td>물리적 교환 구조와 불일치. 교환 혼선 및 CS 리스크</td></tr>
+          <tr><td>보너스 응모권 비율 동적 조정</td><td>1차에서는 10장당 +1장 고정. 효과 검증 후 A/B 테스트로 비율 최적화</td></tr>
+          <tr><td>3인 이상 그룹 응모</td><td>기아 3매 이외 구단은 2매 고정. 3인 이상 그룹은 매수 구조와 맞지 않음</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       09. 리스크 및 고려사항
+  ══════════════════════════════════ -->
+  <div class="section" id="s9">
+    <div class="section-header"><span class="section-num">09</span><span class="section-title">리스크 및 고려사항</span></div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>리스크</th><th>영향</th><th>대응</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>동행자 초대 미수락</td>
+            <td>동행자가 앱 설치/가입/인증을 완료하지 않아 초대가 만료됨</td>
+            <td>당첨자 경유 재공유 CRM 푸시(당첨 48h 후, 경기 48h 전). 미수락률 높을 경우 카카오 알림톡 도입 검토</td>
+          </tr>
+          <tr>
+            <td>함께 응모 어뷰징</td>
+            <td>다계정으로 보너스 응모권 부정 획득</td>
+            <td>본인인증(DI) 기반 1인 1계정 정책으로 자연 억제. 보너스 비율이 10%로 낮아 어뷰징 인센티브 제한적</td>
+          </tr>
+          <tr>
+            <td>개인정보 수집 동의</td>
+            <td>동행자 본인인증으로 실명·연락처를 수집하므로 별도 동의 필요 가능성</td>
+            <td>법령 레퍼런스 검토 후 동의 플로우 설계. 기존 가입 약관으로 커버 가능 여부 확인</td>
+          </tr>
+          <tr>
+            <td>함께 응모 게스트 응모권 부족</td>
+            <td>게스트가 응모권이 없어서 합류 불가</td>
+            <td>"응모권 모으러 가기" CTA로 픽 화면 유도. 응모권 획득 → 광고 노출로 오히려 BM 기여</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       10. 미결 사항
+  ══════════════════════════════════ -->
+  <div class="section" id="s10">
+    <div class="section-header"><span class="section-num">10</span><span class="section-title">미결 사항 (TBD)</span></div>
+
+    <div class="tbd-card">
+      <div class="tbd-header">🚨 기획 확정 전 결정 필요</div>
+      <div style="padding: 16px;">
+        <div class="table-wrap" style="margin-bottom: 0;">
+          <table>
+            <thead><tr><th>#</th><th>항목</th><th>담당</th></tr></thead>
+            <tbody>
+              <tr><td>01</td><td>동행자 초대 시 개인정보수집이용 동의 범위 — 기존 가입 약관 커버 여부 법무 검토</td><td>법무</td></tr>
+              <tr><td>02</td><td>서류 제출 방식(설문 vs 전자계약) 확정 — 대행사 협의 필요. 동행자 초대와의 타이밍 독립 확인</td><td>운영</td></tr>
+              <tr><td>03</td><td>함께 응모 초대 링크 딥링크 구현 방식 — 동행자 초대 링크와 별도 URL 구조 필요</td><td>개발</td></tr>
+              <tr><td>04</td><td>웰컴 응모권 지급 수량 확정 — 5장 기준이나 레퍼럴 보상(30장)과의 밸런스 최종 검토</td><td>PM</td></tr>
+              <tr><td>05</td><td>함께 응모 보너스 비율(10장당 +1) 최종 확정 — 운영 비용 시뮬레이션 필요</td><td>PM · 재무</td></tr>
+              <tr><td>06</td><td>동행자 변경 허용 시 최종 동행자 정보 확정 시점 — 교환 가능 전환 시점 기준 확인</td><td>운영 · 개발</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="tbd-card">
+      <div class="tbd-header">🕐 개발 중 결정 가능</div>
+      <div style="padding: 16px;">
+        <div class="table-wrap" style="margin-bottom: 0;">
+          <table>
+            <thead><tr><th>#</th><th>항목</th><th>담당</th></tr></thead>
+            <tbody>
+              <tr><td>07</td><td>동행자 초대 공유 메시지 카피 — UXW 가이드 기반 작성</td><td>UXW</td></tr>
+              <tr><td>08</td><td>함께 응모 초대 공유 메시지 카피 — 경기 정보 포함 템플릿</td><td>UXW</td></tr>
+              <tr><td>09</td><td>동행자 경기 정보 카드 디자인 — 마이 지갑 내 배치 및 UI</td><td>디자인</td></tr>
+              <tr><td>10</td><td>함께 응모 합산 UI — 보너스 응모권 실시간 표시 인터랙션</td><td>디자인</td></tr>
+              <tr><td>11</td><td>CRM 푸시 발송 시간 제한 — 서비스 알림 분류 시 야간 발송 가능 여부</td><td>법무 · 개발</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="text-align: center; padding-top: 40px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted);">
+    본 문서는 내부 검토용이며, 최종 스펙은 기획·개발·법무 리뷰 후 확정됩니다.
+  </div>
+
+</div>
+</body>
+</html>

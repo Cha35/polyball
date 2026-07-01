@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SD-4 응모 화면설계서 v2.0</title>
+<style>
+  :root{
+    --blue:#1F30E9; --blue-deep:#001432; --mint:#09FFEE;
+    --bg:#ffffff; --bg2:#f9f9f9; --line:#e5e5e5; --line2:#efefef;
+    --t1:#101015; --t2:#454545; --t3:#888888; --red:#fc0528; --amber:#D97706; --gold:#92400e; --green:#1e5d2a; --purple:#7c3aed;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Apple SD Gothic Neo",sans-serif; background:var(--bg2); color:var(--t1); line-height:1.55;}
+  .wrap{max-width:1100px; margin:0 auto; background:var(--bg); min-height:100vh;}
+  .cover{background:linear-gradient(135deg,var(--blue) 0%,var(--blue-deep) 100%); color:#fff; padding:42px 44px 34px;}
+  .cover-tag{display:inline-block; background:rgba(255,255,255,.18); padding:5px 12px; border-radius:6px; font-size:12px; font-weight:600; margin-bottom:14px;}
+  .cover h1{font-size:27px; font-weight:800; letter-spacing:-.02em; margin-bottom:8px;}
+  .cover-sub{font-size:14px; opacity:.85;}
+  .body{padding:34px 44px 60px;}
+  .sec-head{display:flex; align-items:center; gap:10px; padding-bottom:10px; margin-bottom:18px; border-bottom:2px solid var(--blue);}
+  .sec-id{background:var(--blue); color:#fff; font-size:12px; font-weight:700; padding:3px 9px; border-radius:5px;}
+  .sec-title{font-size:18px; font-weight:700;}
+  .screen{display:flex; gap:28px; margin-bottom:40px; flex-wrap:wrap;}
+  .phone{width:300px; flex-shrink:0; border:1px solid var(--line); border-radius:24px; overflow:hidden; background:#fff; box-shadow:0 6px 24px rgba(0,0,0,.08); align-self:flex-start;}
+  .ph-status{height:28px; background:#fff; display:flex; align-items:center; justify-content:space-between; padding:0 16px; font-size:10px; color:var(--t3); border-bottom:1px solid var(--line2);}
+  .ph-gnb{display:flex; align-items:center; justify-content:space-between; padding:13px 16px;}
+  .ph-logo{font-size:15px; font-weight:800; color:var(--blue);}
+  .ph-gnb-r{display:flex; gap:10px; align-items:center; font-size:12px;}
+  .ph-badge{font-size:10px; font-weight:700; padding:3px 8px; border-radius:11px;}
+  .ph-badge-t{background:var(--blue); color:#fff;}
+  .ph-badge-p{background:var(--gold); color:#fff;}
+  .ph-tab{display:flex; border-bottom:1px solid var(--line2);}
+  .ph-tab div{flex:1; text-align:center; font-size:13px; font-weight:600; padding:11px 0; color:var(--t3); position:relative;}
+  .ph-tab div.on{color:var(--blue-deep); font-weight:800;}
+  .ph-tab div.on::after{content:""; position:absolute; bottom:0; left:20%; right:20%; height:2.5px; background:var(--blue-deep); border-radius:2px;}
+  .ph-adbar{margin:12px 16px; border-radius:12px; background:linear-gradient(135deg,#1a2a6c,#1F30E9); color:#fff; padding:13px; display:flex; align-items:center; gap:10px;}
+  .ph-adbar-i{font-size:20px;} .ph-adbar-b{flex:1;}
+  .ph-adbar-t{font-size:12px;font-weight:800;}
+  .ph-adbar-s{font-size:9.5px;opacity:.85;margin-top:2px;}
+  .ph-adbar-cnt{font-size:10px;font-weight:700;background:rgba(255,255,255,.2);padding:4px 9px;border-radius:8px;}
+  .ph-chips{display:flex;gap:6px;padding:10px 16px 4px;overflow-x:auto;}
+  .ph-chip{flex-shrink:0;font-size:10px;font-weight:700;padding:5px 11px;border-radius:14px;border:1px solid var(--line);color:var(--t3);background:#fff;white-space:nowrap;}
+  .ph-chip.on{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .ph-chip-spon{border-color:var(--gold);color:var(--gold);}
+  .ph-sec-h{font-size:11px;font-weight:700;padding:10px 16px 6px;}
+  .ph-ent{margin:0 16px 10px; border:1px solid var(--line); border-radius:13px; overflow:hidden;}
+  .ph-ent-img{height:84px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:13px; font-weight:700;}
+  .ph-ent-b{padding:10px 12px;}
+  .ph-ent-n{font-size:12px;font-weight:700;margin-bottom:4px;}
+  .ph-ent-m{font-size:9.5px;color:var(--t3);margin-bottom:8px;}
+  .ph-ent-conf{font-size:8.5px;background:#FEF3C7;color:var(--gold);padding:1px 6px;border-radius:6px;font-weight:700;}
+  .ph-ent-btn{font-size:11px;font-weight:700;text-align:center;padding:8px;background:var(--blue);color:#fff;border-radius:9px;}
+  .ph-ent-leader{background:#FFFBEB;border:1px solid #FDE68A;border-radius:7px;padding:5px 8px;font-size:9.5px;color:#92400e;font-weight:700;margin-bottom:7px;}
+  .ph-ent-step{display:flex;align-items:center;gap:8px;}
+  .ph-step-mini{width:26px;height:26px;border:1px solid var(--line);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--t2);}
+  .ph-step-v{font-size:13px;font-weight:800;min-width:24px;text-align:center;}
+  .ph-step-go{flex:1;text-align:center;padding:8px;background:var(--blue);color:#fff;border-radius:9px;font-size:11px;font-weight:700;}
+  .ph-ent-game{margin:0 16px 10px; border:1px solid var(--line); border-radius:13px; padding:11px;}
+  .ph-eg-top{font-size:9px;color:var(--t3);margin-bottom:5px;}
+  .ph-eg-vs{display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:8px;}
+  .ph-eg-btn{font-size:11px;font-weight:700;text-align:center;padding:7px;border:1px solid var(--blue);color:var(--blue);border-radius:8px;}
+  .ph-nav{display:flex; border-top:1px solid var(--line2); margin-top:4px;}
+  .ph-nav div{flex:1; text-align:center; font-size:10px; padding:10px 0; color:var(--t3);}
+  .ph-nav div.on{color:var(--blue); font-weight:700;}
+  /* 본인인증 모달 */
+  .ph-modal-wrap{position:relative; background:#0d1330; padding:34px 16px;}
+  .ph-modal{background:#fff; border-radius:16px; padding:20px 16px; text-align:center;}
+  .ph-modal-ic{font-size:30px; margin-bottom:8px;}
+  .ph-modal-t{font-size:14px; font-weight:800; margin-bottom:6px;}
+  .ph-modal-d{font-size:10.5px; color:var(--t2); line-height:1.6; margin-bottom:14px;}
+  .ph-modal-cta{background:var(--blue); color:#fff; border-radius:11px; padding:11px; font-size:12.5px; font-weight:700;}
+  .ph-modal-sub{margin-top:8px; font-size:10px; color:var(--t3);}
+  .ph-modal-badge{display:inline-block; background:#EEF0FF; color:var(--blue); font-size:9px; font-weight:700; padding:2px 8px; border-radius:6px; margin-bottom:10px;}
+  .spec{flex:1; min-width:340px;}
+  .spec-title{font-size:15px; font-weight:700; margin-bottom:4px;}
+  .spec-cap{font-size:12px; color:var(--t3); margin-bottom:14px;}
+  table{width:100%; border-collapse:collapse; font-size:13px; margin-bottom:14px;}
+  th,td{border:1px solid var(--line); padding:8px 11px; text-align:left; vertical-align:top;}
+  th{background:var(--blue); color:#fff; font-weight:600; font-size:12px;}
+  tbody tr:nth-child(even){background:var(--bg2);}
+  td.n{background:#EEF0FF; font-weight:700; color:var(--blue-deep); width:48px; text-align:center;}
+  td.lbl{background:#EEF0FF; font-weight:600; width:130px; color:var(--blue-deep);}
+  .box{border-radius:8px; padding:12px 15px; margin:8px 0; font-size:12.5px; line-height:1.6;}
+  .box-blue{background:#EEF0FF; border:1px solid #C7CEFF; color:var(--blue-deep);}
+  .box-bm{background:#ECFDF5; border:1px solid #A7F3D0; color:var(--green);}
+  .box-amber{background:#FFFBEB; border:1px solid #FDE68A; color:#92400E;}
+  .box-purple{background:#FAF5FF; border:1px solid #E9D5FF; color:#6b21a8;}
+  .ref{margin-top:30px; padding-top:14px; border-top:1px solid var(--line); font-size:12px; color:var(--t3);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="cover">
+    <span class="cover-tag">SD-4 · SCREEN DESIGN · v2.0</span>
+    <h1>응모 화면</h1>
+    <div class="cover-sub">직관티켓 / 신규상품 2탭 · 매일 광고(시청 5회=6개) · 카드 즉시 응모 · 최다응모자 · 본인인증 응모 게이트</div>
+  </div>
+  <div class="body">
+
+    <div class="box box-purple"><b>v2.0 변경:</b> ① 응모 시점 <b>본인인증 게이트</b> 신설(미인증 시 응모 불가, 최초 1회) ② 재화 명칭 <b>볼(P)</b> 통일 ③ 응모는 <b>회차(round) 내 경품</b> 단위로 발생, 디지털 경품은 코드풀 매핑 ④ <b>회차 칩 필터</b> 신설(노출/응모 기간·활성 상태 연동) (ADM-PRD v2.0).</div>
+
+    <div class="sec-head"><span class="sec-id">SD-4</span><span class="sec-title">응모 메인 — 2탭</span></div>
+
+    <!-- 직관티켓 탭 -->
+    <div class="screen">
+      <div class="phone">
+        <div class="ph-status"><span>9:41</span><span>📶 100%</span></div>
+        <div class="ph-gnb"><span class="ph-logo">PolyBall</span><div class="ph-gnb-r"><span class="ph-badge ph-badge-t">🎫 12</span><span>🔔</span></div></div>
+        <div class="ph-tab"><div class="on">🎫 직관티켓</div><div>🔵 신규상품</div></div>
+        <div class="ph-sec-h">🔥 응모하고 직관티켓 받기</div>
+        <div class="ph-ent-game">
+          <div class="ph-eg-top">잠실 · 6.25 18:30 · 총 응모 340장</div>
+          <div class="ph-eg-vs"><span>삼성</span><span style="color:var(--t3);">vs</span><span>KT</span></div>
+          <div class="ph-eg-btn">응모하기</div>
+        </div>
+        <div class="ph-ent-game">
+          <div class="ph-eg-top">잠실 · 6.26 18:30 · 총 응모 128장</div>
+          <div class="ph-eg-vs"><span>LG</span><span style="color:var(--t3);">vs</span><span>NC</span></div>
+          <div class="ph-eg-btn">응모하기</div>
+        </div>
+        <div class="ph-nav"><div>승부예측</div><div class="on">응모</div><div>마이</div></div>
+      </div>
+      <div class="spec">
+        <div class="spec-title">탭 A · 직관티켓 (기존)</div>
+        <div class="spec-cap">응모권으로 KBO 직관티켓 응모. 기존 구조 유지.</div>
+        <table>
+          <thead><tr><th style="width:40px;">#</th><th>요소</th><th>스펙</th></tr></thead>
+          <tbody>
+            <tr><td class="n">1</td><td>탭</td><td>직관티켓 / 신규상품. 기본 진입=직관티켓. 재화 아이콘 기준 구분</td></tr>
+            <tr><td class="n">2</td><td>재화 배지</td><td>응모권🎫 (탭과 무관하게 보유 재화 노출)</td></tr>
+            <tr><td class="n">3</td><td>경기 카드</td><td>기존 유지. 경기·장소·총 응모 수 · 응모 버튼</td></tr>
+          </tbody>
+        </table>
+        <div class="box box-blue">추첨 방식·당첨 구조는 기존 가중 추첨 유지(응모탭분리 v1.0). 직관티켓엔 확정보상 미적용.</div>
+        <div class="box box-amber"><b>본인인증:</b> 직관티켓도 v2.0 본인인증 게이트 적용 대상(응모 시점, 최초 1회). 정책은 신규상품과 동일 — 아래 GATE 참조.</div>
+      </div>
+    </div>
+
+    <!-- 신규상품 탭 -->
+    <div class="screen">
+      <div class="phone">
+        <div class="ph-status"><span>9:41</span><span>📶 100%</span></div>
+        <div class="ph-gnb"><span class="ph-logo">PolyBall</span><div class="ph-gnb-r"><span class="ph-badge ph-badge-p">🔵 8</span><span>🔔</span></div></div>
+        <div class="ph-tab"><div>🎫 직관티켓</div><div class="on">🔵 신규상품</div></div>
+        <div class="ph-adbar">
+          <span class="ph-adbar-i">🎬</span>
+          <div class="ph-adbar-b"><div class="ph-adbar-t">광고 보고 볼(P) 받기</div><div class="ph-adbar-s">하루 5회 · 5번째 2배 · 총 6개</div></div>
+          <span class="ph-adbar-cnt">3 / 5</span>
+        </div>
+        <div class="ph-chips">
+          <div class="ph-chip on">전체</div>
+          <div class="ph-chip">7월 2주</div>
+          <div class="ph-chip ph-chip-spon">🎁 올리브영 위크</div>
+          <div class="ph-chip">7월 3주</div>
+        </div>
+        <div class="ph-sec-h">🎁 볼(P)로 응모하는 상품</div>
+        <div class="ph-ent">
+          <div class="ph-ent-img" style="background:linear-gradient(135deg,#6d28d9,#9333ea);">⌨️ 게이밍 키보드</div>
+          <div class="ph-ent-b">
+            <div class="ph-ent-n">기계식 게이밍 키보드 <span class="ph-ent-conf">확정+추첨</span></div>
+            <div class="ph-ent-m">당첨 5명 · 마감 D-2</div>
+            <div class="ph-ent-leader">🥇 예측왕**님이 최다 응모 중</div>
+            <div class="ph-ent-step">
+              <div class="ph-step-mini">−</div><div class="ph-step-v">3</div><div class="ph-step-mini">＋</div>
+              <div class="ph-step-go">3개로 응모</div>
+            </div>
+          </div>
+        </div>
+        <div class="ph-ent">
+          <div class="ph-ent-img" style="background:linear-gradient(135deg,#0891b2,#06b6d4);">☕ 기프티콘</div>
+          <div class="ph-ent-b">
+            <div class="ph-ent-n">아메리카노 Tall</div>
+            <div class="ph-ent-m">당첨 10명 · 마감 D-2</div>
+            <div class="ph-ent-step">
+              <div class="ph-step-mini">−</div><div class="ph-step-v">1</div><div class="ph-step-mini">＋</div>
+              <div class="ph-step-go">1개로 응모</div>
+            </div>
+          </div>
+        </div>
+        <div class="ph-nav"><div>승부예측</div><div class="on">응모</div><div>마이</div></div>
+      </div>
+      <div class="spec">
+        <div class="spec-title">탭 B · 신규상품 (볼(P))</div>
+        <div class="spec-cap">볼(P)로 응모. 회차 칩으로 구분, 카드에서 바로 응모. 카드는 가볍게·상세는 SD-5.</div>
+        <table>
+          <thead><tr><th style="width:40px;">#</th><th>요소</th><th>스펙</th></tr></thead>
+          <tbody>
+            <tr><td class="n">1</td><td>광고 적립 바</td><td>"광고 보고 볼(P) 받기" <b>하루 시청 5회</b>. 1~4번 인터스티셜 각 1개, <b>5번째 RV 2배</b> → 총 6개. 카운트(3/5)</td></tr>
+            <tr><td class="n">2</td><td>회차 칩</td><td><b>신규.</b> 가로 스크롤 회차 필터. 텍스트는 운영값(<code>display_label</code>) — "7월 2주" / 스폰서는 "올리브영 위크". 탭 → 해당 회차 경품만. 기본 "전체"(또는 마감 임박 우선). 진행 회차 1개뿐이면 숨김</td></tr>
+            <tr><td class="n">3</td><td>카드(개요) 정보</td><td><b>가볍게.</b> 상품명·이미지 · 「확정+추첨」배지 · <b>총 당첨 N명</b> · <b>마감 D-day</b> · 최다응모자 닉네임(확정보상만). 확정/추첨 분해·발표일 등 세부는 상세(SD-5)로</td></tr>
+            <tr><td class="n">4</td><td>Stepper 즉시 응모</td><td>카드에 <b>−/＋ Stepper로 즉시 응모</b>(앞단). 상세 안 들어가도 바로. 볼(P) 1개/응모</td></tr>
+            <tr><td class="n">5</td><td>최다 응모자(확정보상)</td><td><b>확정보상 상품만</b> "OOO님이 최다 응모 중" 노출(확정 인원만큼). 일반 추첨 상품엔 미표기</td></tr>
+            <tr><td class="n">6</td><td>응모 게이트</td><td><b>응모 실행 시 본인인증 확인</b>. 미인증이면 인증 모달 선행(GATE). 인증 완료자만 응모 진행</td></tr>
+            <tr><td class="n">7</td><td>상세 진입</td><td>카드 영역 탭 → 상품 상세(SD-5). 총수량·확정수량·발표일·안내사항 등</td></tr>
+          </tbody>
+        </table>
+        <div class="box box-blue"><b>회차 칩·상태 연동:</b> 칩/카드 노출은 회차 상태(노출/응모 기간 × 활성)에 종속(ADM-PRD v2.0 PRD-07). 진행중=응모 가능, 마감=열람O·응모X("마감"), 오픈 예정=티저, off/노출종료=숨김.</div>
+        <div class="box box-bm">매일 광고(6개)·카드 즉시 응모·최다응모자 노출 모두 AD 사이클 가속. 카드에서 "1등 뺏기" 추월 응모가 한 화면에서 일어남.</div>
+        <div class="box box-amber">TBD: 1인 응모 한도(무제한 vs 상한), 상품 수량·교체 주기는 운영값. 신규상품은 낙첨 케어 환급(SD-6) 있음 → "환급 불가" 문구 미적용.</div>
+      </div>
+    </div>
+
+    <!-- 본인인증 게이트 -->
+    <div class="sec-head"><span class="sec-id" style="background:var(--purple);">GATE</span><span class="sec-title">본인인증 응모 게이트 (신규)</span></div>
+    <div class="screen">
+      <div class="phone">
+        <div class="ph-status"><span>9:41</span><span>📶 100%</span></div>
+        <div class="ph-modal-wrap">
+          <div class="ph-modal">
+            <span class="ph-modal-badge">응모 전 1회 인증</span>
+            <div class="ph-modal-ic">🔒</div>
+            <div class="ph-modal-t">본인인증이 필요해요</div>
+            <div class="ph-modal-d">당첨자 선정 및 경품 전달을 위해<br>본인인증이 필요해요 <b>(최초 1회)</b>.<br>본인인증을 하지 않으면 응모할 수 없어요.</div>
+            <div class="ph-modal-cta">본인인증하고 응모하기</div>
+            <div class="ph-modal-sub">한 번 인증하면 다음부터 바로 응모돼요</div>
+          </div>
+        </div>
+        <div class="ph-nav"><div>승부예측</div><div class="on">응모</div><div>마이</div></div>
+      </div>
+      <div class="spec">
+        <div class="spec-title">모달 · 본인인증 (응모 시점)</div>
+        <div class="spec-cap">응모 실행 시 미인증 유저에게 선행. 인증 완료 후 원래 응모 동작 자동 이어서 진행.</div>
+        <table>
+          <thead><tr><th style="width:40px;">#</th><th>요소</th><th>스펙</th></tr></thead>
+          <tbody>
+            <tr><td class="n">1</td><td>진입 조건</td><td>응모(카드 "N개로 응모" / 직관티켓 "응모하기") 실행 시 <b>미인증</b> 상태</td></tr>
+            <tr><td class="n">2</td><td>안내 문구</td><td>"당첨자 선정 및 경품 전달을 위해 본인인증이 필요해요(최초 1회). 본인인증을 하지 않으면 응모할 수 없어요"</td></tr>
+            <tr><td class="n">3</td><td>CTA</td><td>"본인인증하고 응모하기" → 인증 수단(TBD) → 완료 시 <code>identity_verified=true</code></td></tr>
+            <tr><td class="n">4</td><td>인증 후</td><td><b>중단됐던 응모 동작 자동 재개</b>(선택 수량 유지 → 응모+광고 AD②)</td></tr>
+            <tr><td class="n">5</td><td>재사용</td><td>1회 완료 후 재노출 없음. 수령 단계(SD-7)도 스킵</td></tr>
+            <tr><td class="n">6</td><td>이탈</td><td>모달 닫기 → 응모 미진행(차단 유지). 카드 상태 원복</td></tr>
+          </tbody>
+        </table>
+        <div class="box box-purple"><b>정책 변경 핵심:</b> 본인인증을 <b>수령 단계 → 응모 단계</b>로 앞당김(ADM-PRD v2.0 PRD-05). 응모 모집단이 전원 인증자 → 발표·수령 마찰 감소, 부정·중복 응모 억제.</div>
+        <div class="box box-amber">로그인·인증 순서: <b>비로그인</b> → 로그인 모달 먼저, <b>로그인+미인증</b> → 본인인증 모달, <b>로그인+인증완료</b> → 즉시 응모. 인증 수단·개인정보 보관은 법무 협의(TBD).</div>
+      </div>
+    </div>
+
+    <div class="sec-head"><span class="sec-id">INT</span><span class="sec-title">인터랙션 · 상태</span></div>
+    <table>
+      <thead><tr><th style="width:160px;">항목</th><th>동작</th></tr></thead>
+      <tbody>
+        <tr><td class="lbl">광고 보고 볼(P) 받기</td><td>탭 → 광고 시청 → 콜백 → 볼(P) 적립. 1~4번 인터스티셜 1개, 5번째 RV 2개. 5회 소진 시 "내일 다시" 비활성</td></tr>
+        <tr><td class="lbl">회차 칩 선택</td><td>칩 탭 → 해당 회차 경품만 필터. 진행중=응모 가능, <b>마감 회차=열람O·응모 버튼 "마감"</b>, 오픈 예정=티저. off/노출종료 회차는 칩 미노출(ADM-PRD PRD-07)</td></tr>
+        <tr><td class="lbl">카드 즉시 응모</td><td>카드 Stepper −/＋ 조절 → "N개로 응모" → <b>본인인증 확인(미인증 시 GATE)</b> → 확인 → 응모+광고(AD②). 상세 미진입</td></tr>
+        <tr><td class="lbl">본인인증 게이트</td><td>미인증 응모 시도 → 인증 모달 → 완료 시 응모 자동 재개. 미완료 시 차단</td></tr>
+        <tr><td class="lbl">광고 인벤토리 없음</td><td>"광고 준비 중" 비활성 (인터스티셜RV v1.0 계승)</td></tr>
+        <tr><td class="lbl">응모하기</td><td>상품 카드 탭 → 상세(SD-5). 볼(P) 부족 시 "광고 보고 볼(P) 받기" 유도</td></tr>
+        <tr><td class="lbl">비로그인</td><td>열람 가능. 응모·광고적립 시도 시 로그인 모달 → (로그인 후 미인증이면) 본인인증 모달</td></tr>
+        <tr><td class="lbl">탭 상태 유지</td><td>뒤로가기 시 마지막 탭 복귀. 기본=직관티켓</td></tr>
+      </tbody>
+    </table>
+
+    <div class="ref">참조: 07_응모상품관리_기능정의서_ADM-PRD_v2.0, 05_폴리볼2.0_운영PRD_v2.0, SD-5 신규상품 응모 상세 v1.0, SD-7 당첨수령 화면설계서 v2.0, 픽_응모_인터스티셜RV_기능정의서_v1_0, 폴리볼_디자인가이드_v1</div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SD-8 폴리픽 화면설계서</title>
+<style>
+  :root{
+    --blue:#1F30E9; --blue-deep:#001432; --mint:#09FFEE;
+    --bg:#ffffff; --bg2:#f9f9f9; --line:#e5e5e5; --line2:#efefef;
+    --t1:#101015; --t2:#454545; --t3:#888888;
+    --red:#fc0528; --amber:#D97706; --gold:#92400e;
+    --voteA:#4338ca; --voteB:#e11d48;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Apple SD Gothic Neo",sans-serif; background:var(--bg2); color:var(--t1); line-height:1.55;}
+  .wrap{max-width:1100px; margin:0 auto; background:var(--bg); min-height:100vh;}
+  .cover{background:linear-gradient(135deg,var(--blue) 0%,var(--blue-deep) 100%); color:#fff; padding:42px 44px 34px;}
+  .cover-tag{display:inline-block; background:rgba(255,255,255,.18); padding:5px 12px; border-radius:6px; font-size:12px; font-weight:600; margin-bottom:14px;}
+  .cover h1{font-size:27px; font-weight:800; letter-spacing:-.02em; margin-bottom:8px;}
+  .cover-sub{font-size:14px; opacity:.85;}
+  .body{padding:34px 44px 60px;}
+  .sec-head{display:flex; align-items:center; gap:10px; padding-bottom:10px; margin:0 0 18px; border-bottom:2px solid var(--blue);}
+  .sec-id{background:var(--blue); color:#fff; font-size:12px; font-weight:700; padding:3px 9px; border-radius:5px;}
+  .sec-title{font-size:18px; font-weight:700;}
+  .screen{display:flex; gap:28px; margin-bottom:40px; flex-wrap:wrap;}
+  .phone{width:300px; flex-shrink:0; border:1px solid var(--line); border-radius:24px; overflow:hidden; background:#fff; box-shadow:0 6px 24px rgba(0,0,0,.08); align-self:flex-start;}
+  .ph-status{height:28px; background:#fff; display:flex; align-items:center; justify-content:space-between; padding:0 16px; font-size:10px; color:var(--t3); border-bottom:1px solid var(--line2);}
+  .ph-h{padding:13px 16px 6px; font-size:17px; font-weight:800;}
+  .ph-hs{padding:0 16px 12px; font-size:11px; color:var(--t3);}
+  /* 리스트 캐러셀 카드 */
+  .ph-hero{margin:6px 16px 12px; border-radius:14px; overflow:hidden; border:1px solid var(--line); position:relative;}
+  .ph-hero-img{height:120px; background:linear-gradient(135deg,#1e3a8a,#4338ca); padding:14px; color:#fff; display:flex; flex-direction:column; justify-content:space-between;}
+  .ph-hero-cnt{font-size:9.5px; opacity:.85;}
+  .ph-hero-q{font-size:14px; font-weight:800; line-height:1.35;}
+  .ph-hero-foot{display:flex; justify-content:space-between; align-items:center; padding:9px 13px; font-size:10px; color:var(--t3);}
+  .ph-hero-go{background:var(--blue); color:#fff; padding:4px 10px; border-radius:8px; font-weight:700; font-size:10px;}
+  /* 제안/지난 */
+  .ph-sec{padding:8px 16px 4px; font-size:13px; font-weight:800;}
+  .ph-sg{margin:6px 16px; border:1px solid var(--line); border-radius:11px; padding:11px 13px;}
+  .ph-sg-q{font-size:12px; font-weight:700; margin-bottom:5px;}
+  .ph-sg-m{font-size:9.5px; color:var(--t3);}
+  .ph-chips{display:flex; gap:6px; padding:8px 16px; overflow:hidden;}
+  .ph-chip{font-size:10px; font-weight:700; padding:4px 11px; border-radius:14px; background:var(--bg2); color:var(--t2); white-space:nowrap;}
+  .ph-chip.on{background:#1E293B; color:#fff;}
+  .ph-nav{display:flex; border-top:1px solid var(--line2);}
+  .ph-nav div{flex:1; text-align:center; font-size:10px; padding:10px 0; color:var(--t3);}
+  .ph-nav div.on{color:var(--blue); font-weight:700;}
+  /* 상세 재사용(목업 톤) */
+  .ph-top{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;}
+  .ph-back{font-size:15px;font-weight:700;}
+  .ph-tags{display:flex;gap:6px;padding:0 16px 8px;}
+  .ph-tag{font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;}
+  .tag-hot{background:#FEF2F2;color:var(--red);} .tag-cat{background:#EEF0FF;color:var(--blue);}
+  .ph-q{font-size:15px;font-weight:800;padding:0 16px 12px;line-height:1.4;}
+  .ph-vs2{display:flex;gap:8px;padding:0 16px 10px;}
+  .ph-vs2-btn{flex:1;border-radius:11px;padding:13px 10px;text-align:center;font-size:12px;font-weight:700;line-height:1.4;}
+  .ph-vs2-a{background:#EEF0FF;color:var(--voteA);border:1.5px solid #C7CEFF;}
+  .ph-vs2-b{background:#FEF2F2;color:var(--voteB);border:1.5px solid #FECACA;}
+  .ph-blur{position:relative; padding:0 16px 12px;}
+  .ph-blur-bars{filter:blur(4px); opacity:.5;}
+  .ph-blur-msg{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:var(--t2);}
+  .ph-bar-row{display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:9.5px;}
+  .ph-bar-lbl{width:24px; color:var(--t3);}
+  .ph-bar{flex:1; height:15px; border-radius:4px; overflow:hidden; display:flex; background:#EEF0FF;}
+  .ph-bar .a{background:var(--voteA); height:100%;}
+  .ph-bar .b{background:var(--voteB); height:100%;}
+  .ph-best{margin:10px 16px; border:1px solid #FDE68A; background:#FFFBEB; border-radius:11px; padding:11px;}
+  .ph-best-t{font-size:10px; font-weight:800; color:var(--gold); margin-bottom:7px;}
+  .ph-best-c{font-size:10.5px; color:#92400e; padding:5px 0; border-bottom:1px dashed #FDE68A;}
+  .ph-best-c:last-child{border:none;}
+  .ph-best-badge{font-size:8px; font-weight:700; padding:1px 5px; border-radius:5px; margin-right:5px;}
+  .bb-a{background:#EEF0FF; color:var(--voteA);} .bb-b{background:#FEF2F2; color:var(--voteB);}
+  .ph-cmt{padding:9px 16px; border-bottom:1px solid var(--line2);}
+  .ph-cmt-top{display:flex; align-items:center; gap:6px; margin-bottom:4px;}
+  .ph-cmt-av{width:22px; height:22px; border-radius:50%; background:var(--bg2); display:flex; align-items:center; justify-content:center; font-size:10px;}
+  .ph-cmt-name{font-size:10px; font-weight:700;}
+  .ph-cmt-badge{font-size:8px; font-weight:700; padding:1px 6px; border-radius:5px; margin-bottom:4px; display:inline-block;}
+  .ph-cmt-txt{font-size:10.5px; color:var(--t2); line-height:1.45;}
+  /* 커뮤니티 */
+  .ph-post{padding:11px 16px; border-bottom:1px solid var(--line2);}
+  .ph-post-top{display:flex; align-items:center; gap:7px; margin-bottom:6px;}
+  .ph-post-txt{font-size:11.5px; color:var(--t1); line-height:1.5; margin-bottom:6px;}
+  .ph-post-act{font-size:9.5px; color:var(--t3);}
+  .ph-fab{position:absolute; right:14px; bottom:60px; background:var(--blue); color:#fff; border-radius:50%; width:46px; height:46px; display:flex; align-items:center; justify-content:center; font-size:22px; box-shadow:0 4px 12px rgba(31,48,233,.4);}
+  .spec{flex:1; min-width:320px;}
+  .spec-title{font-size:15px; font-weight:700; margin-bottom:4px;}
+  .spec-cap{font-size:12px; color:var(--t3); margin-bottom:14px;}
+  table{width:100%; border-collapse:collapse; font-size:12.5px; margin-bottom:14px;}
+  th,td{border:1px solid var(--line); padding:8px 11px; text-align:left; vertical-align:top;}
+  th{background:var(--blue); color:#fff; font-weight:600; font-size:12px;}
+  tbody tr:nth-child(even){background:var(--bg2);}
+  td.n{background:#EEF0FF; font-weight:700; color:var(--blue-deep); width:42px; text-align:center;}
+  td.lbl{background:#EEF0FF; font-weight:600; width:120px; color:var(--blue-deep);}
+  .box{border-radius:8px; padding:12px 15px; margin:8px 0; font-size:12.5px; line-height:1.6;}
+  .box-blue{background:#EEF0FF; border:1px solid #C7CEFF; color:var(--blue-deep);}
+  .box-amber{background:#FFFBEB; border:1px solid #FDE68A; color:#92400E;}
+  .ref{margin-top:30px; padding-top:14px; border-top:1px solid var(--line); font-size:12px; color:var(--t3);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="cover">
+    <span class="cover-tag">SD-8 · SCREEN DESIGN</span>
+    <h1>폴리픽 화면 (투표·토론)</h1>
+    <div class="cover-sub">리스트 → 상세(투표/통계/베스트/댓글) → 커뮤니티 자유광장</div>
+  </div>
+  <div class="body">
+
+    <!-- A 리스트 -->
+    <div class="sec-head"><span class="sec-id">SD-8-A</span><span class="sec-title">폴리픽 리스트</span></div>
+    <div class="screen">
+      <div class="phone">
+        <div class="ph-status"><span>13:48</span><span>📶 100%</span></div>
+        <div class="ph-h">폴리픽</div>
+        <div class="ph-hs">뜨거운 논쟁에 투표하고 토론하기</div>
+        <div class="ph-hero">
+          <div class="ph-hero-img">
+            <div class="ph-hero-cnt">👥 2,950명 투표 중</div>
+            <div class="ph-hero-q">주 4일제가 도입된다면,<br>당신의 선택은?</div>
+          </div>
+          <div class="ph-hero-foot"><span>⏱ 1일 남았어요</span><span class="ph-hero-go">참여하기</span></div>
+        </div>
+        <div class="ph-sec">🔥 지금 가장 뜨거운 픽</div>
+        <div class="ph-sg"><div class="ph-sg-q">웹툰 원작 드라마, 각색 어떻게 볼까?</div><div class="ph-sg-m">👥 3,244명 · ⏱ 2일 남음</div></div>
+        <div class="ph-sec">지난 폴리픽 230</div>
+        <div class="ph-chips"><span class="ph-chip on">전체</span><span class="ph-chip">사회</span><span class="ph-chip">핫이슈</span><span class="ph-chip">윤리</span><span class="ph-chip">fun</span></div>
+        <div class="ph-sg"><div class="ph-sg-q">성인 나이 기준 1살 낮추는 게 좋을까</div><div class="ph-sg-m">마감 · 결과 보기</div></div>
+        <div class="ph-nav"><div>승부예측</div><div>응모</div><div class="on">커뮤니티</div><div>마이</div></div>
+      </div>
+      <div class="spec">
+        <div class="spec-title">화면 A · 리스트</div>
+        <div class="spec-cap">진행 중 주제(캐러셀) + 지난 주제 + 카테고리 필터.</div>
+        <table>
+          <thead><tr><th style="width:40px;">#</th><th>요소</th><th>스펙</th></tr></thead>
+          <tbody>
+            <tr><td class="n">1</td><td>진행 주제 캐러셀</td><td>투표자 수·D-day·참여하기. 좌우 스와이프</td></tr>
+            <tr><td class="n">2</td><td>뜨거운 픽</td><td>참여 많은 주제 추천</td></tr>
+            <tr><td class="n">3</td><td>지난 폴리픽</td><td>마감 아카이브(누적 카운트). 결과 열람</td></tr>
+            <tr><td class="n">4</td><td>카테고리 필터</td><td>2차 카테고리(사회·핫이슈·윤리·fun 등) 칩</td></tr>
+          </tbody>
+        </table>
+        <div class="box box-blue">진입은 GNB(승부예측 피드 또는 커뮤니티 근처). 1차 카테고리 요즘이슈 안에서 운영.</div>
+      </div>
+    </div>
+
+    <!-- B 상세 찬반 -->
+    <div class="sec-head"><span class="sec-id">SD-8-B</span><span class="sec-title">상세 — 찬반 토론형 (투표 전 → 후)</span></div>
+    <div class="screen">
+      <div class="phone">
+        <div class="ph-status"><span>13:48</span><span>📶 100%</span></div>
+        <div class="ph-top"><span class="ph-back">‹</span><span style="font-size:12px;color:var(--t3);">⤴</span></div>
+        <div class="ph-tags"><span class="ph-tag tag-hot">HOT🔥</span><span class="ph-tag tag-cat">사회</span></div>
+        <div class="ph-q">주 4일제가 도입된다면, 당신의 선택은?</div>
+        <div class="ph-vs2"><div class="ph-vs2-btn ph-vs2-a">그냥<br>주 5일제로</div><div class="ph-vs2-btn ph-vs2-b">4일제 하고<br>임금 20%↓</div></div>
+        <div class="ph-blur">
+          <div class="ph-blur-bars">
+            <div class="ph-bar-row"><span class="ph-bar-lbl">20대</span><div class="ph-bar"><div class="a" style="width:74%"></div><div class="b" style="width:26%"></div></div></div>
+            <div class="ph-bar-row"><span class="ph-bar-lbl">30대</span><div class="ph-bar"><div class="a" style="width:58%"></div><div class="b" style="width:42%"></div></div></div>
+          </div>
+          <div class="ph-blur-msg">🔒 투표하면 결과를 볼 수 있어요</div>
+        </div>
+        <div style="padding:0 16px 12px;font-size:9.5px;color:var(--t3);border-bottom:1px solid var(--line2);">⏱ 1일 23:29 남음 · 👥 2,953명 · 🔵 투표 시 +1</div>
+        <div class="ph-nav"><div>승부예측</div><div>응모</div><div class="on">커뮤니티</div><div>마이</div></div>
+      </div>
+      <div class="spec">
+        <div class="spec-title">화면 B · 찬반 상세 (투표 전)</div>
+        <div class="spec-cap">투표 전 통계 블러. 투표하면 공개.</div>
+        <table>
+          <thead><tr><th style="width:40px;">#</th><th>요소</th><th>스펙</th></tr></thead>
+          <tbody>
+            <tr><td class="n">1</td><td>찬반 버튼</td><td>좌(파랑)/우(빨강) 2지선다. 탭 → 투표 확정</td></tr>
+            <tr><td class="n">2</td><td>통계 블러</td><td>"투표하면 결과를 볼 수 있어요". 투표 전 가림</td></tr>
+            <tr><td class="n">3</td><td>메타</td><td>잔여 시간·투표자 수·투표 보상(+1 볼P)</td></tr>
+            <tr><td class="n">4</td><td>비로그인</td><td>투표 시 로그인 모달</td></tr>
+          </tbody>
+        </table>
+        <div class="box box-blue">투표 = 마켓당 1회 볼(P). 투표 후 SD-8-C(통계+댓글) 공개.</div>
+      </div>
+    </div>
+
+    <!-- C 투표 후 통계+베스트+댓글 -->
+    <div class="sec-head"><span class="sec-id">SD-8-C</span><span class="sec-title">상세 — 투표 후 (통계 · 베스트 · 댓글)</span></div>
+    <div class="screen">
+      <div class="phone">
+        <div class="ph-status"><span>13:48</span><span>📶 100%</span></div>
+        <div class="ph-top"><span class="ph-back">‹</span><span style="font-size:12px;color:var(--t3);">⤴</span></div>
+        <div class="ph-q" style="padding-top:8px;">주 4일제가 도입된다면?</div>
+        <div style="text-align:center;font-size:10px;color:var(--t3);padding-bottom:8px;">세대별 통계 · 30대는 절반 넘게 주 5일 택함</div>
+        <div style="padding:0 16px 10px;">
+          <div class="ph-bar-row"><span class="ph-bar-lbl">20대</span><div class="ph-bar"><div class="a" style="width:74%"></div><div class="b" style="width:26%"></div></div></div>
+          <div class="ph-bar-row"><span class="ph-bar-lbl">30대</span><div class="ph-bar"><div class="a" style="width:58%"></div><div class="b" style="width:42%"></div></div></div>
+          <div class="ph-bar-row"><span class="ph-bar-lbl">40대</span><div class="ph-bar"><div class="a" style="width:45%"></div><div class="b" style="width:55%"></div></div></div>
+        </div>
+        <div class="ph-best">
+          <div class="ph-best-t">🏆 가장 공감받은 댓글이에요</div>
+          <div class="ph-best-c"><span class="ph-best-badge bb-a">주 5일</span>워라밸보다 당장 월급이 중요…</div>
+          <div class="ph-best-c"><span class="ph-best-badge bb-b">4일제</span>삶의 질 생각하면 무조건 4일제죠</div>
+        </div>
+        <div style="padding:10px 16px 6px;font-size:12px;font-weight:800;">댓글 193</div>
+        <div class="ph-cmt">
+          <div class="ph-cmt-top"><span class="ph-cmt-av">🐻</span><span class="ph-cmt-name">곰이곰</span></div>
+          <span class="ph-cmt-badge bb-a">주 5일</span>
+          <div class="ph-cmt-txt">현실적으로 임금 줄면 못 버팀</div>
+        </div>
+        <div class="ph-cmt">
+          <div class="ph-cmt-top"><span class="ph-cmt-av">🐱</span><span class="ph-cmt-name">케티키티</span></div>
+          <span class="ph-cmt-badge bb-b">4일제</span>
+          <div class="ph-cmt-txt">시간이 돈보다 귀하다</div>
+        </div>
+        <div class="ph-nav"><div>승부예측</div><div>응모</div><div class="on">커뮤니티</div><div>마이</div></div>
+      </div>
+      <div class="spec">
+        <div class="spec-title">화면 C · 투표 후</div>
+        <div class="spec-cap">심화 통계 + 베스트 댓글 + 입장 배지 토론.</div>
+        <table>
+          <thead><tr><th style="width:40px;">#</th><th>요소</th><th>스펙</th></tr></thead>
+          <tbody>
+            <tr><td class="n">1</td><td>심화 통계</td><td>세대별 막대 ↔ 성별 도넛 전환. B 전용</td></tr>
+            <tr><td class="n">2</td><td>베스트 댓글</td><td>입장별 상위 3씩 "가장 공감받은 댓글". 실시간·우선 노출</td></tr>
+            <tr><td class="n">3</td><td>입장 배지</td><td>댓글마다 찬/반 배지. B 전용</td></tr>
+            <tr><td class="n">4</td><td>댓글 작성</td><td>로그인+투표자. 마켓당 1회 볼(P)</td></tr>
+            <tr><td class="n">5</td><td>베스트 보상</td><td>마감 시 입장별 3=6명 볼(P) 보너스</td></tr>
+          </tbody>
+        </table>
+        <div class="box box-amber">가벼운 투표형(A)은 이 화면에서 심화통계·베스트·입장배지 없음 — 단순 득표율 + 무배지 댓글(보상 없음).</div>
+      </div>
+    </div>
+
+    <!-- D 커뮤니티 자유광장 -->
+    <div class="sec-head"><span class="sec-id">SD-8-D</span><span class="sec-title">커뮤니티 (자유광장)</span></div>
+    <div class="screen">
+      <div class="phone" style="position:relative;">
+        <div class="ph-status"><span>13:48</span><span>📶 100%</span></div>
+        <div class="ph-h">커뮤니티</div>
+        <div class="ph-hs">자유롭게 이야기 나눠요</div>
+        <div class="ph-chips"><span class="ph-chip on">전체</span><span class="ph-chip">인기</span><span class="ph-chip">최신</span></div>
+        <div class="ph-post">
+          <div class="ph-post-top"><span class="ph-cmt-av">🐶</span><span class="ph-cmt-name">두산팬</span><span style="font-size:9px;color:var(--t3);margin-left:auto;">방금</span></div>
+          <div class="ph-post-txt">팀 랭킹전 같이 하실 분! 초대코드 ABC123 🙌</div>
+          <div class="ph-post-act">♡ 12 · 💬 5</div>
+        </div>
+        <div class="ph-post">
+          <div class="ph-post-top"><span class="ph-cmt-av">🐱</span><span class="ph-cmt-name">티켓러</span><span style="font-size:9px;color:var(--t3);margin-left:auto;">1시간 전</span></div>
+          <div class="ph-post-txt">당첨된 티켓 사용 방법 문의… 어떻게 받나요?</div>
+          <div class="ph-post-act">♡ 3 · 💬 8</div>
+        </div>
+        <div class="ph-post">
+          <div class="ph-post-top"><span class="ph-cmt-av">🐰</span><span class="ph-cmt-name">인증왕</span><span style="font-size:9px;color:var(--t3);margin-left:auto;">2시간 전</span></div>
+          <div class="ph-post-txt">키보드 당첨 인증합니다 ㅎㅎ 📸</div>
+          <div class="ph-post-act">♡ 45 · 💬 12</div>
+        </div>
+        <div class="ph-fab">＋</div>
+        <div class="ph-nav"><div>승부예측</div><div>응모</div><div class="on">커뮤니티</div><div>마이</div></div>
+      </div>
+      <div class="spec">
+        <div class="spec-title">화면 D · 커뮤니티 (자유광장)</div>
+        <div class="spec-cap">마켓 태그 연결 해제. 자유 소통 중심.</div>
+        <table>
+          <thead><tr><th style="width:40px;">#</th><th>요소</th><th>스펙</th></tr></thead>
+          <tbody>
+            <tr><td class="n">1</td><td>피드</td><td>자유 글 시간/인기순. 마켓 태그 뱃지·필터 제거</td></tr>
+            <tr><td class="n">2</td><td>실사용 글</td><td>팀코드 공유·티켓 문의·인증·잡담(현 90% 용도)</td></tr>
+            <tr><td class="n">3</td><td>글쓰기 FAB</td><td>단순 글쓰기(마켓 태그 선택 제거)</td></tr>
+            <tr><td class="n">4</td><td>보상</td><td>커뮤니티 글 볼(P) 보상 없음(자유 소통)</td></tr>
+          </tbody>
+        </table>
+        <div class="box box-blue">주제 토론은 폴리픽 마켓 댓글로 이동. 커뮤니티는 마켓 무관 자유광장으로 역할 분리(커뮤니티 개편 정의서).</div>
+      </div>
+    </div>
+
+    <div class="ref">참조: 08_폴리픽_기능정의서_v1.0, 09_커뮤니티개편_정의서_v1.0, SD-BO-3_폴리픽마켓등록, 폴리픽_목업_v1.0, 폴리볼_디자인가이드_v1</div>
+  </div>
+</div>
+</body>
+</html>

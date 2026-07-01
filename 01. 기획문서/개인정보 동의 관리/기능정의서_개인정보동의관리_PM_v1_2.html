@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>기능정의서 — 개인정보 동의 관리 PM v1.1</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1F30E9;
+      --primary-light: #EEF0FD;
+      --navy: #00143F;
+      --white: #ffffff;
+      --bg: #F8FAFC;
+      --bg2: #F1F5F9;
+      --border: #E2E8F0;
+      --text1: #0F172A;
+      --text2: #1E293B;
+      --text3: #475569;
+      --text4: #64748B;
+      --text5: #94A3B8;
+      --green: #059669;
+      --green-bg: #ECFDF5;
+      --orange: #D97706;
+      --orange-bg: #FFFBEB;
+      --red: #DC2626;
+      --red-bg: #FEF2F2;
+      --purple: #7C3AED;
+      --purple-bg: #F5F3FF;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Pretendard', -apple-system, 'Apple SD Gothic Neo', sans-serif; background: var(--bg); color: var(--text1); font-size: 14px; line-height: 1.6; }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
+    .cover { background: var(--primary); border-radius: 16px; padding: 36px 32px 32px; margin-bottom: 32px; color: white; }
+    .cover-tag { font-size: 11px; font-weight: 700; letter-spacing: 2px; opacity: .7; margin-bottom: 10px; text-transform: uppercase; }
+    .cover h1 { font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+    .cover-sub { font-size: 13px; opacity: .75; margin-bottom: 20px; }
+    .cover-meta { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 12px; opacity: .85; border-top: 1px solid rgba(255,255,255,.2); padding-top: 16px; }
+    .cover-meta strong { opacity: .65; margin-right: 4px; }
+    .toc { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-bottom: 32px; }
+    .toc h3 { font-size: 13px; font-weight: 700; color: var(--text4); margin-bottom: 12px; letter-spacing: .5px; text-transform: uppercase; }
+    .toc ol { padding-left: 18px; }
+    .toc li { font-size: 13px; margin-bottom: 4px; }
+    .toc a { color: var(--primary); text-decoration: none; }
+    .toc a:hover { text-decoration: underline; }
+    .section { background: white; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 24px; overflow: hidden; }
+    .section-header { background: var(--primary); color: white; padding: 16px 24px; display: flex; align-items: center; gap: 14px; }
+    .section-header.navy { background: var(--navy); }
+    .section-num { width: 32px; height: 32px; background: rgba(255,255,255,.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; flex-shrink: 0; }
+    .section-title { font-size: 16px; font-weight: 700; }
+    .section-subtitle { font-size: 12px; opacity: .75; margin-top: 2px; }
+    .section-body { padding: 24px; }
+    .sec-badge { display: inline-block; margin-left: auto; font-size: 10px; font-weight: 700; background: rgba(255,255,255,.2); border-radius: 4px; padding: 2px 8px; flex-shrink: 0; }
+    .sub-section { margin-bottom: 24px; }
+    .sub-section:last-child { margin-bottom: 0; }
+    .sub-title { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid var(--primary-light); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { background: var(--bg2); color: var(--text3); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    .td-label { font-weight: 600; color: var(--text3); white-space: nowrap; width: 140px; }
+    .tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; white-space: nowrap; }
+    .tag-green { background: var(--green-bg); color: var(--green); }
+    .tag-orange { background: var(--orange-bg); color: var(--orange); }
+    .tag-red { background: var(--red-bg); color: var(--red); }
+    .tag-blue { background: var(--primary-light); color: var(--primary); }
+    .tag-gray { background: var(--bg2); color: var(--text3); }
+    .callout { border-radius: 8px; padding: 12px 16px; margin: 12px 0; font-size: 13px; }
+    .callout-info { background: var(--primary-light); border-left: 3px solid var(--primary); }
+    .callout-warn { background: var(--orange-bg); border-left: 3px solid var(--orange); }
+    .callout-green { background: var(--green-bg); border-left: 3px solid var(--green); }
+    .callout-danger { background: var(--red-bg); border-left: 3px solid var(--red); }
+    .flow-box { background: var(--bg2); border-radius: 8px; padding: 16px 20px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; color: var(--text2); line-height: 2; white-space: pre; overflow-x: auto; margin: 10px 0; }
+    .func-card { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
+    .func-card-hd { background: var(--bg2); padding: 8px 14px; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; }
+    .func-card-body { padding: 12px 14px; font-size: 13px; }
+    .feat { padding: 4px 0; color: var(--text2); }
+    .feat::before { content: "·"; margin-right: 8px; color: var(--primary); font-weight: 700; }
+    footer { text-align: center; font-size: 11px; color: var(--text5); margin-top: 40px; }
+
+    /* 와이어프레임 */
+    .wire-section { margin: 20px 0 28px; }
+    .wire-grid { display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; }
+    .wire-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .wire-label { font-size: 12px; font-weight: 700; color: var(--text1); text-align: center; }
+    .wire-sublabel { font-size: 11px; color: var(--text4); text-align: center; max-width: 260px; line-height: 1.5; }
+    .phone { width: 280px; background: #fff; border-radius: 28px; border: 6px solid #1a1a1a; box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 16px 32px rgba(0,0,0,0.12); overflow: hidden; display: flex; flex-direction: column; }
+    .phone-notch { height: 22px; background: #1a1a1a; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .phone-notch-bar { width: 70px; height: 14px; background: #000; border-radius: 0 0 8px 8px; }
+    .phone-screen { display: flex; flex-direction: column; flex: 1; position: relative; }
+    .w-gnb-sub { height: 44px; display: flex; align-items: center; padding: 0 14px; border-bottom: 1px solid #e5e5e5; flex-shrink: 0; background: #fff; }
+    .w-gnb-back { font-size: 16px; color: #111; margin-right: 8px; }
+    .w-gnb-title { flex: 1; text-align: center; font-size: 14px; font-weight: 700; color: #111; margin-right: 24px; }
+    .w-scroll { flex: 1; overflow-y: auto; }
+    .w-scroll::-webkit-scrollbar { display: none; }
+    .w-sec-label { font-size: 11px; font-weight: 600; color: #999; padding: 16px 16px 6px; }
+    .w-menu-item { display: flex; align-items: center; padding: 14px 16px; border-bottom: 1px solid #f0f0f0; min-height: 48px; }
+    .w-menu-item:last-child { border-bottom: none; }
+    .w-menu-left { flex: 1; }
+    .w-menu-title { font-size: 13px; font-weight: 500; color: #111; }
+    .w-menu-sub { font-size: 11px; color: #999; margin-top: 2px; }
+    .w-chevron { font-size: 12px; color: #ccc; }
+    .w-badge-done { font-size: 10px; font-weight: 600; color: var(--primary); background: var(--primary-light); padding: 2px 8px; border-radius: 10px; }
+    .w-toggle { width: 40px; height: 22px; border-radius: 11px; position: relative; flex-shrink: 0; cursor: pointer; }
+    .w-toggle-on { background: var(--primary); }
+    .w-toggle-off { background: #ddd; }
+    .w-toggle::after { content: ''; width: 18px; height: 18px; background: #fff; border-radius: 50%; position: absolute; top: 2px; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+    .w-toggle-on::after { right: 2px; }
+    .w-toggle-off::after { left: 2px; }
+    .w-consent-item { display: flex; align-items: center; padding: 14px 16px; border-bottom: 1px solid #f0f0f0; gap: 10px; }
+    .w-consent-left { flex: 1; cursor: pointer; }
+    .w-consent-title { font-size: 13px; font-weight: 500; color: #111; line-height: 1.4; }
+    .w-consent-sub { font-size: 10px; color: #999; margin-top: 2px; }
+    .w-consent-chevron { font-size: 11px; color: #ccc; margin-right: 4px; }
+    .w-divider { height: 8px; background: #f5f5f5; }
+    .w-doc-content { padding: 16px; }
+    .w-doc-title { font-size: 15px; font-weight: 700; color: #111; margin-bottom: 4px; }
+    .w-doc-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 12px; }
+    .w-doc-table th { background: #f9f9f9; padding: 7px 10px; text-align: left; font-weight: 600; color: #555; border: 1px solid #e5e5e5; font-size: 10px; }
+    .w-doc-table td { padding: 7px 10px; border: 1px solid #e5e5e5; color: #333; line-height: 1.5; }
+    .w-doc-text { font-size: 11px; color: #555; line-height: 1.8; margin-bottom: 8px; }
+    .w-doc-text-sm { font-size: 10px; color: #888; line-height: 1.7; }
+    .w-bottom-cta { padding: 12px 16px; border-top: 1px solid #e5e5e5; background: #fff; flex-shrink: 0; }
+    .w-btn { width: 100%; height: 44px; border-radius: 12px; border: none; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .w-btn-danger { background: #FEF2F2; color: #DC2626; }
+    .w-btn-primary { background: var(--primary); color: #fff; }
+    .w-dim { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); z-index: 10; display: flex; align-items: center; justify-content: center; }
+    .w-toast { position: absolute; bottom: 80px; left: 16px; right: 16px; background: #333; color: #fff; font-size: 12px; font-weight: 500; padding: 12px 16px; border-radius: 10px; text-align: center; z-index: 30; }
+
+    /* 팝업 */
+    .w-popup { background: #fff; border-radius: 16px; width: 230px; padding: 24px 20px 18px; z-index: 20; }
+    .w-popup-title { font-size: 14px; font-weight: 700; color: #111; text-align: center; line-height: 1.5; margin-bottom: 12px; }
+    .w-popup-body { font-size: 11px; color: #555; text-align: center; line-height: 1.7; margin-bottom: 6px; }
+    .w-popup-legal { font-size: 10px; color: #aaa; text-align: center; line-height: 1.6; margin-bottom: 16px; }
+    .w-popup-btns { display: flex; gap: 8px; }
+    .w-popup-btn { flex: 1; height: 40px; border-radius: 10px; border: none; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+    .w-popup-btn-cancel { background: #f5f5f5; color: #555; }
+    .w-popup-btn-primary { background: var(--primary); color: #fff; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 커버 -->
+  <div class="cover">
+    <div class="cover-tag">Feature Specification</div>
+    <h1>개인정보 동의 관리</h1>
+    <div class="cover-sub">PM — 마이 &gt; 설정 &gt; 개인정보 동의 관리 (목록 · 상세 · 철회 팝업 · 토스트)</div>
+    <div class="cover-meta">
+      <div><strong>기능 ID</strong> PM</div>
+      <div><strong>버전</strong> v1.1</div>
+      <div><strong>작성일</strong> 2026-05-11</div>
+      <div><strong>플랫폼</strong> APP 전용</div>
+      <div><strong>범위</strong> PM-01 목록 · PM-02A/B/C 상세 · PM-POP 철회 팝업 · 토스트</div>
+    </div>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <h3>목차</h3>
+    <ol>
+      <li><a href="#overview">개요 및 법적 근거</a></li>
+      <li><a href="#setting">설정 페이지 TO-BE 구조</a></li>
+      <li><a href="#flow">유저 플로우</a></li>
+      <li><a href="#pm01">PM-01 — 동의 관리 목록</a></li>
+      <li><a href="#pm02a">PM-02A — 상세 페이지 (선택 동의)</a></li>
+      <li><a href="#pm02b">PM-02B — 상세 페이지 (열람 전용)</a></li>
+      <li><a href="#pm02c">PM-02C — 커뮤니티 중간 페이지</a></li>
+      <li><a href="#popup">PM-POP — 철회 확인 팝업</a></li>
+      <li><a href="#toast">토스트 메시지</a></li>
+      <li><a href="#uxw">UX Writing 확정 문구</a></li>
+      <li><a href="#edge">엣지 케이스</a></li>
+      <li><a href="#legal">법령 검토</a></li>
+      <li><a href="#todo">미결 사항</a></li>
+    </ol>
+  </div>
+
+
+  <!-- 0. 개요 -->
+  <div class="section" id="overview">
+    <div class="section-header">
+      <div class="section-num">0</div>
+      <div><div class="section-title">개요 및 법적 근거</div><div class="section-subtitle">기능 목적 · 법령 연결</div></div>
+    </div>
+    <div class="section-body">
+      <div class="sub-section">
+        <div class="sub-title">기능 목적</div>
+        <table>
+          <tr><td class="td-label">핵심 목적</td><td>유저가 자신의 개인정보 수집·이용 동의 현황을 확인하고, 선택 동의를 자유롭게 철회·재동의할 수 있는 관리 화면 제공</td></tr>
+          <tr><td class="td-label">법적 근거</td><td>개보법 §37 (정보주체의 동의 철회권) · 개보법 §22⑤ (철회 시 불이익 고지) · 개보법 §30 (처리방침 열람 제공)</td></tr>
+          <tr><td class="td-label">BM 연결</td><td>직접적 매출 기여 없음 (BM 기여도 1). 법적 필수 요건이며, 미이행 시 3천만원 이하 과태료 리스크</td></tr>
+          <tr><td class="td-label">진입 경로</td><td>마이 메인 → 설정 (⚙) → 약관 및 개인정보 섹션 → 개인정보 동의 관리</td></tr>
+          <tr><td class="td-label">플랫폼</td><td><span class="tag tag-blue">APP 전용</span></td></tr>
+        </table>
+      </div>
+      <div class="sub-section">
+        <div class="sub-title">동의 항목 분류</div>
+        <table>
+          <thead><tr><th>분류</th><th>항목 수</th><th>철회 방법</th><th>UI 동작</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tag tag-gray">동의 없이 처리</span></td><td>1건 (7개 목적 통합)</td><td>회원 탈퇴만 가능</td><td>항목 탭 → 전문 보기 (열람 전용)</td></tr>
+            <tr><td><span class="tag tag-blue">선택 동의</span></td><td>7건</td><td>개별 철회·재동의 가능</td><td>토글 철회 시 팝업 / 항목 탭 → 상세 페이지</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="sub-section">
+        <div class="sub-title">선택 동의 항목 상세</div>
+        <table>
+          <thead><tr><th>항목 명칭</th><th>동의 징구 시점</th><th>수집 항목 (요약)</th></tr></thead>
+          <tbody>
+            <tr><td>동행자 정보 수집 및 이용</td><td>당첨 티켓 동행자 등록 시</td><td>동행자 성명, 연락처</td></tr>
+            <tr><td>이벤트 참여 개인정보 수집 및 이용</td><td>이벤트 참여 시</td><td>닉네임, 이벤트 참여 이력</td></tr>
+            <tr><td>친구 초대 개인정보 수집 및 이용</td><td>친구 초대 기능 진입 시</td><td>초대 코드, 초대 관계 이력</td></tr>
+            <tr><td>팀 응원전 개인정보 수집 및 이용</td><td>응원전 참여 시</td><td>응원팀, 활동 점수 이력</td></tr>
+            <tr><td>커뮤니티 이용 약관 및 개인정보 처리 동의</td><td>커뮤니티 최초 액션 시</td><td>닉네임, 유저 식별키, 예측 이력</td></tr>
+            <tr><td>보상형 광고 참여 개인정보 수집 및 이용</td><td>보상형 광고 최초 시청 시</td><td>광고 시청 이력, 광고 식별자</td></tr>
+            <tr><td>마케팅 목적 개인정보 수집 및 이용</td><td>회원가입 또는 설정</td><td>이메일, 푸시 토큰</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 1. 설정 TO-BE -->
+  <div class="section" id="setting">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <div><div class="section-title">설정 페이지 TO-BE 구조</div><div class="section-subtitle">AS-IS 대비 섹션 재분류</div></div>
+      <span class="sec-badge">변경</span>
+    </div>
+    <div class="section-body">
+      <div class="sub-section">
+        <div class="sub-title">AS-IS → TO-BE 비교</div>
+        <table>
+          <thead><tr><th>AS-IS 섹션</th><th>TO-BE 섹션</th><th>변경사항</th></tr></thead>
+          <tbody>
+            <tr><td>알림 — 알림 설정</td><td><strong>알림</strong> — 알림 설정</td><td>유지</td></tr>
+            <tr><td>계정 — 본인인증</td><td><strong>계정</strong> — 본인인증</td><td>유지</td></tr>
+            <tr><td rowspan="5">정보 — 공지사항, 서비스 이용약관, 개인정보처리방침, 커뮤니티 동의, 마케팅 동의, 광고성 수신 동의, 고객센터</td>
+            <td><strong>공지 및 고객센터</strong> — 공지사항 · 고객센터</td><td><span class="tag tag-blue">분리 신설</span></td></tr>
+            <tr><td><strong>약관 및 개인정보</strong> — 서비스 이용약관 · 개인정보처리방침 · <strong>개인정보 동의 관리</strong></td><td><span class="tag tag-blue">분리 신설</span></td></tr>
+            <tr><td colspan="2"><em>기존 커뮤니티 동의 / 마케팅 동의 / 광고성 수신 동의 → 개인정보 동의 관리 내부로 이동</em></td></tr>
+            <tr><td>(하단) 회원 탈퇴</td><td>유지</td></tr>
+            <tr><td>(하단) 로그아웃</td><td>유지</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="sub-section">
+        <div class="sub-title">와이어프레임 — 설정 TO-BE</div>
+        <div class="wire-section">
+          <div class="wire-grid">
+            <div class="wire-wrap">
+              <div class="wire-label">설정 TO-BE</div>
+              <div class="phone">
+                <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+                <div class="phone-screen">
+                  <div class="w-gnb-sub"><div class="w-gnb-back">←</div><div class="w-gnb-title">설정</div></div>
+                  <div class="w-scroll">
+                    <div class="w-sec-label">알림</div>
+                    <div class="w-menu-item"><div class="w-menu-left"><div class="w-menu-title">알림 설정</div><div class="w-menu-sub">당첨 · 예측 · 경기 · 마케팅 알림 관리</div></div><div class="w-chevron">›</div></div>
+                    <div class="w-divider"></div>
+                    <div class="w-sec-label">계정</div>
+                    <div class="w-menu-item"><div class="w-menu-left"><div class="w-menu-title">본인인증</div><div class="w-menu-sub">당첨 티켓 수령을 위한 1회 인증</div></div><div class="w-badge-done">✓ 완료</div></div>
+                    <div class="w-divider"></div>
+                    <div class="w-sec-label">공지 및 고객센터</div>
+                    <div class="w-menu-item"><div class="w-menu-left"><div class="w-menu-title">공지사항</div></div><div class="w-chevron">›</div></div>
+                    <div class="w-menu-item"><div class="w-menu-left"><div class="w-menu-title">고객센터</div></div><div class="w-chevron">›</div></div>
+                    <div class="w-divider"></div>
+                    <div class="w-sec-label">약관 및 개인정보</div>
+                    <div class="w-menu-item"><div class="w-menu-left"><div class="w-menu-title">서비스 이용약관</div></div><div class="w-chevron">›</div></div>
+                    <div class="w-menu-item"><div class="w-menu-left"><div class="w-menu-title">개인정보처리방침</div></div><div class="w-chevron">›</div></div>
+                    <div class="w-menu-item" style="background:rgba(31,48,233,0.03);"><div class="w-menu-left"><div class="w-menu-title" style="color:var(--primary);font-weight:600;">개인정보 동의 관리</div></div><div class="w-chevron" style="color:var(--primary);">›</div></div>
+                    <div class="w-divider"></div>
+                    <div class="w-menu-item"><div class="w-menu-left"><div class="w-menu-title" style="color:#999;">회원 탈퇴</div></div></div>
+                    <div class="w-menu-item"><div class="w-menu-left"><div class="w-menu-title" style="color:#999;">로그아웃</div></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 2. 유저 플로우 -->
+  <div class="section" id="flow">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <div><div class="section-title">유저 플로우</div><div class="section-subtitle">진입 → 열람/철회/재동의 전체 경로</div></div>
+    </div>
+    <div class="section-body">
+      <div class="flow-box">마이 메인 → 설정(⚙) → 약관 및 개인정보 → 개인정보 동의 관리 (PM-01)
+
+[PM-01 목록 화면]
+  ├─ 열람 전용 항목 탭 → PM-02B (전문 보기, CTA 없음)
+  │
+  ├─ 선택 동의 항목명 탭 (커뮤니티 제외 6건)
+  │   → PM-02A (전문 보기 + 하단 철회/동의 CTA)
+  │   ├─ 철회 CTA 탭 → 즉시 철회 처리 → 완료 토스트
+  │   └─ 동의 CTA 탭 → 즉시 동의 처리 → 완료 토스트
+  │
+  ├─ 커뮤니티 항목명 탭
+  │   → PM-02C (이용약관 + 개인정보 동의 리스트 + 철회 안내 + CTA)
+  │   ├─ 서브 항목 탭 → 각 전문 보기 페이지
+  │   └─ 철회 CTA 탭 → 이용약관 + 개인정보 동의 일괄 철회 → 완료 토스트
+  │
+  └─ 선택 동의 토글 탭 (7건 전체)
+      ├─ ON→OFF: PM-POP 철회 확인 팝업 → 완료 토스트
+      └─ OFF→ON: 즉시 동의 처리 → 완료 토스트</div>
+
+      <div class="sub-section" style="margin-top: 20px;">
+        <div class="sub-title">확인 팝업 노출 조건</div>
+        <table>
+          <thead><tr><th>경로</th><th>동의 (OFF→ON)</th><th>철회 (ON→OFF)</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tag tag-blue">PM-01</span> 목록 토글</td><td>즉시 처리 (팝업 없음)</td><td><span class="tag tag-red">PM-POP 팝업 노출</span></td></tr>
+            <tr><td><span class="tag tag-blue">PM-02A</span> 상세 CTA</td><td>즉시 처리 (팝업 없음)</td><td>즉시 처리 (팝업 없음)</td></tr>
+            <tr><td><span class="tag tag-blue">PM-02C</span> 커뮤니티 CTA</td><td>—</td><td>즉시 일괄 철회 (팝업 없음)</td></tr>
+          </tbody>
+        </table>
+        <div class="callout callout-info">
+          철회 확인 팝업은 <strong>목록 화면에서 토글을 통해 철회할 때만</strong> 노출됩니다. 상세 페이지에서는 유저가 동의서 전문을 이미 확인한 상태이므로, 추가 확인 없이 즉시 처리합니다.
+          동의(재동의) 시에는 어떤 경로에서든 팝업 없이 즉시 처리합니다.
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 3. PM-01 -->
+  <div class="section" id="pm01">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <div><div class="section-title">PM-01 — 동의 관리 목록</div><div class="section-subtitle">마이 &gt; 설정 &gt; 개인정보 동의 관리</div></div>
+      <span class="sec-badge">PM-01</span>
+    </div>
+    <div class="section-body">
+      <div class="sub-section">
+        <div class="sub-title">화면 개요</div>
+        <table>
+          <tr><td class="td-label">화면 ID</td><td>PM-01</td></tr>
+          <tr><td class="td-label">화면명</td><td>개인정보 동의 관리</td></tr>
+          <tr><td class="td-label">진입 경로</td><td>설정 → 약관 및 개인정보 → 개인정보 동의 관리</td></tr>
+          <tr><td class="td-label">GNB 타입</td><td>서브 라이트 (← + "개인정보 동의 관리" 중앙 타이틀)</td></tr>
+        </table>
+      </div>
+      <div class="sub-section">
+        <div class="sub-title">화면 구성</div>
+        <table>
+          <thead><tr><th>영역</th><th>구성</th><th>동작</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tag tag-gray">영역 1</span> 열람 전용</td><td>서비스 운영 관련 개인정보 처리 안내 (1건)</td><td>항목명 탭 → PM-02B / 토글 없음 · chevron 표시</td></tr>
+            <tr><td><span class="tag tag-blue">영역 2</span> 선택 동의</td><td>7건 개별 항목 리스트 (토글 + chevron)</td><td>항목명/chevron 탭 → PM-02A (6건) 또는 PM-02C (커뮤니티)<br>토글 ON→OFF → PM-POP<br>토글 OFF→ON → 즉시 동의 처리</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="sub-section">
+        <div class="sub-title">터치 영역 분리 규칙</div>
+        <div class="callout callout-info"><strong>항목명+chevron 영역</strong>과 <strong>토글 영역</strong>의 터치 타겟을 분리합니다. 항목명 탭 시 상세 페이지, 토글 탭 시 동의/철회 액션. 토글 터치 영역 최소 44×44dp 확보.</div>
+      </div>
+      <div class="sub-section">
+        <div class="sub-title">토글 상태 정의</div>
+        <table>
+          <thead><tr><th>상태</th><th>토글</th><th>의미</th><th>동작</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tag tag-green">ON</span></td><td>활성 (Primary)</td><td>동의 완료</td><td>탭 시 → PM-POP 철회 확인 팝업</td></tr>
+            <tr><td><span class="tag tag-gray">OFF</span></td><td>비활성 (Gray)</td><td>미동의 또는 철회</td><td>탭 시 → 즉시 동의 처리 + 토스트</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="sub-section">
+        <div class="sub-title">선택 동의 항목 노출 순서</div>
+        <table>
+          <thead><tr><th>#</th><th>항목 명칭</th><th>서브텍스트</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>마케팅 목적 개인정보 수집 및 이용</td><td>이벤트 · 혜택 정보 알림</td></tr>
+            <tr><td>2</td><td>커뮤니티 이용 약관 및 개인정보 처리 동의</td><td>글쓰기 · 댓글 · 좋아요</td></tr>
+            <tr><td>3</td><td>보상형 광고 참여 개인정보 수집 및 이용</td><td>광고 시청으로 추가 응모권 획득</td></tr>
+            <tr><td>4</td><td>동행자 정보 수집 및 이용</td><td>당첨 티켓 동행자 등록</td></tr>
+            <tr><td>5</td><td>이벤트 참여 개인정보 수집 및 이용</td><td>이벤트 참여 및 보상 수령</td></tr>
+            <tr><td>6</td><td>친구 초대 개인정보 수집 및 이용</td><td>초대 코드 공유 및 보상</td></tr>
+            <tr><td>7</td><td>팀 응원전 개인정보 수집 및 이용</td><td>응원전 참여 및 보상</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">와이어프레임 — PM-01</div>
+        <div class="wire-section">
+          <div class="wire-grid">
+            <div class="wire-wrap">
+              <div class="wire-label">PM-01 기본 (모두 동의)</div>
+              <div class="phone">
+                <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+                <div class="phone-screen">
+                  <div class="w-gnb-sub"><div class="w-gnb-back">←</div><div class="w-gnb-title">개인정보 동의 관리</div></div>
+                  <div class="w-scroll">
+                    <div class="w-sec-label">서비스 운영 관련</div>
+                    <div class="w-consent-item"><div class="w-consent-left"><div class="w-consent-title">서비스 운영 관련 개인정보 처리 안내</div><div class="w-consent-sub">회원가입 · 예측 · 응모 · 당첨 · 본인인증 등</div></div><div class="w-chevron" style="font-size:13px;">›</div></div>
+                    <div class="w-divider"></div>
+                    <div class="w-sec-label">선택 동의 관리</div>
+                    <div class="w-consent-item"><div class="w-consent-left"><div class="w-consent-title">마케팅 목적 개인정보 수집 및 이용</div><div class="w-consent-sub">이벤트 · 혜택 정보 알림</div></div><div class="w-consent-chevron">›</div><div class="w-toggle w-toggle-on"></div></div>
+                    <div class="w-consent-item"><div class="w-consent-left"><div class="w-consent-title">커뮤니티 이용 약관 및 개인정보 처리 동의</div><div class="w-consent-sub">글쓰기 · 댓글 · 좋아요</div></div><div class="w-consent-chevron">›</div><div class="w-toggle w-toggle-on"></div></div>
+                    <div class="w-consent-item"><div class="w-consent-left"><div class="w-consent-title">보상형 광고 참여 개인정보 수집 및 이용</div><div class="w-consent-sub">광고 시청으로 추가 응모권 획득</div></div><div class="w-consent-chevron">›</div><div class="w-toggle w-toggle-on"></div></div>
+                    <div class="w-consent-item"><div class="w-consent-left"><div class="w-consent-title">동행자 정보 수집 및 이용</div><div class="w-consent-sub">당첨 티켓 동행자 등록</div></div><div class="w-consent-chevron">›</div><div class="w-toggle w-toggle-on"></div></div>
+                    <div class="w-consent-item"><div class="w-consent-left"><div class="w-consent-title">이벤트 참여 개인정보 수집 및 이용</div><div class="w-consent-sub">이벤트 참여 및 보상 수령</div></div><div class="w-consent-chevron">›</div><div class="w-toggle w-toggle-on"></div></div>
+                    <div class="w-consent-item"><div class="w-consent-left"><div class="w-consent-title">친구 초대 개인정보 수집 및 이용</div><div class="w-consent-sub">초대 코드 공유 및 보상</div></div><div class="w-consent-chevron">›</div><div class="w-toggle w-toggle-on"></div></div>
+                    <div class="w-consent-item"><div class="w-consent-left"><div class="w-consent-title">팀 응원전 개인정보 수집 및 이용</div><div class="w-consent-sub">응원전 참여 및 보상</div></div><div class="w-consent-chevron">›</div><div class="w-toggle w-toggle-on"></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="wire-wrap">
+              <div class="wire-label">PM-01 일부 미동의/철회</div>
+              <div class="phone">
+                <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+                <div class="phone-screen">
+                  <div class="w-gnb-sub"><div class="w-gnb-back">←</div><div class="w-gnb-title">개인정보 동의 관리</div></div>
+                  <div class="w-scroll">
+                    <div class="w-sec-label">서비스 운영 관련</div>
+                    <div class="w-consent-item"><div class="w-consent-left"><div class="w-consent-title">서비스 운영 관련 개인정보 처리 안내</div><div class="w-consent-sub">회원가입 · 예측 · 응모 · 당첨 · 본인인증 등</div></div><div class="w-chevron" style="font-size:13px;">›</div></div>
+                    <div class="w-divider"></div>
+                    <div class="w-sec-label">선택 동의 관리</div>
+                    <div class="w-consent-item"><div class="w-consent-left"><div class="w-consent-title" style="color:#999;">마케팅 목적 개인정보 수집 및 이용</div><div class="w-consent-sub">이벤트 · 혜택 정보 알림</div></div><div class="w-consent-chevron">›</div><div class="w-toggle w-toggle-off"></div></div>
+                    <div class="w-consent-item"><div class="w-consent-left"><div class="w-consent-title">커뮤니티 이용 약관 및 개인정보 처리 동의</div><div class="w-consent-sub">글쓰기 · 댓글 · 좋아요</div></div><div class="w-consent-chevron">›</div><div class="w-toggle w-toggle-on"></div></div>
+                    <div class="w-consent-item"><div class="w-consent-left"><div class="w-consent-title">보상형 광고 참여 개인정보 수집 및 이용</div><div class="w-consent-sub">광고 시청으로 추가 응모권 획득</div></div><div class="w-consent-chevron">›</div><div class="w-toggle w-toggle-on"></div></div>
+                    <div class="w-consent-item"><div class="w-consent-left"><div class="w-consent-title" style="color:#999;">동행자 정보 수집 및 이용</div><div class="w-consent-sub">당첨 티켓 동행자 등록</div></div><div class="w-consent-chevron">›</div><div class="w-toggle w-toggle-off"></div></div>
+                    <div class="w-consent-item"><div class="w-consent-left"><div class="w-consent-title" style="color:#999;">이벤트 참여 개인정보 수집 및 이용</div><div class="w-consent-sub">이벤트 참여 및 보상 수령</div></div><div class="w-consent-chevron">›</div><div class="w-toggle w-toggle-off"></div></div>
+                    <div class="w-consent-item"><div class="w-consent-left"><div class="w-consent-title">친구 초대 개인정보 수집 및 이용</div><div class="w-consent-sub">초대 코드 공유 및 보상</div></div><div class="w-consent-chevron">›</div><div class="w-toggle w-toggle-on"></div></div>
+                    <div class="w-consent-item"><div class="w-consent-left"><div class="w-consent-title">팀 응원전 개인정보 수집 및 이용</div><div class="w-consent-sub">응원전 참여 및 보상</div></div><div class="w-consent-chevron">›</div><div class="w-toggle w-toggle-on"></div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="wire-sublabel">OFF 항목: 항목명 #999</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 4. PM-02A -->
+  <div class="section" id="pm02a">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <div><div class="section-title">PM-02A — 상세 페이지 (선택 동의 · 철회 가능)</div><div class="section-subtitle">동의서 전문 + 하단 즉시 처리 CTA</div></div>
+      <span class="sec-badge">PM-02A</span>
+    </div>
+    <div class="section-body">
+      <div class="sub-section">
+        <div class="sub-title">화면 개요</div>
+        <table>
+          <tr><td class="td-label">화면 ID</td><td>PM-02A</td></tr>
+          <tr><td class="td-label">화면명</td><td>[항목명] 상세</td></tr>
+          <tr><td class="td-label">진입 경로</td><td>PM-01 → 선택 동의 항목명/chevron 탭 (커뮤니티 제외 6건)</td></tr>
+          <tr><td class="td-label">GNB 타입</td><td>서브 라이트 (← + 항목명 중앙 타이틀)</td></tr>
+          <tr><td class="td-label">대상 항목</td><td>마케팅 · 보상형 광고 · 동행자 정보 · 이벤트 참여 · 친구 초대 · 팀 응원전 <span style="font-size:11px;color:var(--text4);">(커뮤니티는 PM-02C)</span></td></tr>
+        </table>
+      </div>
+      <div class="sub-section">
+        <div class="sub-title">하단 CTA 상태별 분기</div>
+        <table>
+          <thead><tr><th>현재 상태</th><th>CTA 라벨</th><th>CTA 스타일</th><th>탭 시 동작</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tag tag-green">동의</span></td><td>동의 철회</td><td style="background:#FEF2F2;color:#DC2626;font-weight:600;font-size:12px;">위험 (빨간)</td><td><strong>팝업 없이 즉시 철회</strong> → API 호출 → 토스트 → 상태 갱신</td></tr>
+            <tr><td><span class="tag tag-gray">미동의</span></td><td>동의하기</td><td style="background:var(--primary-light);color:var(--primary);font-weight:600;font-size:12px;">Primary (파란)</td><td><strong>팝업 없이 즉시 동의</strong> → API 호출 → 토스트 → 상태 갱신</td></tr>
+          </tbody>
+        </table>
+        <div class="callout callout-info">상세 페이지에서는 유저가 동의서 전문을 확인한 상태이므로, 별도 확인 팝업 없이 CTA 탭 즉시 처리합니다. 처리 완료 후 뱃지 및 CTA 상태가 즉시 전환됩니다.</div>
+      </div>
+      <div class="sub-section">
+        <div class="sub-title">CTA 처리 후 상태 갱신</div>
+        <div class="func-card">
+          <div class="func-card-hd"><span class="tag tag-red">철회 CTA 탭</span></div>
+          <div class="func-card-body">
+            <div class="feat">서버 API 호출 → 동의 상태 OFF 저장</div>
+            <div class="feat">PM-02A: 뱃지 "미동의" + CTA "동의하기"로 전환</div>
+            <div class="feat">PM-01 복귀 시: 해당 항목 토글 OFF + 항목명 #999 반영</div>
+            <div class="feat">토스트 노출 3초</div>
+          </div>
+        </div>
+        <div class="func-card">
+          <div class="func-card-hd"><span class="tag tag-blue">동의 CTA 탭</span></div>
+          <div class="func-card-body">
+            <div class="feat">서버 API 호출 → 동의 상태 ON 저장 + 동의 일시 기록</div>
+            <div class="feat">PM-02A: 뱃지 "동의" + CTA "동의 철회"로 전환</div>
+            <div class="feat">PM-01 복귀 시: 해당 항목 토글 ON + 항목명 #111 반영</div>
+            <div class="feat">토스트 노출 3초</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">와이어프레임 — PM-02A</div>
+        <div class="wire-section">
+          <div class="wire-grid">
+            <div class="wire-wrap">
+              <div class="wire-label">PM-02A 동의 상태</div>
+              <div class="phone">
+                <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+                <div class="phone-screen">
+                  <div class="w-gnb-sub"><div class="w-gnb-back">←</div><div class="w-gnb-title" style="font-size:12px;">마케팅 목적 개인정보 수집 및 이용</div></div>
+                  <div class="w-scroll">
+                    <div class="w-doc-content">
+                      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;"><div class="w-doc-title">마케팅 목적 개인정보 수집 및 이용</div><div style="display:inline-block;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:var(--green-bg);color:var(--green);">동의</div></div>
+                      <table class="w-doc-table"><tr><th style="width:80px;">수집 목적</th><td>이벤트, 프로모션, 혜택 정보 제공</td></tr><tr><th>수집 항목</th><td>이메일, 푸시 토큰, 서비스 이용 기록</td></tr><tr><th>보유 기간</th><td>동의 철회 시 또는 회원 탈퇴 시까지</td></tr></table>
+                      <div class="w-doc-text">위 동의를 거부할 수 있으며, 거부 시 이벤트 · 혜택 정보 알림을 받을 수 없습니다.</div>
+                      <div style="background:#f9f9f9;border-radius:8px;padding:12px;margin-top:12px;"><div class="w-doc-text-sm">본 동의는 선택 사항이며, 동의하지 않아도 서비스 이용에 제한이 없습니다. 동의 후에도 설정 메뉴에서 언제든지 철회할 수 있습니다.</div></div>
+                    </div>
+                  </div>
+                  <div class="w-bottom-cta"><div class="w-btn w-btn-danger">동의 철회</div></div>
+                </div>
+              </div>
+              <div class="wire-sublabel">"동의 철회" 탭 → 즉시 처리 + 토스트</div>
+            </div>
+            <div class="wire-wrap">
+              <div class="wire-label">PM-02A 미동의 상태</div>
+              <div class="phone">
+                <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+                <div class="phone-screen">
+                  <div class="w-gnb-sub"><div class="w-gnb-back">←</div><div class="w-gnb-title" style="font-size:12px;">마케팅 목적 개인정보 수집 및 이용</div></div>
+                  <div class="w-scroll">
+                    <div class="w-doc-content">
+                      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;"><div class="w-doc-title">마케팅 목적 개인정보 수집 및 이용</div><div style="display:inline-block;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:var(--bg2);color:var(--text4);">미동의</div></div>
+                      <table class="w-doc-table"><tr><th style="width:80px;">수집 목적</th><td>이벤트, 프로모션, 혜택 정보 제공</td></tr><tr><th>수집 항목</th><td>이메일, 푸시 토큰, 서비스 이용 기록</td></tr><tr><th>보유 기간</th><td>동의 철회 시 또는 회원 탈퇴 시까지</td></tr></table>
+                      <div class="w-doc-text">위 동의를 거부할 수 있으며, 거부 시 이벤트 · 혜택 정보 알림을 받을 수 없습니다.</div>
+                      <div style="background:#f9f9f9;border-radius:8px;padding:12px;margin-top:12px;"><div class="w-doc-text-sm">본 동의는 선택 사항이며, 동의하지 않아도 서비스 이용에 제한이 없습니다. 동의 후에도 설정 메뉴에서 언제든지 철회할 수 있습니다.</div></div>
+                    </div>
+                  </div>
+                  <div class="w-bottom-cta"><div class="w-btn w-btn-primary">동의하기</div></div>
+                </div>
+              </div>
+              <div class="wire-sublabel">"동의하기" 탭 → 즉시 처리 + 토스트</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 5. PM-02B -->
+  <div class="section" id="pm02b">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <div><div class="section-title">PM-02B — 상세 페이지 (열람 전용)</div><div class="section-subtitle">서비스 운영 관련 개인정보 처리 안내</div></div>
+      <span class="sec-badge">PM-02B</span>
+    </div>
+    <div class="section-body">
+      <div class="sub-section">
+        <div class="sub-title">화면 개요</div>
+        <table>
+          <tr><td class="td-label">화면 ID</td><td>PM-02B</td></tr>
+          <tr><td class="td-label">화면명</td><td>서비스 운영 관련 개인정보 처리 안내</td></tr>
+          <tr><td class="td-label">진입 경로</td><td>PM-01 → 열람 전용 항목 탭</td></tr>
+          <tr><td class="td-label">하단 CTA</td><td><strong>없음</strong> — 철회는 회원 탈퇴로만 가능</td></tr>
+        </table>
+      </div>
+      <div class="sub-section">
+        <div class="sub-title">전문 내용 (7개 목적별 섹션)</div>
+        <table>
+          <thead><tr><th>처리 목적</th><th>수집 항목 (예시)</th><th>보유 기간</th></tr></thead>
+          <tbody>
+            <tr><td>회원가입, 서비스 운영 및 개선</td><td>닉네임, 이메일/소셜 ID, 서비스 이용기록</td><td>회원 탈퇴 시까지</td></tr>
+            <tr><td>승부 예측 서비스 제공</td><td>예측 참여 이력, 예측 결과</td><td>회원 탈퇴 시까지</td></tr>
+            <tr><td>응모 서비스 제공</td><td>응모 이력, 응모권 사용 내역</td><td>회원 탈퇴 시까지</td></tr>
+            <tr><td>당첨 안내 및 티켓 전송</td><td>성명, 연락처, 주소 (당첨 시)</td><td>티켓 교환 완료 후 파기</td></tr>
+            <tr><td>보상 지급 및 수령</td><td>응모권 적립/사용 내역</td><td>회원 탈퇴 시까지</td></tr>
+            <tr><td>본인인증</td><td>CI/DI, 생년월일, 성별, 통신사 정보</td><td>회원 탈퇴 시까지</td></tr>
+            <tr><td>부정 이용 방지</td><td>기기 정보, 접속 IP, 이용 패턴</td><td>회원 탈퇴 시까지</td></tr>
+          </tbody>
+        </table>
+        <div class="callout callout-warn">⚠ 수집 항목 및 보유 기간은 약관 최종본 확정 시 법무 검토를 거쳐 업데이트해야 합니다.</div>
+      </div>
+      <div class="sub-section">
+        <div class="sub-title">와이어프레임 — PM-02B</div>
+        <div class="wire-section">
+          <div class="wire-grid">
+            <div class="wire-wrap">
+              <div class="wire-label">PM-02B 열람 전용</div>
+              <div class="phone">
+                <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+                <div class="phone-screen">
+                  <div class="w-gnb-sub"><div class="w-gnb-back">←</div><div class="w-gnb-title" style="font-size:11px;">서비스 운영 관련 개인정보 처리 안내</div></div>
+                  <div class="w-scroll">
+                    <div class="w-doc-content">
+                      <div class="w-doc-title" style="margin-bottom:14px;">서비스 운영 관련 개인정보 처리 안내</div>
+                      <div class="w-doc-text">폴리볼은 서비스 제공을 위해 아래와 같이 개인정보를 처리합니다. 본 항목은 서비스 이용에 필수적이며, 동의 철회를 원하시는 경우 회원 탈퇴를 통해 가능합니다.</div>
+                      <div style="background:#f9f9f9;border-radius:8px;padding:10px 12px;margin:8px 0;"><div style="font-size:11px;font-weight:700;color:#333;margin-bottom:6px;">1. 회원가입, 서비스 운영 및 개선</div><table class="w-doc-table" style="margin-bottom:0;"><tr><th style="width:60px;">수집 항목</th><td>닉네임, 이메일/소셜 ID, 서비스 이용기록</td></tr><tr><th>보유 기간</th><td>회원 탈퇴 시까지</td></tr></table></div>
+                      <div style="background:#f9f9f9;border-radius:8px;padding:10px 12px;margin:8px 0;"><div style="font-size:11px;font-weight:700;color:#333;margin-bottom:6px;">2. 승부 예측 서비스 제공</div><table class="w-doc-table" style="margin-bottom:0;"><tr><th style="width:60px;">수집 항목</th><td>예측 참여 이력, 예측 결과</td></tr><tr><th>보유 기간</th><td>회원 탈퇴 시까지</td></tr></table></div>
+                      <div class="w-doc-text-sm" style="margin-top:10px;color:#aaa;">· · ·  스크롤하여 전체 7개 항목 확인 가능  · · ·</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="wire-sublabel">열람 전용 — 하단 CTA 없음</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 6. PM-02C 커뮤니티 중간 페이지 -->
+  <div class="section" id="pm02c">
+    <div class="section-header">
+      <div class="section-num">6</div>
+      <div><div class="section-title">PM-02C — 커뮤니티 중간 페이지</div><div class="section-subtitle">이용약관 + 개인정보 동의 리스트 · 일괄 철회</div></div>
+      <span class="sec-badge">PM-02C</span>
+    </div>
+    <div class="section-body">
+      <div class="sub-section">
+        <div class="sub-title">화면 개요</div>
+        <table>
+          <tr><td class="td-label">화면 ID</td><td>PM-02C</td></tr>
+          <tr><td class="td-label">화면명</td><td>커뮤니티 이용 약관 및 개인정보 처리 동의</td></tr>
+          <tr><td class="td-label">진입 경로</td><td>PM-01 → 커뮤니티 항목명/chevron 탭</td></tr>
+          <tr><td class="td-label">GNB 타입</td><td>서브 라이트 (← + "커뮤니티 이용 약관 및 개인정보 처리 동의" 중앙 타이틀)</td></tr>
+          <tr><td class="td-label">대상 항목</td><td><span class="tag tag-blue">커뮤니티 전용</span> — 이용약관 + 개인정보 동의 2건을 묶어서 관리하는 유일한 항목</td></tr>
+        </table>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">화면 구성</div>
+        <table>
+          <thead><tr><th>영역</th><th>구성</th><th>동작</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="tag tag-blue">영역 1</span> 동의 항목 리스트</td>
+              <td>섹션 라벨 "커뮤니티"<br>① 커뮤니티 서비스 이용 약관 (chevron)<br>② 개인정보 수집 및 이용 동의 (커뮤니티) (chevron)</td>
+              <td>각 항목 탭 → 해당 전문 보기 페이지 (열람 전용)</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-gray">영역 2</span> 철회 안내</td>
+              <td>타이틀: "동의 철회를 원하시나요?"<br>본문: 동의 철회 시 본 서비스와 관련된 모든 정보가 삭제될 수 있으며, 복구가 불가할 수 있습니다. (단, 관련 법령에 따라 보존할 필요가 있는 경우는 해당 보존 기간 동안 보관합니다.)</td>
+              <td>열람 전용 (액션 없음)</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-red">하단 CTA</span></td>
+              <td>동의 상태 → "동의 철회하기" (Primary)<br>미동의 상태 → 미노출 (PM-02C 자체가 동의 상태에서만 진입 가능)</td>
+              <td>탭 시 → 이용약관 + 개인정보 동의 일괄 철회 → 토스트</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">CTA 처리</div>
+        <div class="func-card">
+          <div class="func-card-hd"><span class="tag tag-red">[동의 철회하기] 탭</span></div>
+          <div class="func-card-body">
+            <div class="feat">서버 API 호출 → 커뮤니티 서비스 이용약관 + 개인정보 수집 이용 동의 일괄 OFF</div>
+            <div class="feat">PM-01 복귀 시: 커뮤니티 토글 OFF + 항목명 #999 반영</div>
+            <div class="feat">CM-WDR 정책 자동 실행 (닉네임 → "알 수 없는 사용자" 영구 변경)</div>
+            <div class="feat">토스트 "커뮤니티 이용 약관 및 개인정보 처리 동의가 철회되었어요." 3초</div>
+          </div>
+        </div>
+        <div class="callout callout-danger">
+          <strong>커뮤니티 일괄 철회 시 CM-WDR 정책이 자동 적용됩니다.</strong> 기존 작성 글·댓글의 닉네임이 "알 수 없는 사용자"로 영구 변경되며, 재동의 후에도 복구 불가합니다.
+        </div>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">PM-02A와의 차이점</div>
+        <table>
+          <thead><tr><th></th><th>PM-02A (6건)</th><th>PM-02C (커뮤니티)</th></tr></thead>
+          <tbody>
+            <tr><td class="td-label">동의 건수</td><td>1건 (개인정보 수집 이용)</td><td>2건 (이용약관 + 개인정보 수집 이용)</td></tr>
+            <tr><td class="td-label">본문</td><td>동의서 전문 직접 노출</td><td>서브 항목 리스트 (각 전문은 하위 페이지)</td></tr>
+            <tr><td class="td-label">철회 처리</td><td>1건 철회</td><td>2건 일괄 철회</td></tr>
+            <tr><td class="td-label">동의 CTA</td><td>미동의 시 "동의하기" 노출</td><td>미노출 (재동의는 기능 이용 시점에 징구)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">와이어프레임 — PM-02C</div>
+        <div class="wire-section">
+          <div class="wire-grid">
+            <div class="wire-wrap">
+              <div class="wire-label">PM-02C 커뮤니티 (동의 상태)</div>
+              <div class="phone">
+                <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+                <div class="phone-screen">
+                  <div class="w-gnb-sub"><div class="w-gnb-back">←</div><div class="w-gnb-title" style="font-size:11px;">커뮤니티 이용 약관 및 개인정보 처리 동의</div></div>
+                  <div class="w-scroll">
+                    <div class="w-sec-label">커뮤니티</div>
+                    <div class="w-consent-item" style="border-bottom:1px solid #f0f0f0;">
+                      <div class="w-consent-left"><div class="w-consent-title">커뮤니티 서비스 이용 약관</div></div>
+                      <div class="w-chevron" style="font-size:13px;">›</div>
+                    </div>
+                    <div class="w-consent-item">
+                      <div class="w-consent-left"><div class="w-consent-title">개인정보 수집 및 이용 동의 (커뮤니티)</div></div>
+                      <div class="w-chevron" style="font-size:13px;">›</div>
+                    </div>
+                    <div class="w-divider"></div>
+                    <div style="padding:16px;">
+                      <div style="font-size:13px; font-weight:700; color:#111; margin-bottom:10px;">동의 철회를 원하시나요?</div>
+                      <div style="font-size:11px; color:#555; line-height:1.7;">
+                        <span style="color:var(--primary); margin-right:4px;">•</span>동의 철회 시 본 서비스와 관련된 모든 정보가 삭제될 수 있으며, 복구가 불가할 수 있습니다.<br>
+                        <span style="margin-left:12px;">(단, 관련 법령에 따라 보존할 필요가 있는 경우는 해당 보존 기간 동안 보관합니다.)</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="w-bottom-cta"><div class="w-btn w-btn-primary">동의 철회하기</div></div>
+                </div>
+              </div>
+              <div class="wire-sublabel">동의 상태 — 2건 리스트 + 철회 안내 + CTA</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 7. PM-POP 철회 확인 팝업 -->
+  <div class="section" id="popup">
+    <div class="section-header">
+      <div class="section-num">7</div>
+      <div><div class="section-title">PM-POP — 철회 확인 팝업</div><div class="section-subtitle">목록 토글 철회 시에만 노출</div></div>
+      <span class="sec-badge">PM-POP</span>
+    </div>
+    <div class="section-body">
+
+      <div class="sub-section">
+        <div class="sub-title">노출 조건</div>
+        <div class="callout callout-danger">
+          <strong>PM-01 목록 화면에서 동의 ON 상태의 토글을 OFF로 탭할 때만 노출됩니다.</strong><br>
+          상세 페이지(PM-02A) 철회 CTA에서는 노출하지 않습니다. 동의(OFF→ON) 시에는 노출하지 않습니다.
+        </div>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">팝업 템플릿 (변수 1개)</div>
+        <table>
+          <thead><tr><th>요소</th><th>내용</th><th>고정/변수</th></tr></thead>
+          <tbody>
+            <tr><td class="td-label">타이틀</td><td>{item_name} 동의를 철회하시겠어요?</td><td><span class="tag tag-blue">변수</span> item_name</td></tr>
+            <tr><td class="td-label">본문</td><td>동의와 관련된 모든 정보가 삭제되며, 복구할 수 없습니다. 단, 관련 법령에 따라 보존이 필요한 경우는 필요 기간동안 보관됩니다.</td><td>고정</td></tr>
+            <tr><td class="td-label">CTA 좌</td><td>다음에</td><td>고정</td></tr>
+            <tr><td class="td-label">CTA 우</td><td>철회하기</td><td>고정</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">item_name 변수값</div>
+        <table>
+          <thead><tr><th>항목</th><th>item_name</th></tr></thead>
+          <tbody>
+            <tr><td>마케팅</td><td>마케팅 목적 개인정보 수집 및 이용</td></tr>
+            <tr><td>커뮤니티</td><td>커뮤니티 이용 약관 및 개인정보 처리</td></tr>
+            <tr><td>보상형 광고</td><td>보상형 광고 참여 개인정보 수집 및 이용</td></tr>
+            <tr><td>동행자 정보</td><td>동행자 정보 수집 및 이용</td></tr>
+            <tr><td>이벤트 참여</td><td>이벤트 참여 개인정보 수집 및 이용</td></tr>
+            <tr><td>친구 초대</td><td>친구 초대 개인정보 수집 및 이용</td></tr>
+            <tr><td>팀 응원전</td><td>팀 응원전 개인정보 수집 및 이용</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">CTA 동작</div>
+        <div class="func-card">
+          <div class="func-card-hd"><span class="tag tag-red">[철회하기] 탭</span></div>
+          <div class="func-card-body">
+            <div class="feat">팝업 닫힘</div>
+            <div class="feat">서버 API 호출 → 동의 상태 OFF 저장</div>
+            <div class="feat">PM-01: 해당 항목 토글 OFF + 항목명 #999</div>
+            <div class="feat">토스트 "{item_name} 동의가 철회되었어요." 3초</div>
+          </div>
+        </div>
+        <div class="func-card">
+          <div class="func-card-hd"><span class="tag tag-gray">[다음에] 탭</span></div>
+          <div class="func-card-body">
+            <div class="feat">팝업 닫힘 · 상태 변경 없음 (기존 동의 유지)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">와이어프레임 — PM-POP</div>
+        <div class="wire-section">
+          <div class="wire-grid">
+            <div class="wire-wrap">
+              <div class="wire-label">PM-POP 철회 확인 팝업</div>
+              <div class="phone">
+                <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+                <div class="phone-screen">
+                  <div class="w-gnb-sub"><div class="w-gnb-back">←</div><div class="w-gnb-title">개인정보 동의 관리</div></div>
+                  <div class="w-scroll" style="filter:blur(1px);opacity:0.4;">
+                    <div class="w-sec-label">선택 동의 관리</div>
+                    <div class="w-consent-item"><div class="w-consent-left"><div class="w-consent-title">마케팅 목적 개인정보 수집 및 이용</div><div class="w-consent-sub">이벤트 · 혜택 정보 알림</div></div><div class="w-toggle w-toggle-on"></div></div>
+                    <div class="w-consent-item"><div class="w-consent-left"><div class="w-consent-title">커뮤니티 이용 약관 및 개인정보 처리 동의</div><div class="w-consent-sub">글쓰기 · 댓글 · 좋아요</div></div><div class="w-toggle w-toggle-on"></div></div>
+                    <div class="w-consent-item"><div class="w-consent-left"><div class="w-consent-title">보상형 광고 참여 개인정보 수집 및 이용</div><div class="w-consent-sub">광고 시청으로 추가 응모권 획득</div></div><div class="w-toggle w-toggle-on"></div></div>
+                  </div>
+                  <div class="w-dim">
+                    <div class="w-popup">
+                      <div class="w-popup-title">{커뮤니티 이용 약관 및<br>개인정보 처리} 동의를<br>철회하시겠어요?</div>
+                      <div class="w-popup-body">동의와 관련된 모든 정보가 삭제되며, 복구할 수 없습니다. 단, 관련 법령에 따라 보존이 필요한 경우는 필요 기간동안 보관됩니다.</div>
+                      <div class="w-popup-btns">
+                        <div class="w-popup-btn w-popup-btn-cancel">다음에</div>
+                        <div class="w-popup-btn w-popup-btn-primary">철회하기</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="wire-sublabel">변수: item_name만 교체 · 나머지 고정</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- 8. 토스트 -->
+  <div class="section" id="toast">
+    <div class="section-header">
+      <div class="section-num">8</div>
+      <div><div class="section-title">토스트 메시지</div><div class="section-subtitle">철회 완료 · 동의 완료 피드백</div></div>
+    </div>
+    <div class="section-body">
+      <div class="sub-section">
+        <div class="sub-title">토스트 규칙</div>
+        <table>
+          <tr><td class="td-label">노출 시점</td><td>팝업 닫힌 직후 (목록 토글 철회) / CTA 처리 직후 (상세 페이지, 목록 토글 동의)</td></tr>
+          <tr><td class="td-label">노출 위치</td><td>화면 하단 — 디자인 가이드 Toast 기본 위치</td></tr>
+          <tr><td class="td-label">노출 시간</td><td>3초 후 자동 사라짐</td></tr>
+          <tr><td class="td-label">스타일</td><td>다크 배경 (#333) + 흰색 텍스트</td></tr>
+        </table>
+      </div>
+      <div class="sub-section">
+        <div class="sub-title">항목별 토스트 문구</div>
+        <table>
+          <thead><tr><th>항목</th><th>철회 완료</th><th>동의 완료</th></tr></thead>
+          <tbody>
+            <tr><td>마케팅</td><td>마케팅 목적 개인정보 수집 및 이용 동의가 철회되었어요.</td><td>마케팅 목적 개인정보 수집 및 이용에 동의했어요.</td></tr>
+            <tr><td>커뮤니티</td><td>커뮤니티 이용 약관 및 개인정보 처리 동의가 철회되었어요.</td><td>커뮤니티 이용 약관 및 개인정보 처리에 동의했어요.</td></tr>
+            <tr><td>보상형 광고</td><td>보상형 광고 참여 개인정보 수집 및 이용 동의가 철회되었어요.</td><td>보상형 광고 참여 개인정보 수집 및 이용에 동의했어요.</td></tr>
+            <tr><td>동행자 정보</td><td>동행자 정보 수집 및 이용 동의가 철회되었어요.</td><td>동행자 정보 수집 및 이용에 동의했어요.</td></tr>
+            <tr><td>이벤트 참여</td><td>이벤트 참여 개인정보 수집 및 이용 동의가 철회되었어요.</td><td>이벤트 참여 개인정보 수집 및 이용에 동의했어요.</td></tr>
+            <tr><td>친구 초대</td><td>친구 초대 개인정보 수집 및 이용 동의가 철회되었어요.</td><td>친구 초대 개인정보 수집 및 이용에 동의했어요.</td></tr>
+            <tr><td>팀 응원전</td><td>팀 응원전 개인정보 수집 및 이용 동의가 철회되었어요.</td><td>팀 응원전 개인정보 수집 및 이용에 동의했어요.</td></tr>
+          </tbody>
+        </table>
+        <div class="callout callout-info">토스트 문구도 {item_name} 변수를 사용합니다. 패턴: 철회 = "{item_name} 동의가 철회되었어요." / 동의 = "{item_name}에 동의했어요."</div>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">와이어프레임 — 토스트</div>
+        <div class="wire-section">
+          <div class="wire-grid">
+            <div class="wire-wrap">
+              <div class="wire-label">철회 완료 토스트</div>
+              <div class="phone">
+                <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+                <div class="phone-screen">
+                  <div class="w-gnb-sub"><div class="w-gnb-back">←</div><div class="w-gnb-title">개인정보 동의 관리</div></div>
+                  <div class="w-scroll">
+                    <div class="w-sec-label">선택 동의 관리</div>
+                    <div class="w-consent-item"><div class="w-consent-left"><div class="w-consent-title" style="color:#999;">마케팅 목적 개인정보 수집 및 이용</div><div class="w-consent-sub">이벤트 · 혜택 정보 알림</div></div><div class="w-consent-chevron">›</div><div class="w-toggle w-toggle-off"></div></div>
+                    <div class="w-consent-item"><div class="w-consent-left"><div class="w-consent-title">커뮤니티 이용 약관 및 개인정보 처리 동의</div><div class="w-consent-sub">글쓰기 · 댓글 · 좋아요</div></div><div class="w-consent-chevron">›</div><div class="w-toggle w-toggle-on"></div></div>
+                  </div>
+                  <div class="w-toast" style="font-size:11px;">마케팅 목적 개인정보 수집 및 이용 동의가 철회되었어요.</div>
+                </div>
+              </div>
+            </div>
+            <div class="wire-wrap">
+              <div class="wire-label">동의 완료 토스트</div>
+              <div class="phone">
+                <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+                <div class="phone-screen">
+                  <div class="w-gnb-sub"><div class="w-gnb-back">←</div><div class="w-gnb-title">개인정보 동의 관리</div></div>
+                  <div class="w-scroll">
+                    <div class="w-sec-label">선택 동의 관리</div>
+                    <div class="w-consent-item"><div class="w-consent-left"><div class="w-consent-title">마케팅 목적 개인정보 수집 및 이용</div><div class="w-consent-sub">이벤트 · 혜택 정보 알림</div></div><div class="w-consent-chevron">›</div><div class="w-toggle w-toggle-on"></div></div>
+                    <div class="w-consent-item"><div class="w-consent-left"><div class="w-consent-title">커뮤니티 이용 약관 및 개인정보 처리 동의</div><div class="w-consent-sub">글쓰기 · 댓글 · 좋아요</div></div><div class="w-consent-chevron">›</div><div class="w-toggle w-toggle-on"></div></div>
+                  </div>
+                  <div class="w-toast" style="font-size:11px;">마케팅 목적 개인정보 수집 및 이용에 동의했어요.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 9. UX Writing -->
+  <div class="section" id="uxw">
+    <div class="section-header">
+      <div class="section-num">9</div>
+      <div><div class="section-title">UX Writing 확정 문구</div><div class="section-subtitle">폴리볼 UXW 가이드 적용</div></div>
+    </div>
+    <div class="section-body">
+      <div class="sub-section">
+        <div class="sub-title">PM-01 · PM-02 화면 문구</div>
+        <table>
+          <thead><tr><th>요소</th><th>문구</th><th>가이드</th></tr></thead>
+          <tbody>
+            <tr><td>GNB 타이틀</td><td>개인정보 동의 관리</td><td>—</td></tr>
+            <tr><td>열람 섹션 라벨</td><td>서비스 운영 관련</td><td>간결함 우선</td></tr>
+            <tr><td>선택 섹션 라벨</td><td>선택 동의 관리</td><td>간결함 우선</td></tr>
+            <tr><td>동의 뱃지</td><td>동의 / 미동의</td><td>명사형</td></tr>
+            <tr><td>CTA (동의 상태)</td><td>동의 철회</td><td>8자 이내</td></tr>
+            <tr><td>CTA (미동의 상태)</td><td>동의하기</td><td>8자 이내</td></tr>
+            <tr><td>거부권 안내</td><td>위 동의를 거부할 수 있으며, 거부 시 [기능명] 이용이 제한됩니다.</td><td>합쇼체</td></tr>
+            <tr><td>열람 전용 안내</td><td>폴리볼은 서비스 제공을 위해 아래와 같이 개인정보를 처리합니다. 본 항목은 서비스 이용에 필수적이며, 동의 철회를 원하시는 경우 회원 탈퇴를 통해 가능합니다.</td><td>합쇼체</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="sub-section">
+        <div class="sub-title">PM-POP 철회 팝업 문구 (전 항목 공통)</div>
+        <table>
+          <thead><tr><th>요소</th><th>문구</th><th>고정/변수</th></tr></thead>
+          <tbody>
+            <tr><td>타이틀</td><td>{item_name} 동의를 철회하시겠어요?</td><td><span class="tag tag-blue">변수</span></td></tr>
+            <tr><td>본문</td><td>동의와 관련된 모든 정보가 삭제되며, 복구할 수 없습니다. 단, 관련 법령에 따라 보존이 필요한 경우는 필요 기간동안 보관됩니다.</td><td>고정</td></tr>
+            <tr><td>CTA</td><td>다음에 / 철회하기</td><td>고정</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="sub-section">
+        <div class="sub-title">토스트 문구 패턴</div>
+        <table>
+          <thead><tr><th>동작</th><th>패턴</th><th>가이드</th></tr></thead>
+          <tbody>
+            <tr><td>철회 완료</td><td>{item_name} 동의가 철회되었어요.</td><td>해요체</td></tr>
+            <tr><td>동의 완료</td><td>{item_name}에 동의했어요.</td><td>해요체</td></tr>
+            <tr><td>오류</td><td>일시적인 오류가 발생했어요. 잠시 후 다시 시도해 주세요.</td><td>해요체</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="sub-section">
+        <div class="sub-title">UXW 가이드 적용 체크</div>
+        <table>
+          <thead><tr><th>규칙</th><th>결과</th></tr></thead>
+          <tbody>
+            <tr><td>질문형 ~겠어요? 통일</td><td>✅ 팝업 타이틀 "철회하시겠어요?"</td></tr>
+            <tr><td>합쇼체 (약관/책임 고지)</td><td>✅ "삭제되며", "보관됩니다"</td></tr>
+            <tr><td>토스트 해요체</td><td>✅ "철회되었어요", "동의했어요"</td></tr>
+            <tr><td>CTA 핵심 동사 8자 이내</td><td>✅ "철회하기" 4자, "다음에" 3자</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 10. 엣지 케이스 -->
+  <div class="section" id="edge">
+    <div class="section-header">
+      <div class="section-num">10</div>
+      <div><div class="section-title">엣지 케이스</div><div class="section-subtitle">예외 상황 처리</div></div>
+    </div>
+    <div class="section-body">
+      <table>
+        <thead><tr><th style="width:200px;">케이스</th><th>처리</th></tr></thead>
+        <tbody>
+          <tr><td>API 호출 실패</td><td>토글/상태 롤백 + 토스트 "일시적인 오류가 발생했어요. 잠시 후 다시 시도해 주세요."</td></tr>
+          <tr><td>팝업 노출 중 앱 백그라운드</td><td>포그라운드 복귀 시 팝업 유지. 상태 변경 없음.</td></tr>
+          <tr><td>철회 직후 해당 기능 진입</td><td>각 기능별 기존 미동의 처리 플로우 적용 (예: 커뮤니티 → 동의 바텀시트 재노출)</td></tr>
+          <tr><td>마케팅 철회 ↔ 알림 설정</td><td>마케팅 알림 자동 OFF. 알림 설정에서 마케팅 ON 시도 시 동의 필요 안내</td></tr>
+          <tr><td>커뮤니티 철회 후 재동의</td><td>기능 재활성화. 이전 글 "알 수 없는 사용자" 영구 유지 (CM-WDR)</td></tr>
+          <tr><td>한 번도 동의한 적 없는 항목</td><td>토글 OFF + #999. 토글 ON 시 즉시 동의 처리 (팝업 없음)</td></tr>
+          <tr><td>목록에서 동의 후 즉시 철회</td><td>동의는 즉시 처리, 철회 시 PM-POP 팝업 노출. 매 철회마다 팝업 필수.</td></tr>
+          <tr><td>상세 페이지에서 연속 전환</td><td>매 CTA 탭마다 즉시 API 호출 + 토스트. 팝업 없이 바로 처리.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+  <!-- 10. 법령 검토 -->
+  <div class="section" id="legal">
+    <div class="section-header navy">
+      <div class="section-num">⚖</div>
+      <div><div class="section-title">법령 검토 결과</div><div class="section-subtitle">폴리볼 법령 레퍼런스 v1.0 기준</div></div>
+      <span class="sec-badge">LEGAL</span>
+    </div>
+    <div class="section-body">
+      <div class="callout callout-green"><strong>✅ 개인정보 동의 관리 기능 전체에 대한 법령 검토 결과</strong><br>본 기능은 개보법 §37(동의 철회권) 이행을 위한 필수 기능이며, 별도의 신규 개인정보 수집이 없습니다.</div>
+      <div class="sub-section" style="margin-top:14px;">
+        <div class="sub-title">항목별 검토</div>
+        <table>
+          <thead><tr><th>법령</th><th>항목</th><th>결과</th></tr></thead>
+          <tbody>
+            <tr><td>개보법 §37</td><td>동의 철회권 보장</td><td><span class="tag tag-green">충족</span> — 목록 토글 + 상세 CTA + PM-02C CTA 다중 경로</td></tr>
+            <tr><td>개보법 §37③</td><td>철회 용이성</td><td><span class="tag tag-green">충족</span> — 동의(토글 즉시)보다 철회(팝업 1단계)가 약간 더 무거우나, 오조작 방지 목적으로 합리적 범위</td></tr>
+            <tr><td>개보법 §22⑤</td><td>철회 시 불이익 고지</td><td><span class="tag tag-green">충족</span> — PM-POP 고지 + PM-02C 철회 안내 영역</td></tr>
+            <tr><td>개보법 §15①</td><td>동의 시 고지 사항</td><td><span class="tag tag-green">충족</span> — PM-02A 전문 + PM-02C 서브 항목별 전문 보기</td></tr>
+            <tr><td>개보법 §22③</td><td>필수/선택 구분</td><td><span class="tag tag-green">충족</span> — 열람 전용 / 선택 동의 섹션 분리</td></tr>
+            <tr><td>개보법 §30</td><td>처리방침 열람</td><td><span class="tag tag-green">충족</span> — PM-02B + 설정 내 개인정보처리방침</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="sub-section">
+        <div class="sub-title">추가 동의 플로우 필요 여부</div>
+        <div class="callout callout-green"><strong>✅ 본 기능 자체가 동의 관리 플로우입니다.</strong> 별도 추가 설계 불필요.</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 12. 미결 사항 -->
+  <div class="section" id="todo">
+    <div class="section-header navy">
+      <div class="section-num">12</div>
+      <div><div class="section-title">미결 사항</div><div class="section-subtitle">착수 전 확정 필요</div></div>
+    </div>
+    <div class="section-body">
+      <table>
+        <thead><tr><th style="width:200px;">항목</th><th>내용</th><th style="width:90px;">담당</th></tr></thead>
+        <tbody>
+          <tr><td>⚠ 수집 항목 확정</td><td>각 선택 동의 항목별 실제 수집 항목 리스트 — 약관 최종본 기준 업데이트</td><td>법무/기획</td></tr>
+          <tr><td>⚠ 보유 기간 확정</td><td>항목별 보유 기간 — 법무 검토 후 확정</td><td>법무</td></tr>
+          <tr><td>⚠ 동의 상태 API 스펙</td><td>항목별 동의 상태 조회(GET) / 변경(PATCH) API 설계</td><td>개발팀</td></tr>
+          <tr><td>⚠ 동의 일시 기록</td><td>동의/철회 시점 타임스탬프 저장 및 유저 노출 여부 (법적 증빙용)</td><td>법무/개발팀</td></tr>
+          <tr><td>⚠ 커뮤니티 CM-WDR 연동</td><td>철회 처리 후 CM-WDR 닉네임 익명화 자동 트리거 방식</td><td>개발팀</td></tr>
+          <tr><td>⚠ 알림 설정 연동</td><td>마케팅 동의 철회 ↔ 알림 설정 마케팅 알림 양방향 연동 스펙</td><td>개발팀</td></tr>
+          <tr><td>⚠ 동행자 정보 삭제 범위</td><td>철회 시 "이미 등록된 동행자 정보 삭제" — 진행 중 경기 동행자 포함 여부</td><td>기획/운영</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>
+    기능정의서_개인정보동의관리_PM_v1_1 &nbsp;·&nbsp; 2026-05-11
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>폴리볼 · 긴급 티켓 이벤트 와이어프레임</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, 'Apple SD Gothic Neo', sans-serif; background: #F5F5F3; color: #1D1D1D; }
+
+  .doc-header { padding: 40px 48px 32px; border-bottom: 1px solid #E0E0DC; background: #ffffff; }
+  .doc-meta { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+  .doc-badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 500; }
+  .badge-draft { background: #FFF3E0; color: #E65100; }
+  .badge-ver { background: #F1EFE8; color: #5F5E5A; }
+  .badge-date { background: #F1EFE8; color: #5F5E5A; }
+  .doc-title { font-size: 26px; font-weight: 600; color: #1D1D1D; margin-bottom: 6px; }
+  .doc-sub { font-size: 14px; color: #888780; }
+
+  .flow-bar { background: #1D1D1D; padding: 16px 48px; display: flex; align-items: center; gap: 0; overflow-x: auto; }
+  .flow-step { display: flex; align-items: center; gap: 0; }
+  .flow-chip { font-size: 12px; font-weight: 500; color: #ffffff; padding: 5px 14px; border-radius: 20px; background: #3D3D3D; white-space: nowrap; }
+  .flow-chip.active { background: #FF5722; }
+  .flow-arrow { font-size: 14px; color: #555555; padding: 0 8px; }
+
+  .content { padding: 48px; max-width: 1200px; margin: 0 auto; }
+
+  .section { margin-bottom: 64px; }
+  .section-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1.5px solid #1D1D1D; }
+  .section-num { font-size: 11px; font-weight: 600; color: #888780; letter-spacing: 0.1em; }
+  .section-title { font-size: 18px; font-weight: 600; color: #1D1D1D; }
+  .section-sub { font-size: 13px; color: #888780; margin-left: auto; }
+
+  .screen-row { display: flex; gap: 32px; align-items: flex-start; flex-wrap: wrap; }
+
+  .phone-wrap { display: flex; flex-direction: column; gap: 8px; }
+  .phone-caption { font-size: 11px; font-weight: 500; color: #888780; text-align: center; }
+  .phone { width: 240px; flex-shrink: 0; background: #ffffff; border: 1.5px solid #D3D1C7; border-radius: 32px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+  .phone-status { background: #F5F5F3; padding: 10px 18px 8px; font-size: 10px; font-weight: 600; color: #888780; display: flex; justify-content: space-between; }
+  .phone-body { min-height: 480px; display: flex; flex-direction: column; }
+
+  .app-header { background: #ffffff; padding: 10px 16px 9px; display: flex; align-items: center; justify-content: space-between; border-bottom: 0.5px solid #E8E8E4; }
+  .app-logo { font-size: 16px; font-weight: 700; color: #1D1D1D; letter-spacing: -0.5px; }
+  .ticket-chip { background: #E6F1FB; color: #185FA5; font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px; }
+
+  .banner { background: #1D1D1D; margin: 10px 10px 0; border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; }
+  .banner-left { display: flex; flex-direction: column; gap: 2px; }
+  .banner-title { font-size: 12px; font-weight: 600; color: #ffffff; }
+  .banner-sub { font-size: 10px; color: #999999; }
+  .banner-cta { background: #FF5722; color: #ffffff; font-size: 10px; font-weight: 600; padding: 6px 12px; border-radius: 8px; white-space: nowrap; }
+  .banner-dot { width: 6px; height: 6px; border-radius: 50%; background: #FF5722; margin-right: 4px; display: inline-block; }
+
+  .week-bar { padding: 10px 16px 6px; display: flex; align-items: center; justify-content: space-between; }
+  .week-text { font-size: 12px; font-weight: 600; color: #1D1D1D; }
+  .week-nav { display: flex; gap: 8px; font-size: 13px; color: #888780; }
+  .cal-days { display: flex; justify-content: space-between; padding: 4px 16px; }
+  .cal-d { font-size: 10px; color: #888780; text-align: center; width: 28px; }
+  .cal-d.red { color: #E24B4A; }
+  .cal-dates { display: flex; justify-content: space-between; padding: 2px 16px 6px; }
+  .cal-date { font-size: 12px; color: #1D1D1D; text-align: center; width: 28px; padding: 4px 0; }
+  .cal-date.today { background: #1D1D1D; color: #ffffff; border-radius: 50%; }
+
+  .divider { height: 0.5px; background: #E8E8E4; margin: 4px 0; }
+  .spacer4 { height: 4px; }
+  .spacer8 { height: 8px; }
+
+  .sec-title { padding: 8px 16px 4px; font-size: 12px; font-weight: 600; color: #1D1D1D; }
+
+  .game-card { margin: 4px 10px; background: #ffffff; border: 0.5px solid #E0E0DC; border-radius: 12px; padding: 10px 12px; cursor: pointer; }
+  .game-card.selected { border: 1.5px solid #1D1D1D; }
+  .game-card.dimmed { opacity: 0.38; }
+  .game-meta { font-size: 9px; color: #888780; margin-bottom: 5px; }
+  .game-teams { display: flex; align-items: center; justify-content: space-between; }
+  .team-block { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .team-circle { width: 28px; height: 28px; border-radius: 50%; background: #F1EFE8; border: 0.5px solid #D3D1C7; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 600; color: #5F5E5A; }
+  .team-name { font-size: 9px; color: #888780; }
+  .vs-txt { font-size: 10px; color: #B4B2A9; }
+  .game-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 7px; padding-top: 7px; border-top: 0.5px solid #F1EFE8; }
+  .badge-remain { font-size: 9px; color: #993C1D; background: #FAECE7; padding: 2px 7px; border-radius: 4px; font-weight: 500; }
+  .badge-sold { font-size: 9px; color: #888780; background: #F1EFE8; padding: 2px 7px; border-radius: 4px; }
+  .try-count { font-size: 9px; color: #888780; }
+
+  .page-header { padding: 10px 16px 9px; display: flex; align-items: center; gap: 10px; border-bottom: 0.5px solid #E8E8E4; background: #ffffff; }
+  .back-btn { font-size: 16px; color: #888780; line-height: 1; }
+  .page-title { font-size: 14px; font-weight: 600; color: #1D1D1D; }
+
+  .bottom-sheet-overlay { background: rgba(0,0,0,0.45); padding: 20px 10px 0; margin-top: 8px; }
+  .bottom-sheet { background: #ffffff; border-radius: 16px 16px 0 0; padding: 16px 14px; }
+  .bs-handle { width: 36px; height: 3px; background: #D3D1C7; border-radius: 2px; margin: 0 auto 14px; }
+  .bs-title { font-size: 13px; font-weight: 600; color: #1D1D1D; margin-bottom: 12px; }
+  .bs-game-info { background: #F5F5F3; border-radius: 8px; padding: 8px 10px; margin-bottom: 10px; }
+  .bs-game-teams { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #1D1D1D; margin-bottom: 2px; }
+  .bs-game-sub { font-size: 10px; color: #888780; }
+  .bs-steps { display: flex; flex-direction: column; gap: 7px; margin-bottom: 12px; }
+  .bs-step { display: flex; align-items: center; gap: 8px; }
+  .bs-step-num { width: 18px; height: 18px; border-radius: 50%; background: #1D1D1D; color: #ffffff; font-size: 9px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .bs-step-txt { font-size: 11px; color: #1D1D1D; }
+  .try-dots-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .try-dots-label { font-size: 10px; color: #888780; }
+  .try-dots { display: flex; gap: 5px; }
+  .try-dot { width: 9px; height: 9px; border-radius: 50%; background: #1D1D1D; }
+  .try-dot.used { background: #D3D1C7; }
+  .btn-primary { background: #1D1D1D; color: #ffffff; font-size: 12px; font-weight: 600; padding: 11px; border-radius: 10px; text-align: center; width: 100%; margin-bottom: 6px; }
+  .btn-secondary { background: #F1EFE8; color: #5F5E5A; font-size: 12px; font-weight: 500; padding: 11px; border-radius: 10px; text-align: center; width: 100%; }
+
+  .scratch-area { margin: 12px 10px 0; background: #F5F5F3; border-radius: 12px; padding: 20px 14px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .scratch-card { width: 130px; height: 80px; background: #888780; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+  .scratch-card-txt { font-size: 11px; color: #D3D1C7; font-weight: 500; }
+  .scratch-hint { font-size: 10px; color: #888780; }
+
+  .result-win { margin: 10px 10px 0; background: #EAF3DE; border-radius: 12px; padding: 20px 14px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .result-lose { margin: 10px 10px 0; background: #F5F5F3; border-radius: 12px; padding: 20px 14px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .result-icon { font-size: 28px; margin-bottom: 4px; }
+  .result-title-win { font-size: 15px; font-weight: 700; color: #3B6D11; }
+  .result-title-lose { font-size: 15px; font-weight: 600; color: #5F5E5A; }
+  .result-sub-win { font-size: 11px; color: #639922; }
+  .result-sub-lose { font-size: 11px; color: #888780; }
+  .result-notice { font-size: 9px; color: #B4B2A9; text-align: center; margin-top: 2px; }
+
+  .action-row { margin: 8px 10px 0; display: flex; flex-direction: column; gap: 5px; }
+  .btn-full-primary { background: #1D1D1D; color: #ffffff; font-size: 12px; font-weight: 600; padding: 11px; border-radius: 10px; text-align: center; }
+  .btn-full-secondary { background: #F1EFE8; color: #5F5E5A; font-size: 12px; font-weight: 500; padding: 11px; border-radius: 10px; text-align: center; }
+
+  .bottom-nav { display: flex; justify-content: space-around; padding: 9px 0 12px; border-top: 0.5px solid #E8E8E4; margin-top: auto; }
+  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .nav-icon { width: 18px; height: 18px; border-radius: 3px; background: #D3D1C7; }
+  .nav-label { font-size: 9px; color: #888780; }
+  .nav-item.active .nav-icon { background: #1D1D1D; }
+  .nav-item.active .nav-label { color: #1D1D1D; font-weight: 600; }
+
+  .func-panel { flex: 1; min-width: 260px; }
+  .func-card { background: #ffffff; border: 0.5px solid #E0E0DC; border-radius: 14px; padding: 16px 18px; margin-bottom: 10px; }
+  .func-card-title { font-size: 11px; font-weight: 600; color: #888780; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 0.5px solid #F1EFE8; }
+  .func-item { display: flex; gap: 9px; margin-bottom: 10px; align-items: flex-start; }
+  .func-item:last-child { margin-bottom: 0; }
+  .fdot { width: 6px; height: 6px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+  .fdot.req { background: #FF5722; }
+  .fdot.opt { background: #D3D1C7; }
+  .func-text { font-size: 12px; color: #1D1D1D; line-height: 1.6; }
+  .func-sub { font-size: 11px; color: #888780; margin-top: 2px; line-height: 1.5; }
+
+  .legend { display: flex; gap: 16px; margin-bottom: 24px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #888780; }
+  .legend-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+  footer { text-align: center; padding: 32px; font-size: 12px; color: #B4B2A9; border-top: 0.5px solid #E0E0DC; background: #ffffff; margin-top: 48px; }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <div class="doc-meta">
+    <span class="doc-badge badge-draft">Draft</span>
+    <span class="doc-badge badge-ver">v0.1</span>
+    <span class="doc-badge badge-date">2025.04</span>
+  </div>
+  <div class="doc-title">긴급 티켓 이벤트 — 와이어프레임</div>
+  <div class="doc-sub">티켓 로스 발생 시 광고 시청 기반 즉시 추첨 이벤트 · 폴리볼 응모</div>
+</div>
+
+<div class="flow-bar">
+  <div class="flow-step"><div class="flow-chip active">S1 응모 메인</div><div class="flow-arrow">→</div></div>
+  <div class="flow-step"><div class="flow-chip active">S2 경기 목록</div><div class="flow-arrow">→</div></div>
+  <div class="flow-step"><div class="flow-chip" style="background:#444;font-style:italic;">광고 SDK</div><div class="flow-arrow">→</div></div>
+  <div class="flow-step"><div class="flow-chip active">S3 스크래치 · 결과</div></div>
+</div>
+
+<div class="content">
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#FF5722;"></div>필수 기능</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#D3D1C7;"></div>선택 · 고려 사항</div>
+  </div>
+
+  <!-- S1 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">S1</div>
+      <div class="section-title">응모 메인 — 배너 진입 구좌</div>
+      <div class="section-sub">긴급 이벤트 활성 시에만 배너 노출</div>
+    </div>
+    <div class="screen-row">
+      <div class="phone-wrap">
+        <div class="phone-caption">응모 메인</div>
+        <div class="phone">
+          <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+          <div class="phone-body">
+            <div class="app-header">
+              <div class="app-logo">PolyBall.</div>
+              <div class="ticket-chip">★ 12</div>
+            </div>
+            <div class="banner">
+              <div class="banner-left">
+                <div class="banner-title"><span class="banner-dot"></span>긴급 티켓 이벤트</div>
+                <div class="banner-sub">광고 보고 즉시 당첨 도전 · 잔여 3장</div>
+              </div>
+              <div class="banner-cta">참여하기</div>
+            </div>
+            <div class="week-bar">
+              <div class="week-text">2026년 6월 1주차 ⊞</div>
+              <div class="week-nav"><span>‹</span><span>›</span></div>
+            </div>
+            <div class="cal-days">
+              <div class="cal-d">화</div><div class="cal-d">수</div><div class="cal-d">목</div><div class="cal-d">금</div><div class="cal-d red">토</div><div class="cal-d red">일</div>
+            </div>
+            <div class="cal-dates">
+              <div class="cal-date">21</div><div class="cal-date today">22</div><div class="cal-date">23</div><div class="cal-date">24</div><div class="cal-date">25</div><div class="cal-date">26</div>
+            </div>
+            <div class="divider"></div>
+            <div class="sec-title">🔥 응모하고 직관티켓 받기</div>
+            <div class="game-card">
+              <div class="game-meta">고척 스카이돔 · 6.22(수) 13:00</div>
+              <div class="game-teams">
+                <div class="team-block"><div class="team-circle">NC</div><div class="team-name">NC</div></div>
+                <div class="vs-txt">vs</div>
+                <div class="team-block"><div class="team-circle">키움</div><div class="team-name">키움</div></div>
+              </div>
+            </div>
+            <div class="game-card" style="margin-top:4px;">
+              <div class="game-meta">광주 챔피언스필드 · 6.22(수) 13:00</div>
+              <div class="game-teams">
+                <div class="team-block"><div class="team-circle">한화</div><div class="team-name">한화</div></div>
+                <div class="vs-txt">vs</div>
+                <div class="team-block"><div class="team-circle">KIA</div><div class="team-name">KIA</div></div>
+              </div>
+            </div>
+            <div class="spacer8"></div>
+            <div class="bottom-nav">
+              <div class="nav-item"><div class="nav-icon"></div><div class="nav-label">승부예측</div></div>
+              <div class="nav-item active"><div class="nav-icon"></div><div class="nav-label">응모</div></div>
+              <div class="nav-item"><div class="nav-icon"></div><div class="nav-label">마이</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="func-panel">
+        <div class="func-card">
+          <div class="func-card-title">기능 정의</div>
+          <div class="func-item"><div class="fdot req"></div><div><div class="func-text">긴급 이벤트 활성화 시에만 배너 노출, 비활성 시 미노출</div><div class="func-sub">운영자가 이벤트 ON/OFF 제어</div></div></div>
+          <div class="func-item"><div class="fdot req"></div><div><div class="func-text">배너 탭 시 이벤트 경기 목록(S2)으로 이동</div></div></div>
+          <div class="func-item"><div class="fdot req"></div><div><div class="func-text">배너 위치는 응모 메인 최상단 고정 (당첨 결과 배너 아래)</div></div></div>
+          <div class="func-item"><div class="fdot opt"></div><div><div class="func-text">배너 문구에 잔여 티켓 수 실시간 반영</div><div class="func-sub">예: "잔여 3장 · 광고 보고 즉시 도전"</div></div></div>
+          <div class="func-item"><div class="fdot opt"></div><div><div class="func-text">이벤트 오픈 시점에 마이팀 설정 유저 대상 푸시 발송</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S2 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">S2</div>
+      <div class="section-title">이벤트 경기 목록 — 경기 선택 + 방식 안내</div>
+      <div class="section-sub">카드 탭 시 바텀시트로 안내 + 광고 진입</div>
+    </div>
+    <div class="screen-row">
+
+      <div class="phone-wrap">
+        <div class="phone-caption">경기 목록</div>
+        <div class="phone">
+          <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+          <div class="phone-body">
+            <div class="page-header">
+              <div class="back-btn">←</div>
+              <div class="page-title">긴급 티켓 이벤트</div>
+            </div>
+            <div style="padding: 8px 16px 4px; font-size: 10px; color: #888780;">도전할 경기를 선택하세요</div>
+            <div class="game-card selected">
+              <div class="game-meta">인천 SSG 랜더스필드 · 6.22(수) 18:30</div>
+              <div class="game-teams">
+                <div class="team-block"><div class="team-circle">SSG</div><div class="team-name">SSG</div></div>
+                <div class="vs-txt">vs</div>
+                <div class="team-block"><div class="team-circle">롯데</div><div class="team-name">롯데</div></div>
+              </div>
+              <div class="game-footer">
+                <div class="badge-remain">잔여 2장</div>
+                <div class="try-count">내 도전 0/5</div>
+              </div>
+            </div>
+            <div class="game-card" style="margin-top:4px;">
+              <div class="game-meta">인천 SSG 랜더스필드 · 6.23(목) 18:30</div>
+              <div class="game-teams">
+                <div class="team-block"><div class="team-circle">SSG</div><div class="team-name">SSG</div></div>
+                <div class="vs-txt">vs</div>
+                <div class="team-block"><div class="team-circle">KT</div><div class="team-name">KT</div></div>
+              </div>
+              <div class="game-footer">
+                <div class="badge-remain">잔여 1장</div>
+                <div class="try-count">내 도전 2/5</div>
+              </div>
+            </div>
+            <div class="game-card dimmed" style="margin-top:4px;">
+              <div class="game-meta">수원 KT위즈파크 · 6.24(금) 18:30</div>
+              <div class="game-teams">
+                <div class="team-block"><div class="team-circle">KT</div><div class="team-name">KT</div></div>
+                <div class="vs-txt">vs</div>
+                <div class="team-block"><div class="team-circle">한화</div><div class="team-name">한화</div></div>
+              </div>
+              <div class="game-footer">
+                <div class="badge-sold">마감</div>
+                <div class="try-count">당첨자 확정</div>
+              </div>
+            </div>
+            <div class="spacer8"></div>
+            <div class="bottom-nav">
+              <div class="nav-item"><div class="nav-icon"></div><div class="nav-label">승부예측</div></div>
+              <div class="nav-item active"><div class="nav-icon"></div><div class="nav-label">응모</div></div>
+              <div class="nav-item"><div class="nav-icon"></div><div class="nav-label">마이</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phone-wrap">
+        <div class="phone-caption">바텀시트 (카드 탭 시)</div>
+        <div class="phone">
+          <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+          <div class="phone-body">
+            <div class="page-header">
+              <div class="back-btn">←</div>
+              <div class="page-title">긴급 티켓 이벤트</div>
+            </div>
+            <div style="padding: 8px 16px 4px; font-size: 10px; color: #888780; opacity:0.4;">도전할 경기를 선택하세요</div>
+            <div class="game-card selected" style="opacity:0.4;">
+              <div class="game-meta">인천 SSG 랜더스필드 · 6.22(수) 18:30</div>
+              <div class="game-teams">
+                <div class="team-block"><div class="team-circle">SSG</div><div class="team-name">SSG</div></div>
+                <div class="vs-txt">vs</div>
+                <div class="team-block"><div class="team-circle">롯데</div><div class="team-name">롯데</div></div>
+              </div>
+            </div>
+            <div class="bottom-sheet-overlay">
+              <div class="bottom-sheet">
+                <div class="bs-handle"></div>
+                <div class="bs-title">이렇게 진행돼요</div>
+                <div class="bs-game-info">
+                  <div class="bs-game-teams"><span>SSG</span><span style="color:#B4B2A9;font-weight:400;font-size:11px;">vs</span><span>롯데</span></div>
+                  <div class="bs-game-sub">인천 SSG 랜더스필드 · 6.22(수) 18:30 · 1층 테이블석</div>
+                </div>
+                <div class="bs-steps">
+                  <div class="bs-step"><div class="bs-step-num">1</div><div class="bs-step-txt">광고를 끝까지 시청해요</div></div>
+                  <div class="bs-step"><div class="bs-step-num">2</div><div class="bs-step-txt">스크래치 긁어 당첨 여부 확인</div></div>
+                  <div class="bs-step"><div class="bs-step-num">3</div><div class="bs-step-txt">당첨 시 수락하면 티켓 지급</div></div>
+                </div>
+                <div class="try-dots-row">
+                  <div class="try-dots-label">남은 도전 횟수</div>
+                  <div class="try-dots">
+                    <div class="try-dot"></div><div class="try-dot"></div><div class="try-dot"></div><div class="try-dot"></div><div class="try-dot"></div>
+                  </div>
+                </div>
+                <div class="btn-primary">광고 보고 도전하기</div>
+                <div class="btn-secondary" style="margin-top:6px;">다른 경기 선택</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="func-panel">
+        <div class="func-card">
+          <div class="func-card-title">경기 목록</div>
+          <div class="func-item"><div class="fdot req"></div><div><div class="func-text">로스 발생 티켓만 카드로 노출 (운영자 등록 기준)</div></div></div>
+          <div class="func-item"><div class="fdot req"></div><div><div class="func-text">잔여 티켓 수 실시간 표시</div></div></div>
+          <div class="func-item"><div class="fdot req"></div><div><div class="func-text">내 도전 횟수 표시 (N/5), 5회 소진 시 카드 비활성화</div></div></div>
+          <div class="func-item"><div class="fdot req"></div><div><div class="func-text">당첨자 확정된 티켓 카드 비활성화 + "마감" 뱃지</div></div></div>
+          <div class="func-item"><div class="fdot opt"></div><div><div class="func-text">마이팀 경기 우선 정렬</div></div></div>
+        </div>
+        <div class="func-card">
+          <div class="func-card-title">바텀시트 (방식 안내)</div>
+          <div class="func-item"><div class="fdot req"></div><div><div class="func-text">카드 탭 시 바텀시트 노출 (별도 화면 이동 없음)</div></div></div>
+          <div class="func-item"><div class="fdot req"></div><div><div class="func-text">선택한 경기 정보 + 3단계 안내 + 남은 도전 횟수 표시</div></div></div>
+          <div class="func-item"><div class="fdot req"></div><div><div class="func-text">"광고 보고 도전하기" 탭 시 광고 SDK 호출</div></div></div>
+          <div class="func-item"><div class="fdot req"></div><div><div class="func-text">도전 횟수 0회 또는 잔여 티켓 0장 시 버튼 비활성화</div></div></div>
+          <div class="func-item"><div class="fdot opt"></div><div><div class="func-text">첫 진입 시 1회만 방식 안내 노출, 이후 생략 가능</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S3 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">S3</div>
+      <div class="section-title">스크래치 — 결과 발표</div>
+      <div class="section-sub">광고 완료 후 자동 전환 · 당첨/낙첨 분기</div>
+    </div>
+    <div class="screen-row">
+
+      <div class="phone-wrap">
+        <div class="phone-caption">스크래치 (광고 완료 후)</div>
+        <div class="phone">
+          <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+          <div class="phone-body">
+            <div class="page-header">
+              <div class="back-btn" style="opacity:0.3;">←</div>
+              <div class="page-title">스크래치</div>
+            </div>
+            <div style="padding: 6px 16px 2px; font-size: 10px; color: #888780;">SSG vs 롯데 · 1층 테이블석</div>
+            <div class="scratch-area">
+              <div class="scratch-card"><div class="scratch-card-txt">긁어서 확인</div></div>
+              <div class="scratch-hint">손가락으로 긁어보세요</div>
+            </div>
+            <div style="margin: 10px 16px 0; display: flex; align-items: center; justify-content: space-between;">
+              <div style="font-size: 10px; color: #888780;">남은 도전 횟수</div>
+              <div class="try-dots">
+                <div class="try-dot used"></div><div class="try-dot"></div><div class="try-dot"></div><div class="try-dot"></div><div class="try-dot"></div>
+              </div>
+            </div>
+            <div style="margin: 6px 16px 0; font-size: 9px; color: #B4B2A9; text-align: right;">1회 사용됨</div>
+            <div class="spacer8"></div>
+            <div class="bottom-nav">
+              <div class="nav-item"><div class="nav-icon"></div><div class="nav-label">승부예측</div></div>
+              <div class="nav-item active"><div class="nav-icon"></div><div class="nav-label">응모</div></div>
+              <div class="nav-item"><div class="nav-icon"></div><div class="nav-label">마이</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phone-wrap">
+        <div class="phone-caption">결과 — 당첨</div>
+        <div class="phone">
+          <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+          <div class="phone-body">
+            <div class="page-header">
+              <div class="back-btn" style="opacity:0.3;">←</div>
+              <div class="page-title">결과 확인</div>
+            </div>
+            <div class="result-win">
+              <div class="result-icon">★</div>
+              <div class="result-title-win">당첨됐어요!</div>
+              <div class="result-sub-win">SSG vs 롯데 · 1층 테이블석</div>
+            </div>
+            <div class="action-row">
+              <div class="btn-full-primary">티켓 받기</div>
+              <div class="btn-full-secondary">이번엔 괜찮아요</div>
+            </div>
+            <div class="result-notice" style="margin: 6px 10px 0;">포기 시 다른 분께 기회가 넘어가요</div>
+            <div class="spacer8"></div>
+            <div class="bottom-nav">
+              <div class="nav-item"><div class="nav-icon"></div><div class="nav-label">승부예측</div></div>
+              <div class="nav-item active"><div class="nav-icon"></div><div class="nav-label">응모</div></div>
+              <div class="nav-item"><div class="nav-icon"></div><div class="nav-label">마이</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phone-wrap">
+        <div class="phone-caption">결과 — 낙첨</div>
+        <div class="phone">
+          <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+          <div class="phone-body">
+            <div class="page-header">
+              <div class="back-btn" style="opacity:0.3;">←</div>
+              <div class="page-title">결과 확인</div>
+            </div>
+            <div class="result-lose">
+              <div class="result-icon" style="font-size:22px;">○</div>
+              <div class="result-title-lose">아쉽게도 꽝이에요</div>
+              <div class="result-sub-lose">SSG vs 롯데 · 남은 도전 4회</div>
+            </div>
+            <div class="action-row">
+              <div class="btn-full-primary">이 경기 다시 도전</div>
+              <div class="btn-full-secondary">다른 경기 선택</div>
+            </div>
+            <div class="spacer8"></div>
+            <div class="bottom-nav">
+              <div class="nav-item"><div class="nav-icon"></div><div class="nav-label">승부예측</div></div>
+              <div class="nav-item active"><div class="nav-icon"></div><div class="nav-label">응모</div></div>
+              <div class="nav-item"><div class="nav-icon"></div><div class="nav-label">마이</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="func-panel">
+        <div class="func-card">
+          <div class="func-card-title">스크래치</div>
+          <div class="func-item"><div class="fdot req"></div><div><div class="func-text">광고 완료 이벤트 수신 즉시 자동 전환 (뒤로가기 비활성화)</div></div></div>
+          <div class="func-item"><div class="fdot req"></div><div><div class="func-text">추첨 결과는 광고 완료 시점에 서버에서 결정, 스크래치는 UX 연출</div></div></div>
+          <div class="func-item"><div class="fdot req"></div><div><div class="func-text">스크래치 완료 시 당첨/낙첨 결과 화면으로 전환</div></div></div>
+          <div class="func-item"><div class="fdot req"></div><div><div class="func-text">도전 횟수는 광고 완료 시점 기준으로 1회 차감</div><div class="func-sub">광고 중간 이탈 시 차감 없음</div></div></div>
+        </div>
+        <div class="func-card">
+          <div class="func-card-title">결과 — 당첨</div>
+          <div class="func-item"><div class="fdot req"></div><div><div class="func-text">"티켓 받기" 탭 시 정보 입력 또는 티켓 즉시 지급 처리</div></div></div>
+          <div class="func-item"><div class="fdot req"></div><div><div class="func-text">"이번엔 괜찮아요" 탭 시 해당 티켓 풀에 반환, 타인에게 기회 이전</div></div></div>
+          <div class="func-item"><div class="fdot opt"></div><div><div class="func-text">포기한 유저의 해당 티켓 재도전 허용 여부 정책 결정 필요</div></div></div>
+        </div>
+        <div class="func-card">
+          <div class="func-card-title">결과 — 낙첨</div>
+          <div class="func-item"><div class="fdot req"></div><div><div class="func-text">남은 도전 횟수 안내 후 재도전 또는 다른 경기 선택 유도</div></div></div>
+          <div class="func-item"><div class="fdot req"></div><div><div class="func-text">해당 경기 5회 소진 시 "이 경기 다시 도전" 버튼 비활성화</div></div></div>
+          <div class="func-item"><div class="fdot req"></div><div><div class="func-text">잔여 티켓 0장 시 재도전 버튼 비활성화 + "마감" 안내</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>폴리볼 · 긴급 티켓 이벤트 와이어프레임 v0.1 · Draft</footer>
+
+</body>
+</html>

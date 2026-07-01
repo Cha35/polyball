@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PolyBall 기능정의서 — 포인트 배팅 시스템 (PT) v1.0</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap');
+  :root {
+    --primary: #2563EB;
+    --primary-light: #EFF6FF;
+    --primary-mid: #BFDBFE;
+    --dark: #0F172A;
+    --mid: #475569;
+    --muted: #94A3B8;
+    --border: #E2E8F0;
+    --bg: #F1F5F9;
+    --white: #FFFFFF;
+    --orange: #EA580C;
+    --undef-bg: #FFF7ED;
+    --undef-text: #C2410C;
+    --later-bg: #F5F3FF;
+    --later-text: #7C3AED;
+    --later-border: #DDD6FE;
+    --row-head: #EFF6FF;
+    --row-alt: #F8FAFC;
+    --sidebar-w: 230px;
+    --topbar-h: 48px;
+    --green: #059669;
+    --green-light: #F0FDF4;
+    --green-mid: #A7F3D0;
+    --red: #DC2626;
+    --red-light: #FEF2F2;
+    --amber: #D97706;
+    --amber-light: #FFFBEB;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Noto Sans KR',sans-serif; background:var(--bg); color:var(--dark); font-size:13px; line-height:1.6; }
+  .layout { display:flex; min-height:100vh; padding-top:var(--topbar-h); }
+
+  /* 상단바 */
+  .topbar { position:fixed; top:0; left:0; right:0; height:var(--topbar-h); background:var(--dark); display:flex; align-items:center; padding:0 24px; gap:16px; z-index:200; }
+  .topbar-brand { font-size:13px; font-weight:800; color:#fff; letter-spacing:-0.3px; }
+  .topbar-divider { width:1px; height:16px; background:#334155; }
+  .topbar-meta { font-size:11px; color:#64748B; font-family:'DM Mono',monospace; }
+  .topbar-version { margin-left:auto; font-size:10px; font-weight:700; color:var(--primary); background:#1E293B; border:1px solid #334155; border-radius:4px; padding:2px 10px; font-family:'DM Mono',monospace; }
+
+  /* 사이드바 */
+  .sidebar { position:fixed; top:var(--topbar-h); left:0; width:var(--sidebar-w); height:calc(100vh - var(--topbar-h)); background:var(--white); border-right:1px solid var(--border); overflow-y:auto; z-index:100; padding:20px 0 40px; }
+  .sidebar::-webkit-scrollbar { width:4px; }
+  .sidebar::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+  .sidebar-group { margin-bottom:4px; }
+  .sidebar-group-label { font-size:9px; font-weight:800; letter-spacing:1.2px; color:var(--muted); padding:10px 16px 4px; text-transform:uppercase; font-family:'DM Mono',monospace; }
+  .sidebar-item { display:flex; align-items:center; gap:8px; padding:6px 16px; font-size:12px; font-weight:600; color:var(--mid); text-decoration:none; border-left:2px solid transparent; background:none; border-top:none; border-right:none; border-bottom:none; width:100%; text-align:left; cursor:pointer; font-family:'Noto Sans KR',sans-serif; transition:all .12s; }
+  .sidebar-item:hover { background:var(--primary-light); color:var(--primary); border-left-color:var(--primary-mid); }
+  .sidebar-item.active { background:var(--primary-light); color:var(--primary); border-left-color:var(--primary); }
+  .sidebar-item-id { font-family:'DM Mono',monospace; font-size:9px; font-weight:600; color:var(--muted); background:var(--bg); border-radius:3px; padding:1px 5px; flex-shrink:0; }
+  .sidebar-divider { height:1px; background:var(--border); margin:8px 16px; }
+
+  /* 메인 */
+  .main { margin-left:var(--sidebar-w); flex:1; padding:40px 48px 120px; max-width:calc(100% - var(--sidebar-w)); }
+  .content-wrap { max-width:820px; }
+
+  /* 표지 */
+  .cover { padding:8px 0 40px; border-bottom:1px solid var(--border); margin-bottom:40px; }
+  .cover-tag { display:inline-block; font-size:10px; font-weight:800; letter-spacing:1.5px; color:var(--primary); background:var(--primary-light); border:1px solid var(--primary-mid); border-radius:4px; padding:3px 10px; margin-bottom:12px; font-family:'DM Mono',monospace; }
+  .cover h1 { font-size:28px; font-weight:900; color:var(--dark); letter-spacing:-0.8px; margin-bottom:6px; }
+  .cover-sub { font-size:14px; color:var(--muted); margin-bottom:20px; }
+  .cover-meta { display:flex; gap:20px; flex-wrap:wrap; }
+  .cover-meta-item { font-size:11px; color:var(--muted); font-family:'DM Mono',monospace; }
+  .cover-meta-item span { color:var(--mid); font-weight:600; }
+
+  /* 섹션 */
+  .section { margin-bottom:56px; scroll-margin-top:24px; }
+  .section-header { display:flex; align-items:baseline; gap:12px; margin-bottom:20px; padding-bottom:12px; border-bottom:2px solid var(--primary); }
+  .section-num { font-family:'DM Mono',monospace; font-size:11px; color:var(--primary); background:var(--primary-light); border-radius:4px; padding:2px 8px; }
+  .section-title { font-size:20px; font-weight:900; color:var(--dark); letter-spacing:-0.5px; }
+  .sub { margin-bottom:36px; scroll-margin-top:24px; }
+  .sub-title { font-size:14px; font-weight:800; color:var(--dark); margin-bottom:12px; padding-left:10px; border-left:3px solid var(--primary-mid); }
+  .sub-h3 { font-size:10px; font-weight:800; color:var(--muted); letter-spacing:0.8px; margin:16px 0 8px; text-transform:uppercase; font-family:'DM Mono',monospace; }
+
+  /* 테이블 */
+  .spec-table { width:100%; border-collapse:collapse; border-radius:10px; overflow:hidden; border:1px solid var(--border); margin-bottom:12px; }
+  .spec-table th { background:var(--primary); color:#fff; font-size:11px; font-weight:700; padding:9px 14px; text-align:left; }
+  .spec-table td { padding:8px 14px; font-size:12px; border-bottom:1px solid var(--border); vertical-align:top; line-height:1.65; }
+  .spec-table tr:last-child td { border-bottom:none; }
+  .spec-table tr:nth-child(even) td { background:var(--row-alt); }
+  .spec-2col td:first-child { width:200px; font-weight:700; color:var(--primary); background:var(--row-head) !important; white-space:nowrap; font-size:11px; }
+  td.ok { background:#F0FDF4 !important; color:#166534; font-weight:600; }
+  td.warn { background:var(--undef-bg) !important; color:var(--undef-text); font-style:italic; }
+  td.warn::before { content:'⚠ '; font-style:normal; }
+  td.later { background:var(--later-bg) !important; color:var(--later-text); font-style:italic; }
+  td.later::before { content:'🕐 '; font-style:normal; }
+
+  /* 플로우 */
+  .flow { display:flex; align-items:center; flex-wrap:wrap; gap:6px; background:var(--white); border:1px solid var(--border); border-radius:10px; padding:12px 16px; margin-bottom:12px; }
+  .flow-step { background:var(--primary-light); border:1px solid var(--primary-mid); border-radius:6px; padding:5px 13px; font-size:11px; font-weight:700; color:var(--primary); line-height:1.4; }
+  .flow-step small { display:block; font-size:10px; font-weight:500; color:var(--muted); }
+  .flow-step.ok { background:var(--green-light); border-color:var(--green-mid); color:var(--green); }
+  .flow-step.warn { background:var(--red-light); border-color:#FECACA; color:var(--red); }
+  .flow-step.gray { background:#F8FAFC; border-color:var(--border); color:var(--mid); }
+  .flow-step.amber { background:var(--amber-light); border-color:#FDE68A; color:var(--amber); }
+  .flow-arrow { font-size:12px; color:var(--muted); }
+
+  /* 인포박스 */
+  .rule-box { background:var(--white); border-left:3px solid var(--primary); border-radius:0 8px 8px 0; padding:11px 16px; margin-bottom:10px; font-size:12px; color:var(--mid); line-height:1.7; }
+  .rule-box strong { color:var(--dark); }
+  .info-box { background:var(--undef-bg); border-left:3px solid #F97316; border-radius:0 8px 8px 0; padding:11px 16px; margin-bottom:10px; font-size:12px; color:#7C2D12; line-height:1.7; }
+  .info-box-blue { background:var(--primary-light); border-left:3px solid var(--primary); border-radius:0 8px 8px 0; padding:11px 16px; margin-bottom:10px; font-size:12px; color:#1e40af; line-height:1.7; }
+  .info-box-green { background:var(--green-light); border-left:3px solid var(--green); border-radius:0 8px 8px 0; padding:11px 16px; margin-bottom:10px; font-size:12px; color:#065F46; line-height:1.7; }
+  .info-box-red { background:var(--red-light); border-left:3px solid var(--red); border-radius:0 8px 8px 0; padding:11px 16px; margin-bottom:10px; font-size:12px; color:#7F1D1D; line-height:1.7; }
+
+  /* 뱃지 */
+  .badge { display:inline-block; font-size:10px; font-weight:700; border-radius:4px; padding:2px 8px; font-family:'DM Mono',monospace; vertical-align:middle; }
+  .badge-blue { background:var(--primary-light); color:var(--primary); border:1px solid var(--primary-mid); }
+  .badge-green { background:var(--green-light); color:var(--green); border:1px solid var(--green-mid); }
+  .badge-red { background:var(--red-light); color:var(--red); border:1px solid #FECACA; }
+  .badge-amber { background:var(--amber-light); color:var(--amber); border:1px solid #FDE68A; }
+  .badge-gray { background:#F1F5F9; color:var(--mid); border:1px solid var(--border); }
+
+  /* 수식 블록 */
+  .formula-box { background:#0F172A; border-radius:10px; padding:16px 20px; margin-bottom:12px; font-family:'DM Mono',monospace; }
+  .formula-line { color:#E2E8F0; font-size:12px; line-height:2; }
+  .formula-line .comment { color:#64748B; }
+  .formula-line .highlight { color:#09FFEE; font-weight:700; }
+  .formula-line .label { color:#93C5FD; }
+
+  /* 예시 블록 */
+  .example-box { background:#1E293B; border-radius:10px; padding:16px 20px; margin-bottom:12px; }
+  .example-title { font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase; letter-spacing:0.8px; font-family:'DM Mono',monospace; margin-bottom:10px; }
+  .example-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; font-family:'DM Mono',monospace; font-size:11px; }
+  .example-label { color:#94A3B8; min-width:140px; }
+  .example-value { color:#E2E8F0; }
+  .example-value.highlight { color:#09FFEE; font-weight:700; }
+  .example-divider { height:1px; background:#334155; margin:10px 0; }
+
+  /* 컴플라이언스 블록 */
+  .compliance-box { background:var(--green-light); border:1px solid var(--green-mid); border-radius:10px; padding:16px 20px; margin-bottom:12px; }
+  .compliance-title { font-size:11px; font-weight:800; color:var(--green); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.6px; font-family:'DM Mono',monospace; }
+  .compliance-item { font-size:12px; color:#065F46; padding-left:16px; position:relative; margin-bottom:5px; line-height:1.65; }
+  .compliance-item::before { content:'✓'; position:absolute; left:0; color:var(--green); font-weight:700; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">PolyBall</div>
+  <div class="topbar-divider"></div>
+  <div class="topbar-meta">기능정의서 · 포인트 배팅 시스템</div>
+  <div class="topbar-version">v1.1</div>
+</div>
+
+<aside class="sidebar">
+  <div class="sidebar-group">
+    <div class="sidebar-group-label">개요</div>
+    <button class="sidebar-item active" onclick="scrollTo('s1')"><span class="sidebar-item-id">01</span>목적 및 목표</button>
+  </div>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-label">작동 방식</div>
+    <button class="sidebar-item" onclick="scrollTo('s2')"><span class="sidebar-item-id">02</span>포인트 배팅</button>
+    <button class="sidebar-item" onclick="scrollTo('s3')"><span class="sidebar-item-id">03</span>경품 응모</button>
+  </div>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-label">정책</div>
+    <button class="sidebar-item" onclick="scrollTo('s4')"><span class="sidebar-item-id">04</span>획득 및 활용처</button>
+    <button class="sidebar-item" onclick="scrollTo('s5')"><span class="sidebar-item-id">05</span>포인트 정책</button>
+    <button class="sidebar-item" onclick="scrollTo('s6')"><span class="sidebar-item-id">06</span>예외 처리</button>
+  </div>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-label">미결 사항</div>
+    <button class="sidebar-item" onclick="scrollTo('s7')"><span class="sidebar-item-id">TODO</span>미확정 항목</button>
+  </div>
+</aside>
+
+<div class="layout">
+<main class="main">
+<div class="content-wrap">
+
+  <!-- 표지 -->
+  <div class="cover">
+    <div class="cover-tag">SPEC · PT · v1.0</div>
+    <h1>포인트 배팅 시스템 기능정의서</h1>
+    <div class="cover-sub">PT-01~06 · 포인트 획득 / 배팅 / 경품 응모 — Phase 2.0 신규 도입</div>
+    <div class="cover-meta">
+      <div class="cover-meta-item">연관 문서 <span>기능정의서_픽_예측상세_PD-01_v1.0 · 응모_기능정의서_v1.0 · 픽_응모_인터스티셜RV_기능정의서_v1.0</span></div>
+      <div class="cover-meta-item">최초 작성 <span>2026-06-05</span></div>
+      <div class="cover-meta-item">버전 <span>v1.0 — 초안</span></div>
+      <div class="cover-meta-item">법무 근거 <span>SOOP 라이브 젬 모델 준용 (게임물 미분류 선례) · 무료 포인트 + 응모 구조</span></div>
+    </div>
+    <div class="info-box-blue" style="margin-top:16px;">
+      ℹ️ 본 시스템은 기존 응모권(TICKET) 기반 KBO 직관 응모와 <strong>병렬 운영</strong>됩니다. 포인트는 기프티콘 경품 응모 전용이며 응모권과 교환되지 않습니다. 단계적으로 통합 예정.
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- SECTION 1: 목적 및 목표 -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <div class="section-num">01</div>
+      <div class="section-title">목적 및 목표</div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">배경 및 문제 정의</div>
+      <p style="font-size:13px;color:var(--mid);line-height:1.8;margin-bottom:12px;">
+        현재 폴리볼의 핵심 퍼널은 <strong>픽 참여 → 응모권 획득 → 경기 응모 → 당첨</strong>으로 구성된다. 이 구조에서 경기 응모는 주 1회(월요일 발표) 단위로 운영되어, 유저가 재방문해야 할 일간 유인이 약하다. 픽 참여 자체도 "응모권 획득"이라는 도구적 동기에 머물러, 경기 결과에 대한 몰입도와 재방문 빈도가 낮다.
+      </p>
+      <p style="font-size:13px;color:var(--mid);line-height:1.8;">
+        포인트 배팅 시스템은 이 문제를 해결하기 위해 설계된다. 유저가 <strong>경기마다 포인트를 걸고 결과에 능동적으로 개입</strong>하도록 하여, 픽 참여의 목적 자체를 강화한다. 쌓인 포인트는 기프티콘 경품 응모에 활용되며, 이는 단기 보상 루프를 형성하여 일간 재방문 빈도를 높인다.
+      </p>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">목표</div>
+      <table class="spec-table">
+        <thead><tr><th>구분</th><th>목표</th><th>BM 연결 논리</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>NSM 기여</strong></td>
+            <td>주간 콘텐츠 이용 유저 수 증가<br><span style="font-size:11px;color:var(--muted);">최근 7일 내 픽 또는 응모 1회 이상 완료 유니크 유저</span></td>
+            <td>배팅 결과 확인을 위한 일간 재방문 → 픽/응모 추가 참여 → 광고 노출 증가</td>
+          </tr>
+          <tr>
+            <td><strong>광고 매출</strong></td>
+            <td>픽 참여 + 응모 참여 증가로 광고 노출 빈도 상승</td>
+            <td>포인트 응모 참여 시 광고 노출 지점 확보 가능 (추후 설계)</td>
+          </tr>
+          <tr>
+            <td><strong>리텐션</strong></td>
+            <td>경기 결과 확인 습관 형성</td>
+            <td>배팅 → 결과 확인 → 재배팅 사이클이 일간 방문 루틴화</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">법적 근거 및 컴플라이언스</div>
+      <div class="compliance-box">
+        <div class="compliance-title">✅ SOOP 라이브 젬 모델 준용 — 게임물 미분류 선례</div>
+        <div class="compliance-item">포인트는 <strong>현금 구매·충전·환전 불가</strong>. 서비스 내 활동 보상으로만 획득.</div>
+        <div class="compliance-item">포인트 → 재화 교환은 <strong>응모(확률) 형태로만</strong> 허용. 확정 교환 불가.</div>
+        <div class="compliance-item"><strong>유료 재화(응모권)와 계통 분리</strong>. 포인트 ↔ 응모권 교환 불가.</div>
+        <div class="compliance-item">포인트 <strong>계정 간 이전·양도 금지</strong>. 지정 경품 응모에만 사용 가능.</div>
+        <div class="compliance-item">오퍼월(CPI/CPA 기반 광고주 과제) <strong>제외</strong>. 플랫폼 내부 행동만 획득 트리거.</div>
+      </div>
+      <div class="rule-box">
+        <strong>사행성 판단 기준:</strong> 한국 법령상 사행행위는 <em>대가성 × 우연성의 결합</em>으로 판단된다. 포인트가 <strong>무료 획득</strong>인 이상 대가성이 없으며, 응모(우연성)와 결합되어도 위법 소지가 없다. SOOP은 동일 구조로 규제 당국의 게임물 분류를 받지 않고 운영 중이다.
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- SECTION 2: 포인트 배팅 작동 방식 -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <div class="section-num">02</div>
+      <div class="section-title">포인트 배팅 작동 방식</div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">전체 플로우</div>
+      <div class="flow">
+        <div class="flow-step">픽 메인 진입<small>경기 카드 확인</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">배팅 입력<small>포인트 수량 입력</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">선택지 확정<small>팀 선택 + 배팅 확정</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step gray">경기 진행 중<small>배팅 수정 불가</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step ok">적중 → 배당 수령<small>포인트 지갑에 적립</small></div>
+      </div>
+      <div class="flow">
+        <div class="flow-step gray">미적중</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step warn">배팅 포인트 소멸<small>전액 차감</small></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">동적 배당 계산 방식 (SOOP 준용)</div>
+      <div class="sub-h3">배당 공식</div>
+      <div class="formula-box">
+        <div class="formula-line"><span class="comment">// 배팅 풀 구성</span></div>
+        <div class="formula-line"><span class="label">총 배팅 풀 (P)</span> = A선택 총합 (Pa) + B선택 총합 (Pb)</div>
+        <div class="formula-line" style="margin-top:8px;"><span class="comment">// 배당 계산 (적중 시)</span></div>
+        <div class="formula-line"><span class="highlight">내 수령 포인트</span> = 내 배팅 × ( P ÷ 내가 선택한 팀 총합 )</div>
+        <div class="formula-line" style="margin-top:8px;"><span class="comment">// 예시: P=1,000 / A:700 / B:300, 내가 B에 100 배팅, B 적중</span></div>
+        <div class="formula-line"><span class="highlight">수령</span> = 100 × (1,000 ÷ 300) = <span class="highlight">333P</span> <span class="comment">// 순수익 +233P</span></div>
+      </div>
+      <div class="rule-box">
+        <strong>배당률 특성:</strong> 다수가 선택한 팀(인기 팀) 배당률이 낮고, 소수가 선택한 팀(언더독)의 배당률이 높다. 배팅 참여 시점에 따라 실시간으로 배당률이 변동하며, 배팅 확정 시점의 배당률이 아닌 <strong>경기 마감 시 최종 배당률로 정산</strong>된다.
+      </div>
+
+      <div class="sub-h3">배당 표시 규칙</div>
+      <table class="spec-table spec-2col">
+        <tr><td>실시간 배당률</td><td>픽 카드 내 선택지별 배당률 표시 (예: ×2.3 / ×1.4). 배팅 풀 실시간 반영.</td></tr>
+        <tr><td>최종 배당률</td><td>경기 마감 후 더 이상 변경 없음. 정산 기준 배당률로 고정 표시.</td></tr>
+        <tr><td>배당률 최솟값</td><td>×1.0 (이론값). 실질적으로 ×1.0 이하 배당률은 발생 불가 (풀 전체 배분 구조).</td></tr>
+        <tr><td>소수점 처리</td><td>배당률 소수점 2자리 표시 (예: ×2.33). 포인트 정산 시 소수점 이하 버림.</td></tr>
+      </table>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">배팅 참여 한도</div>
+      <table class="spec-table">
+        <thead><tr><th>구분</th><th>한도</th><th>적용 대상</th><th>비고</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>최소 배팅</td>
+            <td><strong>10P</strong></td>
+            <td>메인마켓 / 서브마켓 공통</td>
+            <td>스팸 참여 방지</td>
+          </tr>
+          <tr>
+            <td>최대 배팅</td>
+            <td><strong>2,000P / 마켓</strong></td>
+            <td>메인마켓 / 서브마켓 공통</td>
+            <td>SOOP 준용. 마켓 유형 구분 없이 단일 한도 적용.</td>
+          </tr>
+          <tr>
+            <td>1일 전체 최대 배팅</td>
+            <td class="later">미확정</td>
+            <td>-</td>
+            <td>경기 수 × 한도로 자연 제어</td>
+          </tr>
+          <tr>
+            <td>배팅 수정</td>
+            <td><strong>불가</strong></td>
+            <td>확정 후 전체</td>
+            <td>배팅 확정 후 취소·수정 없음</td>
+          </tr>
+          <tr>
+            <td>배팅 마감</td>
+            <td>경기 시작 시각 기준</td>
+            <td>전체</td>
+            <td>경기 시작 후 신규 배팅 차단</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="sub-h3">배팅 가능 마켓 범위</div>
+      <table class="spec-table">
+        <thead><tr><th>마켓 유형</th><th>배팅 가능</th><th>비고</th></tr></thead>
+        <tbody>
+          <tr><td>메인마켓 (승/패)</td><td><span class="badge badge-green">허용</span></td><td>기본 배팅 대상</td></tr>
+          <tr><td>서브마켓 (경기 흐름)</td><td><span class="badge badge-green">허용</span></td><td>메인마켓보다 낮은 한도</td></tr>
+          <tr><td>이벤트마켓 (퀴즈/예측/참여형)</td><td><span class="badge badge-gray">미적용</span></td><td>기존 응모권/커스텀 재화 보상 유지</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">정산 프로세스</div>
+      <table class="spec-table spec-2col">
+        <tr><td>정산 트리거</td><td>경기 종료 후 어드민 결과 입력 (기존 메인마켓 정산 방식과 동일)</td></tr>
+        <tr><td>정산 순서</td><td>① 경기 결과 확정 → ② 적중자 포인트 계산 → ③ 지갑 일괄 적립 → ④ 푸시 알림 발송</td></tr>
+        <tr><td>정산 시점</td><td>경기 종료 후 최대 2시간 이내 (현행 응모권 정산 SLA 준용)</td></tr>
+        <tr><td>미적중 처리</td><td>배팅 포인트 즉시 소멸. 별도 복구 없음.</td></tr>
+        <tr><td>정산 알림</td><td>적중/미적중 결과 푸시 알림. 적중 시 획득 포인트 명시.</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- SECTION 3: 경품 응모 작동 방식 -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <div class="section-num">03</div>
+      <div class="section-title">경품 응모 작동 방식</div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">즉시 결과 스킴 (공통)</div>
+      <p style="font-size:13px;color:var(--mid);line-height:1.8;margin-bottom:12px;">
+        경품 응모는 <strong>포인트 사용 즉시 당첨/미당첨 결과를 반환</strong>하는 즉석 방식이다. 기존 KBO 응모(주 단위 추첨)와 구분되며, SOOP 라이브 젬 동일 모델로 운영된다. 당첨 결정 방식은 Case A / Case B 중 선택 (미결).
+      </p>
+      <div class="flow">
+        <div class="flow-step">경품 스토어 진입<small>포인트 잔액 확인</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">경품 선택<small>응모 비용 확인</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">포인트 차감<small>응모 비용 즉시 차감</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step ok">당첨<small>기프티콘 즉시 발급</small></div>
+      </div>
+      <div class="flow">
+        <div class="flow-step gray">미당첨</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step warn">포인트만 소진<small>기프티콘 미발급</small></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">경품 구성 및 응모 비용</div>
+      <div class="info-box">
+        ⚠ 경품 단가 및 응모 비용은 운영 예산 확정 후 최종 설정. 아래는 참고용 초안.
+      </div>
+      <table class="spec-table">
+        <thead><tr><th>경품</th><th>응모 비용</th><th>비고</th></tr></thead>
+        <tbody>
+          <tr><td>아이스 아메리카노 (~4천원)</td><td>20P</td><td>진입 장벽 최소화</td></tr>
+          <tr><td>편의점 5천원권 (CU/GS)</td><td>50P</td><td>기본 경품</td></tr>
+          <tr><td>치킨 / 1만원 상품권</td><td>100P</td><td>중간 경품</td></tr>
+          <tr><td>문화상품권 3만원</td><td>300P</td><td>고가 경품</td></tr>
+        </tbody>
+      </table>
+      <div class="rule-box">
+        <strong>비용 설계 원칙:</strong> 일일 한도 없음. 포인트 잔액 범위 내 자유 응모. 예산 제어는 Case A / Case B 방식으로 수행.
+      </div>
+    </div>
+
+    <!-- CASE A -->
+    <div class="sub">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <div style="background:#0369A1;color:#fff;font-family:'DM Mono',monospace;font-size:11px;font-weight:800;border-radius:6px;padding:4px 12px;">CASE A</div>
+        <div style="font-size:15px;font-weight:800;color:var(--dark);">수량 캡 방식 — 주간 재고 선착순</div>
+        <div style="margin-left:auto;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;">미결 · 검토 중</div>
+      </div>
+
+      <p style="font-size:13px;color:var(--mid);line-height:1.8;margin-bottom:12px;">
+        경품별 주간 수량을 고정 설정한다. 포인트 차감 후 수량 내 선착순으로 당첨 처리되며, 수량 소진 시 해당 경품 응모가 마감된다. 잔여 수량을 화면에 노출하여 희소성 긴박감을 유발한다.
+      </p>
+
+      <div class="sub-h3">비용 제어 구조</div>
+      <table class="spec-table spec-2col">
+        <tr><td>주간 예산</td><td>수량 × 경품 단가. 완벽히 예측 가능.</td></tr>
+        <tr><td>수량 리셋</td><td>매주 월요일 00:00 초기화.</td></tr>
+        <tr><td>잔여 수량 표시</td><td>"N개 남음" 실시간 노출. 소진 시 "이번 주 마감" 상태 전환.</td></tr>
+        <tr><td>당첨 확률 표시</td><td>확률 미표시 (선착순 구조이므로 불필요). 단, "이번 주 N개 제공" 수량 공개.</td></tr>
+      </table>
+
+      <div class="sub-h3">장단점</div>
+      <table class="spec-table">
+        <thead><tr><th>장점</th><th>단점</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>예산 완벽 통제. 월 비용 = 수량 합계 × 단가.</td>
+            <td>포인트를 모아온 유저가 품절로 사용 불가 시 이탈 유발.</td>
+          </tr>
+          <tr>
+            <td>"N개 남음" UI가 긴박감과 재방문 유인 생성.</td>
+            <td>초기 접속 유저가 재고 독점. 늦게 접속한 유저 박탈감.</td>
+          </tr>
+          <tr>
+            <td>SOOP 동일 모델 — 운영 선례 있음.</td>
+            <td>재고 관리 어드민 기능 별도 구현 필요.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="sub-h3">선택 기준</div>
+      <div class="info-box-blue">
+        💡 경품을 <strong>"빠르게 소진되는 인기 경쟁 이벤트"</strong>로 포지셔닝하고 싶을 때. 초기 유저 수가 적어 재고가 잘 소진되지 않으면 긴박감 효과가 반감될 수 있음.
+      </div>
+    </div>
+
+    <!-- CASE B -->
+    <div class="sub">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <div style="background:#059669;color:#fff;font-family:'DM Mono',monospace;font-size:11px;font-weight:800;border-radius:6px;padding:4px 12px;">CASE B</div>
+        <div style="font-size:15px;font-weight:800;color:var(--dark);">확률 기반 방식 — 고정 당첨 확률</div>
+        <div style="margin-left:auto;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;">미결 · 검토 중</div>
+      </div>
+
+      <p style="font-size:13px;color:var(--mid);line-height:1.8;margin-bottom:12px;">
+        경품별 고정 당첨 확률을 설정한다. 수량 제한 없이 포인트만 있으면 언제든 응모 가능하며, 응모마다 독립 확률이 적용된다. 품절 상태가 없어 유저 실망 포인트가 없다.
+      </p>
+
+      <div class="sub-h3">비용 제어 구조</div>
+      <table class="spec-table spec-2col">
+        <tr><td>주간 예산</td><td>총 응모 횟수 × 확률 × 경품 단가. 유저 행동에 따라 변동.</td></tr>
+        <tr><td>확률 조정</td><td>MAU 증가 또는 예산 초과 시 확률값 낮춰 어드민 조정. 즉시 반영.</td></tr>
+        <tr><td>당첨 확률 표시</td><td><strong>법적 의무</strong>로 응모 전 확률 명시 필수. (예: "당첨 확률 약 N%")</td></tr>
+        <tr><td>품절 상태</td><td>없음. 항상 응모 가능.</td></tr>
+      </table>
+
+      <div class="sub-h3">장단점</div>
+      <table class="spec-table">
+        <thead><tr><th>장점</th><th>단점</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>품절 없음 — 포인트 보유 유저 언제든 시도 가능.</td>
+            <td>MAU 급증 시 예산 초과 위험. 사전 모니터링 필요.</td>
+          </tr>
+          <tr>
+            <td>운영 단순. 재고 관리 불필요. 확률값만 관리.</td>
+            <td>낮은 확률이 화면에 노출되면 참여 유인 저하 가능.</td>
+          </tr>
+          <tr>
+            <td>유저 수 증가에 따라 확률 조정으로 유연하게 대응.</td>
+            <td>누적 당첨 수가 매주 달라져 예산 예측이 어려움.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="sub-h3">선택 기준</div>
+      <div class="info-box-green">
+        💡 경품을 <strong>"언제든 공정하게 도전 가능한 기회"</strong>로 포지셔닝하고 싶을 때. 초기 유저 수가 적은 지금 예산 변동 폭이 작아 관리 가능. 서비스 성장 후 확률 조정으로 지속 운영.
+      </div>
+    </div>
+
+    <!-- 공통 당첨 처리 -->
+    <div class="sub">
+      <div class="sub-title">당첨 처리 (공통)</div>
+      <table class="spec-table spec-2col">
+        <tr><td>기프티콘 발급</td><td>당첨 즉시 기프티콘 코드 인앱 발급. 마이 > 내 지갑 > 당첨 내역에서 확인.</td></tr>
+        <tr><td>발급 유효기간</td><td>발급일로부터 30일. 이후 자동 소멸 (기프티콘 발행사 정책 준용).</td></tr>
+        <tr><td>발급 실패 처리</td><td>오류 시 포인트 즉시 복구 + 재시도 안내. 재시도 실패 시 CS 자동 접수.</td></tr>
+        <tr><td>1인 수령 한도</td><td class="later">월간 총 수령 기프티콘 가치 한도 설정 필요 (경품류 고시 준수). 수치 미확정.</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- SECTION 4: 포인트 획득 및 활용처 -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <div class="section-num">04</div>
+      <div class="section-title">포인트 획득 및 활용처</div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">획득 루트</div>
+      <div class="info-box-green">
+        ✅ 모든 포인트 획득 루트는 <strong>무료 활동 보상</strong>으로만 구성된다. 현금 구매·충전 불가. 오퍼월(CPI/CPA 광고주 과제 연동) 제외.
+      </div>
+      <table class="spec-table">
+        <thead><tr><th>루트</th><th>지급량</th><th>일일 한도</th><th>지급 시점</th><th>비고</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>메인마켓 픽 참여</td>
+            <td><strong>30P</strong> / 경기</td>
+            <td>당일 경기 수 (자연 한도)</td>
+            <td>예측 확정 즉시</td>
+            <td>결과 무관, 참여만으로 지급</td>
+          </tr>
+          <tr>
+            <td>서브마켓 픽 참여</td>
+            <td><strong>15P</strong> / 마켓</td>
+            <td>당일 서브마켓 수</td>
+            <td>예측 확정 즉시</td>
+            <td>결과 무관</td>
+          </tr>
+          <tr>
+            <td>배팅 배당 수령</td>
+            <td>배당 계산값</td>
+            <td>별도 한도 없음</td>
+            <td>경기 정산 완료 후</td>
+            <td>적중자에 한해 지급</td>
+          </tr>
+          <tr>
+            <td>출석 체크</td>
+            <td><strong>50P</strong></td>
+            <td>1회 / 일</td>
+            <td>출석 즉시</td>
+            <td>자정 기준 리셋</td>
+          </tr>
+          <tr>
+            <td>RV 광고 시청</td>
+            <td><strong>30P</strong> / 회</td>
+            <td>5회 (최대 150P)</td>
+            <td>광고 시청 완료 콜백 수신 후</td>
+            <td>기존 응모권 지급과 별도 적립</td>
+          </tr>
+          <tr>
+            <td>이벤트 미션</td>
+            <td class="later">이벤트별 상이</td>
+            <td>이벤트 설정에 따름</td>
+            <td>미션 달성 즉시</td>
+            <td>어드민 수기 등록</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="sub-h3">일일 기본 획득량 추정 (배팅 미포함 / 5경기 기준)</div>
+      <div class="example-box">
+        <div class="example-title">Daily Base Earning — 5 Games Day</div>
+        <div class="example-row"><span class="example-label">메인마켓 (5경기 × 30P)</span><span class="example-value">150P</span></div>
+        <div class="example-row"><span class="example-label">서브마켓 (15마켓 × 15P)</span><span class="example-value">225P</span></div>
+        <div class="example-row"><span class="example-label">출석 체크</span><span class="example-value">50P</span></div>
+        <div class="example-row"><span class="example-label">RV 광고 5회</span><span class="example-value">150P</span></div>
+        <div class="example-divider"></div>
+        <div class="example-row"><span class="example-label">일일 기본 합계</span><span class="example-value highlight">약 575P / 일</span></div>
+        <div class="example-row"><span class="example-label">편의점 5천원권 (50P) 응모 도달</span><span class="example-value highlight">약 1일 이내</span></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">활용처 (소진 루트)</div>
+      <table class="spec-table">
+        <thead><tr><th>활용처</th><th>소진 방식</th><th>비고</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>배팅 (승부예측)</td>
+            <td>배팅 시 포인트 차감. 적중 시 배당 복원. 미적중 시 소멸.</td>
+            <td>경기 시작 전까지 취소 불가</td>
+          </tr>
+          <tr>
+            <td>경품 응모</td>
+            <td>응모 참여 즉시 응모 비용 차감. 당첨 여부와 무관하게 포인트 소진.</td>
+            <td>즉시 결과 스킴</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="info-box-red">
+        ⛔ <strong>허용하지 않는 소진 방식:</strong> 현금 환전, 응모권 전환, 타 유저 이전, 외부 서비스 연동. 포인트는 위 두 가지 용도로만 사용 가능.
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- SECTION 5: 포인트 정책 -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <div class="section-num">05</div>
+      <div class="section-title">포인트 정책</div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">유효기간 및 소멸</div>
+      <table class="spec-table spec-2col">
+        <tr><td>기본 유효기간</td><td>KBO 시즌 종료 후 30일. 매년 11월 말 기준 일괄 소멸 예정.</td></tr>
+        <tr><td>비시즌 대응</td><td>마지막 서비스 활동일 기준 <strong>90일 미사용 시 소멸</strong>. KBO 시즌 유효기간보다 우선 적용.</td></tr>
+        <tr><td>소멸 사전 안내</td><td>소멸 14일 전 앱 푸시 알림 발송. "포인트가 N일 후 소멸 예정입니다."</td></tr>
+        <tr><td>소멸 후 복구</td><td>불가. 소멸 완료 포인트는 복구하지 않음.</td></tr>
+      </table>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">이전·양도·환금 금지</div>
+      <table class="spec-table spec-2col">
+        <tr><td>계정 간 이전</td><td class="warn">금지. 포인트는 획득 계정에만 귀속.</td></tr>
+        <tr><td>현금 환전</td><td class="warn">금지. 어떠한 방식으로도 현금화 불가.</td></tr>
+        <tr><td>응모권 전환</td><td class="warn">금지. 포인트 ↔ 응모권(TICKET) 교환 불가.</td></tr>
+        <tr><td>계정 탈퇴 시</td><td>탈퇴 즉시 잔여 포인트 전액 소멸. 복구 불가.</td></tr>
+        <tr><td>서비스 종료 시</td><td>종료 30일 전 공지 후 미사용 포인트 소멸.</td></tr>
+      </table>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">어뷰징 방지</div>
+      <table class="spec-table spec-2col">
+        <tr><td>다중 계정</td><td>동일 기기/CI 기준 중복 포인트 획득 차단. 어드민에서 의심 계정 플래깅 가능.</td></tr>
+        <tr><td>RV 광고 어뷰징</td><td>기존 일일 5회 한도 유지. 광고 SDK 콜백 수신 기준으로만 포인트 지급.</td></tr>
+        <tr><td>배팅 풀 조작</td><td>비정상적으로 높은 배팅 편중 감지 시 어드민 알림. 배당 왜곡 방지.</td></tr>
+        <tr><td>계정 거래</td><td>서비스 약관 위반으로 처리. 적발 시 계정 정지 및 포인트 몰수.</td></tr>
+      </table>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">이용약관 연동 필수 고지 사항</div>
+      <div class="rule-box">
+        서비스 약관 및 포인트 관련 화면에 아래 항목을 <strong>명시적으로 고지</strong>해야 한다.<br><br>
+        ① 포인트는 폴리볼 서비스 내 활동을 통해 무료로 제공되는 가상 재화이며 금전적 가치가 없습니다.<br>
+        ② 포인트는 현금, 다른 재화, 다른 계정으로 이전하거나 교환할 수 없습니다.<br>
+        ③ 경품 응모는 확률에 의해 결정되며 당첨을 보장하지 않습니다.<br>
+        ④ 미사용 포인트는 [유효기간] 경과 후 소멸되며 복구되지 않습니다.<br>
+        ⑤ 부정 취득 또는 약관 위반 적발 시 포인트 회수 및 계정 이용 제한될 수 있습니다.
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- SECTION 6: 예외 처리 -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <div class="section-num">06</div>
+      <div class="section-title">예외 처리</div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">경기 취소 / 우천 순연</div>
+      <table class="spec-table">
+        <thead><tr><th>상황</th><th>처리 방식</th><th>포인트 처리</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>경기 취소 (우천·기타)</td>
+            <td>해당 경기 마켓 전체 CANCELED 상태 전환</td>
+            <td><strong>배팅 포인트 전액 반환</strong> (참여 보상 30P/15P는 유지)</td>
+          </tr>
+          <tr>
+            <td>경기 순연 (다음 날 진행)</td>
+            <td>배팅 마감 시각 연장 처리. 어드민 수동 조정.</td>
+            <td>포인트 유지 (기존 배팅 그대로 유효)</td>
+          </tr>
+          <tr>
+            <td>경기 무효 (5회 미만 경기 등)</td>
+            <td>취소 처리와 동일</td>
+            <td><strong>배팅 포인트 전액 반환</strong></td>
+          </tr>
+          <tr>
+            <td>결과 번복 (오심 정정)</td>
+            <td>어드민 정산 취소 → 재정산 실행</td>
+            <td>잘못 지급된 포인트 회수 후 올바른 배당으로 재지급. 유저에게 개별 알림.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">서버 오류 / 배팅 처리 실패</div>
+      <table class="spec-table">
+        <thead><tr><th>상황</th><th>처리 방식</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>배팅 확정 중 서버 오류</td>
+            <td>트랜잭션 롤백. 포인트 차감 없음. 유저에게 "잠시 후 다시 시도해 주세요" 안내.</td>
+          </tr>
+          <tr>
+            <td>배당 정산 중 오류</td>
+            <td>정산 일시 중단. 어드민 알림. 복구 후 재정산 실행. 최대 1시간 내 재처리.</td>
+          </tr>
+          <tr>
+            <td>포인트 지갑 동기화 실패</td>
+            <td>서버 기준 잔액 표시 (로컬 캐시 무효화). 새로고침 유도.</td>
+          </tr>
+          <tr>
+            <td>경품 응모 중 네트워크 단절</td>
+            <td>응모 요청이 서버에 도달하기 전 단절 시: 포인트 차감 없음, 응모 미처리.<br>서버 처리 후 단절 시: 서버 상태 기준. 유저 앱 재진입 시 결과 표시.</td>
+          </tr>
+          <tr>
+            <td>기프티콘 발급 실패</td>
+            <td>당첨 기록 보존 후 포인트 즉시 복구. 재시도 버튼 제공. 2회 이상 실패 시 CS 자동 접수.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">경품 수량 소진 처리</div>
+      <table class="spec-table spec-2col">
+        <tr><td>응모 진행 중 수량 소진</td><td>응모 요청이 서버에 도달했을 때 수량이 0이면 → 포인트 차감 없음, "해당 경품이 모두 소진됐어요" 안내. 응모 미처리.</td></tr>
+        <tr><td>동시 응모 처리</td><td>수량 차감은 선착순 트랜잭션 처리. 동시 요청 시 먼저 처리된 요청만 당첨 가능.</td></tr>
+        <tr><td>소진 후 UI</td><td>해당 경품 카드 "이번 주 소진 완료" 상태로 전환. 다음 주 리셋 안내.</td></tr>
+      </table>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">포인트 과다 지급 오류</div>
+      <table class="spec-table spec-2col">
+        <tr><td>발생 원인</td><td>정산 버그, 어드민 오설정 등으로 비정상 포인트 지급 시</td></tr>
+        <tr><td>처리 방식</td><td>어드민에서 유저별 포인트 회수 가능. 회수 시 유저에게 푸시 알림 + 인앱 메시지 발송.</td></tr>
+        <tr><td>이미 소진된 경우</td><td>소진 불가 회수분은 마이너스 처리하지 않음. 향후 획득 포인트에서 상계 처리 (어드민 설정).</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- SECTION 7: 미확정 항목 -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="s7">
+    <div class="section-header">
+      <div class="section-num">TODO</div>
+      <div class="section-title">미확정 항목</div>
+    </div>
+
+    <table class="spec-table">
+      <thead><tr><th>#</th><th>항목</th><th>현재 상태</th><th>확정 필요 시점</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td><strong>포인트 명칭 / 단위</strong></td>
+          <td class="warn">임시 "P(포인트)" 사용 중. 브랜드 네이밍 미결.</td>
+          <td>UX 디자인 착수 전</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td><strong>경품 응모 당첨 확률</strong></td>
+          <td class="warn">운영 예산 확정 후 역산 필요.</td>
+          <td>운영 예산 확정 후</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td><strong>주간 경품 수량</strong></td>
+          <td class="warn">예산 확정 후 설정.</td>
+          <td>운영 예산 확정 후</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td><strong>KBO 직관 티켓 응모 존치 여부</strong></td>
+          <td class="warn">미정. 응모 탭 구조 및 병렬 운영 방식에 영향.</td>
+          <td>Phase 2.0 기획 확정 전</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td><strong>1인 월간 수령 한도 (경품류 고시)</strong></td>
+          <td class="warn">경품류 고시 준수 목적 Cap 수치 미확정. 법무팀 최종 확인 필요.</td>
+          <td>서비스 오픈 전</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td><strong>포인트 지갑 / 내역 UI</strong></td>
+          <td class="later">병렬 운영 구조상 마이 > 내 지갑 화면 개편 필요. 별도 기능정의서 필요.</td>
+          <td>UX 설계 단계</td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td><strong>배팅 UI (픽 카드 내 포인트 입력)</strong></td>
+          <td class="later">픽 카드 컴포넌트 변경 설계 필요. PD-01 기능정의서 업데이트 필요.</td>
+          <td>UX 설계 단계</td>
+        </tr>
+        <tr>
+          <td>8</td>
+          <td><strong>경품 스토어 화면 (PT 전용 탭)</strong></td>
+          <td class="later">진입 경로 및 화면 설계 미착수. 별도 기능정의서 필요.</td>
+          <td>UX 설계 단계</td>
+        </tr>
+        <tr>
+          <td>9</td>
+          <td><strong>RV 대가성 법무 확인</strong></td>
+          <td class="warn">현행 운영 중이므로 묵시적 허용으로 간주. 기회 시 법무팀 명시적 확인 권장.</td>
+          <td>차기 법무 미팅</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top:24px;text-align:center;color:var(--muted);font-size:11px;font-family:'DM Mono',monospace;">
+      기능정의서_포인트배팅_PT_v1.0 · 2026-06-05 · 참조: 기능정의서_픽_예측상세_PD-01_v1.0 · 응모_기능정의서_v1.0 · 픽_응모_인터스티셜RV_기능정의서_v1.0 · 폴리볼_법령_레퍼런스_v1.0
+    </div>
+  </div>
+
+</div>
+</main>
+</div>
+
+<script>
+  function scrollTo(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+</script>
+</body>
+</html>

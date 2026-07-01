@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>예측 기반 서비스 글로벌 리서치 — 규제 환경 성공 사례</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Noto+Sans+KR:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1a1a1a;--ink-l:#4a4a4a;--ink-m:#8a8a8a;--rule:#d0d0d0;
+  --bg:#faf9f7;--warm:#f3f1ed;
+  --acc:#c0392b;--acc-s:#f9eeec;
+  --warn:#e67e22;--warn-s:#fef5ec;
+  --ok:#27ae60;--ok-s:#eaf7ee;
+  --neu:#2c3e50;--neu-s:#eef1f4;
+  --blue:#2980b9;--blue-s:#eaf3fb;
+  --serif:'Noto Serif KR',Georgia,serif;
+  --sans:'Noto Sans KR',sans-serif;
+  --mono:'IBM Plex Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.75;max-width:960px;margin:0 auto;padding:52px 44px;}
+.cover{border-bottom:3px solid var(--ink);padding-bottom:32px;margin-bottom:40px;}
+.ctag{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--acc);text-transform:uppercase;margin-bottom:10px;}
+.cover h1{font-family:var(--serif);font-size:23px;font-weight:700;line-height:1.45;margin-bottom:5px;}
+.csub{font-size:13px;color:var(--ink-l);margin-bottom:18px;}
+.cmeta{display:flex;flex-wrap:wrap;gap:20px;font-family:var(--mono);font-size:11px;color:var(--ink-m);}
+.cmeta strong{color:var(--ink);}
+.sec{margin-bottom:48px;}
+.sh{display:flex;align-items:baseline;gap:12px;padding-bottom:7px;border-bottom:2px solid var(--ink);margin-bottom:20px;}
+.sn{font-family:var(--mono);font-size:11px;color:var(--acc);letter-spacing:.08em;}
+h2{font-family:var(--serif);font-size:17px;font-weight:700;}
+h3{font-family:var(--sans);font-size:13px;font-weight:700;margin:18px 0 9px;}
+.box{padding:14px 18px;margin-bottom:14px;}
+.box-red{background:var(--acc-s);border-left:4px solid var(--acc);}
+.box-warn{background:var(--warn-s);border-left:4px solid var(--warn);}
+.box-ok{background:var(--ok-s);border-left:4px solid var(--ok);}
+.box-blue{background:var(--blue-s);border-left:4px solid var(--blue);}
+.box-neu{background:var(--neu-s);border-left:4px solid var(--neu);}
+.box .bl{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px;}
+.box-red .bl{color:var(--acc);}.box-warn .bl{color:var(--warn);}
+.box-ok .bl{color:var(--ok);}.box-blue .bl{color:var(--blue);}.box-neu .bl{color:var(--neu);}
+.box p{font-size:13px;line-height:1.7;}
+table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:12.5px;}
+thead tr{background:var(--ink);color:white;}
+thead th{padding:7px 10px;text-align:left;font-weight:500;font-size:11px;letter-spacing:.03em;}
+tbody tr:nth-child(even){background:var(--warm);}
+tbody tr:nth-child(odd){background:white;}
+tbody td{padding:7px 10px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.55;}
+.mono{font-family:var(--mono);font-size:11.5px;}
+.right{text-align:right;}.center{text-align:center;}
+td.red{color:var(--acc);font-weight:600;}td.ok{color:var(--ok);font-weight:600;}td.warn{color:var(--warn);}
+.row-h{background:#fff9e6!important;font-weight:600;}
+.lbl{font-family:var(--mono);font-size:10px;padding:1px 5px;border-radius:2px;}
+.lv{background:var(--ok-s);color:var(--ok);}
+.le{background:var(--warn-s);color:var(--warn);}
+.la{background:var(--neu-s);color:var(--neu);}
+.case{border:1.5px solid var(--rule);padding:18px;margin-bottom:16px;background:white;}
+.case.star{border-color:var(--ok);background:var(--ok-s);}
+.case .ch{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--rule);}
+.case .cn{font-size:14px;font-weight:700;}
+.case .cc{font-family:var(--mono);font-size:10px;color:var(--ink-m);letter-spacing:.08em;}
+.case .cb{font-size:12.5px;color:var(--ink-l);line-height:1.65;}
+.case .ck{margin-top:10px;padding-top:8px;border-top:1px dashed var(--rule);font-size:12px;}
+.case .ck strong{color:var(--acc);}
+.note{font-size:11.5px;color:var(--ink-m);font-style:italic;margin-top:7px;line-height:1.6;}
+hr{border:none;border-top:1px solid var(--rule);margin:20px 0;}
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="ctag">경영진 보고 | 글로벌 리서치</div>
+  <h1>'예측' 컨셉 기반 비(非)도박형 서비스<br>글로벌 사례 및 규제 시장 성공 모델 분석</h1>
+  <div class="csub">웹 리서치 기반 (2026.06 검색) | 폴리볼 적용 시사점 포함</div>
+  <div class="cmeta">
+    <span><strong>보고 대상</strong> 경영진</span>
+    <span><strong>리서치 방법</strong> 웹 검색 교차 확인</span>
+    <span><strong>분석 케이스</strong> 7개국 9개 서비스</span>
+  </div>
+</div>
+
+<!-- S01 규제 지형 -->
+<div class="sec">
+  <div class="sh"><span class="sn">S01</span><h2>전제 — 폴리마켓 규제는 한국만의 문제가 아니다</h2></div>
+
+  <div class="box box-neu">
+    <div class="bl">핵심 발견</div>
+    <p>폴리마켓(Polymarket)·칼시(Kalshi)는 현재 <strong>약 33개국에서 접근이 차단·제한</strong>되어 있다. 실제 돈이 오가는 예측 시장 구조는 전 세계적으로 도박으로 분류되는 추세이며, 한국의 규제 입장은 글로벌 표준에 가깝다. 즉, "규제를 우회하는 방법"이 아니라 <strong>"규제 국가에서 검증된 비도박형 모델"</strong>이 폴리볼의 올바른 벤치마크다.</p>
+  </div>
+
+  <h3>폴리마켓·칼시 차단 주요 국가 (2026년 기준)</h3>
+  <table>
+    <thead>
+      <tr><th>구분</th><th>국가</th><th>차단 근거</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>유럽</strong></td>
+        <td style="font-size:12px;">프랑스(2024 최초), 독일, 벨기에, 네덜란드, 스페인, 포르투갈, 헝가리, 스위스, 폴란드, 루마니아, 이탈리아, 영국</td>
+        <td style="font-size:12px;">무허가 도박 운영, 정치 이벤트 베팅 금지 등 기존 도박법 적용</td>
+      </tr>
+      <tr>
+        <td><strong>아시아</strong></td>
+        <td style="font-size:12px;">싱가포르, 대만, 태국, 일본, 중국, 인도, 인도네시아(2026.5)</td>
+        <td style="font-size:12px;">싱가포르는 도박규제청의 역외 베팅 사이트 단속 일환으로 차단, 인도네시아는 대통령 조기 퇴진 베팅 계약이 현지법 위반으로 차단 촉발</td>
+      </tr>
+      <tr>
+        <td><strong>기타</strong></td>
+        <td style="font-size:12px;">호주, 브라질(2026.4), 우크라이나, 캐나다, 미국 일부 주(네바다·테네시)</td>
+        <td style="font-size:12px;">네바다 게임관리위원회가 무허가 베팅 중단 법원 명령 청구, 테네시는 스포츠 예측 시장 중단 및 환불 지시</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="note">시사점: 폴리마켓 모델 자체를 벤치마크로 삼는 것은 글로벌 규제 방향과 역행. "예측"이라는 행위 모델만 차용하고 금전 구조를 제거한 모델이 검증된 경로다.</p>
+</div>
+
+<!-- S02 글로벌 사례 -->
+<div class="sec">
+  <div class="sh"><span class="sn">S02</span><h2>비도박형 예측 서비스 글로벌 사례 분석</h2></div>
+
+  <!-- CASE 1: Superbru -->
+  <div class="case star">
+    <div class="ch">
+      <span class="cn">① Superbru (남아공 발, 글로벌) — 가장 직접적인 벤치마크 ★</span>
+      <span class="cc">FREE PREDICTOR / 소셜 리그</span>
+    </div>
+    <div class="cb">
+      <strong>모델:</strong> 완전 무료 스포츠 예측 게임. 베팅 사이트가 아니며 돈이 오가지 않는다고 명시. 270만 사용자가 EPL 380경기 전 경기 스코어를 예측하고 친구들과 프라이빗 리그에서 경쟁하는 구조.<br><br>
+      <strong>성장 방식:</strong> 2015 럭비월드컵 개막 이틀 만에 누적 100만 유저 달성 — 콘셉트와 제품력만으로 거의 전적으로 바이럴 성장. PAID 광고 의존 없이 성장한 드문 사례.<br><br>
+      <strong>핵심 메커니즘:</strong> ① 정확도 차등 점수 (결과 적중 1점 / 근접 1.5점 / 정확한 스코어 3점), ② 직장·친구 프라이빗 풀(pool) 중심 설계, ③ 연 80개 이상 토너먼트 × 10개 종목으로 시즌 공백 제거.
+    </div>
+    <div class="ck">
+      <strong>폴리볼 시사점:</strong> "프라이빗 리그"가 핵심. 보상이 아닌 <strong>지인 간 경쟁과 자존심</strong>이 10년 이상 리텐션을 만들었다. 10년 이상 플레이한 유저들이 게임을 통해 실제 우정을 형성한 커뮤니티 자산이 해자. 멀티 스포츠 80개 토너먼트 구조는 폴리볼의 시즌 의존성 해소 모델 그 자체.
+    </div>
+  </div>
+
+  <!-- CASE 2: Dream11 -->
+  <div class="case star">
+    <div class="ch">
+      <span class="cn">② Dream11 (인도) — 규제 강타 후 무료 전환의 실시간 사례 ★</span>
+      <span class="cc">REGULATORY PIVOT / F2P</span>
+    </div>
+    <div class="cb">
+      <strong>배경:</strong> 인도 의회가 2025년 실제 돈 게임(RMG) 금지법(Promotion and Regulation of Online Gaming Act)을 통과시키며 인도 1위 판타지 스포츠 기업 Dream11의 핵심 사업이 금지됨. 유료 콘테스트는 매출의 약 95%, 이익의 100%를 차지했던 구조.<br><br>
+      <strong>전환:</strong> 무료 플레이(F2P) 모델로 전환, 광고와 스폰서십 중심으로 재편. 전환 후에도 일 활성 사용자(DAU) 1,000만 명 유지, 유저의 약 70%가 18~35세로 광고주 매력도 높음. Swiggy(음식배달), Astrotalk, Tata Neu 등 광고주 온보딩 시작.<br><br>
+      <strong>확장:</strong> 크리에이터 주도 와치얼롱(watch-along)과 무료 판타지를 결합한 '세컨드 스크린 스포츠 엔터테인먼트 플랫폼'으로 재정의.
+    </div>
+    <div class="ck">
+      <strong>폴리볼 시사점:</strong> 한국과 동일한 규제 환경(실제 돈 게임 금지)에서 <strong>무료 예측 + 광고/스폰서십 모델이 1,000만 DAU 규모로 작동함을 실증</strong>. 단, 광고 기반 수익은 유료 콘테스트보다 유저당 수익이 낮고, 현금 없는 게임은 참여 저하 가능이라는 경고도 동일하게 적용됨. 광고 단일 모델의 한계를 스폰서십·콘텐츠로 보완하는 전략 방향이 일치.
+    </div>
+  </div>
+
+  <!-- CASE 3: toto-ONE Japan -->
+  <div class="case">
+    <div class="ch">
+      <span class="cn">③ totoONE (일본) — 합법 스포츠 복권의 '무료 예측 레이어'</span>
+      <span class="cc">PREDICTION COMMUNITY / 일본</span>
+    </div>
+    <div class="cb">
+      <strong>배경:</strong> 일본은 사설 스포츠 베팅이 금지되어 있고 국가 공인 스포츠 복권 toto만 합법. 이 틈새에서 totoONE은 toto 예측 적중률로 순위를 경쟁하는 회원 참여형 게임 'totoONE 그랑프리'를 운영하며, 자기 예측을 등록하기만 하면 참여되고 적중률에 따라 상품 획득 기회를 제공하는 무료 예측 커뮤니티로 성장.<br><br>
+      <strong>모델:</strong> 베팅 자체는 국가 복권에 맡기고, <strong>예측 데이터·통계·커뮤니티 랭킹이라는 정보 레이어</strong>를 무료 제공하며 광고·제휴로 수익화. SPAIA 등 AI 예측 분석 서비스도 동일 구조로 시장 형성.
+    </div>
+    <div class="ck">
+      <strong>폴리볼 시사점:</strong> 베팅이 금지된 시장에서 "예측 정보+랭킹 경쟁"이 독립 카테고리로 성립함을 증명. 한국 토토(스포츠토토) 주변에도 동일한 정보·커뮤니티 수요가 존재하나 합법적 무료 앱이 부재 — 폴리볼이 점유할 수 있는 공백.
+    </div>
+  </div>
+
+  <!-- CASE 4: SportCaller -->
+  <div class="case">
+    <div class="ch">
+      <span class="cn">④ SportCaller (아일랜드) — B2B 화이트라벨 예측 게임</span>
+      <span class="cc">B2B SAAS / F2P GAMES</span>
+    </div>
+    <div class="cb">
+      <strong>모델:</strong> 무료 예측 게임을 직접 운영하지 않고 영국, 유럽, 아시아, 호주, 아프리카, 중남미, 북미의 클라이언트에게 20개 이상 언어로 예측 게임을 공급하는 B2B 모델. 방송사·리그·브랜드가 팬 참여용으로 구매. 2021년 글로벌 베팅 기업 Bally's에 인수되며 모델 검증.<br><br>
+      <strong>제품:</strong> 승부 예측, 첫 득점자 맞히기, 브라켓, 퀴즈 + 타이머·스트릭·리더보드 게이미피케이션 패키지.
+    </div>
+    <div class="ck">
+      <strong>폴리볼 시사점:</strong> 폴리볼의 예측 엔진을 KBO 구단·방송사·이벤트사에 화이트라벨로 공급하는 <strong>B2B 수익 경로의 실존 증명</strong>. 이전 보고서에서 제시한 "B2B SaaS" 방향의 글로벌 선례.
+    </div>
+  </div>
+
+  <!-- CASE 5: F2P prediction market games -->
+  <div class="case">
+    <div class="ch">
+      <span class="cn">⑤ F2P 예측 마켓 게임 (신규 트렌드, 2026)</span>
+      <span class="cc">TOKEN ECONOMY / NO REAL MONEY</span>
+    </div>
+    <div class="cb">
+      <strong>모델:</strong> 폴리마켓의 '마켓 메커니즘'(확률 변동, 포지션 거래)만 차용하고 실제 돈을 가상 토큰으로 대체한 형태가 2026년 신규 카테고리로 부상. 가상 토큰으로 미래 이벤트 결과에 포지션을 취하는 인터랙티브 경험으로, 단순 원클릭 예측과 달리 예측 후에도 가격 변동·리더보드를 통해 경험이 지속되며, 스포츠 리그·방송사·브랜드가 반복 참여·퍼스트파티 데이터·스폰서 인벤토리 확보 수단으로 주목.
+    </div>
+    <div class="ck">
+      <strong>폴리볼 시사점:</strong> 단순 "맞히기"에서 진화해 <strong>확률이 실시간 변동하는 마켓형 UX</strong>(예: "두산 승리 확률 65% → 내 포지션 가치 상승")를 가상 포인트로 구현하면, 도박성 없이 폴리마켓의 중독적 재미를 이식 가능. 경기 중 라이브 참여 확대 효과.
+    </div>
+  </div>
+
+  <!-- CASE 6: OneFootball -->
+  <div class="case">
+    <div class="ch">
+      <span class="cn">⑥ OneFootball / FotMob (유럽) — 광고 모델의 상한선 참고</span>
+      <span class="cc">MEDIA + ADS / FREEMIUM</span>
+    </div>
+    <div class="cb">
+      <strong>모델:</strong> OneFootball은 월 2억 활성 사용자, 연 70억 앱 세션의 세계 최대 축구 미디어 플랫폼으로, 평균 세션이 1~2분에 불과한 환경에서 숏폼 콘텐츠·커뮤니티 요소·라이브 소셜 경험으로 반복 사용을 유도. 광고 수익 최적화 파트너십으로 광고 매출 280% 성장 사례 보유. FotMob은 핵심 기능 무료 + 고급 기능 유료의 프리미엄(freemium) 모델.
+    </div>
+    <div class="ck">
+      <strong>폴리볼 시사점:</strong> 광고 모델은 <strong>2억 MAU 규모에서도 단가 최적화 싸움</strong>을 한다. 폴리볼의 네트워크 광고 단가(48.5원) 한계를 고려하면, 광고는 베이스 수익으로 두고 프리미엄 구독(고급 예측 통계)·스폰서십을 상위 레이어로 쌓는 FotMob형 구조가 현실적.
+    </div>
+  </div>
+</div>
+
+<!-- S03 규제 시장 성공 패턴 -->
+<div class="sec">
+  <div class="sh"><span class="sn">S03</span><h2>규제 시장 성공 패턴 종합</h2></div>
+
+  <h3>규제 환경별 성공 모델 매트릭스</h3>
+  <table>
+    <thead>
+      <tr><th>국가</th><th>규제 강도</th><th>성공 서비스</th><th>핵심 성공 메커니즘</th><th>수익 모델</th></tr>
+    </thead>
+    <tbody>
+      <tr class="row-h">
+        <td><strong>인도</strong></td>
+        <td style="font-size:12px;">2025년 실제 돈 게임 전면 금지 — 한국과 가장 유사</td>
+        <td>Dream11 (F2P 전환)</td>
+        <td style="font-size:12px;">기존 유저 베이스 + 무료 판타지 + 크리에이터 콘텐츠</td>
+        <td style="font-size:12px;">광고 + 스폰서십 + 생태계(콘텐츠·여행·핀테크)</td>
+      </tr>
+      <tr>
+        <td><strong>일본</strong></td>
+        <td style="font-size:12px;">사설 베팅 금지, 국가 복권만 허용</td>
+        <td>totoONE, SPAIA</td>
+        <td style="font-size:12px;">예측 정보·통계 레이어 + 적중률 랭킹 커뮤니티</td>
+        <td style="font-size:12px;">광고 + 제휴 (복권 구매 연계)</td>
+      </tr>
+      <tr>
+        <td><strong>남아공/글로벌</strong></td>
+        <td style="font-size:12px;">국가별 상이 — 무료 모델로 규제 무관</td>
+        <td>Superbru</td>
+        <td style="font-size:12px;">프라이빗 리그(지인 경쟁) + 멀티스포츠 80개 토너먼트</td>
+        <td style="font-size:12px;">광고 + 스폰서 + 화이트라벨</td>
+      </tr>
+      <tr>
+        <td><strong>유럽 (베팅 합법권)</strong></td>
+        <td style="font-size:12px;">베팅 합법이나 무료 게임 별도 카테고리 성립</td>
+        <td>SportCaller (B2B)</td>
+        <td style="font-size:12px;">방송사·리그·브랜드 대상 팬 참여 솔루션 공급</td>
+        <td style="font-size:12px;">B2B SaaS 라이선스</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="box box-ok">
+    <div class="bl">공통 성공 공식 — 4개 요소</div>
+    <p>
+    <strong>① 보상의 비금전화:</strong> 현금 대신 점수·랭킹·배지·지위(status)로 보상. 규제 리스크 제거와 동시에 내적 동기 강화.<br>
+    <strong>② 소셜 단위 설계:</strong> 모든 성공 사례가 "혼자 예측"이 아닌 "지인과 경쟁"(Superbru 프라이빗 풀, 카카오 친구 비교). 이것이 보상 없는 리텐션의 핵심 동력.<br>
+    <strong>③ 연중 콘텐츠 캘린더:</strong> Superbru 연 80개 토너먼트, Dream11 멀티스포츠 — 단일 시즌 의존 구조는 모두 회피.<br>
+    <strong>④ 수익 다층화:</strong> 광고를 베이스로 하되 스폰서십·B2B·프리미엄을 상위에 적층. 광고 단일 모델로 성공한 사례 없음.
+    </p>
+  </div>
+</div>
+
+<!-- S04 폴리볼 적용 전략 -->
+<div class="sec">
+  <div class="sh"><span class="sn">S04</span><h2>폴리볼 적용 — 우선순위 제언</h2></div>
+
+  <table>
+    <thead>
+      <tr><th>우선순위</th><th>적용 항목</th><th>벤치마크 출처</th><th>기대 효과</th><th>시점</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="center"><span class="lbl" style="background:var(--acc-s);color:var(--acc);">P1</span></td>
+        <td><strong>프라이빗 리그 (지인 풀) 기능</strong><br><span style="font-size:11px;color:var(--ink-m);">친구 초대 → 소그룹 랭킹 경쟁</span></td>
+        <td style="font-size:12px;">Superbru</td>
+        <td style="font-size:12px;">보상 의존 없는 리텐션 핵심 동력. 기존 친구 초대 기능의 자연 확장. 티켓 종료(9/6) 전 출시 필수</td>
+        <td class="mono">Q3 내</td>
+      </tr>
+      <tr>
+        <td class="center"><span class="lbl" style="background:var(--acc-s);color:var(--acc);">P1</span></td>
+        <td><strong>정확도 차등 점수제 + 시즌 랭킹</strong><br><span style="font-size:11px;color:var(--ink-m);">적중 1점 / 근접 1.5점 / 정확 3점</span></td>
+        <td style="font-size:12px;">Superbru 점수 체계</td>
+        <td style="font-size:12px;">단순 O/X 예측 대비 실력 변별력 강화 → "예측 전문성" 정체성 형성</td>
+        <td class="mono">Q3 내</td>
+      </tr>
+      <tr>
+        <td class="center"><span class="lbl" style="background:var(--warn-s);color:var(--warn);">P2</span></td>
+        <td><strong>크리에이터 와치얼롱 실험</strong><br><span style="font-size:11px;color:var(--ink-m);">경기 중 라이브 예측 + 해설 결합</span></td>
+        <td style="font-size:12px;">Dream11 3.0</td>
+        <td style="font-size:12px;">세컨드 스크린 점유 → 경기 중 체류시간 확대 → 광고 인벤토리 증가</td>
+        <td class="mono">Q4</td>
+      </tr>
+      <tr>
+        <td class="center"><span class="lbl" style="background:var(--warn-s);color:var(--warn);">P2</span></td>
+        <td><strong>가상 포인트 마켓형 UX 검토</strong><br><span style="font-size:11px;color:var(--ink-m);">확률 실시간 변동 + 포지션 개념 (실제 돈 無)</span></td>
+        <td style="font-size:12px;">F2P 예측마켓 게임 트렌드</td>
+        <td style="font-size:12px;">폴리마켓의 재미 요소를 합법 구조로 이식. 단, 사행성 판단 선제 검토 필수 [법무 검토 필요]</td>
+        <td class="mono">법무 검토 후</td>
+      </tr>
+      <tr>
+        <td class="center"><span class="lbl" style="background:var(--neu-s);color:var(--neu);">P3</span></td>
+        <td><strong>B2B 화이트라벨 사업화</strong><br><span style="font-size:11px;color:var(--ink-m);">KBO 구단·방송사·브랜드 대상</span></td>
+        <td style="font-size:12px;">SportCaller</td>
+        <td style="font-size:12px;">예측 엔진 재활용 신규 수익원. DAU 10,000명 달성 후 영업 개시 적정</td>
+        <td class="mono">중기</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="box box-red">
+    <div class="bl">경계해야 할 함정 — Dream11의 경고</div>
+    <p>Dream11은 무료 전환에 성공했지만 광고 기반 수익은 유료 대비 유저당 수익이 낮고, 현금 보상이 없는 게임플레이는 참여 자체를 낮출 수 있으며, 장기 생존 가능성은 아직 불확실하다. Dream11이 이 한계를 버틸 수 있는 것은 <strong>이미 확보한 2.5억 가입자·1,000만 DAU 규모</strong> 때문이다. 폴리볼은 그 규모가 없으므로, 광고 수익화 이전에 <strong>소셜 리그 기반의 리텐션 구조부터 완성</strong>하는 순서가 필수적이다.</p>
+  </div>
+</div>
+
+<div style="margin-top:36px;padding-top:16px;border-top:1px solid var(--rule);">
+  <div style="font-family:var(--mono);font-size:10px;color:var(--ink-m);letter-spacing:.07em;line-height:1.8;">
+    리서치 출처: 웹 검색 (2026.06 실시) — Superbru 공식, Reuters, Outlook India, Medianama, CCN, iGamingBusiness, CoinDesk, Airship, Tappx 등<br>
+    모든 외부 수치는 공개 자료 기반이며 [검증] 수준은 해당 매체의 보도 신뢰도에 종속됨. 폴리볼 적용 항목의 효과 추정은 [추정] 수준.
+  </div>
+</div>
+
+</body>
+</html>

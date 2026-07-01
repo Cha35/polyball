@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>포인트예측(PZ) v2.0 회의 자료</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap');
+:root{
+  --primary:#2563EB;--pl:#EFF6FF;--pm:#BFDBFE;
+  --dark:#0F172A;--mid:#475569;--muted:#94A3B8;--border:#E2E8F0;
+  --bg:#F8FAFC;--white:#FFF;
+  --gb:#F0FDF4;--gt:#166534;--gc:#BBF7D0;
+  --ab:#FFFBEB;--at:#92400E;--ac:#FDE68A;
+  --rb:#FEF2F2;--rt:#991B1B;--rc:#FECACA;
+  --pb:#F5F3FF;--pt:#5B21B6;--pc:#DDD6FE;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--dark);font-size:13px;line-height:1.6}
+.page{max-width:1100px;margin:0 auto;padding:32px 24px 80px;display:flex;gap:24px;align-items:flex-start}
+.main-col{flex:1;min-width:0;max-width:860px}
+
+/* 우측 GNB */
+.gnb{position:sticky;top:24px;width:200px;flex-shrink:0;background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px 0;max-height:calc(100vh - 48px);overflow-y:auto}
+.gnb::-webkit-scrollbar{width:3px}
+.gnb::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.gnb-title{font-size:9px;font-weight:800;letter-spacing:1.2px;color:var(--muted);font-family:'DM Mono',monospace;padding:0 14px 8px;border-bottom:1px solid var(--border);margin-bottom:4px}
+.gnb-group{padding:6px 0 2px}
+.gnb-group-label{font-size:9px;font-weight:700;letter-spacing:.8px;color:var(--muted);font-family:'DM Mono',monospace;padding:4px 14px 2px}
+.gnb-item{display:flex;align-items:center;gap:6px;padding:5px 14px;font-size:11px;font-weight:500;color:var(--mid);cursor:pointer;border-left:2px solid transparent;transition:all .12s;text-decoration:none;background:none;border-top:none;border-right:none;border-bottom:none;width:100%;text-align:left;font-family:'Noto Sans KR',sans-serif}
+.gnb-item:hover{background:var(--pl);color:var(--primary);border-left-color:var(--pm)}
+.gnb-item.active{background:var(--pl);color:var(--primary);border-left-color:var(--primary);font-weight:700}
+.gnb-num{font-family:'DM Mono',monospace;font-size:9px;font-weight:700;color:var(--white);background:var(--primary);border-radius:3px;padding:1px 5px;flex-shrink:0}
+.gnb-num.ref{background:var(--mid)}
+.gnb-divider{height:1px;background:var(--border);margin:6px 14px}
+.gnb-progress{padding:10px 14px 4px;border-top:1px solid var(--border);margin-top:4px}
+.gnb-progress-label{font-size:9px;color:var(--muted);margin-bottom:4px}
+.gnb-progress-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.gnb-progress-fill{height:100%;background:var(--primary);border-radius:2px;transition:width .3s}
+@media(max-width:1000px){.gnb{display:none}.page{max-width:860px}}
+.header{display:flex;align-items:flex-start;justify-content:space-between;padding-bottom:20px;border-bottom:2px solid var(--dark);margin-bottom:28px}
+.header h1{font-size:22px;font-weight:900;letter-spacing:-.5px;margin-bottom:4px}
+.header .sub{font-size:13px;color:var(--muted)}
+.header-r{text-align:right;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.8}
+.header-r b{color:var(--mid)}
+
+.toc{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:28px}
+.toc-title{font-size:10px;font-weight:800;letter-spacing:1.2px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:10px}
+.toc-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 24px}
+.toc-item{font-size:12px;color:var(--mid);cursor:pointer;padding:4px 0;display:flex;gap:8px;align-items:center}
+.toc-item:hover{color:var(--primary)}
+.toc-num{font-family:'DM Mono',monospace;font-size:10px;font-weight:700;color:var(--white);background:var(--primary);border-radius:4px;padding:1px 6px;flex-shrink:0}
+.toc-num.ref{background:var(--mid)}
+.toc-item b{color:var(--dark);font-weight:600}
+
+.divider{height:1px;background:var(--border);margin:36px 0}
+.section{margin-bottom:40px;scroll-margin-top:24px}
+.sh{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.sh-num{font-family:'DM Mono',monospace;font-size:12px;font-weight:800;color:var(--white);background:var(--primary);border-radius:6px;padding:4px 10px}
+.sh-num.ref{background:var(--mid)}
+.sh h2{font-size:18px;font-weight:900;letter-spacing:-.3px}
+.sh-sub{font-size:12px;color:var(--muted);margin-bottom:16px;padding-left:48px}
+
+.card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:14px}
+.card-title{font-size:11px;font-weight:800;letter-spacing:.8px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:10px}
+.card p,.card .desc{font-size:13px;color:var(--mid);line-height:1.85;margin-bottom:8px}
+.card p:last-child{margin-bottom:0}
+.card b{color:var(--dark)}
+
+.box{border-radius:8px;padding:14px 16px;margin-bottom:12px;font-size:12px;line-height:1.85}
+.box-blue{background:var(--pl);border:1px solid var(--pm);color:#1E40AF}
+.box-green{background:var(--gb);border:1px solid var(--gc);color:var(--gt)}
+.box-amber{background:var(--ab);border:1px solid var(--ac);color:var(--at)}
+.box-red{background:var(--rb);border:1px solid var(--rc);color:var(--rt)}
+.box-purple{background:var(--pb);border:1px solid var(--pc);color:var(--pt)}
+.box b{font-weight:700}
+
+table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:12px}
+th{background:var(--pl);font-weight:600;padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);font-size:11px;color:var(--mid)}
+td{padding:8px 10px;border-bottom:1px solid #F1F5F9;vertical-align:top;line-height:1.7}
+tr:nth-child(even) td{background:#F8FAFC}
+.c{text-align:center}.r{text-align:right}
+.mono{font-family:'DM Mono',monospace}
+.pos{color:#166534;font-weight:600}.neg{color:#991B1B;font-weight:600}
+.hl td{background:var(--pl)!important;font-weight:600}
+
+/* 다이어그램 */
+.flow{display:flex;align-items:stretch;gap:6px;margin:14px 0;flex-wrap:wrap}
+.flow-box{flex:1;min-width:100px;border-radius:8px;padding:12px 10px;text-align:center}
+.flow-box.a{background:var(--gb);border:1px solid var(--gc)}
+.flow-box.b{background:var(--rb);border:1px solid var(--rc)}
+.flow-box.c{background:var(--pl);border:1px solid var(--pm)}
+.flow-box.d{background:var(--pb);border:1px solid var(--pc)}
+.flow-box.e{background:var(--ab);border:1px solid var(--ac)}
+.flow-label{font-size:10px;font-weight:700;letter-spacing:.5px;margin-bottom:3px}
+.flow-box.a .flow-label{color:var(--gt)}
+.flow-box.b .flow-label{color:var(--rt)}
+.flow-box.c .flow-label{color:#1E40AF}
+.flow-box.d .flow-label{color:var(--pt)}
+.flow-box.e .flow-label{color:var(--at)}
+.flow-val{font-size:11px;color:var(--mid);line-height:1.5}
+.flow-arrow{display:flex;align-items:center;font-size:16px;color:var(--border);flex-shrink:0}
+
+/* 옵션 */
+.opt{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:8px}
+.opt.rec{border-color:var(--primary);border-width:2px}
+.opt-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.opt-label{font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--mid)}
+.opt.rec .opt-label{color:var(--primary)}
+.rec-badge{font-size:9px;font-weight:700;background:var(--primary);color:var(--white);border-radius:3px;padding:1px 6px}
+.opt-body{font-size:12px;color:var(--mid);line-height:1.8}
+.opt-body b{color:var(--dark)}
+
+/* 시뮬레이션 */
+.sim{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:20px;margin:14px 0}
+.sim-title{font-size:11px;font-weight:800;letter-spacing:.8px;color:var(--primary);font-family:'DM Mono',monospace;margin-bottom:14px}
+.sim-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.sim-label{font-size:12px;color:var(--mid);width:140px;flex-shrink:0}
+.sim-label b{color:var(--dark)}
+input[type=range]{flex:1;accent-color:var(--primary);height:6px}
+.sim-val{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:var(--primary);min-width:60px;text-align:right}
+.sim-results{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:16px}
+.sim-card{background:var(--bg);border-radius:8px;padding:12px;text-align:center}
+.sim-card-label{font-size:10px;color:var(--muted);margin-bottom:3px}
+.sim-card-val{font-size:20px;font-weight:800;font-family:'DM Mono',monospace}
+.sim-card-sub{font-size:10px;color:var(--muted);margin-top:2px}
+.sim-card.green .sim-card-val{color:var(--gt)}
+.sim-card.red .sim-card-val{color:var(--rt)}
+.sim-card.blue .sim-card-val{color:var(--primary)}
+.sim-card.amber .sim-card-val{color:var(--at)}
+
+/* 듀얼 트랙 */
+.dual{display:grid;grid-template-columns:1fr 32px 1fr;gap:0;margin:14px 0}
+.track{border-radius:8px;padding:16px}
+.track.kbo{background:var(--gb);border:1px solid var(--gc)}
+.track.pz{background:var(--pl);border:1px solid var(--pm)}
+.track-label{font-size:10px;font-weight:800;letter-spacing:.8px;font-family:'DM Mono',monospace;margin-bottom:6px}
+.track.kbo .track-label{color:var(--gt)}
+.track.pz .track-label{color:#1E40AF}
+.track h3{font-size:14px;font-weight:800;margin-bottom:6px}
+.track.kbo h3{color:var(--gt)}
+.track.pz h3{color:#1E40AF}
+.track-content{font-size:12px;color:var(--mid);line-height:1.9}
+.track-sep{display:flex;align-items:center;justify-content:center;color:var(--border);font-size:20px}
+
+/* 법령 */
+.law{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:10px}
+.law-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+.law-risk{font-size:9px;font-weight:700;border-radius:3px;padding:2px 6px;flex-shrink:0;margin-top:2px}
+.law-risk.safe{background:var(--gb);color:var(--gt)}
+.law-risk.caution{background:var(--ab);color:var(--at)}
+.law-risk.danger{background:var(--rb);color:var(--rt)}
+.law-risk.hold{background:var(--pb);color:var(--pt)}
+.law-name{font-size:13px;font-weight:700}
+.law-clause{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace}
+.law-body{font-size:12px;color:var(--mid);line-height:1.85}
+.law-body b{color:var(--dark)}
+.law-quote{background:var(--bg);border-left:3px solid var(--border);padding:8px 12px;margin:8px 0;font-size:11px;color:var(--mid);line-height:1.8;font-style:italic}
+
+/* 비용 테이블 */
+.cost-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
+.cost-col{border-radius:8px;padding:14px 12px;text-align:center}
+.cost-col.c1{background:#F0FDF4;border:1px solid #BBF7D0}
+.cost-col.c2{background:var(--pl);border:1px solid var(--pm)}
+.cost-col.c3{background:var(--ab);border:1px solid var(--ac)}
+.cost-col.c4{background:var(--rb);border:1px solid var(--rc)}
+.cost-dau{font-size:10px;font-weight:700;letter-spacing:.5px;margin-bottom:6px}
+.cost-col.c1 .cost-dau{color:var(--gt)}
+.cost-col.c2 .cost-dau{color:#1E40AF}
+.cost-col.c3 .cost-dau{color:var(--at)}
+.cost-col.c4 .cost-dau{color:var(--rt)}
+.cost-num{font-size:18px;font-weight:800;font-family:'DM Mono',monospace;margin-bottom:2px}
+.cost-label{font-size:10px;color:var(--muted)}
+
+/* 프리셋 버튼 */
+.preset-btn{background:var(--white);border:1.5px solid var(--border);border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;color:var(--dark);transition:all .15s;line-height:1.4;flex:1;min-width:160px}
+.preset-btn:hover{border-color:var(--primary);background:var(--pl);color:var(--primary)}
+.preset-btn:active{transform:scale(0.98)}
+.preset-btn .preset-sub{display:block;font-size:10px;font-weight:400;color:var(--muted);margin-top:2px}
+.preset-btn:hover .preset-sub{color:var(--primary)}
+.preset-btn.active{border-color:var(--primary);background:var(--pl);color:var(--primary)}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="main-col">
+
+<div class="header">
+  <div>
+    <h1>포인트예측 확장 회의 자료</h1>
+    <div class="sub">승부예측 → 예측 마켓 확장에 따른 포인트 제도 설계</div>
+  </div>
+  <div class="header-r">
+    일시 <b>2026-04-29</b><br>
+    상태 <b>의사결정 필요</b><br>
+    첨부 <b>PZ 정책서 v2.0-draft</b>
+  </div>
+</div>
+
+<div class="toc">
+  <div class="toc-title">안건 목차</div>
+  <div class="toc-grid">
+    <div class="toc-item" onclick="document.getElementById('a1').scrollIntoView({behavior:'smooth'})"><span class="toc-num">1</span><b>예측 마켓 확장과 포인트 제도의 필요성</b></div>
+    <div class="toc-item" onclick="document.getElementById('a2').scrollIntoView({behavior:'smooth'})"><span class="toc-num">2</span><b>포인트 예측 참여 워킹 방식</b> · 시뮬레이션</div>
+    <div class="toc-item" onclick="document.getElementById('a3').scrollIntoView({behavior:'smooth'})"><span class="toc-num">3</span><b>응모권 vs 포인트 — 통합할 것인가 분리할 것인가</b></div>
+    <div class="toc-item" onclick="document.getElementById('a4').scrollIntoView({behavior:'smooth'})"><span class="toc-num">4</span><b>포인트와 응모권·티켓의 관계 설계</b></div>
+    <div class="toc-item" onclick="document.getElementById('a5').scrollIntoView({behavior:'smooth'})"><span class="toc-num">5</span><b>비용 시뮬레이션</b> · 1K / 5K / 10K / 100K</div>
+    <div class="toc-item" onclick="document.getElementById('ref').scrollIntoView({behavior:'smooth'})"><span class="toc-num ref">참고</span><b>법령 리스크 · 조항 및 판례</b></div>
+  </div>
+</div>
+
+<!-- ═══════════════ 안건 1 ═══════════════ -->
+<div class="section" id="a1">
+<div class="sh"><span class="sh-num">1</span><h2>예측 마켓 확장과 포인트 제도의 필요성</h2></div>
+<div class="sh-sub">왜 포인트가 필요한가 — 현재 구조의 한계와 확장 방향</div>
+
+<div class="card">
+  <div class="card-title">현재 구조의 한계</div>
+  <p>현재 폴리볼은 <b>KBO 승부예측 → 응모권 → 직관 티켓 응모</b>라는 단일 퍼널로 운영됩니다. 이 구조는 KBO 시즌에만 작동하고, 비시즌에는 콘텐츠가 없어 유저 이탈이 발생합니다.</p>
+  <p>마켓을 <b>K리그·KBL·E스포츠·정치·경제·시사</b>로 확장하면 연중 콘텐츠 공급이 가능하지만, 확장 마켓의 보상을 "야구 직관 티켓 응모권"으로 주는 것은 맥락이 맞지 않습니다. 축구 예측을 맞춘 유저에게 야구 티켓 응모권을 주는 건 부자연스럽습니다.</p>
+  <p><b>따라서 확장 마켓 전용 재화(포인트)가 필요합니다.</b> 이 포인트는 예측 참여에 사용하고, 정답 시 보상으로 받는 순환 구조를 만듭니다.</p>
+</div>
+
+<div class="card">
+  <div class="card-title">포인트 제도 도입 시 BM 기여 논리</div>
+  <div class="flow">
+    <div class="flow-box a"><div class="flow-label">포인트 획득</div><div class="flow-val">출석·정답 보상</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box b"><div class="flow-label">포인트 소비</div><div class="flow-val">마켓 참여 (10P)</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box c"><div class="flow-label">앱 체류 증가</div><div class="flow-val">DAU·리텐션 상승</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box e"><div class="flow-label">광고 노출 증가</div><div class="flow-val">광고 매출</div></div>
+  </div>
+  <p>포인트 소비 사이클이 돌수록 앱 체류가 늘고, 이는 광고 노출 횟수 증가로 직결됩니다. 포인트 경제 자체에서 수익을 낼 필요 없이, <b>광고 BM의 볼륨을 키우는 엔진</b>으로 작동합니다.</p>
+</div>
+
+<div class="card">
+  <div class="card-title">재화 기본 정보 — 폴리코인(가제)</div>
+  <table>
+    <tr><td style="width:25%"><b>명칭</b></td><td>폴리코인(가제) / 약어: P</td></tr>
+    <tr><td><b>가치</b></td><td>무가치 선언. 1P = 0원. 어떤 금전적 가치도 부여하지 않음.</td></tr>
+    <tr><td><b>획득</b></td><td>앱 활동으로만 획득 (현금 구매 불가)</td></tr>
+    <tr><td><b>유효기간</b></td><td>90일</td></tr>
+    <tr><td><b>환금·양도</b></td><td>현금 전환 불가, 유저 간 양도 불가</td></tr>
+  </table>
+</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══════════════ 안건 2 ═══════════════ -->
+<div class="section" id="a2">
+<div class="sh"><span class="sh-num">2</span><h2>포인트 예측 참여 워킹 방식</h2></div>
+<div class="sh-sub">유저가 참여하면 무슨 일이 일어나는가 — 인터랙티브 시뮬레이션 포함</div>
+
+<div class="card">
+  <div class="card-title">워킹 플로우</div>
+  <div class="flow">
+    <div class="flow-box c"><div class="flow-label">① 마켓 선택</div><div class="flow-val">예측 질문 확인<br>선택지 중 택1</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box b"><div class="flow-label">② 참여비 차감</div><div class="flow-val">고정 10P 차감<br>(자유 입력 불가)</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box d"><div class="flow-label">③ 결과 대기</div><div class="flow-val">마켓 마감 후<br>정답 확인</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box a"><div class="flow-label">④ 정산</div><div class="flow-val">정답 → 구간 보상<br>오답 → 10P 소멸</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">핵심 설계 원칙 3가지</div>
+  <p><b>고정 참여비:</b> 유저가 원하는 만큼 투입할 수 없습니다. 마켓당 10P 고정. 민심마켓(5코인 고정)과 동일 방식. 가변 배팅은 사행행위의 핵심 특성이므로 절대 금지합니다. <span style="font-size:11px;color:var(--muted)">→ 참고: 사행행위규제법 §2, 형법 §246</span></p>
+  <p><b>비제로섬 보상:</b> 정답자의 보상은 플랫폼이 직접 지급합니다. "오답자의 포인트를 정답자에게 나눠주는" 풀(pool) 구조가 아닙니다. 민심마켓·네이버 치지직 모두 이 방식입니다. <span style="font-size:11px;color:var(--muted)">→ 참고: 사행행위규제법 §2 "다수인으로부터 재물을 모아 재분배" 정의 회피</span></p>
+  <p><b>구간 보상:</b> 선택한 선택지의 참여 비율에 따라 보상이 달라집니다. 소수가 선택한 답이 정답이면 높은 보상, 다수가 선택한 답이 정답이면 낮은 보상. 보상 상한은 플랫폼이 사전에 결정합니다.</p>
+</div>
+
+<!-- 시뮬레이션 2: 마켓 참여 시뮬레이터 -->
+<div class="sim">
+  <div class="sim-title">시뮬레이션 — 마켓 1회 참여 결과</div>
+  <div class="sim-row">
+    <div class="sim-label"><b>마켓 배율</b></div>
+    <input type="range" min="1" max="3" value="2" id="s2-mult" oninput="sim2()">
+    <div class="sim-val" id="v2-mult">80배율</div>
+  </div>
+  <div class="sim-row">
+    <div class="sim-label"><b>내 선택지 참여 비율</b></div>
+    <input type="range" min="5" max="95" step="5" value="40" id="s2-ratio" oninput="sim2()">
+    <div class="sim-val" id="v2-ratio">40%</div>
+  </div>
+  <div class="sim-results">
+    <div class="sim-card red"><div class="sim-card-label">참여비 (고정)</div><div class="sim-card-val">-10P</div></div>
+    <div class="sim-card blue" id="s2-reward"><div class="sim-card-label">정답 시 보상</div><div class="sim-card-val">—</div></div>
+    <div class="sim-card green" id="s2-profit"><div class="sim-card-label">정답 시 순이익</div><div class="sim-card-val">—</div></div>
+    <div class="sim-card amber" id="s2-wrong"><div class="sim-card-label">오답 시 결과</div><div class="sim-card-val">-10P</div></div>
+  </div>
+  <div style="margin-top:12px;font-size:11px;color:var(--muted);text-align:center" id="s2-desc"></div>
+</div>
+
+<div class="card">
+  <div class="card-title">보상 구간표 (참여비 10P 기준)</div>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:8px">배율 = 0~5% 구간(최소 참여 비율)에서 받는 최대 보상값. 참여 비율이 높아질수록 보상 감소.</div>
+  <div style="overflow-x:auto">
+  <table id="bracket-table">
+    <thead><tr><th>참여 비율</th><th class="c">40배율<br><span style="font-weight:400;font-size:10px">스포츠</span></th><th class="c">80배율<br><span style="font-weight:400;font-size:10px">정치·시사</span></th><th class="c">120배율<br><span style="font-weight:400;font-size:10px">기록</span></th><th class="c">손익 (80배율)</th></tr></thead>
+    <tbody id="bracket-body"></tbody>
+  </table>
+  </div>
+</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══════════════ 안건 3 ═══════════════ -->
+<div class="section" id="a3">
+<div class="sh"><span class="sh-num">3</span><h2>응모권 vs 포인트 — 통합할 것인가 분리할 것인가</h2></div>
+<div class="sh-sub">야구(응모권)와 확장 마켓(포인트)의 관계 설정</div>
+
+<div class="card">
+  <div class="card-title">3가지 선택지</div>
+</div>
+
+<div class="opt rec">
+  <div class="opt-header"><span class="opt-label rec">안 A — 완전 분리 (듀얼 트랙)</span><span class="rec-badge">권장</span></div>
+  <div class="opt-body">
+    <b>야구는 응모권 유지, 확장 마켓은 폴리코인.</b> 두 재화 완전 독립, 교환 경로 없음.<br><br>
+    <b>장점:</b> ① KBO 예측에 포인트 배팅이 붙지 않아 국민체육진흥법 §26 리스크 제거 ② 기존 응모 퍼널 변경 없음 ③ 법령 리스크가 가장 낮은 구조<br>
+    <b>단점:</b> ① 유저가 두 가지 재화를 관리해야 함 ② 마켓 간 시너지 약함
+  </div>
+</div>
+
+<div class="opt">
+  <div class="opt-header"><span class="opt-label">안 B — 포인트로 통합</span></div>
+  <div class="opt-body">
+    <b>야구 포함 전 마켓을 폴리코인으로 운영.</b> 응모권 폐지, 포인트 → 응모권 교환 경로 신설.<br><br>
+    <b>장점:</b> ① 단일 재화로 UX 단순 ② 포인트 소비처 확대 (인플레이션 통제 유리)<br>
+    <b>단점:</b> ① <b>KBO + 포인트 배팅 = 국민체육진흥법 §26 직접 충돌</b> ② 포인트 → 응모권 교환 시 포인트에 경제적 가치 부여 → 전자금융거래법 리스크 ③ 기존 응모 퍼널 전면 재설계
+  </div>
+</div>
+
+<div class="opt">
+  <div class="opt-header"><span class="opt-label">안 C — 야구도 포인트 예측으로 변경, 응모는 별도</span></div>
+  <div class="opt-body">
+    <b>야구 예측도 포인트 차감 방식으로 변경하되, 응모권은 출석·이벤트 등으로만 획득.</b><br><br>
+    <b>장점:</b> ① 전 마켓 단일 경험 ② 응모권과 포인트 독립 유지 가능<br>
+    <b>단점:</b> ① <b>KBO 포인트 배팅이므로 국민체육진흥법 §26 리스크 동일</b> ② 현재 "무료 참여 → 응모권"이라는 진입장벽 없는 구조가 사라짐 → 신규 유저 이탈
+  </div>
+</div>
+
+<div class="box-red">
+  <b>⚠️ 법령 관점:</b> 안 B·C는 "KBO 경기 결과에 경제적 가치 있는 포인트를 소모하여 예측하는 행위"에 해당합니다. Gemini 분석에서 "무료 포인트여도 스포츠 결과 베팅으로 기프티콘 획득 시 유사행위 처벌 판례 존재"를 지적했습니다. 안 A만이 이 리스크를 구조적으로 회피합니다.
+</div>
+
+<div class="dual" style="margin-top:14px">
+  <div class="track kbo">
+    <div class="track-label">야구 탭 — 응모권</div>
+    <h3>KBO 픽 (기존 유지)</h3>
+    <div class="track-content">
+      무료 참여 (포인트 차감 없음)<br>
+      성공 → 응모권 1장<br>
+      응모권 → 직관 티켓 응모<br>
+      <b>변경 없음</b>
+    </div>
+  </div>
+  <div class="track-sep">│</div>
+  <div class="track pz">
+    <div class="track-label">포인트예측 탭 — 폴리코인</div>
+    <h3>확장 마켓 (신규)</h3>
+    <div class="track-content">
+      참여 시 10P 차감<br>
+      성공 → 구간별 P 보상<br>
+      실패 → 10P 소멸<br>
+      <b>응모권과 완전 독립</b>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══════════════ 안건 4 ═══════════════ -->
+<div class="section" id="a4">
+<div class="sh"><span class="sh-num">4</span><h2>포인트와 응모권·티켓의 관계 설계</h2></div>
+<div class="sh-sub">안 A(듀얼 트랙) 기준 — 포인트가 응모/티켓과 어떻게 연결되는가</div>
+
+<div class="card">
+  <div class="card-title">결론: 연결하지 않는다</div>
+  <p>안 A(듀얼 트랙)를 선택하면, <b>폴리코인과 응모권·티켓은 완전히 별개의 체계</b>입니다. 연결 경로를 만들지 않는 것이 법령 리스크를 최소화하는 핵심입니다.</p>
+</div>
+
+<table>
+  <thead><tr><th style="width:25%">항목</th><th>폴리코인 (P)</th><th>응모권</th></tr></thead>
+  <tbody>
+    <tr><td><b>획득 경로</b></td><td>출석 / PZ 마켓 정답 보상</td><td>KBO 픽 정답 / KBO RV / 이벤트</td></tr>
+    <tr><td><b>사용처</b></td><td>PZ 마켓 참여</td><td>직관 티켓 응모</td></tr>
+    <tr><td><b>교차 교환</b></td><td colspan="2" class="c neg">불가 — P → 응모권, 응모권 → P 모두 차단</td></tr>
+    <tr><td><b>현금 연결</b></td><td>불가</td><td>불가 (보험 BM 보류 중)</td></tr>
+    <tr><td><b>유효기간</b></td><td>90일</td><td>별도 정책</td></tr>
+    <tr><td><b>경제적 가치</b></td><td>없음 (무가치 선언)</td><td>간접적 (티켓 당첨 기대값)</td></tr>
+  </tbody>
+</table>
+
+<div class="box-green">
+  <b>왜 분리해야 하는가:</b> 포인트 → 응모권 교환 경로가 생기면 포인트에 경제적 가치(응모권의 기대값)가 부여됩니다. 그 순간 "경제적 가치 있는 것을 소모하여 스포츠 외 예측에 참여"하는 구조가 되어 사행행위 판단 기준이 올라갑니다. 완전 분리가 법적으로 가장 안전합니다.
+</div>
+
+<div class="card">
+  <div class="card-title">향후 확장 가능성 (보류)</div>
+  <p>아래 항목들은 법무 검토 완료 후 별도 논의합니다.</p>
+  <table>
+    <tr><td style="width:30%"><b>기프티콘 교환</b></td><td>폴리코인 → 기프티콘. 전자금융거래법 검토 필요.</td><td style="width:15%;color:var(--pt)">법무 대기</td></tr>
+    <tr><td><b>보험 패스 구매</b></td><td>폴리코인 또는 현금 → 이벤트 패스. 금감원 문의 필요.</td><td style="color:var(--pt)">금감원 대기</td></tr>
+    <tr><td><b>포인트 → 응모권</b></td><td>현재 확정 차단. 법령 해소 시 재검토.</td><td style="color:var(--rt)">차단</td></tr>
+  </tbody></table>
+</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══════════════ 안건 5 ═══════════════ -->
+<div class="section" id="a5">
+<div class="sh"><span class="sh-num">5</span><h2>비용 시뮬레이션 — 플랫폼 경제</h2></div>
+<div class="sh-sub">DAU 1,000 / 5,000 / 10,000 / 100,000 규모별 포인트 발행·소각 비용</div>
+
+<div class="card">
+  <div class="card-title">실 데이터 기반 (4/27~28 평균)</div>
+  <table>
+    <thead><tr><th style="width:20%">지표</th><th style="width:20%">32일 평균</th><th style="width:20%">웹+앱 (2일 평균)</th><th style="width:20%">앱 전용 (2일 평균)</th><th>시사점</th></tr></thead>
+    <tbody>
+      <tr><td><b>DAU</b></td><td>4,812</td><td><b>10,299</b></td><td><b>4,890</b></td><td>웹+앱 DAU 2배 성장</td></tr>
+      <tr><td><b>예측 참여</b></td><td>1,128 (23%)</td><td><b>2,744 (26.6%)</b></td><td><b>2,391 (48.9%)</b></td><td>앱 참여율이 2배 높음</td></tr>
+      <tr><td><b>퀴즈 참여</b></td><td>1,014 (21%)</td><td><b>2,359 (22.9%)</b></td><td><b>2,146 (43.9%)</b></td><td>앱 유저가 핵심 활성층</td></tr>
+    </tbody>
+  </table>
+  <div style="font-size:11px;color:var(--at);margin-bottom:12px">앱 유저의 예측 참여율이 <b>48.9%</b>로 웹+앱(26.6%) 대비 거의 2배입니다. PZ 마켓은 앱 유저 중심으로 설계하되, 웹 유입 확장 시나리오도 함께 시뮬레이션해야 합니다.</div>
+  <div class="card-title">시뮬레이션 기본 전제</div>
+  <table>
+    <tr><td style="width:30%">참여비</td><td><b>10P 고정</b></td></tr>
+    <tr><td>1인당 일 참여</td><td><b>6.5회</b> (일 8개 마켓 제공, 참여율 81%)</td></tr>
+    <tr><td>정답률</td><td><b>52%</b> (실 데이터 추정)</td></tr>
+    <tr><td>출석 보상</td><td><b>10P/일</b></td></tr>
+  </table>
+  <div style="font-size:11px;color:var(--muted);margin-top:4px">※ 포인트는 무가치(1P=0원)이므로 아래 비용은 "플랫폼이 발행하는 가상 포인트 물량"입니다. 실제 현금 비용은 0원입니다.</div>
+</div>
+
+<!-- 시뮬레이션 5: 비용 시뮬레이터 -->
+<div class="sim">
+  <div class="sim-title">인터랙티브 시뮬레이션 — 슬라이더로 조건 변경</div>
+
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">
+    <button class="preset-btn" onclick="applyPreset(4890,49,2,52)">앱 전용 기준<span class="preset-sub">DAU 4,890 · 참여율 49%</span></button>
+    <button class="preset-btn" onclick="applyPreset(10299,27,2,52)">웹+앱 기준<span class="preset-sub">DAU 10,299 · 참여율 27%</span></button>
+    <button class="preset-btn" onclick="applyPreset(10000,49,2,52)">앱 성장 시나리오<span class="preset-sub">앱 DAU 10K · 참여율 49%</span></button>
+    <button class="preset-btn" onclick="applyPreset(50000,27,2,52)">웹+앱 성장 시나리오<span class="preset-sub">DAU 50K · 참여율 27%</span></button>
+  </div>
+  <div class="sim-row">
+    <div class="sim-label"><b>DAU</b></div>
+    <input type="range" min="500" max="100000" step="500" value="4890" id="s5-dau" oninput="sim5()">
+    <div class="sim-val" id="v5-dau">4,890</div>
+  </div>
+  <div class="sim-row">
+    <div class="sim-label"><b>PZ 참여율</b></div>
+    <input type="range" min="10" max="60" value="49" id="s5-rate" oninput="sim5()">
+    <div class="sim-val" id="v5-rate">49%</div>
+  </div>
+  <div class="sim-row">
+    <div class="sim-label"><b>배율</b></div>
+    <input type="range" min="1" max="3" value="2" id="s5-mult" oninput="sim5()">
+    <div class="sim-val" id="v5-mult">80배율</div>
+  </div>
+  <div class="sim-row">
+    <div class="sim-label"><b>정답률</b></div>
+    <input type="range" min="30" max="70" value="52" id="s5-wr" oninput="sim5()">
+    <div class="sim-val" id="v5-wr">52%</div>
+  </div>
+
+  <div class="sim-results" id="s5-results"></div>
+
+  <div style="margin-top:14px">
+    <table id="s5-table">
+      <thead><tr><th>항목</th><th class="r">일일</th><th class="r">주간</th><th class="r">월간</th></tr></thead>
+      <tbody id="s5-tbody"></tbody>
+    </table>
+  </div>
+  <div id="s5-alert" style="margin-top:8px"></div>
+</div>
+
+<div class="card">
+  <div class="card-title">시나리오별 월간 요약 (80배율 기준)</div>
+  <div class="cost-grid" id="cost-grid"></div>
+  <div style="font-size:11px;color:var(--muted);margin-top:6px">90일 만료 정책 적용 시, 론칭 90일 후부터 만료 소멸이 시작되어 실 유통량은 위 수치의 약 60~70% 수준에서 수렴합니다.</div>
+</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══════════════ 참고: 법령 ═══════════════ -->
+<div class="section" id="ref">
+<div class="sh"><span class="sh-num ref">참고</span><h2>법령 리스크 — 조항 및 판례</h2></div>
+<div class="sh-sub">v2.0 설계의 법적 근거. AI 분석(Claude + Gemini 교차 검증) 기반이며 법무 자문을 대체하지 않습니다.</div>
+
+<div class="law">
+  <div class="law-header">
+    <span class="law-risk safe">v2.0 회피</span>
+    <div><div class="law-name">사행행위 등 규제 및 처벌 특례법</div><div class="law-clause">§2(사행행위 정의) · §30(벌칙)</div></div>
+  </div>
+  <div class="law-quote">§2 ① "사행행위"란 다수인으로부터 재물 또는 재산상의 이익을 모아 우연적 방법에 의하여 득실을 결정하여 재산상의 이익 또는 손실을 주는 행위를 말한다.</div>
+  <div class="law-body">
+    <b>적용 분석:</b> v2.0은 비제로섬 구조(플랫폼이 보상 직접 지급)이므로 "다수인으로부터 재물을 모아 재분배"하는 구조가 아닙니다. v1.0의 파리뮤추얼은 이 정의에 직접 해당했으므로 폐기.<br>
+    <b>잔여 리스크:</b> 포인트에 기프티콘 교환 등으로 경제적 가치가 부여되면, 참여비 10P 차감이 "재산상 손실"로 해석될 여지. 현재는 무가치 선언으로 방어.<br>
+    <b>벌칙:</b> §30 무허가 사행행위업 영업 — 3년 이하 징역 또는 3천만원 이하 벌금.
+  </div>
+</div>
+
+<div class="law">
+  <div class="law-header">
+    <span class="law-risk safe">v2.0 회피</span>
+    <div><div class="law-name">형법</div><div class="law-clause">§246(도박) · §247(도박개장)</div></div>
+  </div>
+  <div class="law-quote">§246 ① 도박을 한 자는 500만원 이하의 벌금 또는 과료에 처한다.<br>§247 영리의 목적으로 도박을 개장한 자는 5년 이하의 징역 또는 3천만원 이하의 벌금에 처한다.</div>
+  <div class="law-body">
+    <b>적용 분석:</b> 도박죄의 구성 요건은 "재물을 걸고 우연한 승부에 의해 재물의 득실을 결정"하는 것. v2.0의 폴리코인은 무상 취득 + 무가치 선언이므로 "재물"성 차단.<br>
+    <b>⚠️ Gemini 지적 — 대법원 판례:</b> 대법원은 게임머니 등 가상 재화도 환전 가능성이 있으면 "재물"로 인정한 바 있음(대법원 2025도6368). 단, 해당 판례의 핵심은 "불법 환전상을 통한 현금화"가 있었다는 점. 폴리볼은 환전 경로 자체를 차단하여 차별화.<br>
+    <b>v1.0의 Rake 10%는 도박개장죄(§247)의 "영리 목적으로 도박 개장"에 직접 해당</b>했으므로 폐기.
+  </div>
+</div>
+
+<div class="law">
+  <div class="law-header">
+    <span class="law-risk safe">v2.0 구조적 회피</span>
+    <div><div class="law-name">국민체육진흥법</div><div class="law-clause">§26(체육진흥투표권 발행) · §47(벌칙)</div></div>
+  </div>
+  <div class="law-quote">§26 ① 체육진흥투표권의 발행은 서울올림픽기념국민체육진흥공단이 한다.<br>§47 ① 유사행위를 업으로 한 자는 5년 이하의 징역 또는 5천만원 이하의 벌금에 처한다.</div>
+  <div class="law-body">
+    <b>적용 분석:</b> v2.0은 KBO를 PZ 마켓에서 제외하여 "스포츠 경기 결과 + 포인트 배팅" 조합을 원천 차단. PZ 마켓의 K리그·KBL은 스포츠이지만, 포인트가 무가치 선언이고 체육진흥투표권의 핵심 요소인 "대가 지급 후 취득한 투표권"에 해당하지 않음.<br>
+    <b>⚠️ Gemini 지적 — 유사행위 처벌 판례 존재:</b> "무료 포인트여도 스포츠 결과 예측으로 기프티콘 등 재산상 이익 획득 시 유사행위로 처벌"한 사례가 있다고 명시. 현재 v2.0은 기프티콘 교환을 보류하여 이 리스크를 차단 중.<br>
+    <b>벌칙:</b> 5년 이하 징역 또는 5천만원 이하 벌금 — 가장 무거운 처벌.
+  </div>
+</div>
+
+<div class="law">
+  <div class="law-header">
+    <span class="law-risk caution">확인 필요</span>
+    <div><div class="law-name">게임산업진흥에 관한 법률</div><div class="law-clause">§28(경품 제한) · §32(사행성 게임물 금지) · 시행령 §18의3</div></div>
+  </div>
+  <div class="law-quote">§28 ④ 게임물 이용에 대한 보상으로 제공하는 경품은 문화체육관광부령이 정하는 기준에 따라야 한다.<br>시행령 §18의3: 1회 이용 기준 경품 총액 1만원 이하.</div>
+  <div class="law-body">
+    <b>적용 분석:</b> 폴리볼이 "게임물"로 분류될 경우 경품 한도 1만원 이하 규제 적용. KBO 직관 티켓(수만원 상당)은 초과 가능성. 단, 게임물관리위원회(GRAC)는 StepN 사례에서 "주된 목적이 오락이 아닌 실생활 편익이면 게임물 아님"으로 판정한 바 있음.<br>
+    <b>필요 조치:</b> 폴리볼의 게임물 해당 여부를 법무팀에서 사전 확인해야 합니다. 이 결과에 따라 기존 티켓 응모 체계에도 소급 영향이 있습니다.<br>
+    <b>Gemini 추가 지적:</b> 2016년 공정위 소비자 현상 경품 고시 폐지로, 게임물 비해당 시 고가 티켓 경품 합법.
+  </div>
+</div>
+
+<div class="law">
+  <div class="law-header">
+    <span class="law-risk hold">법무 검토 중</span>
+    <div><div class="law-name">전자금융거래법</div><div class="law-clause">§2(14)(선불전자지급수단) · §28(등록)</div></div>
+  </div>
+  <div class="law-quote">§2(14) "선불전자지급수단"이란 이전 가능한 금전적 가치가 전자적 방법으로 저장되어 발행된 증표 또는 그 증표에 관한 정보로서 재화 또는 용역을 구입하는 대가로 사용되는 것을 말한다.</div>
+  <div class="law-body">
+    <b>적용 분석:</b> 현재 폴리코인은 PZ 마켓 참여에만 사용되어 "재화 또는 용역 구입 대가"에 해당하지 않으나, 기프티콘 교환이 추가되면 선불전자지급수단 해당 가능성 높음.<br>
+    <b>⚠️ Gemini 지적 — 2024-2025 개정:</b> 기존 "2개 업종 이상에서 사용 가능"이라는 요건의 단일 업종 예외가 폐지됨. 제3자 재화(기프티콘 브랜드 상품)를 구매하는 데 사용되면 선불전자지급수단 해당. 금융위 등록 의무 발생(자기자본 20억원 이상 등 진입장벽 높음).<br>
+    <b>현재 상태:</b> 유료 포인트 관련 법무 검토 진행 중. 선불전자지급수단 라이선스 없이는 불가능하다는 4/27 법무팀 피드백 있음(사용처 2개 이상 & 3개월 평잔 30억 이상 시 등록 필수).
+  </div>
+</div>
+
+<div class="law">
+  <div class="law-header">
+    <span class="law-risk caution">레퍼런스</span>
+    <div><div class="law-name">선행 서비스 운영 사례</div><div class="law-clause">민심마켓 · 네이버 치지직 · 신한 쏠야구</div></div>
+  </div>
+  <div class="law-body">
+    <b>민심마켓:</b> 참여비 5코인 고정 / 비제로섬 구간 보상 / 코인 → 기프티콘 교환 가능 / 현금 구매·양도 불가. "데이터 수집/설문 도구"로 포지셔닝.<br>
+    <b>네이버 치지직:</b> 통나무 파워 소모 / 분배율 기반 보상 / 실패 시 소멸 / "방송 참여 부가 기능"으로 포지셔닝.<br>
+    <b>신한 쏠야구:</b> 야구공(포인트) 소모 / 추첨 티켓 지급 / 예측 외 다양한 획득 경로(적금 가입, 로그인 등) / "금융 서비스 마케팅 이벤트"로 포지셔닝.<br><br>
+    <b>⚠️ 공통 주의:</b> 위 서비스들은 "합법 판정"을 받은 것이 아니라 "규제 당국이 아직 문제 삼지 않은 그레이존"에서 운영 중입니다. 규제 환경 변화에 따라 언제든 타깃이 될 수 있습니다.
+  </div>
+</div>
+
+<div class="box-amber">
+  <b>법령 검토 종합:</b> v2.0 설계(비구매·고정비용·비제로섬·재화독립)를 모두 지키면 현재 확인된 법령은 대부분 회피 가능합니다. 단, ① 게임물 해당 여부 ② 전자금융거래법 개정 영향은 법무 검토가 필수적이며, ③ "그레이존"이라는 본질적 한계는 인지해야 합니다. 본 분석은 법무 자문을 대체하지 않습니다.
+</div>
+
+</div>
+
+</div><!-- /main-col -->
+
+<!-- 우측 GNB -->
+<nav class="gnb" id="gnb">
+  <div class="gnb-title">안건 목차</div>
+  <div class="gnb-group">
+    <button class="gnb-item active" data-target="a1"><span class="gnb-num">1</span>마켓 확장 · 포인트 필요성</button>
+    <button class="gnb-item" data-target="a2"><span class="gnb-num">2</span>포인트 워킹 방식</button>
+    <button class="gnb-item" data-target="a3"><span class="gnb-num">3</span>응모권 vs 포인트</button>
+    <button class="gnb-item" data-target="a4"><span class="gnb-num">4</span>포인트 · 응모권 · 티켓</button>
+    <button class="gnb-item" data-target="a5"><span class="gnb-num">5</span>비용 시뮬레이션</button>
+  </div>
+  <div class="gnb-divider"></div>
+  <div class="gnb-group">
+    <button class="gnb-item" data-target="ref"><span class="gnb-num ref">참고</span>법령 · 판례</button>
+  </div>
+  <div class="gnb-progress">
+    <div class="gnb-progress-label">읽기 진행</div>
+    <div class="gnb-progress-bar"><div class="gnb-progress-fill" id="gnb-fill" style="width:0%"></div></div>
+  </div>
+</nav>
+
+</div><!-- /page -->
+<script>
+function reward(fee,mult,ratioMid){
+  var max=mult;var min=Math.max(Math.round(fee*0.5),1);
+  return Math.max(Math.round(max-(max-min)*(ratioMid/100)),min);
+}
+var fee=10;
+
+// 구간표
+(function(){
+  var tb=document.getElementById('bracket-body');var html='';
+  for(var i=0;i<20;i++){
+    var lo=i*5,hi=(i+1)*5,mid=i*5+2.5;
+    var r40=reward(fee,40,mid),r80=reward(fee,80,mid),r120=reward(fee,120,mid);
+    var d80=r80-fee;
+    var cls=(lo===40||lo===45)?'hl':'';
+    var dc=d80>1?'pos':d80<-1?'neg':'';
+    html+='<tr class="'+cls+'"><td>'+lo+'%~'+hi+'%</td><td class="c mono">'+r40+'P</td><td class="c mono">'+r80+'P</td><td class="c mono">'+r120+'P</td><td class="c mono '+dc+'">'+(d80>=0?'+':'')+d80+'P</td></tr>';
+  }
+  tb.innerHTML=html;
+})();
+
+// 시뮬레이션 2
+function sim2(){
+  var mv=parseInt(document.getElementById('s2-mult').value);
+  var mult=mv===1?40:mv===2?80:120;
+  var mname=mv===1?'40배율 (스포츠)':mv===2?'80배율 (정치·시사)':'120배율 (기록)';
+  var ratio=parseInt(document.getElementById('s2-ratio').value);
+  document.getElementById('v2-mult').textContent=mname;
+  document.getElementById('v2-ratio').textContent=ratio+'%';
+  var rw=reward(fee,mult,ratio);
+  var profit=rw-fee;
+  document.getElementById('s2-reward').innerHTML='<div class="sim-card-label">정답 시 보상</div><div class="sim-card-val">+'+rw+'P</div><div class="sim-card-sub">'+Math.round(rw/fee*10)/10+'배</div>';
+  var pc=profit>=0?'green':'red';
+  document.getElementById('s2-profit').className='sim-card '+pc;
+  document.getElementById('s2-profit').innerHTML='<div class="sim-card-label">정답 시 순이익</div><div class="sim-card-val">'+(profit>=0?'+':'')+profit+'P</div>';
+  document.getElementById('s2-desc').textContent='참여 비율 '+ratio+'% 구간에서 '+mname+' 적용 시, 10P를 내고 맞추면 '+rw+'P를 받습니다. '+(profit>=0?'순이익 +'+profit+'P.':'순손실 '+profit+'P — 참여비보다 보상이 작은 구간입니다.');
+}
+sim2();
+
+// 프리셋 적용
+function applyPreset(dau,rate,mult,wr){
+  document.getElementById('s5-dau').value=dau;
+  document.getElementById('s5-rate').value=rate;
+  document.getElementById('s5-mult').value=mult;
+  document.getElementById('s5-wr').value=wr;
+  document.querySelectorAll('.preset-btn').forEach(function(b){b.classList.remove('active')});
+  if(event&&event.target){
+    var btn=event.target.closest('.preset-btn');
+    if(btn)btn.classList.add('active');
+  }
+  sim5();
+}
+
+// 시뮬레이션 5
+function sim5(){
+  var dau=parseInt(document.getElementById('s5-dau').value);
+  var rate=parseInt(document.getElementById('s5-rate').value)/100;
+  var mv=parseInt(document.getElementById('s5-mult').value);
+  var mult=mv===1?40:mv===2?80:120;
+  var mname=mv===1?'40배율':mv===2?'80배율':'120배율';
+  var wr=parseInt(document.getElementById('s5-wr').value)/100;
+
+  document.getElementById('v5-dau').textContent=dau.toLocaleString();
+  document.getElementById('v5-rate').textContent=Math.round(rate*100)+'%';
+  document.getElementById('v5-mult').textContent=mname;
+  document.getElementById('v5-wr').textContent=Math.round(wr*100)+'%';
+
+  var pzUsers=Math.round(dau*rate);
+  var plays=6.5;
+  var wins=Math.round(plays*wr*10)/10;
+  var rw=reward(fee,mult,45);
+
+  var dailySpend=Math.round(pzUsers*plays*fee);
+  var dailyCheckin=pzUsers*10;
+  var dailyReward=Math.round(pzUsers*wins*rw);
+  var dailyNet=dailyCheckin+dailyReward-dailySpend;
+
+  document.getElementById('s5-results').innerHTML=
+    '<div class="sim-card blue"><div class="sim-card-label">PZ 참여 유저</div><div class="sim-card-val">'+pzUsers.toLocaleString()+'</div><div class="sim-card-sub">DAU의 '+Math.round(rate*100)+'%</div></div>'+
+    '<div class="sim-card red"><div class="sim-card-label">일일 참여비 소각</div><div class="sim-card-val">'+dailySpend.toLocaleString()+'P</div></div>'+
+    '<div class="sim-card green"><div class="sim-card-label">일일 보상 지급</div><div class="sim-card-val">'+dailyReward.toLocaleString()+'P</div></div>'+
+    '<div class="sim-card '+(dailyNet>0?'amber':'green')+'"><div class="sim-card-label">일일 순발행</div><div class="sim-card-val">'+(dailyNet>=0?'+':'')+dailyNet.toLocaleString()+'P</div></div>';
+
+  var rows=[
+    ['출석 공급',dailyCheckin,'pos'],
+    ['정답 보상 지급',dailyReward,'neg'],
+    ['참여비 소각',-dailySpend,'pos'],
+    ['순발행량',dailyNet,dailyNet>0?'neg':'pos']
+  ];
+  document.getElementById('s5-tbody').innerHTML=rows.map(function(r){
+    return '<tr><td>'+r[0]+'</td><td class="r mono '+r[2]+'">'+(r[1]>=0?'+':'')+r[1].toLocaleString()+'P</td><td class="r mono '+r[2]+'">'+(r[1]*7>=0?'+':'')+(r[1]*7).toLocaleString()+'P</td><td class="r mono '+r[2]+'">'+(r[1]*30>=0?'+':'')+(r[1]*30).toLocaleString()+'P</td></tr>';
+  }).join('');
+
+  var alert='';
+  if(dailyNet>0){
+    alert='<div class="box-amber"><b>인플레이션 발생:</b> 일일 +'+dailyNet.toLocaleString()+'P 순발행. 월간 +'+(dailyNet*30).toLocaleString()+'P. 90일 만료 정책으로 론칭 90일 후부터 소멸 시작, 실 유통량 수렴 예상.</div>';
+  } else {
+    alert='<div class="box-green"><b>디플레이션 구조:</b> 소각이 발행보다 많아 경제 안정적. 유저 이탈 방지를 위해 공급량 모니터링 필요.</div>';
+  }
+  document.getElementById('s5-alert').innerHTML=alert;
+}
+sim5();
+
+// 고정 시나리오 그리드
+(function(){
+  var scenarios=[
+    {label:'앱 전용 (현재)',dau:4890,rate:0.49,color:'c1'},
+    {label:'웹+앱 (현재)',dau:10299,rate:0.27,color:'c2'},
+    {label:'앱 성장',dau:10000,rate:0.49,color:'c3'},
+    {label:'웹+앱 성장',dau:50000,rate:0.27,color:'c4'}
+  ];
+  var grid=document.getElementById('cost-grid');
+  var html='';
+  scenarios.forEach(function(s){
+    var pz=Math.round(s.dau*s.rate);
+    var spend=Math.round(pz*6.5*10);
+    var checkin=pz*10;
+    var rw=reward(10,80,45);
+    var wins=Math.round(6.5*0.52*10)/10;
+    var rewardTotal=Math.round(pz*wins*rw);
+    var net=(checkin+rewardTotal-spend)*30;
+    html+='<div class="cost-col '+s.color+'"><div class="cost-dau">'+s.label+'</div><div class="cost-num">'+(net>=0?'+':'')+(net/1000).toFixed(0)+'K P</div><div class="cost-label">월간 순발행</div><div style="font-size:10px;color:var(--muted);margin-top:4px">DAU '+s.dau.toLocaleString()+' · 참여 '+pz.toLocaleString()+'명</div></div>';
+  });
+  grid.innerHTML=html;
+})();
+
+// GNB 인터랙션
+(function(){
+  var items=document.querySelectorAll('.gnb-item');
+  items.forEach(function(item){
+    item.addEventListener('click',function(){
+      var target=item.getAttribute('data-target');
+      var el=document.getElementById(target);
+      if(el)el.scrollIntoView({behavior:'smooth'});
+    });
+  });
+
+  var sections=['a1','a2','a3','a4','a5','ref'];
+  function updateGnb(){
+    var scrollY=window.scrollY||window.pageYOffset;
+    var docH=document.documentElement.scrollHeight-window.innerHeight;
+    var pct=Math.min(Math.round(scrollY/docH*100),100);
+    var fill=document.getElementById('gnb-fill');
+    if(fill)fill.style.width=pct+'%';
+
+    var current='a1';
+    sections.forEach(function(id){
+      var el=document.getElementById(id);
+      if(el&&el.getBoundingClientRect().top<200)current=id;
+    });
+    items.forEach(function(item){
+      if(item.getAttribute('data-target')===current){
+        item.classList.add('active');
+      }else{
+        item.classList.remove('active');
+      }
+    });
+  }
+  window.addEventListener('scroll',updateGnb);
+  updateGnb();
+})();
+</script>
+</body>
+</html>

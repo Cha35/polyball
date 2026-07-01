@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>폴리볼 응모 캘린더 — 유저 플로우</title>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Pretendard', -apple-system, sans-serif;
+    background: #F7F7F5;
+    padding: 40px 24px 80px;
+  }
+  .header {
+    max-width: 960px;
+    margin: 0 auto 32px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #1A1A18;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .header h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; color: #1A1A18; }
+  .header span { font-size: 12px; color: #9B9B93; }
+  .chart-wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    background: #fff;
+    border: 1px solid #E0E0DA;
+    border-radius: 12px;
+    overflow: hidden;
+    padding: 32px 16px;
+  }
+  svg { display: block; width: 100%; }
+  .legend {
+    max-width: 960px;
+    margin: 24px auto 0;
+    background: #fff;
+    border: 1px solid #E0E0DA;
+    border-radius: 10px;
+    padding: 20px 24px;
+  }
+  .legend-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #9B9B93; margin-bottom: 14px; }
+  .legend-row { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #5C5C56; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>폴리볼 응모 캘린더 — 유저 플로우</h1>
+  <span>v1.2 · 2026.04.08</span>
+</div>
+
+<div class="chart-wrap">
+<svg viewBox="0 0 920 1700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M1 1L9 5L1 9" fill="none" stroke="#888780" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="arr-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M1 1L9 5L1 9" fill="none" stroke="#378ADD" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="arr-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M1 1L9 5L1 9" fill="none" stroke="#1D9E75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="arr-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M1 1L9 5L1 9" fill="none" stroke="#BA7517" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+
+<!-- ===================== COLUMN X 정의 =====================
+  Left (응모중):   cx=180
+  Center (마감):   cx=460
+  Right (예정):    cx=740
+  중앙 메인 흐름:  cx=460
+-->
+
+<!-- ════════════════════════════════════════════
+     1. 응모 메인 (START)
+     ════════════════════════════════════════════ -->
+<ellipse cx="460" cy="48" rx="110" ry="28" fill="#F1EFE8" stroke="#888780" stroke-width="1"/>
+<text x="460" y="48" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="15" font-weight="600" fill="#444441">응모 메인</text>
+
+<!-- 화살표 ↓ -->
+<line x1="460" y1="76" x2="460" y2="108" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+
+<!-- ════════════════════════════════════════════
+     2. 캘린더 배너 버튼 탭
+     ════════════════════════════════════════════ -->
+<rect x="330" y="108" width="260" height="52" rx="8" fill="#EFF4FF" stroke="#378ADD" stroke-width="1"/>
+<text x="460" y="127" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="14" font-weight="600" fill="#0C447C">캘린더 배너 버튼 탭</text>
+<text x="460" y="148" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#185FA5">'전체 응모 일정 보기' 클릭</text>
+
+<line x1="460" y1="160" x2="460" y2="192" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+
+<!-- ════════════════════════════════════════════
+     3. 캘린더 진입
+     ════════════════════════════════════════════ -->
+<rect x="330" y="192" width="260" height="52" rx="8" fill="#fff" stroke="#D0D0C8" stroke-width="1"/>
+<text x="460" y="211" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="14" font-weight="600" fill="#1A1A18">응모 캘린더 진입</text>
+<text x="460" y="232" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#6B6B63">주간 뷰 기본 노출</text>
+
+<line x1="460" y1="244" x2="460" y2="276" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+
+<!-- ════════════════════════════════════════════
+     4. 뷰 탐색
+     ════════════════════════════════════════════ -->
+<rect x="330" y="276" width="260" height="52" rx="8" fill="#fff" stroke="#D0D0C8" stroke-width="1"/>
+<text x="460" y="295" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="14" font-weight="600" fill="#1A1A18">뷰 탐색</text>
+<text x="460" y="316" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#6B6B63">주간 / 월간 전환 · 날짜 이동</text>
+
+<line x1="460" y1="328" x2="460" y2="360" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+
+<!-- ════════════════════════════════════════════
+     5. 응원팀 필터 분기 (다이아몬드)
+     cx=460, cy=396, w=140, h=72
+     꼭짓점: top(460,360) right(530,396) bottom(460,432) left(390,396)
+     ════════════════════════════════════════════ -->
+<polygon points="460,360 530,396 460,432 390,396" fill="#F1EFE8" stroke="#888780" stroke-width="1"/>
+<text x="460" y="390" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#444441">응원팀</text>
+<text x="460" y="406" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#444441">필터 적용?</text>
+
+<!-- No → 왼쪽 수평선 → 내려가서 합류 -->
+<line x1="390" y1="396" x2="290" y2="396" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="338" y="388" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="11" fill="#888780">No</text>
+
+<!-- No 라인: 290, 396 → 290, 480 → 360, 480 -->
+<line x1="290" y1="396" x2="290" y2="480" stroke="#888780" stroke-width="1.2"/>
+<line x1="290" y1="480" x2="358" y2="480" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+
+<!-- Yes → 오른쪽으로 -->
+<line x1="530" y1="396" x2="630" y2="396" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="582" y="388" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="11" fill="#888780">Yes</text>
+
+<!-- 응원팀 필터 적용 박스 (오른쪽) -->
+<rect x="630" y="372" width="180" height="52" rx="8" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1"/>
+<text x="720" y="391" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#085041">응원팀 필터 적용</text>
+<text x="720" y="411" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#0F6E56">해당 구단 경기만 표시</text>
+
+<!-- 필터 박스 → 아래 → 480, 480 합류 -->
+<line x1="720" y1="424" x2="720" y2="480" stroke="#888780" stroke-width="1.2"/>
+<line x1="720" y1="480" x2="562" y2="480" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+
+<!-- ════════════════════════════════════════════
+     6. 날짜 탭 (합류 후)
+     ════════════════════════════════════════════ -->
+<rect x="330" y="480" width="260" height="52" rx="8" fill="#fff" stroke="#D0D0C8" stroke-width="1"/>
+<text x="460" y="499" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="14" font-weight="600" fill="#1A1A18">날짜 탭</text>
+<text x="460" y="520" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#6B6B63">하단 경기 목록 노출</text>
+
+<line x1="460" y1="532" x2="460" y2="564" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+
+<!-- ════════════════════════════════════════════
+     7. 경기 탭
+     ════════════════════════════════════════════ -->
+<rect x="330" y="564" width="260" height="52" rx="8" fill="#fff" stroke="#D0D0C8" stroke-width="1"/>
+<text x="460" y="583" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="14" font-weight="600" fill="#1A1A18">경기 탭</text>
+<text x="460" y="604" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#6B6B63">목록 카드 선택</text>
+
+<line x1="460" y1="616" x2="460" y2="648" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+
+<!-- ════════════════════════════════════════════
+     8. 경기 상태 분기 (다이아몬드)
+     cx=460, cy=692, w=160, h=80
+     꼭짓점: top(460,652) right(540,692) bottom(460,732) left(380,692)
+     ════════════════════════════════════════════ -->
+<polygon points="460,648 545,692 460,736 375,692" fill="#F1EFE8" stroke="#888780" stroke-width="1"/>
+<text x="460" y="686" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#444441">경기</text>
+<text x="460" y="702" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#444441">상태?</text>
+
+<!-- ── 응모중: 왼쪽 ── -->
+<line x1="375" y1="692" x2="190" y2="692" stroke="#378ADD" stroke-width="1.2" marker-end="url(#arr-b)"/>
+<text x="280" y="683" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="11" fill="#378ADD" font-weight="500">응모중</text>
+
+<!-- ── 마감·결과: 아래 ── -->
+<line x1="460" y1="736" x2="460" y2="768" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="490" y="756" text-anchor="start" font-family="Pretendard,sans-serif" font-size="11" fill="#888780">마감 · 결과</text>
+
+<!-- ── 예정: 오른쪽 ── -->
+<line x1="545" y1="692" x2="730" y2="692" stroke="#BA7517" stroke-width="1.2" marker-end="url(#arr-a)"/>
+<text x="640" y="683" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="11" fill="#BA7517" font-weight="500">예정</text>
+
+<!-- ═══════════════════════════════════════
+     ── 왼쪽 브랜치: 응모중 ──
+     x=190 기준
+     ═══════════════════════════════════════ -->
+
+<!-- 응모 상세 진입 -->
+<line x1="190" y1="692" x2="190" y2="768" stroke="#378ADD" stroke-width="1.2" marker-end="url(#arr-b)"/>
+<rect x="100" y="768" width="180" height="52" rx="8" fill="#EFF4FF" stroke="#378ADD" stroke-width="1"/>
+<text x="190" y="787" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#0C447C">응모 상세 진입</text>
+<text x="190" y="807" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#185FA5">기존 상세 페이지 이동</text>
+
+<line x1="190" y1="820" x2="190" y2="852" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+
+<!-- 응모권 수량 선택 -->
+<rect x="100" y="852" width="180" height="52" rx="8" fill="#fff" stroke="#D0D0C8" stroke-width="1"/>
+<text x="190" y="871" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#1A1A18">응모권 수량 선택</text>
+<text x="190" y="891" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#6B6B63">스탭퍼로 수량 조절</text>
+
+<line x1="190" y1="904" x2="190" y2="936" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+
+<!-- 응모하기 탭 -->
+<rect x="100" y="936" width="180" height="52" rx="8" fill="#fff" stroke="#D0D0C8" stroke-width="1"/>
+<text x="190" y="955" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#1A1A18">응모하기 탭</text>
+<text x="190" y="975" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#6B6B63">하단 CTA 버튼</text>
+
+<line x1="190" y1="988" x2="190" y2="1020" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+
+<!-- 응모 완료 (종료) -->
+<ellipse cx="190" cy="1044" rx="90" ry="28" fill="#EAF3DE" stroke="#639922" stroke-width="1"/>
+<text x="190" y="1044" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="14" font-weight="600" fill="#27500A">응모 완료</text>
+
+<line x1="190" y1="1072" x2="190" y2="1104" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+
+<!-- 결과 발표 대기 -->
+<rect x="100" y="1104" width="180" height="52" rx="8" fill="#fff" stroke="#D0D0C8" stroke-width="1"/>
+<text x="190" y="1123" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#1A1A18">결과 발표 대기</text>
+<text x="190" y="1143" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#6B6B63">당첨 알림 수신 대기</text>
+
+<line x1="190" y1="1156" x2="190" y2="1188" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+
+<!-- 결과 확인 (종료) -->
+<ellipse cx="190" cy="1212" rx="90" ry="28" fill="#EAF3DE" stroke="#639922" stroke-width="1"/>
+<text x="190" y="1212" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="14" font-weight="600" fill="#27500A">결과 확인</text>
+
+<!-- ═══════════════════════════════════════
+     ── 가운데 브랜치: 마감·결과 ──
+     x=460 기준
+     ═══════════════════════════════════════ -->
+
+<!-- 기존 응모 상세 이동 -->
+<rect x="360" y="768" width="200" height="52" rx="8" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1"/>
+<text x="460" y="787" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#085041">기존 응모 상세 이동</text>
+<text x="460" y="807" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#0F6E56">참여 이력 · 당첨 결과 확인</text>
+
+<line x1="460" y1="820" x2="460" y2="852" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+
+<!-- 결과 확인 완료 (종료) -->
+<ellipse cx="460" cy="876" rx="100" ry="28" fill="#EAF3DE" stroke="#639922" stroke-width="1"/>
+<text x="460" y="876" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="14" font-weight="600" fill="#27500A">결과 확인 완료</text>
+
+<!-- ═══════════════════════════════════════
+     ── 오른쪽 브랜치: 예정 ──
+     x=730 기준
+     ═══════════════════════════════════════ -->
+
+<line x1="730" y1="692" x2="730" y2="768" stroke="#BA7517" stroke-width="1.2" marker-end="url(#arr-a)"/>
+
+<!-- 응모 예정 상세 -->
+<rect x="638" y="768" width="184" height="52" rx="8" fill="#FAEEDA" stroke="#BA7517" stroke-width="1"/>
+<text x="730" y="787" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#633806">응모 예정 상세</text>
+<text x="730" y="807" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#854F0B">오픈 일시 안내</text>
+
+<line x1="730" y1="820" x2="730" y2="852" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+
+<!-- 알림받기 탭 -->
+<rect x="638" y="852" width="184" height="52" rx="8" fill="#fff" stroke="#D0D0C8" stroke-width="1"/>
+<text x="730" y="871" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#1A1A18">알림받기 탭</text>
+<text x="730" y="891" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#6B6B63">하단 CTA 버튼</text>
+
+<line x1="730" y1="904" x2="730" y2="936" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+
+<!-- 푸시 허용 분기 다이아몬드
+     cx=730, cy=972
+     꼭짓점: top(730,936) right(800,972) bottom(730,1008) left(660,972)
+-->
+<polygon points="730,936 800,972 730,1008 660,972" fill="#F1EFE8" stroke="#888780" stroke-width="1"/>
+<text x="730" y="966" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="12" font-weight="600" fill="#444441">푸시 알림</text>
+<text x="730" y="982" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="12" font-weight="600" fill="#444441">허용?</text>
+
+<!-- No → 왼쪽 -->
+<line x1="660" y1="972" x2="570" y2="972" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="613" y="963" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="11" fill="#888780">No</text>
+
+<!-- 시스템 팝업 (말풍선) -->
+<!-- 본체 -->
+<rect x="430" y="948" width="140" height="52" rx="8" fill="#F1EFE8" stroke="#888780" stroke-width="1"/>
+<!-- 꼬리 (오른쪽) -->
+<polygon points="570,962 584,972 570,982" fill="#F1EFE8" stroke="#888780" stroke-width="1"/>
+<line x1="570" y1="962" x2="570" y2="982" stroke="#F1EFE8" stroke-width="2"/>
+<text x="500" y="967" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="12" font-weight="600" fill="#444441">푸시 허용 유도</text>
+<text x="500" y="987" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#6B6B63">시스템 팝업 노출</text>
+
+<!-- 팝업 → 허용 후 재시도 → 다시 다이아몬드로 -->
+<line x1="500" y1="1000" x2="500" y2="1036" stroke="#888780" stroke-width="1.2"/>
+<line x1="500" y1="1036" x2="730" y2="1036" stroke="#888780" stroke-width="1.2"/>
+<line x1="730" y1="1036" x2="730" y2="1010" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="614" y="1028" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="11" fill="#888780">허용 후 재시도</text>
+
+<!-- Yes → 아래 -->
+<line x1="730" y1="1008" x2="730" y2="1040" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="748" y="1026" text-anchor="start" font-family="Pretendard,sans-serif" font-size="11" fill="#888780">Yes</text>
+
+<!-- 알림 설정 완료 (종료) -->
+<ellipse cx="730" cy="1068" rx="100" ry="28" fill="#EAF3DE" stroke="#639922" stroke-width="1"/>
+<text x="730" y="1068" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="14" font-weight="600" fill="#27500A">알림 설정 완료</text>
+
+<!-- ════════════════════════════════════════════
+     컬럼 구분선 (점선 가이드)
+     ════════════════════════════════════════════ -->
+<line x1="330" y1="660" x2="330" y2="1260" stroke="#E8E8E4" stroke-width="0.5" stroke-dasharray="4 3"/>
+<line x1="590" y1="660" x2="590" y2="1260" stroke="#E8E8E4" stroke-width="0.5" stroke-dasharray="4 3"/>
+
+<!-- 컬럼 라벨 -->
+<text x="190" y="672" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="11" fill="#888780" font-weight="500">응모중</text>
+<text x="460" y="672" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="11" fill="#888780" font-weight="500">마감 · 결과</text>
+<text x="730" y="672" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="11" fill="#888780" font-weight="500">예정</text>
+<line x1="50" y1="660" x2="870" y2="660" stroke="#E8E8E4" stroke-width="0.5" stroke-dasharray="4 3"/>
+
+</svg>
+</div>
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-title">범례</div>
+  <div class="legend-row">
+    <div class="legend-item">
+      <svg width="80" height="28"><ellipse cx="40" cy="14" rx="38" ry="13" fill="#F1EFE8" stroke="#888780" stroke-width="1"/><text x="40" y="14" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#444441">시작 / 종료</text></svg>
+      <span>시작점 · 종료점</span>
+    </div>
+    <div class="legend-item">
+      <svg width="80" height="28"><rect x="1" y="1" width="78" height="26" rx="6" fill="#fff" stroke="#D0D0C8" stroke-width="1"/><text x="40" y="14" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#1A1A18">화면 / 액션</text></svg>
+      <span>화면 또는 액션 단계</span>
+    </div>
+    <div class="legend-item">
+      <svg width="52" height="28"><polygon points="26,1 51,14 26,27 1,14" fill="#F1EFE8" stroke="#888780" stroke-width="1"/><text x="26" y="14" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="10" fill="#444441">분기</text></svg>
+      <span>조건 분기</span>
+    </div>
+    <div class="legend-item">
+      <svg width="80" height="28"><rect x="1" y="1" width="65" height="26" rx="6" fill="#F1EFE8" stroke="#888780" stroke-width="1"/><polygon points="66,9 76,14 66,19" fill="#F1EFE8" stroke="#888780" stroke-width="1"/><line x1="66" y1="9" x2="66" y2="19" stroke="#F1EFE8" stroke-width="2"/><text x="33" y="14" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#444441">시스템 알럿</text></svg>
+      <span>시스템 팝업</span>
+    </div>
+    <div class="legend-item">
+      <svg width="60" height="10"><line x1="0" y1="5" x2="50" y2="5" stroke="#378ADD" stroke-width="1.5" marker-end="url(#arr-b)"/><defs><marker id="arr-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M1 1L9 5L1 9" fill="none" stroke="#378ADD" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs></svg>
+      <span>응모중 경로</span>
+    </div>
+    <div class="legend-item">
+      <svg width="60" height="10"><line x1="0" y1="5" x2="50" y2="5" stroke="#BA7517" stroke-width="1.5" marker-end="url(#arr-a)"/><defs><marker id="arr-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M1 1L9 5L1 9" fill="none" stroke="#BA7517" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs></svg>
+      <span>예정 경로</span>
+    </div>
+    <div class="legend-item">
+      <svg width="60" height="10"><line x1="0" y1="5" x2="50" y2="5" stroke="#888780" stroke-width="1.5" marker-end="url(#arr)"/><defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M1 1L9 5L1 9" fill="none" stroke="#888780" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs></svg>
+      <span>일반 경로</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

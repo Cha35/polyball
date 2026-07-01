@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>유저 리서치 인사이트 — 폴리볼 직관/집관 기록 v0.1</title>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F7F5;
+    --surface: #FFFFFF;
+    --border: #E8E8E4;
+    --border-strong: #D0D0C8;
+    --text-primary: #1A1A18;
+    --text-secondary: #5C5C56;
+    --text-muted: #9B9B93;
+    --accent: #2563EB;
+    --accent-light: #EFF4FF;
+    --accent-muted: #BFCFFC;
+    --green: #16A34A;
+    --green-light: #EDFAF3;
+    --red: #DC2626;
+    --red-light: #FEF2F2;
+    --orange: #D97706;
+    --orange-light: #FFFBEB;
+    --purple: #7C3AED;
+    --purple-light: #F5F3FF;
+    --purple-muted: #C4B5FD;
+    --tag-bg: #F0F0EC;
+    --code-bg: #F3F3EF;
+    --new-bg: #F0FDF4;
+    --new-border: #BBF7D0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Pretendard', -apple-system, sans-serif; background: var(--bg); color: var(--text-primary); font-size: 14px; line-height: 1.7; -webkit-font-smoothing: antialiased; }
+  .wrapper { max-width: 960px; margin: 0 auto; padding: 60px 40px 120px; }
+
+  /* HEADER */
+  .doc-header { margin-bottom: 56px; padding-bottom: 40px; border-bottom: 2px solid var(--text-primary); }
+  .doc-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--purple); background: var(--purple-light); border: 1px solid var(--purple-muted); padding: 4px 10px; border-radius: 4px; margin-bottom: 20px; }
+  .doc-title { font-size: 36px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 8px; }
+  .doc-subtitle { font-size: 16px; color: var(--text-secondary); margin-bottom: 28px; }
+  .doc-meta { display: flex; flex-wrap: wrap; gap: 24px; }
+  .meta-item { display: flex; flex-direction: column; gap: 2px; }
+  .meta-label { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+  .meta-value { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+  .status-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--orange); background: var(--orange-light); border: 1px solid #FDE68A; padding: 2px 8px; border-radius: 20px; }
+  .status-dot { width: 6px; height: 6px; background: var(--orange); border-radius: 50%; }
+
+  /* TOC */
+  .toc { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px 28px; margin-bottom: 56px; }
+  .toc-title { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px; }
+  .toc-group { margin-bottom: 16px; }
+  .toc-group:last-child { margin-bottom: 0; }
+  .toc-group-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
+  .toc-items { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 40px; }
+  .toc-items a { font-size: 13px; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 2px 0; }
+  .toc-items a:hover { text-decoration: underline; }
+  .toc-num { font-size: 11px; color: var(--text-muted); font-weight: 600; min-width: 36px; }
+
+  /* SECTION */
+  .section { margin-bottom: 64px; }
+  .section-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 8px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  .section-num { font-size: 12px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.05em; min-width: 40px; }
+  .section-title { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+  .section-subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 28px; }
+
+  /* CHAPTER DIVIDER */
+  .chapter-divider { margin: 64px 0 40px; padding: 18px 24px; background: var(--text-primary); border-radius: 10px; display: flex; align-items: center; justify-content: space-between; }
+  .chapter-divider-left { display: flex; flex-direction: column; gap: 4px; }
+  .chapter-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+  .chapter-title { font-size: 17px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.01em; }
+  .chapter-desc { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+
+  /* SUBSECTION */
+  .subsection { margin-bottom: 36px; }
+  .subsection-title { font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .subsection-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  p { color: var(--text-secondary); margin-bottom: 12px; font-size: 14px; line-height: 1.75; }
+
+  /* INSIGHT CARD */
+  .insight-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 16px; }
+  .insight-card-header { padding: 14px 20px; background: var(--tag-bg); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .insight-num { font-size: 11px; font-weight: 700; color: var(--accent); background: var(--accent-light); border: 1px solid var(--accent-muted); padding: 2px 8px; border-radius: 4px; font-family: 'SF Mono', monospace; white-space: nowrap; }
+  .insight-title { font-size: 14px; font-weight: 700; color: var(--text-primary); flex: 1; }
+  .insight-priority { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+  .priority-high { background: var(--red-light); color: var(--red); border: 1px solid #FECACA; }
+  .priority-mid { background: var(--orange-light); color: var(--orange); border: 1px solid #FDE68A; }
+  .priority-low { background: var(--tag-bg); color: var(--text-muted); border: 1px solid var(--border); }
+  .insight-card-body { padding: 16px 20px; }
+  .insight-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.75; margin-bottom: 12px; }
+  .insight-action { background: var(--new-bg); border: 1px solid var(--new-border); border-radius: 6px; padding: 10px 14px; font-size: 13px; color: var(--green); line-height: 1.6; }
+  .insight-action::before { content: '→ 적용 방향: '; font-weight: 700; }
+
+  /* QUOTE */
+  .quote-block { background: var(--code-bg); border-left: 3px solid var(--border-strong); border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0; font-size: 13px; color: var(--text-secondary); line-height: 1.7; font-style: italic; }
+  .quote-source { font-size: 11px; color: var(--text-muted); margin-top: 4px; font-style: normal; font-weight: 600; }
+
+  /* PERSONA CARD */
+  .persona-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+  .persona-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .persona-name { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+  .persona-info { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
+  .persona-tag { display: inline-flex; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 3px; margin-bottom: 8px; }
+  .persona-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 20px; }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { background: var(--tag-bg); }
+  th { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { font-size: 13px; color: var(--text-secondary); padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.6; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--bg); }
+  td:first-child { font-weight: 600; color: var(--text-primary); }
+
+  /* BADGE */
+  .badge { display: inline-flex; align-items: center; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+  .badge-green { background: var(--green-light); color: var(--green); border: 1px solid #BBF7D0; }
+  .badge-blue { background: var(--accent-light); color: var(--accent); border: 1px solid var(--accent-muted); }
+  .badge-gray { background: var(--tag-bg); color: var(--text-muted); border: 1px solid var(--border); }
+  .badge-orange { background: var(--orange-light); color: var(--orange); border: 1px solid #FDE68A; }
+  .badge-red { background: var(--red-light); color: var(--red); border: 1px solid #FECACA; }
+  .badge-purple { background: var(--purple-light); color: var(--purple); border: 1px solid var(--purple-muted); }
+
+  /* NOTE */
+  .note { display: flex; gap: 10px; align-items: flex-start; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 13px; line-height: 1.6; }
+  .note-blue { background: var(--accent-light); border: 1px solid var(--accent-muted); color: var(--accent); }
+  .note-orange { background: var(--orange-light); border: 1px solid #FDE68A; color: var(--orange); }
+  .note-green { background: var(--new-bg); border: 1px solid var(--new-border); color: var(--green); }
+
+  /* SUMMARY MATRIX */
+  .matrix-row { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin-bottom: 8px; display: grid; grid-template-columns: 180px 1fr 140px; gap: 16px; align-items: start; }
+  .matrix-label { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+  .matrix-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+  .matrix-action { font-size: 12px; color: var(--green); font-weight: 600; }
+
+  /* DATA CARD */
+  .data-card { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 8px; padding: 14px 18px; margin-bottom: 12px; }
+  .data-card-title { font-size: 12px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
+  .data-card-value { font-size: 22px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+  .data-card-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+  .data-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+
+  /* CHANGELOG */
+  .changelog { display: flex; flex-direction: column; }
+  .changelog-item { display: flex; gap: 20px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .changelog-item:last-child { border-bottom: none; }
+  .changelog-version { font-size: 12px; font-weight: 700; color: var(--accent); background: var(--accent-light); padding: 3px 8px; border-radius: 4px; white-space: nowrap; height: fit-content; }
+  .changelog-meta { flex: 1; }
+  .changelog-date { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+  .changelog-desc { font-size: 13px; color: var(--text-secondary); }
+
+  @media (max-width: 700px) {
+    .wrapper { padding: 32px 20px 80px; }
+    .toc-items { grid-template-columns: 1fr; }
+    .persona-row { grid-template-columns: 1fr; }
+    .data-grid { grid-template-columns: 1fr; }
+    .matrix-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <div class="doc-header">
+    <div class="doc-tag">🔍 유저 리서치 인사이트</div>
+    <div class="doc-title">직관/집관 기록 기능<br>유저 리서치 인사이트</div>
+    <div class="doc-subtitle">Polyball Record Feature — User Research Insights v0.1</div>
+    <div class="doc-meta">
+      <div class="meta-item"><span class="meta-label">버전</span><span class="meta-value">v0.1</span></div>
+      <div class="meta-item"><span class="meta-label">작성일</span><span class="meta-value">2026.04</span></div>
+      <div class="meta-item"><span class="meta-label">작성자</span><span class="meta-value">PM 강다은</span></div>
+      <div class="meta-item"><span class="meta-label">리서치 방법</span><span class="meta-value">상상 시뮬레이션 (FGI 2회) + 2025 KBO 관람객 성향조사</span></div>
+      <div class="meta-item"><span class="meta-label">상태</span><span class="status-badge"><span class="status-dot"></span>PRD 반영 검토 중</span></div>
+    </div>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">목차</div>
+    <div class="toc-group">
+      <div class="toc-group-label">리서치 개요</div>
+      <div class="toc-items">
+        <a href="#s1"><span class="toc-num">01</span> 기능 발의 배경 및 본질 정의</a>
+        <a href="#s2"><span class="toc-num">02</span> 리서치 방법 및 참여자</a>
+      </div>
+    </div>
+    <div class="toc-group">
+      <div class="toc-group-label">시뮬레이션 인사이트</div>
+      <div class="toc-items">
+        <a href="#s3"><span class="toc-num">03</span> 인증 방식 아이디에이션 세션</a>
+        <a href="#s4"><span class="toc-num">04</span> 1차 FGI 인사이트 (개별 인터뷰)</a>
+        <a href="#s5"><span class="toc-num">05</span> 2차 FGI 인사이트 (그룹 인터뷰)</a>
+      </div>
+    </div>
+    <div class="toc-group">
+      <div class="toc-group-label">데이터 기반 인사이트</div>
+      <div class="toc-items">
+        <a href="#s6"><span class="toc-num">06</span> 2025 KBO 관람객 성향조사 분석</a>
+        <a href="#s7"><span class="toc-num">07</span> 전체 인사이트 매트릭스</a>
+        <a href="#s8"><span class="toc-num">08</span> 변경 이력</a>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===================== S1 ===================== -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">기능 발의 배경 및 본질 정의</span>
+    </div>
+    <div class="section-subtitle">직관 기록 기능이 왜 시작됐고, 무엇을 해야 하는지에 대한 팀 내 공유 정의.</div>
+
+    <div class="subsection">
+      <div class="subsection-title">발의 배경</div>
+      <p>폴리볼 앱 내 승부 예측·응모 이외 콘텐츠가 없다는 문제의식에서 출발했다. 타사 서비스 벤치마킹 과정에서 야구보구·직관일기·직관로그 등 전문 기록 앱이 다수 존재함을 확인했으며, 동시에 인스타그램 스토리를 통한 직관 자랑 행동과 커뮤니티에서 '승요/패요'라는 승률 기반 소통 패턴을 발견했다.</p>
+      <p>이에 단순 기록 앱이 아닌, <strong>폴리볼이 공신력을 부여하는 인증 기반 아카이빙</strong> 방향으로 논의를 시작했다.</p>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">기능 본질 정의 (최종)</div>
+      <div class="insight-card">
+        <div class="insight-card-body" style="padding: 20px;">
+          <p style="font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">"인증된 직관 경험이 공신력 있는 카드로 발행되어 내 지갑에 쌓이는 것"</p>
+          <p style="margin-bottom: 0;">단순한 기록 앱이 아니라, 폴리볼이 공식 인증한 팬 경험을 카드로 발행하여 내 지갑에 자산으로 축적시키는 구조다. 나아가 내 지갑이 독립 탭으로 확장되고, 장기적으로 월렛 서비스로 진화하는 방향의 첫 번째 레이어다.</p>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>키워드</th><th>의미</th><th>없으면 어떻게 되나</th></tr></thead>
+          <tbody>
+            <tr><td>인증</td><td>셀프 등록이 아닌 폴리볼이 확인해준 공신력</td><td>공신력 없음 → 자랑할 근거 없음 → 소셜 확산 불가</td></tr>
+            <tr><td>카드</td><td>NFT 형태가 아닌 카드로 발행. NFT 전환은 선택</td><td>자산 개념 없음 → 일반 기록 앱과 차별점 없음</td></tr>
+            <tr><td>내 지갑</td><td>카드가 쌓이는 공간. 당첨자 전용에서 모든 유저로 확장</td><td>비당첨 유저에게 의미 없는 빈 공간 그대로 유지</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">PO 핵심 피드백</div>
+      <div class="quote-block">
+        "차별화가 되려면 단순히 내가 셀프로 등록하는 게 아니라 공신력 있게끔 해줘야 함. 직관 기록을 기반으로 소통(자랑/선망)하게끔 해주면 차별화 요소가 될 수 있음. BM: (단기) 사진 등록 시 광고 노출 → (장기) 시즌 종료 시 직관 기록북/굿즈 판매 등 검토 가능."
+        <div class="quote-source">— 남영광 PO</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===================== S2 ===================== -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">리서치 방법 및 참여자</span>
+    </div>
+    <div class="section-subtitle">두 가지 리서치 방법을 병행하여 인사이트를 도출했다.</div>
+
+    <div class="subsection">
+      <div class="subsection-title">리서치 방법</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>방법</th><th>내용</th><th>목적</th></tr></thead>
+          <tbody>
+            <tr><td>상상 시뮬레이션 FGI 1차</td><td>인증 방식 아이디에이션 세션 (3인) + 개별 심층 인터뷰 5인</td><td>인증 방식 아이디에이션 및 프로토타입 반응 수집</td></tr>
+            <tr><td>상상 시뮬레이션 FGI 2차</td><td>1차 인사이트 검증 그룹 인터뷰 (5인)</td><td>1차 인사이트 검증 및 신규 인사이트 도출</td></tr>
+            <tr><td>2025 KBO 관람객 성향조사</td><td>한국프로스포츠협회 발행. 10개 구단 9,321명 대상</td><td>실제 관람객 데이터 기반 설계 검증</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note note-orange">⚠️ 상상 시뮬레이션은 실제 유저 인터뷰가 아닌 페르소나 기반 가상 시뮬레이션이다. 실제 유저 검증은 MVP 출시 후 별도 진행 필요.</div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">인증 방식 아이디에이션 세션 참여자 (3인)</div>
+      <div class="persona-row">
+        <div class="persona-card">
+          <div class="persona-name">김도훈 (32세)</div>
+          <div class="persona-info">직관 200회+ 헤비 유저</div>
+          <span class="persona-tag badge-blue">기록 신뢰도 중시</span>
+          <div class="persona-desc">기록이 진짜인지 아닌지를 가장 중요하게 생각함. 인증 방식에 대한 구체적 아이디어 다수 제안.</div>
+        </div>
+        <div class="persona-card">
+          <div class="persona-name">박수현 (27세)</div>
+          <div class="persona-info">직관 자주 가지만 기록 앱 초심자</div>
+          <span class="persona-tag badge-orange">간편함 최우선</span>
+          <div class="persona-desc">귀찮은 건 즉시 이탈. 인증 과정의 UX 허들을 가장 민감하게 감지. 라이트 유저 관점 대변.</div>
+        </div>
+        <div class="persona-card">
+          <div class="persona-name">이재원 (35세)</div>
+          <div class="persona-info">IT 업계 종사자</div>
+          <span class="persona-tag badge-purple">기술·어뷰징 관점</span>
+          <div class="persona-desc">인증 방식의 기술적 허점과 어뷰징 가능성을 짚음. 동시에 창의적 대안 아이디어 제시.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">1차 FGI 참여자 (5인 개별 인터뷰)</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>참여자</th><th>특성</th><th>선발 기준</th></tr></thead>
+          <tbody>
+            <tr><td>이수진 (29세)</td><td>열성 기록러, NPS 10점</td><td>기능 매우 긍정, 모든 항목 입력 완료</td></tr>
+            <tr><td>김민준 (33세)</td><td>인증 귀찮음 + 사용 의향 있음</td><td>인증 부정적이나 지속 사용 의향 존재하는 복합 케이스</td></tr>
+            <tr><td>박지현 (26세)</td><td>NFT 모름, 카드 관심 있음</td><td>NFT 거부감 있으나 카드 자체에는 반응하는 케이스</td></tr>
+            <tr><td>최재원 (31세)</td><td>인증 없이 기록만 원함</td><td>강제 인증 시 이탈 가능성 높은 케이스</td></tr>
+            <tr><td>홍수빈 (28세)</td><td>SNS 공유 의향, 승요/패요 소통 경험 있음</td><td>소셜 연동 관점 대변</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">2차 FGI 참여자 (5인 그룹 인터뷰)</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>참여자</th><th>특성</th><th>포인트</th></tr></thead>
+          <tbody>
+            <tr><td>남도현 (35세)</td><td>직관 200회+ 헤비유저, 기록 앱 미사용</td><td>"기록은 머릿속에 있으면 됨" 관점으로 아카이빙 비관심 유저 대변</td></tr>
+            <tr><td>김서연 (24세)</td><td>야구 입문 2년차, SNS 활발 (팔로워 3천)</td><td>소셜 공유 중심 유저. 인증의 공신력 가치에 가장 공감</td></tr>
+            <tr><td>이정호 (30세)</td><td>IT 스타트업 재직, NFT 기초 지식 있음</td><td>기술적 관점에서 단계별 접근 제안. NFT 언어 변경 주도</td></tr>
+            <tr><td>박혜진 (27세)</td><td>분위기 중심 직관, 다꾸 취미, 기록 앱 2개 사용</td><td>카드 디자인 감성 관점. 포토카드 유사 프레이밍 제안</td></tr>
+            <tr><td>윤재훈 (32세)</td><td>폴리볼 기존 유저, 승부 예측 매일 참여, 당첨 1회</td><td>폴리볼 서비스 맥락에서 예측·직관 연결 아이디어 제안</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===================== CHAPTER 1 ===================== -->
+  <div class="chapter-divider">
+    <div class="chapter-divider-left">
+      <div class="chapter-label">Chapter 1</div>
+      <div class="chapter-title">시뮬레이션 인사이트</div>
+      <div class="chapter-desc">인증 방식 아이디에이션 · 1차 FGI · 2차 FGI</div>
+    </div>
+  </div>
+
+
+  <!-- ===================== S3 ===================== -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">인증 방식 아이디에이션 세션</span>
+    </div>
+    <div class="section-subtitle">직관 기록의 공신력을 확보하기 위한 인증 방식을 탐색한 세션.</div>
+
+    <div class="subsection">
+      <div class="subsection-title">세션에서 도출된 인증 방식 전체</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>인증 방식</th><th>구분</th><th>장점</th><th>한계</th><th>MVP 적용</th></tr></thead>
+          <tbody>
+            <tr><td>GPS 인증</td><td>기존 거론</td><td>가장 강력한 현장 증명</td><td>위치기반 사업자 등록 필요. 일정 딜레이 불가피</td><td><span class="badge badge-red">제외</span></td></tr>
+            <tr><td>티켓 사진 인증 (OCR)</td><td>기존 거론</td><td>단기 구현 가능. 구체적 경기 정보 담김</td><td>오인식 리스크. 예매 화면 다양해 OCR 정확도 도전</td><td><span class="badge badge-orange">검토 중</span></td></tr>
+            <tr><td>예매 내역 사진 인증 (OCR)</td><td>기존 거론</td><td>티켓과 유사</td><td>티켓 인증과 동일 이슈</td><td><span class="badge badge-orange">검토 중</span></td></tr>
+            <tr><td>폴리볼 당첨 인증</td><td>기존 거론</td><td>자동 연결 가능. 별도 가치 부여 용이</td><td>당첨 유저에게만 적용. 범위 좁음</td><td><span class="badge badge-green">포함</span></td></tr>
+            <tr><td>경기 시간 한정 현장 인증 버튼</td><td>세션 신규</td><td>허들 낮음. 집관도 가능</td><td>집관과 직관 구분 불가. 레벨 차별화로 보완 필요</td><td><span class="badge badge-orange">검토 중</span></td></tr>
+            <tr><td>구장 내 영수증 사진 인증</td><td>세션 신규</td><td>위조 어려움. 현장성 증명</td><td>구매 없이 입장하는 유저 커버 불가. 추가 인증 수단으로만 활용</td><td><span class="badge badge-gray">추가 검토</span></td></tr>
+            <tr><td>인증 레이어 다단계 구조</td><td>세션 신규</td><td>강제 없이 등급 차등으로 자발적 인증 유도</td><td>등급에 따른 혜택 설계가 전제되어야 의미 있음</td><td><span class="badge badge-green">방향 채택</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note note-blue">📌 세션에서 거론됐으나 최종 제외된 방식: 예매 플랫폼 API 연동 (파트너십 필요, 단기 불가로 제외)</div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">핵심 논의 결론</div>
+      <div class="insight-card">
+        <div class="insight-card-header">
+          <span class="insight-num">세션 결론</span>
+          <span class="insight-title">인증은 강제가 아닌 선택 + 등급 차등 구조가 맞다</span>
+        </div>
+        <div class="insight-card-body">
+          <div class="insight-desc">인증 허들이 높으면 참여율이 떨어지고, 인증이 없으면 공신력이 없다는 딜레마에서 출발했다. 결론은 "인증 없이도 기록 가능, 인증하면 카드 등급 상승"이라는 선택적 다단계 구조였다.</div>
+          <div class="insight-action">인증 강도에 따라 카드 등급 차등 부여. 등급 높을수록 NFT 전환 시 더 높은 가치. 단, 인증 미완료 카드와 완료 카드는 시각적으로 명확히 구분.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===================== S4 ===================== -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">1차 FGI 인사이트 (개별 인터뷰 5인)</span>
+    </div>
+    <div class="section-subtitle">상상 프로토타입을 사용한 5인 개별 심층 인터뷰에서 도출된 인사이트.</div>
+
+    <div class="insight-card">
+      <div class="insight-card-header">
+        <span class="insight-num">인사이트 #1</span>
+        <span class="insight-title">인증의 가치 전달이 먼저다</span>
+        <span class="insight-priority priority-high">높음</span>
+      </div>
+      <div class="insight-card-body">
+        <div class="insight-desc">인증을 귀찮아하는 유저도 "왜 인증해야 하는지"를 이해하면 태도가 바뀌었다. 인증 화면 진입 전, "폴리볼이 인증하면 뭐가 달라지는지"를 한 줄로 명확하게 보여주는 것이 선행되어야 한다.</div>
+        <div class="quote-block">"인증 화면이 그냥 나오니까 왜 해야 하는지 몰랐어요. 근데 '폴리볼이 공식 확인한 기록이 된다'고 하니까 해야겠다는 생각이 들었어요."<div class="quote-source">— 김민준 (33세)</div></div>
+        <div class="insight-action">인증 진입 전 한 줄 안내 UI 추가: "인증하면 폴리볼 공식 마크가 붙어요. 자랑할 때 달라요." 설명 읽어야 아는 구조는 누구도 읽지 않음.</div>
+      </div>
+    </div>
+
+    <div class="insight-card">
+      <div class="insight-card-header">
+        <span class="insight-num">인사이트 #2</span>
+        <span class="insight-title">NFT라는 단어는 걸림돌이다</span>
+        <span class="insight-priority priority-high">높음</span>
+      </div>
+      <div class="insight-card-body">
+        <div class="insight-desc">5명 중 3명이 NFT 단어에 부정적이거나 의미를 몰랐다. 2021~2022년 붐 이후 사기 이미지가 남아있어 NFT를 전면에 내세우는 것은 진입 장벽이 된다.</div>
+        <div class="quote-block">"NFT라는 단어는 좀 거슬렸어요. 사기 느낌이라고 해야 하나. 근데 '영구 보존하기'라고 하면 해볼 것 같아요."<div class="quote-source">— 이수진 (29세)</div></div>
+        <div class="insight-action">전면 표현 변경: "NFT로 만들기" → "공식 카드로 만들기" 또는 "영구 보존하기". NFT는 기술 설명 레이어에만 사용.</div>
+      </div>
+    </div>
+
+    <div class="insight-card">
+      <div class="insight-card-header">
+        <span class="insight-num">인사이트 #3</span>
+        <span class="insight-title">인증은 강제가 아닌 선택이어야 한다</span>
+        <span class="insight-priority priority-high">높음</span>
+      </div>
+      <div class="insight-card-body">
+        <div class="insight-desc">인증 없이도 기록 가능하되 인증하면 더 좋은 카드가 나오는 구조가 이탈을 막는다. 강제 인증은 개인 아카이빙 목적 유저를 완전히 잃는다.</div>
+        <div class="quote-block">"인증이 선택이면 쓸 것 같아요. 강제면 안 쓸 것 같고요. 나는 남한테 보여주려는 게 아니니까, 내 기록은 내가 알면 되는데 인증을 강요하면 이상하잖아요."<div class="quote-source">— 최재원 (31세)</div></div>
+        <div class="insight-action">인증 미완료 상태로도 기록 저장 및 카드 발행 가능. 단, 인증 카드와 비인증 카드의 시각적 구분 필수. 소셜 공유 시 인증 마크 유무가 자연스럽게 보이도록 설계.</div>
+      </div>
+    </div>
+
+    <div class="insight-card">
+      <div class="insight-card-header">
+        <span class="insight-num">인사이트 #4</span>
+        <span class="insight-title">기록 타이밍은 경기 후가 더 자연스럽다</span>
+        <span class="insight-priority priority-mid">중간</span>
+      </div>
+      <div class="insight-card-body">
+        <div class="insight-desc">경기 중 인증보다 경기가 끝나고 구장을 나오면서 또는 집으로 오는 지하철에서 기록하는 패턴이 반복적으로 나타났다. 경기 중에는 핸드폰을 보기 어렵고, 경기 직후는 흥분 상태라 즉시 하기도 어렵다.</div>
+        <div class="insight-action">푸시 알림 발송 타이밍: 경기 종료 직후 또는 30분~1시간 후. 유저가 설정 가능하도록 "경기 종료 직후 / 1시간 후 / 다음날 아침" 옵션 제공. 기본값은 경기 종료 1시간 후.</div>
+      </div>
+    </div>
+
+    <div class="insight-card">
+      <div class="insight-card-header">
+        <span class="insight-num">인사이트 #5</span>
+        <span class="insight-title">소셜 핵심은 랭킹과 연결이다</span>
+        <span class="insight-priority priority-mid">중간</span>
+      </div>
+      <div class="insight-card-body">
+        <div class="insight-desc">승요/패요 랭킹, 같은 경기 간 사람들 연결, 같이 간 친구와의 공동 기록 세 가지가 반복적으로 언급됐다. 커뮤니티 자체보다 데이터 기반 연결이 핵심이다.</div>
+        <div class="insight-action">MVP에서는 프로필 뱃지(직관 횟수/승률)로 시작. 커뮤니티 구축 후 랭킹 → 공동 기록 → 같은 경기 연결 순으로 단계별 확장.</div>
+      </div>
+    </div>
+
+    <div class="insight-card">
+      <div class="insight-card-header">
+        <span class="insight-num">인사이트 #6</span>
+        <span class="insight-title">카드 공유용 템플릿이 바이럴의 핵심이다</span>
+        <span class="insight-priority priority-mid">중간</span>
+      </div>
+      <div class="insight-card-body">
+        <div class="insight-desc">인스타 스토리에 올리고 싶다는 반응이 강했다. 내 사진이 카드 배경으로 들어가고, 승률과 폴리볼 인증 마크가 함께 보이는 구조가 가장 선호됐다.</div>
+        <div class="insight-action">인스타 스토리 사이즈에 최적화된 카드 공유 템플릿 제공 필수. 카카오톡 이미지 공유, URL 복사도 함께 지원. 단일 채널(인스타)에만 맞추면 카카오톡 중심 유저 이탈.</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===================== S5 ===================== -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">2차 FGI 인사이트 (그룹 인터뷰 5인)</span>
+    </div>
+    <div class="section-subtitle">1차 인사이트를 검증하고 심화한 그룹 인터뷰. 1차 인사이트 6개 전부 확인됨.</div>
+
+    <div class="subsection">
+      <div class="subsection-title">1차 인사이트 검증 결과</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>1차 인사이트</th><th>2차 검증 결과</th><th>추가 발견</th></tr></thead>
+          <tbody>
+            <tr><td>인증 가치 전달이 먼저</td><td><span class="badge badge-green">✅ 확인됨</span></td><td>텍스트 설명보다 시각적으로 즉시 보여야 함</td></tr>
+            <tr><td>NFT 단어는 걸림돌</td><td><span class="badge badge-green">✅ 확인됨</span></td><td>"공식 카드" / "한정 카드" / "포토카드" 표현 선호</td></tr>
+            <tr><td>인증은 선택이어야 함</td><td><span class="badge badge-green">✅ 확인됨</span></td><td>단, 인증/비인증 카드의 시각적 구분 필수</td></tr>
+            <tr><td>기록 타이밍은 경기 후</td><td><span class="badge badge-green">✅ 확인됨</span></td><td>타이밍이 사람마다 달라 유저 설정 옵션 필요</td></tr>
+            <tr><td>소셜 핵심은 랭킹과 연결</td><td><span class="badge badge-green">✅ 확인됨</span></td><td>단계별 개발 필요. 커뮤니티 선행 없이는 구현 어려움</td></tr>
+            <tr><td>카드 공유 템플릿이 바이럴 핵심</td><td><span class="badge badge-green">✅ 확인됨</span></td><td>다채널 공유 + 시즌 통계 카드 아이디어 추가</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">2차 신규 인사이트</div>
+    </div>
+
+    <div class="insight-card">
+      <div class="insight-card-header">
+        <span class="insight-num">인사이트 #7</span>
+        <span class="insight-title">폴리볼만의 차별점은 예측과 직관의 연결이다</span>
+        <span class="insight-priority priority-high">높음</span>
+      </div>
+      <div class="insight-card-body">
+        <div class="insight-desc">다른 기록 앱이 절대 할 수 없는 것이 바로 이것이다. 같은 경기를 예측하고 직관 간 사람들을 연결하는 기능은 폴리볼 데이터가 있어야만 가능하다. 소셜 기능 설계의 중심이 되어야 한다.</div>
+        <div class="quote-block">"오늘 LG 이긴다고 예측한 사람들 중 직관 간 사람들끼리 연결되면 어떨까요? 이건 폴리볼만 할 수 있는 거잖아요."<div class="quote-source">— 윤재훈 (32세)</div></div>
+        <div class="insight-action">직관 기록 카드에 예측 결과 자동 연동. "예측하고 직관 간 사람들" 필터 기반 커뮤니티 기능 장기 로드맵에 포함.</div>
+      </div>
+    </div>
+
+    <div class="insight-card">
+      <div class="insight-card-header">
+        <span class="insight-num">인사이트 #8</span>
+        <span class="insight-title">기록 동기가 사람마다 완전히 다르다</span>
+        <span class="insight-priority priority-high">높음</span>
+      </div>
+      <div class="insight-card-body">
+        <div class="insight-desc">아카이빙(남도현), 자랑(김서연), 친구와 연결(박혜진), 자산화(이정호), 서비스 내 혜택(윤재훈). 5명의 동기가 모두 달랐다. 하나의 동기만 겨냥하면 나머지 유저를 잃는다.</div>
+        <div class="insight-action">기록 동기별 진입점 다르게 설계 검토. 예: "나만의 기록" 탭 / "자랑하기" 공유 버튼 강조 / "친구 연결" 동행인 태그 / "자산 쌓기" 카드 등급 강조. MVP에서는 단일 플로우로 시작하되, 온보딩에서 동기 파악 후 화면 강조점 다르게 노출 고려.</div>
+      </div>
+    </div>
+
+    <div class="insight-card">
+      <div class="insight-card-header">
+        <span class="insight-num">인사이트 #9</span>
+        <span class="insight-title">시즌 통계 카드가 바이럴 최고 무기다</span>
+        <span class="insight-priority priority-mid">중간</span>
+      </div>
+      <div class="insight-card-body">
+        <div class="insight-desc">연말 시즌 통계 카드에 대한 반응이 그룹 전체에서 가장 뜨거웠다. 승요/패요 판정 + 팀 컬러 배경 + 주요 통계가 합쳐지면 자발적 공유 가능성이 매우 높다. Spotify Wrapped와 유사한 자발적 바이럴 효과 기대.</div>
+        <div class="quote-block">"'당신은 2026 시즌 승률 80%의 승리요정입니다' 이런 거요. 팀 컬러로 배경도 바뀌고, 저 이거 바로 올릴 것 같은데요."<div class="quote-source">— 김서연 (24세)</div></div>
+        <div class="insight-action">시즌 Wrapped 기능 로드맵 포함. 필수 정보: 총 직관/집관 횟수, 직관 승률, 승요/패요 판정, 가장 많이 간 구장, 응원팀 컬러 배경. 인스타·카카오·링크 복사 공유 지원.</div>
+      </div>
+    </div>
+
+    <div class="insight-card">
+      <div class="insight-card-header">
+        <span class="insight-num">인사이트 #10</span>
+        <span class="insight-title">공유 채널을 인스타에만 맞추면 안 된다</span>
+        <span class="insight-priority priority-mid">중간</span>
+      </div>
+      <div class="insight-card-body">
+        <div class="insight-desc">인스타 스토리, 카카오톡 공유, 링크 복사. 유저마다 주요 공유 채널이 달랐다. 인스타 최적화에만 집중하면 카카오톡 중심 유저를 잃는다.</div>
+        <div class="insight-action">공유 기능 구현 시 인스타 스토리 사이즈 + 카카오톡 이미지 + URL 링크 복사 세 가지 모두 지원. 향후 SNS 채널 추가에 유연하게 대응할 수 있는 구조로 개발.</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===================== CHAPTER 2 ===================== -->
+  <div class="chapter-divider">
+    <div class="chapter-divider-left">
+      <div class="chapter-label">Chapter 2</div>
+      <div class="chapter-title">데이터 기반 인사이트</div>
+      <div class="chapter-desc">2025 KBO 관람객 성향조사 (KPSA, n=9,321)</div>
+    </div>
+  </div>
+
+
+  <!-- ===================== S6 ===================== -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <span class="section-title">2025 KBO 관람객 성향조사 분석</span>
+    </div>
+    <div class="section-subtitle">한국프로스포츠협회 발행 보고서 (2025.08~09, 10개 구단 9,321명). 폴리볼 직관 기록 기능 설계와 관련 있는 항목만 선별 분석.</div>
+
+    <div class="note note-orange">⚠️ 본 데이터는 홈경기를 직접 관람한 홈구단 응원 관람객 기준이다. 전체 야구 팬 또는 폴리볼 유저를 대변하지 않으므로 해석에 주의가 필요하다.</div>
+
+    <div class="subsection">
+      <div class="subsection-title">주요 수치 요약</div>
+      <div class="data-grid">
+        <div class="data-card">
+          <div class="data-card-title">평균 방문 횟수</div>
+          <div class="data-card-value">15.4회</div>
+          <div class="data-card-desc">시즌 중 평균 직관 횟수. SSG(17.6회), NC(16.8회) 순으로 높음.</div>
+        </div>
+        <div class="data-card">
+          <div class="data-card-title">여성 관람객 비율</div>
+          <div class="data-card-value">56.7%</div>
+          <div class="data-card-desc">남성(43.3%)보다 높음. 두산(62.2%), SSG(61.8%) 특히 높음.</div>
+        </div>
+        <div class="data-card">
+          <div class="data-card-title">관람객 평균 연령</div>
+          <div class="data-card-value">33.6세</div>
+          <div class="data-card-desc">전년 30.7세에서 상승. LG(37.2세)가 가장 높고 두산(29.6세)이 가장 낮음.</div>
+        </div>
+        <div class="data-card">
+          <div class="data-card-title">동행인 있는 비율</div>
+          <div class="data-card-value">91.5%</div>
+          <div class="data-card-desc">가족 43.7%, 친구 30.3%, 연인 13.1%. 혼자 관람은 8.5%에 불과.</div>
+        </div>
+        <div class="data-card">
+          <div class="data-card-title">10년+ 장기 팬 비율</div>
+          <div class="data-card-value">37.2%</div>
+          <div class="data-card-desc">응원 기간 10년 이상이 최다. LG(53.8%)가 가장 높음.</div>
+        </div>
+        <div class="data-card">
+          <div class="data-card-title">공식 사이트 티켓 구매</div>
+          <div class="data-card-value">69.7%</div>
+          <div class="data-card-desc">전체 69.7%가 공식 사이트 구매. KIA(82.2%) 가장 높고 한화(40.3%) 가장 낮음.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">폴리볼 직관 기록 설계 적용 인사이트</div>
+    </div>
+
+    <div class="insight-card">
+      <div class="insight-card-header">
+        <span class="insight-num">데이터 #1</span>
+        <span class="insight-title">직관 권유/피권유 → 카드 공유가 권유 도구가 될 수 있다</span>
+        <span class="insight-priority priority-high">높음</span>
+      </div>
+      <div class="insight-card-body">
+        <div class="insight-desc">전체 권유 경험 평균 3.27점, 피권유 3.11점(4점 만점)으로 야구 직관은 이미 입소문 기반으로 퍼지는 경험이다. 삼성(3.33점)·두산·SSG(3.29점)이 권유 경험이 특히 높았다.</div>
+        <div class="insight-action">권유/피권유 행동이 이미 오프라인에서 일어나고 있다면, 폴리볼 인증 카드가 그 권유의 도구가 될 수 있다. 삼성·두산·SSG 팬 커뮤니티를 초기 바이럴 타겟으로 우선 공략 검토.</div>
+      </div>
+    </div>
+
+    <div class="insight-card">
+      <div class="insight-card-header">
+        <span class="insight-num">데이터 #2</span>
+        <span class="insight-title">91.5%가 동행인 있음 → 동행인 태그가 핵심 기능이어야 한다</span>
+        <span class="insight-priority priority-high">높음</span>
+      </div>
+      <div class="insight-card-body">
+        <div class="insight-desc">혼자 직관하는 비율은 8.5%에 불과하다. 직관의 91.5%는 누군가와 함께 가는 경험이며, 가족 동행 비율은 2024년 36.1%에서 2025년 43.7%로 증가 추세다.</div>
+        <div class="insight-action">동행인 태그 기능을 부가 기능이 아닌 핵심 기능으로 격상. 같이 간 사람이 폴리볼 유저라면 카드 연결, 비유저라면 초대 링크로 연결되어 유저 획득 채널로도 활용 가능.</div>
+      </div>
+    </div>
+
+    <div class="insight-card">
+      <div class="insight-card-header">
+        <span class="insight-num">데이터 #3</span>
+        <span class="insight-title">평균 15.4회 직관 → 승률 오픈 기준 10개로 상향 검토</span>
+        <span class="insight-priority priority-mid">중간</span>
+      </div>
+      <div class="insight-card-body">
+        <div class="insight-desc">시즌 중 평균 15.4회 직관이라면, 기록 5개 기준은 시즌 초반에 너무 빨리 달성될 수 있다. 기준이 너무 낮으면 통계가 충분히 쌓이기 전에 열리는 문제가 발생한다.</div>
+        <div class="insight-action">직관 승률 오픈 기준을 5개에서 10개로 상향 검토. 10개면 약 5~6주 소요로 적절한 긴장감이 유지됨. 단, 집관 기록까지 합산 여부는 별도 결정 필요.</div>
+      </div>
+    </div>
+
+    <div class="insight-card">
+      <div class="insight-card-header">
+        <span class="insight-num">데이터 #4</span>
+        <span class="insight-title">티켓 구매 채널 다양성 → 인증 방식 다각화 필요</span>
+        <span class="insight-priority priority-mid">중간</span>
+      </div>
+      <div class="insight-card-body">
+        <div class="insight-desc">공식 사이트 구매는 전체 69.7%이지만, 한화(40.3%)는 현저히 낮고 중고거래 비율(27.6%)이 높다. OCR 기반 티켓 인증은 공식 예매 유저만 커버한다.</div>
+        <div class="insight-action">OCR 티켓 인증은 약 70%를 커버하는 기본 방식으로 설계. 한화 팬처럼 비공식 경로로 입장하는 유저를 위해 "경기 시간 한정 현장 인증 버튼" 또는 GPS 인증(고도화)으로 보완.</div>
+      </div>
+    </div>
+
+    <div class="insight-card">
+      <div class="insight-card-header">
+        <span class="insight-num">데이터 #5</span>
+        <span class="insight-title">10년+ 장기 팬 37% → 과거 기록 소급 입력 v2 일정 앞당기기</span>
+        <span class="insight-priority priority-mid">중간</span>
+      </div>
+      <div class="insight-card-body">
+        <div class="insight-desc">10년 이상 장기 팬이 37.2%로 가장 많은 비율을 차지한다. 이 유저군은 "내가 10년간 갔던 경기도 기록하고 싶다"는 소급 입력 니즈가 강할 것으로 예상된다. LG(53.8%)는 절반 이상이 10년 이상 장기 팬이다.</div>
+        <div class="insight-action">MVP에서 제외된 과거 기록 소급 입력 기능의 v2 일정을 너무 늦추지 않도록 조정 검토. 특히 LG·롯데·KIA 팬 베이스에서 니즈가 높을 것으로 예상.</div>
+      </div>
+    </div>
+
+    <div class="insight-card">
+      <div class="insight-card-header">
+        <span class="insight-num">데이터 #6</span>
+        <span class="insight-title">여성 관람객 56.7% → 카드 디자인 기준을 여성 유저로</span>
+        <span class="insight-priority priority-mid">중간</span>
+      </div>
+      <div class="insight-card-body">
+        <div class="insight-desc">전체 여성 관람객 비율이 56.7%로 남성을 초과한다. 두산(62.2%), SSG(61.8%), KIA(59.0%) 순으로 여성 비율이 특히 높다. FGI 시뮬레이션에서도 다꾸·포토카드 감성으로 접근했을 때 반응이 좋았다.</div>
+        <div class="insight-action">기록 카드 디자인 방향성 설정 시 여성 유저를 기준으로 삼는 것이 타당. 포토카드 수집 감성, 배경 커스터마이징, 팀 컬러 적용 등 감성 요소 우선 강화.</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===================== S7 ===================== -->
+  <div class="section" id="s7">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <span class="section-title">전체 인사이트 매트릭스 & PRD 반영 방향</span>
+    </div>
+    <div class="section-subtitle">시뮬레이션 + 데이터 전체 인사이트를 정리하고 PRD 반영 방향을 제안한다.</div>
+
+    <div class="subsection">
+      <div class="subsection-title">PRD 업데이트 필요 항목</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>항목</th><th>기존 PRD 방향</th><th>인사이트 기반 조정안</th><th>출처</th></tr></thead>
+          <tbody>
+            <tr><td>NFT 언어</td><td>"NFT로 만들기"</td><td>"공식 카드로 만들기" 또는 "영구 보존하기"로 변경</td><td>FGI 1·2차</td></tr>
+            <tr><td>인증 진입 UX</td><td>인증 화면 바로 진입</td><td>인증 전 가치 안내 한 줄 선행</td><td>FGI 1차 #1</td></tr>
+            <tr><td>인증 방식</td><td>GPS 제외, 방식 미확정</td><td>티켓 OCR 기본 + 현장 인증 버튼 + GPS(고도화) 다단계</td><td>아이디에이션 세션</td></tr>
+            <tr><td>카드 등급 체계</td><td>인증 강도 기반 언급</td><td>인증 완료/미완료 시각 구분 명시 + 등급별 혜택 연동</td><td>FGI 1차 #3</td></tr>
+            <tr><td>푸시 알림 타이밍</td><td>경기 종료 후 미정</td><td>기본값 경기 종료 1시간 후. 유저 설정 옵션 추가</td><td>FGI 1차 #4</td></tr>
+            <tr><td>동행인 태그</td><td>선택 입력 부가기능</td><td>핵심 기능으로 격상. 비유저 초대 채널로 활용</td><td>데이터 #2</td></tr>
+            <tr><td>승률 오픈 기준</td><td>기록 5개</td><td>10개로 상향 검토</td><td>데이터 #3</td></tr>
+            <tr><td>공유 기능</td><td>SNS 공유 언급</td><td>인스타 + 카카오톡 + URL 링크 복사 3가지 명시</td><td>FGI 1차 #6, 2차 #10</td></tr>
+            <tr><td>시즌 Wrapped</td><td>미언급</td><td>고도화 로드맵에 추가</td><td>FGI 2차 #9</td></tr>
+            <tr><td>초기 바이럴 타겟</td><td>미정</td><td>삼성·두산·SSG 팬 커뮤니티 우선 공략</td><td>데이터 #1</td></tr>
+            <tr><td>과거 기록 소급</td><td>v2 이후 (일정 미정)</td><td>v2 일정 조기화 검토. 10년+ 장기 팬 니즈 대응</td><td>데이터 #5</td></tr>
+            <tr><td>카드 디자인 방향</td><td>미정</td><td>여성 유저 기준 감성 디자인 우선</td><td>데이터 #6</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">인사이트 우선순위 정리</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>우선순위</th><th>인사이트</th><th>PRD 반영 시점</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge badge-red">높음</span></td><td>NFT 언어 변경 ("공식 카드로 만들기")</td><td>MVP</td></tr>
+            <tr><td><span class="badge badge-red">높음</span></td><td>인증 전 가치 안내 UI 선행</td><td>MVP</td></tr>
+            <tr><td><span class="badge badge-red">높음</span></td><td>인증은 선택, 인증/비인증 카드 시각 구분</td><td>MVP</td></tr>
+            <tr><td><span class="badge badge-red">높음</span></td><td>폴리볼만의 차별점 = 예측 + 직관 연결</td><td>MVP (예측 결과 카드 자동 연동)</td></tr>
+            <tr><td><span class="badge badge-red">높음</span></td><td>동행인 태그 핵심 기능으로 격상</td><td>MVP</td></tr>
+            <tr><td><span class="badge badge-orange">중간</span></td><td>푸시 타이밍 기본값 + 유저 설정 옵션</td><td>MVP</td></tr>
+            <tr><td><span class="badge badge-orange">중간</span></td><td>공유 채널 3가지 (인스타·카카오·URL)</td><td>MVP</td></tr>
+            <tr><td><span class="badge badge-orange">중간</span></td><td>기록 동기별 진입점 다르게 설계</td><td>v1.5</td></tr>
+            <tr><td><span class="badge badge-orange">중간</span></td><td>승률 오픈 기준 10개로 상향</td><td>v1.5 (MVP에서 검토)</td></tr>
+            <tr><td><span class="badge badge-gray">낮음</span></td><td>시즌 Wrapped 기능</td><td>v2</td></tr>
+            <tr><td><span class="badge badge-gray">낮음</span></td><td>과거 기록 소급 입력 일정 조기화</td><td>v2 (조기화 검토)</td></tr>
+            <tr><td><span class="badge badge-gray">낮음</span></td><td>초기 바이럴 타겟 구단 커뮤니티 공략</td><td>마케팅 기획 시 반영</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===================== S8 ===================== -->
+  <div class="section" id="s8">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <span class="section-title">변경 이력</span>
+    </div>
+    <div class="changelog">
+      <div class="changelog-item">
+        <span class="changelog-version">v0.1</span>
+        <div class="changelog-meta">
+          <div class="changelog-date">2026.04</div>
+          <div class="changelog-desc">초안 작성. 인증 방식 아이디에이션 세션 + 1차 FGI (5인 개별 인터뷰) + 2차 FGI (5인 그룹 인터뷰) + 2025 KBO 관람객 성향조사 분석 통합. 총 인사이트 10개 (FGI) + 6개 (데이터) = 16개 도출. PRD 반영 필요 항목 12개 정리.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

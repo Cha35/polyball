@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>프라이빗 리그 법무검토 요청서</title>
+<style>
+  :root{
+    --blue:#1F30E9; --navy:#001432; --ink:#101015; --sub:#5A6068;
+    --line:#E2E5EC; --bg:#F7F8FB; --card:#FFFFFF;
+    --danger:#C8102E; --warn:#B07A00; --ok:#1E5D2A;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font-family:'Pretendard','Apple SD Gothic Neo',-apple-system,sans-serif;
+    line-height:1.7; font-size:14.5px;}
+  .doc{max-width:880px; margin:0 auto; background:var(--card); min-height:100vh;
+    box-shadow:0 0 0 1px var(--line);}
+
+  .top{background:var(--navy); color:#fff; padding:30px 44px 24px;}
+  .top .label{font-size:12px; color:#8FB0FF; letter-spacing:1px; font-weight:600;}
+  .top h1{margin:6px 0 0; font-size:24px; font-weight:800; letter-spacing:-.4px;}
+  .top .meta{margin-top:14px; font-size:13px; color:#B8C4DC; line-height:1.9;}
+  .top .meta b{color:#fff; font-weight:600;}
+
+  .body{padding:30px 44px 70px;}
+
+  h2{font-size:18px; font-weight:800; color:var(--blue); margin:32px 0 6px;
+    padding-bottom:7px; border-bottom:2px solid var(--blue);}
+  h3{font-size:15.5px; font-weight:700; color:var(--navy); margin:20px 0 6px;}
+  p{margin:7px 0;}
+  ul,ol{margin:7px 0; padding-left:22px;}
+  li{margin:4px 0;}
+  .sub{color:var(--sub); font-size:13.5px;}
+
+  .box{background:#F9FAFD; border:1px solid var(--line); border-radius:10px;
+    padding:16px 20px; margin:12px 0;}
+
+  table{width:100%; border-collapse:collapse; margin:12px 0; font-size:13.5px;}
+  th,td{border:1px solid var(--line); padding:10px 12px; text-align:left; vertical-align:top;}
+  th{background:#EEF1FA; color:var(--navy); font-weight:700; font-size:13px;}
+  .k{font-weight:700; color:var(--navy); white-space:nowrap;}
+
+  .flow{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:10px 0;}
+  .step{background:#EEF1FA; border:1px solid #D6DEF6; border-radius:8px;
+    padding:7px 13px; font-size:13px; color:var(--navy); font-weight:600;}
+  .arrow{color:var(--blue); font-weight:700;}
+
+  .scenario{border:1px solid var(--line); border-radius:12px; margin:16px 0; overflow:hidden;}
+  .scenario > .sc-head{padding:12px 20px; font-weight:800; font-size:15px; color:#fff;}
+  .sc-1 .sc-head{background:var(--blue);}
+  .sc-2 .sc-head{background:var(--navy);}
+  .scenario .sc-body{padding:16px 20px;}
+
+  .ask{background:#FFF8F8; border:1px solid #F3D2D7; border-left:4px solid var(--danger);
+    border-radius:0 10px 10px 0; padding:14px 18px; margin:12px 0;}
+  .ask .q{font-weight:700; color:var(--danger); margin-bottom:4px;}
+  .ask ol{margin:6px 0 0;}
+
+  .legalframe{background:#FCF8EC; border:1px solid #ECDCA8; border-radius:10px;
+    padding:14px 18px; margin:12px 0; font-size:13.5px;}
+  .legalframe b{color:var(--warn);}
+
+  .tagrow{margin:4px 0;}
+  .tag{display:inline-block; font-size:11.5px; font-weight:700; padding:2px 10px;
+    border-radius:100px; margin-right:6px;}
+  .tag-r{background:#FBE4E8; color:var(--danger);}
+  .tag-y{background:#FBF1D6; color:var(--warn);}
+  .tag-g{background:#E3F0E7; color:var(--ok);}
+
+  .note{font-size:12.5px; color:var(--sub); margin-top:5px;}
+  .foot{margin-top:36px; padding-top:16px; border-top:1px solid var(--line);
+    color:var(--sub); font-size:12px;}
+</style>
+</head>
+<body>
+<div class="doc">
+
+  <div class="top">
+    <div class="label">법무검토 요청서 · LEGAL REVIEW REQUEST</div>
+    <h1>폴리볼 ‘프라이빗 리그’ 법적 검토 요청</h1>
+    <div class="meta">
+      요청 부서 <b>폴리볼 서비스기획</b> · 작성일 <b>2026-06-30</b><br>
+      대상 기능 <b>프라이빗 리그 (친구·지인 간 예측 경쟁)</b> · 문서 버전 <b>v1.0</b><br>
+      검토 핵심 <b>기프티콘/금전이 걸린 이용자 간 내기 구조의 적법성</b>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <!-- 1 -->
+    <h2>1. 검토 요청 배경</h2>
+    <p>폴리볼은 KBO·월드컵 등 스포츠·이슈 예측에 참여하는 서비스입니다. 기존 ‘퍼블릭 리그’(서비스가 운영하는 공개 경쟁)와 별개로,
+    이용자가 직접 친구·지인을 초대해 소규모로 예측 성적을 겨루는 <b>‘프라이빗 리그’</b> 기능을 기획 중입니다.</p>
+    <p>이 기능은 이용자 간에 <b>기프티콘 또는 금전</b>이 오갈 수 있는 구조를 포함할 수 있어, 사행성·도박 해당 여부 등
+    법적 리스크 검토가 선행되어야 개발 범위를 확정할 수 있습니다. 아래 두 시나리오(현재 / 향후 고도화)에 대한 검토를 요청드립니다.</p>
+
+    <div class="legalframe">
+      <b>기획팀이 인지하고 있는 판단 틀</b> — 일반적으로 <b>‘대가성(재산상 이익을 걸 것)’ × ‘우연성(승패가 우연에 의존)’</b>이
+      결합될 때 사행행위·도박에 해당할 소지가 있는 것으로 이해하고 있습니다. 본 검토에서 이 틀이 타당한지, 또한 예측 결과가
+      ‘우연’인지 ‘이용자의 기량·분석’인지의 해석이 결론에 어떤 영향을 주는지 함께 짚어주시면 감사하겠습니다.
+      <div class="note">※ 위 내용은 기획팀의 비전문가적 이해이며, 정확한 법리 판단을 요청드리는 사항입니다.</div>
+    </div>
+
+    <!-- 2 -->
+    <h2>2. 프라이빗 리그 기본 기능 설명</h2>
+    <p class="sub">두 시나리오 공통으로 적용되는 기본 구조입니다.</p>
+
+    <h3>2.1 개요</h3>
+    <ul>
+      <li>이용자(생성자)가 예측 카테고리·기간·정원·승패 기준을 설정해 ‘리그 방’을 생성</li>
+      <li>초대 링크/코드로 친구·지인을 초대 (초대받은 사람만 조회·참여 가능한 <b>폐쇄형</b>)</li>
+      <li>참여자들은 해당 기간 동안 폴리볼이 제공하는 예측(마켓)에 참여</li>
+      <li>리그 종료 시 성적(점수·적중)으로 순위를 산정해 승자·패자를 가림</li>
+    </ul>
+
+    <h3>2.2 참여 방식</h3>
+    <div class="flow">
+      <span class="step">리그 생성·규칙 설정</span><span class="arrow">→</span>
+      <span class="step">친구 초대(링크/코드)</span><span class="arrow">→</span>
+      <span class="step">예측 참여(기간 내)</span><span class="arrow">→</span>
+      <span class="step">종료·순위 확정</span><span class="arrow">→</span>
+      <span class="step">정산</span>
+    </div>
+
+    <h3>2.3 결과 산출</h3>
+    <table>
+      <tr><th style="width:120px">항목</th><th>내용</th></tr>
+      <tr><td class="k">성적 기준</td><td>리그 기간 내 예측 적중 결과로 점수 산정 (적중 시 가점, 소수 적중일수록 가중)</td></tr>
+      <tr><td class="k">순위 확정</td><td>리그 종료 시점 누적 점수 기준 순위. 예측 대상의 실제 결과(경기 결과 등) 확정 후 반영</td></tr>
+      <tr><td class="k">승자/패자</td><td>생성 시 설정한 ‘승자 수’ 기준으로 상위자=승자, 그 외=패자</td></tr>
+    </table>
+
+    <h3>2.4 정산의 처리</h3>
+    <p>정산이란 리그 결과에 따라 참여자 간 기프티콘 또는 금전이 이동하는 과정을 말합니다.
+    그 구체적 방식이 아래 두 시나리오에서 달라지며, <b>본 검토의 핵심 대상</b>입니다.</p>
+
+    <!-- 3 -->
+    <h2>3. 검토 대상 시나리오</h2>
+
+    <!-- 시나리오 1 -->
+    <div class="scenario sc-1">
+      <div class="sc-head">시나리오 ① (현재 기획) — 패자가 승자에게 ‘기프티콘 선물’</div>
+      <div class="sc-body">
+        <h3>구조</h3>
+        <ul>
+          <li>리그 생성 시 경품으로 <b>기프티콘(예: 5,000원권)</b>을 내기 대상으로 설정</li>
+          <li>리그 종료 후, <b>패자가 승자에게 기프티콘을 ‘선물’하는 방식</b>으로 정산</li>
+          <li>사전 예치·결제 없음. 패자가 외부(또는 앱 연동)에서 기프티콘을 구매해 승자에게 전달</li>
+        </ul>
+
+        <h3>핵심 특징</h3>
+        <table>
+          <tr><td class="k" style="width:130px">대가 형태</td><td>현물(기프티콘). 사전 예치 없음, 사후 선물 형태</td></tr>
+          <tr><td class="k">자금 보관</td><td>플랫폼이 금전을 보관·중개하지 않음 (당사자 간 직접 전달)</td></tr>
+          <tr><td class="k">플랫폼 역할</td><td>리그 운영·결과 산정·정산 ‘안내’. 기프티콘 구매·지급 연동은 단계적 검토</td></tr>
+        </table>
+
+        <div class="ask">
+          <div class="q">▶ 검토 질문 (시나리오 ①)</div>
+          <ol>
+            <li>패자가 승자에게 기프티콘을 선물하는 구조가 <b>사행행위·도박</b>에 해당할 소지가 있는지?</li>
+            <li>플랫폼이 금전을 직접 보관·중개하지 않고 ‘선물 안내’만 하는 경우와, <b>기프티콘 구매·전달까지 앱 내에서 연동</b>하는 경우의 법적 위치가 달라지는지?</li>
+            <li>예측 결과를 ‘우연’으로 볼 경우와 ‘이용자의 분석·기량’으로 볼 경우, 적법성 판단이 달라지는지?</li>
+            <li>적법하게 운영하기 위한 <b>조건·제약</b>(예: 금액 상한, 플랫폼 수수료 수취 금지, 미성년자 차단 등)이 있다면 무엇인지?</li>
+            <li>플랫폼이 이 구조를 ‘기능으로 제공’하는 것 자체로 <b>방조·중개 책임</b>이 발생할 여지가 있는지?</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <!-- 시나리오 2 -->
+    <div class="scenario sc-2">
+      <div class="sc-head">시나리오 ② (향후 고도화) — 금전 ‘참가비 예치 후 분배’</div>
+      <div class="sc-body">
+        <h3>구조</h3>
+        <ul>
+          <li>참여자가 <b>실제 금전을 ‘참가비’ 개념으로 사전 예치</b></li>
+          <li>리그 종료 후, 예치된 금액을 <b>승자부터 패자까지 분배</b></li>
+          <li>분배 방식은 <b>승자 독식</b> 또는 <b>순위별 차등 분배</b> 등 설정 가능</li>
+        </ul>
+
+        <h3>핵심 특징</h3>
+        <table>
+          <tr><td class="k" style="width:130px">대가 형태</td><td>현금. <b>사전 예치(베팅 풀)</b> 형태</td></tr>
+          <tr><td class="k">자금 보관</td><td>플랫폼이 예치금을 <b>보관·정산·분배</b>할 가능성</td></tr>
+          <tr><td class="k">분배 구조</td><td>승자 독식 또는 순위 차등 — 참가비 풀을 성적에 따라 재분배</td></tr>
+        </table>
+
+        <div class="tagrow" style="margin-top:10px;">
+          <span class="tag tag-r">기획팀 자체 판단: 리스크 높음</span>
+          <span class="note">‘금전 예치 + 성적 기반 재분배’ 구조라 시나리오 ①보다 사행성·도박 소지가 클 것으로 예상</span>
+        </div>
+
+        <div class="ask">
+          <div class="q">▶ 검토 질문 (시나리오 ②)</div>
+          <ol>
+            <li>금전을 예치하고 성적에 따라 분배하는 구조가 <b>도박·사행행위 또는 유사수신·전자금융</b> 등 어떤 규제에 저촉되는지?</li>
+            <li>플랫폼이 예치금을 <b>보관·중개·분배</b>하는 행위에 별도의 인허가(전자금융업, 자금이체 등)가 필요한지?</li>
+            <li>플랫폼이 <b>수수료를 전혀 수취하지 않더라도</b> 위법 소지가 있는지? (수수료 수취 시와 차이)</li>
+            <li>‘승자 독식’과 ‘순위별 차등 분배’ 간에 법적 평가의 차이가 있는지?</li>
+            <li>만약 원천적으로 불가하다면, 입법·인허가 등 <b>합법적으로 구현 가능한 우회 구조</b>가 존재하는지? (예: 포인트화, 제3자 에스크로, 상금 협찬 전환 등)</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4 -->
+    <h2>4. 종합 검토 요청 사항</h2>
+    <div class="box">
+      <table>
+        <tr><th style="width:60px">구분</th><th>요청 결론</th></tr>
+        <tr><td><span class="tag tag-g">①</span></td><td>시나리오 ① <b>가능/불가</b> 여부 및 가능 시 준수 조건</td></tr>
+        <tr><td><span class="tag tag-y">②</span></td><td>시나리오 ② <b>가능/불가</b> 여부 및 불가 시 합법적 대안 구조 존부</td></tr>
+        <tr><td><span class="tag tag-r">공통</span></td><td>두 시나리오 모두에 적용될 <b>필수 안전장치</b>(연령 제한, 금액 상한, 고지·동의, 수수료 정책 등)</td></tr>
+      </table>
+    </div>
+
+    <h3>참고 — 기획팀 검토 의견(초안)</h3>
+    <p class="sub">법무 판단의 참고용이며, 확정 사항이 아닙니다.</p>
+    <ul class="sub">
+      <li>시나리오 ①은 ‘사후 선물 + 플랫폼 비보관’ 구조라 상대적으로 리스크가 낮을 것으로 예상하나, 플랫폼이 기능으로 제공한다는 점에서 확인 필요</li>
+      <li>시나리오 ②는 ‘예치 + 재분배’로 도박 구성요건에 근접할 가능성이 높다고 보아, 합법적 구현 가능성 자체를 먼저 확인하고자 함</li>
+      <li>두 시나리오 모두 미성년자 참여 차단, 금액 상한, 정산 분쟁 시 책임 범위 명시가 전제되어야 한다고 봄</li>
+    </ul>
+
+    <div class="foot">
+      본 문서는 법무검토 요청을 위한 기능 설명 자료입니다. 기능 명세의 상세(생성·초대·정산 플로우)는
+      ‘폴리컵 랭킹 리그 기능명세서(2026-06-29)’ §3 프라이빗 리그를 따릅니다. ·
+      회신 요청: 각 시나리오별 가능 여부 + 준수 조건 + 대안 구조
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>폴리볼 2.0 운영 PRD v2.0</title>
+<style>
+  :root{
+    --blue:#1F30E9; --blue-deep:#001432; --mint:#09FFEE;
+    --bg:#ffffff; --bg2:#f9f9f9; --line:#e5e5e5; --line2:#efefef;
+    --t1:#101015; --t2:#454545; --t3:#888888;
+    --green:#1e5d2a; --green-bg:#DCFCE7; --red:#fc0528;
+    --amber:#D97706; --amber-bg:#FEF3C7; --purple:#7e22ce;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Apple SD Gothic Neo",sans-serif;
+    background:var(--bg2); color:var(--t1); line-height:1.55; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1080px; margin:0 auto; background:var(--bg); min-height:100vh;}
+  .cover{background:linear-gradient(135deg,var(--blue) 0%,var(--blue-deep) 100%); color:#fff; padding:50px 44px 42px;}
+  .cover-tag{display:inline-block; background:rgba(255,255,255,.18); padding:5px 13px; border-radius:6px; font-size:12px; font-weight:600; letter-spacing:.04em; margin-bottom:18px;}
+  .cover h1{font-size:32px; font-weight:800; letter-spacing:-.02em; margin-bottom:10px;}
+  .cover-sub{font-size:15px; opacity:.85; margin-bottom:26px; line-height:1.6;}
+  .cover-meta{display:grid; grid-template-columns:1fr 1fr; gap:8px 28px; font-size:13px; max-width:620px;}
+  .cover-meta div{display:flex; gap:10px; opacity:.9;}
+  .cover-meta b{opacity:.6; font-weight:500; min-width:72px;}
+  .toc{background:var(--bg2); border-bottom:1px solid var(--line); padding:18px 44px;}
+  .toc-title{font-size:12px; font-weight:700; color:var(--t3); letter-spacing:.05em; margin-bottom:10px;}
+  .toc-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:8px;}
+  .toc-item{display:flex; align-items:center; gap:8px; padding:8px 10px; background:#fff; border:1px solid var(--line); border-radius:7px; font-size:12.5px; color:var(--t2); text-decoration:none;}
+  .toc-item:hover{border-color:var(--blue); color:var(--blue);}
+  .toc-num{font-size:11px; font-weight:700; color:#fff; background:var(--blue); width:18px; height:18px; border-radius:5px; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .body{padding:38px 44px 64px;}
+  .section{margin-bottom:40px; scroll-margin-top:20px;}
+  .sec-head{display:flex; align-items:center; gap:11px; padding-bottom:11px; margin-bottom:18px; border-bottom:2px solid var(--blue);}
+  .sec-id{background:var(--blue); color:#fff; font-size:13px; font-weight:700; padding:4px 11px; border-radius:6px;}
+  .sec-title{font-size:19px; font-weight:700;}
+  .sub-h{font-size:14px; font-weight:700; margin:20px 0 9px; color:var(--blue-deep); display:flex; align-items:center; gap:7px;}
+  .sub-h::before{content:""; width:3px; height:14px; background:var(--blue); border-radius:2px;}
+  p.lead{font-size:14px; color:var(--t2); margin-bottom:12px; line-height:1.7;}
+  table{width:100%; border-collapse:collapse; font-size:13px; margin:6px 0 4px;}
+  th,td{border:1px solid var(--line); padding:9px 12px; text-align:left; vertical-align:top;}
+  th{background:var(--blue); color:#fff; font-weight:600; font-size:12.5px;}
+  tbody tr:nth-child(even){background:var(--bg2);}
+  td.lbl{background:#EEF0FF; font-weight:600; width:150px; color:var(--blue-deep);}
+  code{background:#EEF0FF; color:var(--blue); padding:1px 6px; border-radius:4px; font-size:12px; font-family:"SF Mono",Menlo,monospace;}
+  .box{border-radius:8px; padding:14px 18px; margin:10px 0; font-size:13px; line-height:1.65;}
+  .box-blue{background:#EEF0FF; border:1px solid #C7CEFF; color:var(--blue-deep);}
+  .box-bm{background:#ECFDF5; border:1px solid #A7F3D0; color:var(--green);}
+  .box-warn{background:#FEF2F2; border:1px solid #FECACA; color:#B91C1C;}
+  .box-amber{background:#FFFBEB; border:1px solid #FDE68A; color:#92400E;}
+  .box-purple{background:#FAF5FF; border:1px solid #E9D5FF; color:#6b21a8;}
+  .box b{font-weight:700;}
+  .tag{display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:5px; white-space:nowrap;}
+  .tag-new{background:#DBEAFE; color:var(--blue);}
+  .tag-keep{background:var(--green-bg); color:var(--green);}
+  .tag-next{background:#F3E8FF; color:var(--purple);}
+  .tag-tbd{background:var(--amber-bg); color:var(--amber);}
+  .goal-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:10px 0;}
+  .goal-card{border:1px solid var(--line); border-radius:10px; padding:16px; border-top:3px solid var(--blue);}
+  .goal-card .k{font-size:11px; font-weight:700; color:var(--t3); margin-bottom:6px;}
+  .goal-card .v{font-size:14px; font-weight:700; color:var(--t1); line-height:1.5;}
+  .funnel{display:flex; align-items:center; gap:6px; flex-wrap:wrap; background:var(--bg2); border-radius:10px; padding:16px; margin:10px 0;}
+  .fn-step{background:#fff; border:1px solid var(--line); border-radius:8px; padding:9px 13px; font-size:12.5px; font-weight:600; text-align:center;}
+  .fn-step small{display:block; font-size:10px; color:var(--t3); font-weight:400; margin-top:2px;}
+  .fn-step.ad{border-color:var(--red); background:#FEF2F2;}
+  .fn-arrow{color:var(--blue); font-weight:700;}
+  .scope-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .scope-card{border:1px solid var(--line); border-radius:10px; padding:16px 18px;}
+  .scope-card.in{border-top:3px solid var(--blue);}
+  .scope-card.out{border-top:3px solid var(--t3); background:var(--bg2);}
+  .scope-card h4{font-size:13px; font-weight:700; margin-bottom:10px;}
+  .scope-card ul{list-style:none; font-size:12.5px; color:var(--t2);}
+  .scope-card li{padding:4px 0 4px 16px; position:relative; line-height:1.5;}
+  .scope-card li::before{content:""; position:absolute; left:2px; top:10px; width:5px; height:5px; border-radius:50%; background:var(--blue);}
+  .scope-card.out li::before{background:var(--t3);}
+  .calc{background:var(--bg2); border:1px solid var(--line); border-radius:8px; padding:14px 18px; margin:8px 0; font-size:13px;}
+  .calc-row{display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px dashed var(--line); }
+  .calc-row:last-child{border-bottom:none;}
+  .calc-row b{color:var(--blue);}
+  .tbd-list{list-style:none;}
+  .tbd-list li{display:flex; gap:10px; padding:8px 0; border-bottom:1px solid var(--line2); font-size:13px; color:var(--t2); line-height:1.6;}
+  .tbd-list li:last-child{border-bottom:none;}
+  .tbd-owner{font-size:11px; font-weight:700; padding:2px 8px; border-radius:5px; background:#EEF0FF; color:var(--blue); flex-shrink:0; height:fit-content;}
+  .ref{margin-top:36px; padding-top:16px; border-top:1px solid var(--line); font-size:12px; color:var(--t3); line-height:1.7;}
+  .changelog{font-size:12.5px; color:var(--t2); line-height:1.9;}
+  .changelog b{color:var(--blue); margin-right:8px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="cover">
+    <span class="cover-tag">OPERATION PRD · v2.0</span>
+    <h1>폴리볼 2.0 운영 PRD</h1>
+    <div class="cover-sub">카테고리 확장 · 신규 재화(볼(P)) · 랭킹 · 응모(회차·코드풀) · 광고/확정보상 · 낙첨 케어 · 본인인증 응모 게이트<br>6개 영역 통합 정책 정의 (화면설계서 SD-4·SD-7 / 어드민 ADM-PRD v2.0)</div>
+    <div class="cover-meta">
+      <div><b>대상</b> 개발 / 디자인 / 운영 리뷰</div>
+      <div><b>배포 목표</b> 단계적 (카테고리 선행)</div>
+      <div><b>작성</b> 기획팀</div>
+      <div><b>버전</b> v2.0 (2026-06-29)</div>
+      <div><b>선행 문서</b> 카테고리구조 v1.3 · BO ADM-CAT v2.3</div>
+      <div><b>후속</b> 법령 검토</div>
+    </div>
+  </div>
+
+  <div class="toc">
+    <div class="toc-title">목차</div>
+    <div class="toc-grid">
+      <a class="toc-item" href="#bg"><span class="toc-num">0</span> 목표·배경·범위</a>
+      <a class="toc-item" href="#s1"><span class="toc-num">1</span> 카테고리</a>
+      <a class="toc-item" href="#s2"><span class="toc-num">2</span> 재화</a>
+      <a class="toc-item" href="#s3"><span class="toc-num">3</span> 랭킹</a>
+      <a class="toc-item" href="#s4"><span class="toc-num">4</span> 응모</a>
+      <a class="toc-item" href="#s5"><span class="toc-num">5</span> 광고·확정보상</a>
+      <a class="toc-item" href="#s6"><span class="toc-num">6</span> 낙첨 케어</a>
+      <a class="toc-item" href="#tbd"><span class="toc-num">7</span> 미결·법령</a>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <div class="box box-purple" style="margin-bottom:24px;"><b>v2.0 정합화:</b> ① 신규 재화 명칭 <b>볼(P)</b>로 통일(구 "폴") ② 응모를 <b>회차(round)·코드풀</b> 백본으로 전환(ADM-PRD v2.0) ③ <b>본인인증 응모 게이트</b> 신설 — 응모 시점부터 본인인증 필수(미인증 시 응모 불가, 최초 1회) ④ 제세공과금 <b>경품 가치 50,001원 이상 자동 트리거</b>.</div>
+
+    <!-- 0. 목표·배경·범위 -->
+    <div class="section" id="bg">
+      <div class="sec-head"><span class="sec-id">0</span><span class="sec-title">목표 · 배경 · 범위</span></div>
+
+      <div class="sub-h">배경</div>
+      <p class="lead">기존 폴리볼은 야구 승부예측 → 직관티켓 응모의 단일 보상 구조로, 야구 TAM(시장 한계)에 묶여 있었다. 폴리볼 2.0은 콘텐츠 카테고리를 확장(이스포츠·연예·이슈)하고 신규 재화(볼(P))·랭킹·신규 상품 응모를 도입해, <b>픽/응모 빈도와 광고 노출 총량을 늘리는</b> 것을 목표로 한다.</p>
+
+      <div class="sub-h">목표 (BM 연결)</div>
+      <div class="box box-bm"><b>BM 목표:</b> 광고 매출. 픽 시(AD①)·응모 시(AD②) 광고 노출이 매출원이며, 카테고리 확장 → 픽 빈도 증가 → AD① 총량 증가, 신규 상품 응모 신설 → AD② 발생, 매일 광고·낙첨 환급 → 추가 광고 노출로 연결된다.</div>
+      <div class="funnel">
+        <div class="fn-step">카테고리 확장<small>비야구 유입</small></div>
+        <div class="fn-arrow">→</div>
+        <div class="fn-step ad">픽<small>AD①</small></div>
+        <div class="fn-arrow">→</div>
+        <div class="fn-step">볼(P) 적립<small>적중·참여</small></div>
+        <div class="fn-arrow">→</div>
+        <div class="fn-step ad">신규상품 응모<small>AD②</small></div>
+        <div class="fn-arrow">→</div>
+        <div class="fn-step ad">매일 광고·환급<small>추가 AD</small></div>
+      </div>
+
+      <div class="sub-h">성공 지표</div>
+      <div class="goal-grid">
+        <div class="goal-card"><div class="k">PRIMARY</div><div class="v">주간 픽 건수 증가<br><span style="font-size:11px;color:#888;">= AD① 노출 총량 (기준 576,985건/주)</span></div></div>
+        <div class="goal-card"><div class="k">신규 BM</div><div class="v">신규 상품 응모 발생<br><span style="font-size:11px;color:#888;">= AD② 신규 노출</span></div></div>
+        <div class="goal-card"><div class="k">유입</div><div class="v">친구 초대 가입 발생<br><span style="font-size:11px;color:#888;">= 마케팅 비용 절감</span></div></div>
+      </div>
+
+      <div class="sub-h">범위</div>
+      <div class="scope-grid">
+        <div class="scope-card in">
+          <h4>✅ 이번 PRD 범위</h4>
+          <ul>
+            <li>5개 카테고리 운영 (야구·월드컵·이스포츠·연예·이슈)</li>
+            <li>신규 재화 볼(P) (공용 1종)</li>
+            <li>MSI 개인·팀 랭킹 + 볼(P) 보상</li>
+            <li>응모 신규상품 탭 (회차·코드풀) + 매일 광고 적립</li>
+            <li>확정보상(일부 비중) + 낙첨 환급</li>
+            <li>본인인증 응모 게이트</li>
+          </ul>
+        </div>
+        <div class="scope-card out">
+          <h4>⏸ 범위 외 (후속)</h4>
+          <ul>
+            <li>연예·이슈 마켓 상세 리스트 (담당자 협의)</li>
+            <li>볼(P) 인플레이션 정책 (운영 추이 후 결정)</li>
+            <li>폴리컵/폴리픽 그룹 분류 (차기)</li>
+            <li>야구·월드컵 랭킹 신규 (월드컵은 기존 유지)</li>
+            <li>본인인증 수단·세무 처리 상세 (법무·세무 협의)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1. 카테고리 -->
+    <div class="section" id="s1">
+      <div class="sec-head"><span class="sec-id">1</span><span class="sec-title">카테고리 운영</span></div>
+      <p class="lead">대카테고리 5종으로 운영한다. 계층 구조·BO 관리는 선행 문서(카테고리구조 v1.3 / BO ADM-CAT v2.3)를 따른다.</p>
+      <table>
+        <thead><tr><th style="width:90px;">카테고리</th><th>구성</th><th style="width:90px;">화면</th><th style="width:120px;">마켓 성격</th></tr></thead>
+        <tbody>
+          <tr><td class="lbl">야구</td><td>기존 메인/서브마켓 + 이벤트마켓 '야구'</td><td>탭 내</td><td>적중형(예측)</td></tr>
+          <tr><td class="lbl">월드컵</td><td>카테고리 '월드컵'</td><td>별도 페이지</td><td>적중형(기존)</td></tr>
+          <tr><td class="lbl">이스포츠</td><td>MSI 2026 마켓 리스트 <span class="tag tag-new">신규</span></td><td>탭 내 (디자인 필요)</td><td>적중형(예측)</td></tr>
+          <tr><td class="lbl">연예</td><td>마켓 리스트 담당자 협의 <span class="tag tag-tbd">협의</span></td><td>탭 내</td><td>투표형(주) + 예측형</td></tr>
+          <tr><td class="lbl">이슈</td><td>마켓 리스트 담당자 협의 <span class="tag tag-tbd">협의</span></td><td>탭 내</td><td>투표형(주) + 예측형</td></tr>
+        </tbody>
+      </table>
+      <div class="box box-blue"><b>연예·이슈 마켓 성격:</b> 대부분 투표형(정답 없음 → 참여만으로 볼(P) 지급, 높은 비중)이되, 정답이 나오는 건 예측형으로 운영한다(예: "나는솔로 최종 커플 맞히기", "연예대상 수상자"). 예측형은 적중 시 볼(P) 지급. 구체 리스트는 각 담당자와 협의해 구성.</div>
+    </div>
+
+    <!-- 2. 재화 -->
+    <div class="section" id="s2">
+      <div class="sec-head"><span class="sec-id">2</span><span class="sec-title">재화 체계</span></div>
+      <table>
+        <thead><tr><th style="width:120px;">재화</th><th style="width:160px;">사용 카테고리</th><th>비고</th></tr></thead>
+        <tbody>
+          <tr><td class="lbl">응모권</td><td>야구</td><td>기존 유지. 직관티켓 응모</td></tr>
+          <tr><td class="lbl">볼</td><td>월드컵</td><td>기존 유지</td></tr>
+          <tr><td class="lbl">볼(P) <span class="tag tag-new">신규</span></td><td>이스포츠 · 연예 · 이슈</td><td><b>공용 1종.</b> 세 카테고리 적립·신규상품 응모가 모두 볼(P) 하나로 동작. (DB 코드: <code>PBALL</code>)</td></tr>
+        </tbody>
+      </table>
+      <div class="box box-bm"><b>공용 1종 이유:</b> 재화가 카테고리별로 파편화되면 응모 도달이 늦어져 AD② 노출이 지연된다. 볼(P) 하나로 통합하면 적립·소진 빈도가 빨라지고 응모 탭이 단순해진다(직관티켓/신규상품 2탭).</div>
+      <div class="box box-blue"><b>재화 결정 방식:</b> 재화는 카테고리에 고정하지 않고 마켓 생성 시 보상 설정에서 선택한다(기존 이벤트마켓 구조). 이스포츠·연예·이슈는 볼(P) 선택이 운영 관례.</div>
+      <div class="box box-amber"><b>명칭 통일(v2.0):</b> 구 문서의 "폴"은 전부 <b>볼(P)</b>로 통일한다. 화면·어드민·DB 코드(<code>PBALL</code>) 표기 일관 유지.</div>
+    </div>
+
+    <!-- 3. 랭킹 -->
+    <div class="section" id="s3">
+      <div class="sec-head"><span class="sec-id">3</span><span class="sec-title">랭킹 (MSI 우선 적용)</span></div>
+      <p class="lead">월드컵은 별도 랭킹 페이지가 있으므로, 신규로 <b>상단 버튼에 랭킹</b>을 신설한다(MSI 랭킹 먼저 적용). 개인 랭킹과 팀(친구 초대) 랭킹 2종이며, 보상은 둘 다 볼(P)로 지급하고 <b>중복 수령을 허용</b>한다.</p>
+
+      <div class="sub-h">개인 랭킹</div>
+      <table>
+        <thead><tr><th style="width:140px;">순위</th><th style="width:120px;">볼(P) 보상</th><th>비고</th></tr></thead>
+        <tbody>
+          <tr><td class="lbl">1~5위</td><td>각 50개</td><td>5명 · 시즌 누적 적중 포인트 기준</td></tr>
+          <tr><td class="lbl">6~30위</td><td>각 30개</td><td>25명</td></tr>
+          <tr><td class="lbl">31~100위</td><td>각 10개</td><td>70명</td></tr>
+        </tbody>
+      </table>
+
+      <div class="sub-h">팀 랭킹 (친구 초대 · 2명 고정)</div>
+      <p class="lead">친구를 초대해 <b>2명 고정</b> 팀을 구성한다(나 + 초대한 친구 1명). 팀 내 더 많이 적중한 사람은 <b>'롤잘알' 뱃지</b>(20개), 적게 적중한 사람은 <b>'롤알못' 뱃지</b>(5개)가 붙는다. 비기면 둘 다 5개.</p>
+      <table>
+        <thead><tr><th style="width:200px;">상황</th><th>보상</th></tr></thead>
+        <tbody>
+          <tr><td class="lbl">적중 비교 — 우위자</td><td><b>20개</b> · '롤잘알' 뱃지</td></tr>
+          <tr><td class="lbl">적중 비교 — 상대</td><td><b>5개</b> · '롤알못' 뱃지</td></tr>
+          <tr><td class="lbl">비김 (적중수 동일)</td><td>각 5개씩</td></tr>
+          <tr><td class="lbl">친구가 픽 안 함</td><td>해당자 0점 처리 → 픽한 사람이 우위(롤잘알 20) / 미픽자 롤알못 5</td></tr>
+        </tbody>
+      </table>
+      <div class="box box-blue"><b>미픽 0점 처리:</b> 친구가 참여만 하고 픽을 안 하면 그 사람 0점으로 둔다. 별도 예외 없이 "우위자 롤잘알 20 / 상대 롤알못 5" 계산식에 0점을 대입하면 자동 산출된다.</div>
+      <div class="box box-bm"><b>BM 효과:</b> 친구 초대 팀 = 신규 유입(마케팅 비용 절감). 팀원이 픽해야 비교가 성립하므로 상호 픽 유도 → AD① 증가. 기존 친구초대 자산(v0.1) 재활용.</div>
+
+      <div class="sub-h">개인 + 팀 보상 중복</div>
+      <div class="calc">
+        <div class="calc-row"><span>예) 개인 5위 + 팀 우위자(롤잘알)</span><span></span></div>
+        <div class="calc-row"><span>개인 랭킹 보상 (1~5위)</span><b>50개</b></div>
+        <div class="calc-row"><span>팀 보상 (롤잘알)</span><b>20개</b></div>
+        <div class="calc-row"><span>합계 수령</span><b>70개</b></div>
+      </div>
+      <div class="box box-amber"><b>중복 허용(의도됨):</b> 개인·팀 보상을 동시 수령한다. 볼(P) 발행량이 늘어나는 지점이므로 §7 모니터링 대상에 포함.</div>
+    </div>
+
+    <!-- 4. 응모 -->
+    <div class="section" id="s4">
+      <div class="sec-head"><span class="sec-id">4</span><span class="sec-title">응모</span></div>
+      <p class="lead">응모 탭을 재화 기준 2탭으로 분리한다. 직관티켓(응모권)은 기존 유지, 신규상품(볼(P))은 신설한다. 신규상품은 <b>회차(round)·코드풀</b> 백본으로 운영하며(ADM-PRD v2.0), 추첨 방식은 기존 가중 추첨을 따른다(확정보상 적용분은 §5 참조).</p>
+      <table>
+        <thead><tr><th style="width:130px;">탭</th><th>상품</th><th>재화</th></tr></thead>
+        <tbody>
+          <tr><td class="lbl">직관티켓</td><td>KBO 직관티켓 (경기별) — 기존</td><td>응모권</td></tr>
+          <tr><td class="lbl">신규상품 <span class="tag tag-new">신규</span></td><td>키보드·마우스 등 이스포츠 타겟 경품 + 보편적 기프티콘류 (초기 리스트)</td><td>볼(P)</td></tr>
+        </tbody>
+      </table>
+
+      <div class="sub-h">회차·코드풀 운영 (v2.0)</div>
+      <div class="box box-blue"><b>운영 단위 회차(round):</b> 응모는 회차 단위로 묶이고, 한 회차에 경품 N개를 세팅한다(회차×경품). 경품은 <b>경품 마스터</b>에서 재사용하고, 디지털 경품은 <b>코드풀</b>(바코드/PIN 재고)에서 당첨자에게 1:1 매핑 지급한다. 회차 저장 시 <b>당첨 인원 ≤ 코드 재고</b> 검증(실물 제외). 상세는 ADM-PRD v2.0.</div>
+      <div class="box box-blue"><b>회차 노출·기간·일시정지:</b> 회차는 <b>노출 기간 / 응모 기간을 분리</b>해 운영한다(노출 ⊇ 응모) → 오픈 예정 티저, 응모 마감 후 상품 열람을 모두 기간으로 조절. 신규상품 탭은 <b>회차 칩</b>(텍스트, 예 "7월 2주"·스폰서 "올리브영 위크")으로 동시 진행 회차를 구분한다. 회차는 <b>정규 / 스폰서(광고주 캠페인)</b> 유형이 있으나 UI는 동일(칩 텍스트만 다름). <b>일시정지(off)</b>는 노출·응모·발표를 멈추되 소진 볼(P)을 보존(재on 복귀), 크리티컬 사고 시에만 서버에 재화 재분배(환불) 별도 요청. 상태 머신은 ADM-PRD v2.0 PRD-07 / 화면은 SD-4·SD-5.</div>
+
+      <div class="sub-h">본인인증 응모 게이트 (v2.0 신규)</div>
+      <div class="box box-purple"><b>응모 시점부터 본인인증 필수.</b> 당첨자 선정·경품 전달을 위해 응모자는 <b>최초 1회</b> 본인인증을 완료해야 하며, 미인증 시 응모할 수 없다. 인증 정보는 계정에 저장돼 재진입·수령 단계에서 재사용(스킵). <b>변경 핵심:</b> 기존 수령 단계 인증 → <b>응모 단계 인증</b>으로 앞당김. 응모 모집단이 전원 인증자가 되어 발표·수령 마찰 감소, 부정·중복 응모 억제. (안내 문구: "당첨자 선정 및 경품 전달을 위해 본인인증이 필요해요(최초 1회). 본인인증을 하지 않으면 응모할 수 없어요" — SD-4 GATE)</div>
+
+      <div class="sub-h">매일 광고 보고 볼(P) 받기</div>
+      <div class="box box-bm"><b>신규상품 응모 탭에 "광고 보고 볼(P) 받기" 신설 — 하루 시청 5회.</b> 1~4번째 인터스티셜(전면) 각 1개, <b>5번째 리워드 비디오(RV) 2배(2개)</b> → 합계 <b>하루 6개</b>. 5번째를 2배로 둬 끝까지 시청 유도. 재화 적립의 핵심 AD 장치(인터스티셜RV 정의서 계승).</div>
+      <p class="lead" style="margin-top:8px;">상품 수량·당첨 인원·응모 단가(상품당 1개 고정)·교체 주기는 운영값으로 §7에 위임.</p>
+
+      <div class="sub-h">당첨 수령 프로세스</div>
+      <p class="lead">응모 완료(본인인증 충족) → 당첨자 발표 → 최다 응모자(확정)+추첨 선정 → 앱 결과 확인 → 지갑에 당첨 상품 노출 → 수령 분기: <b>디지털</b>(코드풀 매핑 코드 발급, 지갑에서 바로) / <b>실물</b>(배송지 입력). <b>제세공과금 대상</b>(경품 가치 50,001원 이상 자동) 상품은 수령 전 안내·동의(유형 무관, 독립 축). 본인인증은 응모 시점 완료라 수령 단계엔 없음. 상세는 ADM-PRD v2.0·SD-7 참조.</p>
+    </div>
+
+    <!-- 5. 광고·확정보상 -->
+    <div class="section" id="s5">
+      <div class="sec-head"><span class="sec-id">5</span><span class="sec-title">광고 · 확정보상</span></div>
+      <p class="lead">신규상품 응모 일부에 <b>확정보상</b>을 적용한다. 전체가 확정은 아니고 <b>일부 비중만</b> 최다 응모자에게 확정 지급하며, 나머지는 추첨한다.</p>
+
+      <div class="sub-h">확정보상 구조</div>
+      <div class="box box-blue"><b>예시:</b> 어떤 경품이 5명을 뽑는다면 → <b>최다 응모자 1명 확정 당첨</b> + 나머지 <b>4명 추첨</b>. 확정/추첨 비중은 상품(경품)별 설정(확정 인원 N).</div>
+      <table>
+        <thead><tr><th style="width:170px;">항목</th><th>정책</th></tr></thead>
+        <tbody>
+          <tr><td class="lbl">확정 대상</td><td>해당 경품 최다 응모자 상위 N명(확정 인원, 기본 1)</td></tr>
+          <tr><td class="lbl">나머지</td><td>당첨 인원 − 확정 인원 = 추첨 (기존 가중 추첨)</td></tr>
+          <tr><td class="lbl">최다 응모자 표기</td><td>발표 전까지 <b>닉네임만 노출, 수량 비공개</b>(확정 인원만큼)</td></tr>
+          <tr><td class="lbl">동점 처리</td><td><b>해당 수량에 먼저 도달한 사람</b> (수량 desc, 도달시각 asc). 예) a 30개 표기 중 b가 30개 → a 유지, b가 31개 → b로 전환</td></tr>
+          <tr><td class="lbl">산정 방식</td><td><code>entry_log</code> 집계로 확정 N명 산정 → 잔여 인원 가중 추첨. winner.win_type=confirmed/draw 기록(ADM-PRD v2.0)</td></tr>
+          <tr><td class="lbl">발표 시 공개</td><td>최다 응모자의 <b>응모 수량 공개</b> + 전체 당첨자 닉네임 공개</td></tr>
+          <tr><td class="lbl">기준 고지</td><td>"N명 중 1명 확정 + M명 추첨" 비중을 <b>이벤트/응모 안내에 명시</b></td></tr>
+        </tbody>
+      </table>
+      <div class="box box-bm"><b>BM 효과:</b> "1등 하면 확정" → 볼(P)을 계속 모으고 매일 광고를 본다(AD↑). 최다 응모자 닉네임 실시간 노출 + 수량 비공개 = 추월 긴장감 → 추가 볼(P) 소비 → 광고 시청. 발표 시 수량 공개로 경쟁 서사 완성.</div>
+      <div class="box box-warn"><b>리스크:</b> 2등 그룹(많이 썼는데 추월 실패)의 허탈감. → §6 낙첨 환급으로 케어. 고가 상품(주변기기)에 확정보상 적용 시 독식 논란 가능 → 초기엔 저비용 상품 위주 권장.</div>
+    </div>
+
+    <!-- 6. 낙첨 케어 -->
+    <div class="section" id="s6">
+      <div class="sec-head"><span class="sec-id">6</span><span class="sec-title">낙첨 케어 (광고 환급)</span></div>
+      <p class="lead">당첨 결과 확인 시, 응모에 쓴 볼(P)을 모두 잃으면 이탈 위험이 크다. 낙첨자는 <b>광고를 보면 응모한 볼(P)을 일부 환급</b>받을 수 있다.</p>
+      <table>
+        <thead><tr><th style="width:170px;">항목</th><th>정책</th></tr></thead>
+        <tbody>
+          <tr><td class="lbl">환급 대상</td><td>낙첨자만 (<b>당첨자 제외</b>)</td></tr>
+          <tr><td class="lbl">환급률</td><td>광고 1회당 <b>10%</b>, 최대 <b>30%</b> (광고 3회)</td></tr>
+          <tr><td class="lbl">기준</td><td>해당 상품에 응모한 볼(P) 수량 기준</td></tr>
+        </tbody>
+      </table>
+      <div class="box box-bm"><b>BM 효과:</b> 낙첨자도 광고를 보게 만든다(AD 추가 노출). 동시에 볼(P) 일부 회수로 재응모 동기 유지 → 이탈 방지 → 다음 사이클 픽/응모 지속.</div>
+      <div class="box box-amber"><b>설계 포인트:</b> 확정보상 2등 그룹(많이 응모하고 낙첨)이 환급 최대 수혜층. 환급이 응모량 비례라 많이 쓴 사람이 더 많이 돌려받아 허탈감을 완화한다. 단 환급도 볼(P) 발행이므로 §7 모니터링 포함.</div>
+    </div>
+
+    <!-- 7. 미결·법령·모니터링 -->
+    <div class="section" id="tbd">
+      <div class="sec-head"><span class="sec-id">7</span><span class="sec-title">미결 · 법령 · 모니터링</span></div>
+
+      <div class="sub-h">미결 항목 (TBD)</div>
+      <ul class="tbd-list">
+        <li><span class="tbd-owner">운영·콘텐츠</span><span>연예·이슈 마켓 초기 리스트 (예측형/투표형 구분) — 각 담당자 협의</span></li>
+        <li><span class="tbd-owner">운영</span><span>신규상품 수량·당첨 인원·응모 단가(상품당 볼(P))·교체 주기</span></li>
+        <li><span class="tbd-owner">운영</span><span>확정/추첨 비중 (상품별 N명 중 몇 명 확정)</span></li>
+        <li><span class="tbd-owner">기획·서버</span><span>MSI 랭킹 포인트 적립 공식 (난이도·배당 가중 여부)</span></li>
+        <li><span class="tbd-owner">기획</span><span>'롤잘알'·'롤알못' 뱃지 — 영구 vs 시즌 한정, 표식 외 혜택 여부</span></li>
+        <li><span class="tbd-owner">기획·서버</span><span>볼(P) 인플레이션 정책 — 운영 추이(마켓 수·광고) 보고 결정</span></li>
+        <li><span class="tbd-owner">기획·서버</span><span>발표 배치 자동/수동(수동 실행 버튼 필요 여부)·당첨자 통보 방식</span></li>
+      </ul>
+
+      <div class="sub-h">법령 검토 필요 (자료 확정 후 1회)</div>
+      <table>
+        <thead><tr><th style="width:200px;">항목</th><th>검토 포인트</th></tr></thead>
+        <tbody>
+          <tr><td class="lbl">본인인증 응모 게이트</td><td>응모 단계 본인인증 수집의 개인정보 최소수집·동의·보관 기간, 인증 수단(통신사/아이핀) 선정 — 법무</td></tr>
+          <tr><td class="lbl">확정보상 비중 고지</td><td>"최다 응모자 확정"은 추첨이 아니므로 경품 고시상 확정/추첨 비중 명시 의무. 이벤트/응모 안내 문구 검토</td></tr>
+          <tr><td class="lbl">닉네임 공개</td><td>최다 응모자·당첨자 닉네임 노출의 개인정보·식별성 검토 (닉네임 단독 식별성 낮으면 대체로 가능하나 확인)</td></tr>
+          <tr><td class="lbl">볼(P) 환급</td><td>재화 환급의 환금성·사행성 관점 점검 (볼(P)은 서비스 내 가상 재화)</td></tr>
+          <tr><td class="lbl">매일 광고 적립</td><td>광고성 정보 전송(정통망법 §50) 해당 여부 — 앱 내 UI면 대체로 해당 없음</td></tr>
+          <tr><td class="lbl">제세공과금</td><td>고가 경품(기타소득) 제세공과금 — <b>가치 50,001원 이상 자동 대상</b>. 세율·신고·유저 부담 방식, 배송지 개인정보 수집 동의 검토</td></tr>
+        </tbody>
+      </table>
+
+      <div class="sub-h">볼(P) 발행/소진 모니터링 (인플레이션 대비)</div>
+      <p class="lead">인플레이션 정책은 추이를 보고 정하되, 관찰 지표는 미리 정의해 후속 결정을 빠르게 한다.</p>
+      <table>
+        <thead><tr><th style="width:160px;">구분</th><th>경로</th></tr></thead>
+        <tbody>
+          <tr><td class="lbl">볼(P) 발행(source)</td><td>픽 적중·참여 / 랭킹 보상(개인+팀 중복) / 매일 광고(시청 5회=6개) / 낙첨 환급</td></tr>
+          <tr><td class="lbl">볼(P) 소진(sink)</td><td>신규상품 응모</td></tr>
+          <tr><td class="lbl">모니터링 지표</td><td>일 볼(P) 발행량 · 응모 소진율 · 인당 보유 볼(P) · 상품당 평균 응모 볼(P) · 확정보상 응모 집중도</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 변경 이력 -->
+    <div class="section">
+      <div class="sec-head"><span class="sec-id">LOG</span><span class="sec-title">변경 이력</span></div>
+      <div class="changelog"><b>v2.0</b> 재화 명칭 볼(P) 통일(구 "폴"). 응모 회차(round)·코드풀 백본 전환. 본인인증 응모 게이트 신설(응모 시점 인증). 제세공과금 50,001원 자동 트리거. MSI 랭킹 보상 개편 — 개인 1~5위 50/6~30위 30/31~100위 10, 팀 롤잘알 20·롤알못 5·비김 각 5. 회차 운영 보강 — 노출/응모 기간 분리·회차 칩(정규/스폰서)·일시정지(볼P 보존). ADM-PRD·SD-4·SD-5·SD-7 v2.0 정합 (2026-06-29)</div>
+      <div class="changelog" style="margin-top:4px;"><b>v1.2</b> 매일 광고 6개 구조(시청 5회=인터스티셜4+RV 2배). 당첨 수령 프로세스(지갑→디지털/실물/제세공과금) 추가. 제세공과금 법령 항목 추가 (2026-06-23)</div>
+      <div class="changelog" style="margin-top:4px;"><b>v1.1</b> 낙첨 환급률 조정 — 광고 4회·5%씩·최대 20% → 광고 3회·10%씩·최대 30% (2026-06-23)</div>
+      <div class="changelog" style="margin-top:4px;"><b>v1.0</b> 운영 통합 PRD 최초 작성 — 6개 영역 + 목표·범위·성공지표·미결·법령·모니터링 (2026-06-23)</div>
+    </div>
+
+    <div class="ref">참조: 01_카테고리구조_기능정의서_v1.3, 04_BO카테고리관리_ADM-CAT_v2.3, 02_e스포츠리그_기능정의서_v1.1, 07_응모상품관리_기능정의서_ADM-PRD_v2.0, SD-4 응모 화면설계서 v2.0, SD-5 신규상품 응모 상세 v1.0, SD-7 당첨수령 화면설계서 v2.0, 기능정의서_이벤트마켓_EM_v1_9, 친구_초대_기능정의서_v0_1, 팀_응원전_기능정의서_v0_1, 픽_응모_인터스티셜RV_기능정의서_v1_0, 폴리볼_법령_레퍼런스_v1_0 / 후속: 법령 검토</div>
+
+  </div>
+</div>
+</body>
+</html>

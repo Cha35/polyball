@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>폴리볼 4월 월간 리포트 (3/26~5/3)</title>
+<style>
+  :root {
+    --primary: #1F30E9;
+    --navy: #00143F;
+    --bg2: #F7F8FA;
+    --line: #E5E7EB;
+    --text: #101015;
+    --text-sub: #454545;
+    --text-mut: #888888;
+    --warn: #F59E0B;
+    --ok: #10B981;
+    --highlight: #FEF3C7;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg2);
+    color: var(--text);
+    font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
+  }
+  .layout { max-width: 1200px; margin: 0 auto; background: #fff; min-height: 100vh; box-shadow: 0 0 24px rgba(0,0,0,0.04); }
+  .header { background: linear-gradient(135deg, #1F30E9 0%, #00143F 100%); color: #fff; padding: 48px 56px; }
+  .header .kicker { font-size: 13px; color: rgba(255,255,255,0.85); letter-spacing: 1px; margin-bottom: 12px; font-weight: 500; }
+  .header h1 { font-size: 36px; font-weight: 800; margin: 0 0 12px; letter-spacing: -1px; color: #fff; }
+  .header .sub { font-size: 16px; color: #FEF3C7; font-weight: 500; margin: 0; }
+  .header .meta { margin-top: 24px; display: flex; gap: 16px; font-size: 13px; color: rgba(255,255,255,0.95); flex-wrap: wrap; }
+  .header .meta span { padding: 6px 14px; background: rgba(255,255,255,0.18); border-radius: 6px; color: #fff; }
+
+  .section { padding: 40px 56px; border-bottom: 1px solid var(--line); }
+  .section-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+  .section-num { width: 36px; height: 36px; border-radius: 50%; background: var(--primary); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; flex-shrink: 0; }
+  .section-title { font-size: 22px; font-weight: 700; margin: 0; letter-spacing: -0.5px; }
+  .section-sub { font-size: 13px; color: var(--text-mut); margin-top: 4px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 12px 0 18px; background: #fff; }
+  th, td { border: 1px solid var(--line); padding: 10px 12px; text-align: left; vertical-align: top; }
+  th { background: var(--bg2); font-weight: 600; font-size: 12px; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tr.total td { background: #F0F4FF; font-weight: 700; }
+  tr.partial td { background: #FAFAFA; color: var(--text-mut); }
+
+  .callout { border-left: 4px solid var(--primary); background: #F0F4FF; padding: 12px 16px; border-radius: 6px; font-size: 13px; color: var(--text-sub); margin: 12px 0; }
+  .callout.warn { border-left-color: var(--warn); background: #FFFBEB; }
+  .callout strong { color: var(--text); display: block; margin-bottom: 4px; }
+
+  /* 채널 비중 막대 */
+  .channel-bar {
+    display: inline-block;
+    height: 14px;
+    background: linear-gradient(90deg, #1F30E9, #4F5DF0);
+    border-radius: 3px;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+
+  .footer { padding: 32px 56px; background: var(--bg2); font-size: 12px; color: var(--text-mut); text-align: center; border-top: 1px solid var(--line); }
+
+  @media (max-width: 720px) {
+    .header, .section, .footer { padding-left: 24px; padding-right: 24px; }
+    .header h1 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="kicker">2026.04 월간 리포트 · 폴리볼</div>
+    <h1>4월 월간 리포트</h1>
+    <p class="sub">2026-03-26 ~ 2026-05-03 · 주단위 집계</p>
+    <div class="meta">
+      <span>작성: 정회성</span>
+      <span>작성일: 2026.04.29</span>
+      <span>기간: 39일</span>
+      <span>주차: W13(부분) ~ W18</span>
+    </div>
+  </div>
+
+  <!-- 1. 가입자 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <div>
+        <div class="section-title">가입자</div>
+        <div class="section-sub">서버 기준 (실확정 가입수)</div>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>주차</th><th>기간</th><th class="num">웹</th><th class="num">앱</th><th class="num">합계</th></tr>
+      </thead>
+      <tbody>
+        <tr class="partial"><td>W13 (부분)</td><td>3/26 ~ 3/29</td><td class="num">628</td><td class="num">271</td><td class="num">899</td></tr>
+        <tr><td>W14</td><td>3/30 ~ 4/5</td><td class="num">610</td><td class="num">686</td><td class="num">1,296</td></tr>
+        <tr><td>W15</td><td>4/6 ~ 4/12</td><td class="num">1,115</td><td class="num">1,796</td><td class="num">2,911</td></tr>
+        <tr><td>W16</td><td>4/13 ~ 4/19</td><td class="num">1,333</td><td class="num">2,351</td><td class="num">3,684</td></tr>
+        <tr><td>W17</td><td>4/20 ~ 4/26</td><td class="num">2,448</td><td class="num">3,750</td><td class="num">6,198</td></tr>
+        <tr><td>W18</td><td>4/27 ~ 5/3</td><td class="num">1,246</td><td class="num">2,095</td><td class="num">3,341</td></tr>
+        <tr class="total"><td colspan="2">합계 (3/26~5/3)</td><td class="num">7,357</td><td class="num">10,972</td><td class="num">18,329</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <strong>웹/앱 분리 기준</strong>
+      서버는 앱 가입자를 별도로 체크함. 웹에서 가입한 후 앱으로 전환된 유저는 웹가입에서 제외되고 앱가입으로 추가되는 형태로 집계.
+    </div>
+
+    <div class="callout warn">
+      <strong>⚠️ 서버 가입자 채널별 체크 불가 (개발 진행중)</strong>
+      현재 서버 가입자 데이터는 채널별 attribution이 연결되어 있지 않음. 개발팀에서 서버 ↔ 채널 attribution 연동 작업 중.
+      <br>아래 추정치는 <strong>Airbridge 채널 비중을 서버 가입자(18,329명)에 비례 적용</strong>한 값.
+    </div>
+
+    <h4 style="font-size:15px; margin: 24px 0 8px; color: var(--navy);">채널별 가입자 추정 (Airbridge 비중 비례 적용)</h4>
+    <p style="font-size: 13px; color: var(--text-sub);">계산: 서버 가입 17,730명 × (각 채널의 Airbridge 가입 비중) — 정확한 채널 attribution 연동 전까지 추정치로 활용</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>순위</th>
+          <th>채널</th>
+          <th class="num">Airbridge 비중</th>
+          <th class="num">추정 서버 가입자</th>
+          <th>비중 시각화</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>instagram_fanpage</td><td class="num">30.33%</td><td class="num">5,558</td><td><span class="channel-bar" style="width: 303px;"></span></td></tr>
+        <tr><td>2</td><td>unattributed</td><td class="num">25.76%</td><td class="num">4,721</td><td><span class="channel-bar" style="width: 258px;"></span></td></tr>
+        <tr><td>3</td><td>paid_myseatcheck</td><td class="num">13.71%</td><td class="num">2,513</td><td><span class="channel-bar" style="width: 137px;"></span></td></tr>
+        <tr><td>4</td><td>round_push</td><td class="num">7.32%</td><td class="num">1,341</td><td><span class="channel-bar" style="width: 73px;"></span></td></tr>
+        <tr><td>5</td><td>round_step</td><td class="num">6.86%</td><td class="num">1,257</td><td><span class="channel-bar" style="width: 69px;"></span></td></tr>
+        <tr><td>6</td><td>paid_tenping</td><td class="num">4.84%</td><td class="num">887</td><td><span class="channel-bar" style="width: 48px;"></span></td></tr>
+        <tr><td>7</td><td>round_popup_bottom</td><td class="num">2.80%</td><td class="num">512</td><td><span class="channel-bar" style="width: 28px;"></span></td></tr>
+        <tr><td>8</td><td>instagram_Influencer</td><td class="num">2.47%</td><td class="num">453</td><td><span class="channel-bar" style="width: 25px;"></span></td></tr>
+        <tr><td>9</td><td>instagram_ownedmedia</td><td class="num">2.14%</td><td class="num">392</td><td><span class="channel-bar" style="width: 21px;"></span></td></tr>
+        <tr><td>10</td><td>navercafe_fanpage</td><td class="num">0.85%</td><td class="num">155</td><td><span class="channel-bar" style="width: 9px;"></span></td></tr>
+        <tr><td>11</td><td>kakao_opentalk_Influencer</td><td class="num">0.44%</td><td class="num">81</td><td><span class="channel-bar" style="width: 4px;"></span></td></tr>
+        <tr><td>12</td><td><strong>paid_happypoint</strong> 🆕</td><td class="num">0.44%</td><td class="num">81</td><td><span class="channel-bar" style="width: 4px;"></span></td></tr>
+        <tr><td>13</td><td>kakao_notitalk_ticket_winners_apply</td><td class="num">0.38%</td><td class="num">70</td><td><span class="channel-bar" style="width: 4px;"></span></td></tr>
+        <tr><td>14</td><td>round_commerce_big_banner</td><td class="num">0.36%</td><td class="num">66</td><td><span class="channel-bar" style="width: 4px;"></span></td></tr>
+        <tr><td>15</td><td>round_main_big_banner</td><td class="num">0.27%</td><td class="num">50</td><td><span class="channel-bar" style="width: 3px;"></span></td></tr>
+        <tr><td>16</td><td>offline_pocha</td><td class="num">0.22%</td><td class="num">40</td><td><span class="channel-bar" style="width: 2px;"></span></td></tr>
+        <tr><td>17</td><td>instagram_Somoim</td><td class="num">0.20%</td><td class="num">36</td><td><span class="channel-bar" style="width: 2px;"></span></td></tr>
+        <tr><td>18</td><td>round_kakaotalk_friend</td><td class="num">0.13%</td><td class="num">24</td><td><span class="channel-bar" style="width: 1px;"></span></td></tr>
+        <tr><td>19</td><td>naverblog_bloger</td><td class="num">0.12%</td><td class="num">22</td><td><span class="channel-bar" style="width: 1px;"></span></td></tr>
+        <tr><td>20</td><td>polyball_web_pick_top</td><td class="num">0.09%</td><td class="num">17</td><td></td></tr>
+        <tr><td>21</td><td>instagram_influencer</td><td class="num">0.08%</td><td class="num">14</td><td></td></tr>
+        <tr><td>22</td><td>기타 (10개 채널 합산)</td><td class="num">0.19%</td><td class="num">35</td><td></td></tr>
+        <tr class="total"><td colspan="2">합계</td><td class="num">100%</td><td class="num">18,329</td><td></td></tr>
+      </tbody>
+    </table>
+
+    <p style="font-size: 12px; color: var(--text-mut);">※ 전체 채널 상세는 <a href="#appendix-channel" style="color:var(--primary);">Appendix · 유입 채널 비중 (Airbridge 원본)</a> 참고</p>
+  </div>
+
+  <!-- 2. 예측 참여 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <div>
+        <div class="section-title">예측 참여</div>
+        <div class="section-sub">서버 기준 · 유저는 주간 단위 유니크</div>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>주차</th><th>기간</th><th class="num">유니크 유저</th><th class="num">참여 건수</th><th class="num">1인당 평균</th></tr>
+      </thead>
+      <tbody>
+        <tr class="partial"><td>W13 (부분)</td><td>3/26 ~ 3/29</td><td class="num">611</td><td class="num">2,059</td><td class="num">3.37</td></tr>
+        <tr><td>W14</td><td>3/30 ~ 4/5</td><td class="num">961</td><td class="num">6,135</td><td class="num">6.38</td></tr>
+        <tr><td>W15</td><td>4/6 ~ 4/12</td><td class="num">2,594</td><td class="num">22,249</td><td class="num">8.58</td></tr>
+        <tr><td>W16</td><td>4/13 ~ 4/19</td><td class="num">4,548</td><td class="num">43,185</td><td class="num">9.50</td></tr>
+        <tr><td>W17</td><td>4/20 ~ 4/26</td><td class="num">7,788</td><td class="num">71,515</td><td class="num">9.18</td></tr>
+        <tr><td>W18</td><td>4/27 ~ 5/3</td><td class="num">6,851</td><td class="num">77,238</td><td class="num">11.27</td></tr>
+        <tr class="total"><td colspan="2">합계 (3/26~5/3)</td><td class="num">—</td><td class="num">222,381</td><td class="num">—</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size: 12px; color: var(--text-mut);">※ 유니크 유저는 주간 단위 유니크</p>
+  </div>
+
+  <!-- 2-2. 퀴즈 참여 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">2-2</div>
+      <div>
+        <div class="section-title">퀴즈 참여</div>
+        <div class="section-sub">서버 기준 · 유저는 주간 단위 유니크</div>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>주차</th><th>기간</th><th class="num">유니크 유저</th><th class="num">참여 건수</th><th class="num">1인당 평균</th></tr>
+      </thead>
+      <tbody>
+        <tr class="partial"><td>W13 (부분)</td><td>3/26 ~ 3/29</td><td class="num">531</td><td class="num">5,710</td><td class="num">10.75</td></tr>
+        <tr><td>W14</td><td>3/30 ~ 4/5</td><td class="num">879</td><td class="num">17,848</td><td class="num">20.30</td></tr>
+        <tr><td>W15</td><td>4/6 ~ 4/12</td><td class="num">2,342</td><td class="num">64,853</td><td class="num">27.69</td></tr>
+        <tr><td>W16</td><td>4/13 ~ 4/19</td><td class="num">3,900</td><td class="num">124,702</td><td class="num">31.97</td></tr>
+        <tr><td>W17</td><td>4/20 ~ 4/26</td><td class="num">6,183</td><td class="num">204,024</td><td class="num">33.00</td></tr>
+        <tr><td>W18</td><td>4/27 ~ 5/3</td><td class="num">5,926</td><td class="num">223,383</td><td class="num">37.69</td></tr>
+        <tr class="total"><td colspan="2">합계 (3/26~5/3)</td><td class="num">—</td><td class="num">640,520</td><td class="num">—</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size: 12px; color: var(--text-mut);">※ 유니크 유저는 주간 단위 유니크</p>
+  </div>
+
+  <!-- 3. 응모 참여 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <div>
+        <div class="section-title">응모 참여</div>
+        <div class="section-sub">서버 기준 · 유저는 주간 단위 유니크</div>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>주차</th><th>기간</th><th class="num">유니크 유저</th><th class="num">응모 건수</th><th class="num">1인당 평균</th></tr>
+      </thead>
+      <tbody>
+        <tr class="partial"><td>W13 (부분)</td><td>3/26 ~ 3/29</td><td class="num">735</td><td class="num">783</td><td class="num">1.07</td></tr>
+        <tr><td>W14</td><td>3/30 ~ 4/5</td><td class="num">1,099</td><td class="num">1,280</td><td class="num">1.16</td></tr>
+        <tr><td>W15</td><td>4/6 ~ 4/12</td><td class="num">2,918</td><td class="num">3,912</td><td class="num">1.34</td></tr>
+        <tr><td>W16</td><td>4/13 ~ 4/19</td><td class="num">4,622</td><td class="num">6,625</td><td class="num">1.43</td></tr>
+        <tr><td>W17</td><td>4/20 ~ 4/26</td><td class="num">8,164</td><td class="num">11,106</td><td class="num">1.36</td></tr>
+        <tr><td>W18</td><td>4/27 ~ 5/3</td><td class="num">5,591</td><td class="num">8,102</td><td class="num">1.45</td></tr>
+        <tr class="total"><td colspan="2">합계 (3/26~5/3)</td><td class="num">—</td><td class="num">31,808</td><td class="num">—</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size: 12px; color: var(--text-mut);">※ 유니크 유저는 주간 단위 유니크</p>
+  </div>
+
+  <!-- 4. 당첨자 / 티켓 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <div>
+        <div class="section-title">당첨자 / 티켓 수</div>
+        <div class="section-sub">운영팀 별도 데이터</div>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>기간</th>
+          <th class="num">선정자</th>
+          <th class="num">확정자</th>
+          <th class="num">티켓 수</th>
+          <th class="num">선정→확정 전환율</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>3/26 ~ 4/5 (W13부분 + W14)</td><td class="num">81</td><td class="num">75</td><td class="num">75</td><td class="num">92.6%</td></tr>
+        <tr><td>4/6 ~ 4/12 (W15)</td><td class="num">74</td><td class="num">66</td><td class="num">66</td><td class="num">89.2%</td></tr>
+        <tr><td>4/13 ~ 4/19 (W16)</td><td class="num">84</td><td class="num">81</td><td class="num">81</td><td class="num">96.4%</td></tr>
+        <tr><td>4/20 ~ 4/26 (W17)</td><td class="num">78</td><td class="num">선정중</td><td class="num">—</td><td class="num">—</td></tr>
+        <tr><td>4/27 ~ 5/3 (W18)</td><td class="num">78</td><td class="num">78</td><td class="num">78</td><td class="num">100.0%</td></tr>
+        <tr class="total"><td>합계 (3/26~5/3)</td><td class="num">395</td><td class="num">300+</td><td class="num">300+</td><td class="num">—</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <strong>참고</strong>
+      <ul style="padding-left:18px;margin-top:6px;">
+        <li>응모 참여자 중 추첨 → 선정자 → 확정자(수령 의사 확인) → 티켓 발행 순서</li>
+        <li>W17은 확정자 선정 진행중 (5월 초 확정 예정)</li>
+        <li>티켓 1장 = 1확정자 = 1경기 직관석</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 5. 광고 참여 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <div>
+        <div class="section-title">광고 참여 (앱)</div>
+        <div class="section-sub">Airbridge 이벤트 + 애드팝콘 매출</div>
+      </div>
+    </div>
+
+    <h4 style="font-size:15px; margin: 16px 0 8px; color: var(--navy);">광고 퍼널 (Airbridge 이벤트)</h4>
+    <p style="font-size: 13px; color: var(--text-sub);">순서: <code style="background:#F1F5F9;padding:1px 6px;border-radius:3px;">c_ad_entry</code> → <code style="background:#F1F5F9;padding:1px 6px;border-radius:3px;">pv_ad</code> → <code style="background:#F1F5F9;padding:1px 6px;border-radius:3px;">pv_ad_reward_completed</code></p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>주차</th>
+          <th class="num">c_ad_entry (이벤트)</th>
+          <th class="num">c_ad_entry (유저)</th>
+          <th class="num">pv_ad (이벤트)</th>
+          <th class="num">pv_ad (유저)</th>
+          <th class="num">reward (이벤트)</th>
+          <th class="num">reward (유저)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="partial"><td>W13 (부분)</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+        <tr class="partial"><td>W14</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+        <tr class="partial"><td>W15</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+        <tr class="partial"><td>W16</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+        <tr><td>W17</td><td class="num">15,032</td><td class="num">2,354</td><td class="num">12,149</td><td class="num">1,669</td><td class="num">11,688</td><td class="num">1,588</td></tr>
+        <tr><td>W18</td><td class="num">20,577</td><td class="num">2,516</td><td class="num">19,283</td><td class="num">2,027</td><td class="num">18,649</td><td class="num">1,907</td></tr>
+        <tr class="total"><td>합계 (4/20~5/3)</td><td class="num">35,609</td><td class="num">—</td><td class="num">31,432</td><td class="num">—</td><td class="num">30,337</td><td class="num">—</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout warn">
+      <strong>광고 이벤트 SDK 4/20 배포</strong>
+      `c_ad_entry`, `pv_ad`, `pv_ad_reward_completed` 이벤트는 <strong>4/20 SDK 배포 후 4/21부터 안정 수집</strong>. W13~W16은 데이터 없음.
+    </div>
+
+    <h4 style="font-size:15px; margin: 24px 0 8px; color: var(--navy);">애드팝콘 (광고 요청 / 노출 / 매출)</h4>
+    <p style="font-size: 13px; color: var(--text-sub);">매칭 기준: <strong>request ≈ c_ad_entry</strong> (광고 요청), <strong>impression ≈ pv_ad</strong> (광고 노출)</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>주차</th>
+          <th class="num">request<br><span style="font-weight:400;color:var(--text-mut);">(≈ c_ad_entry)</span></th>
+          <th class="num">impression<br><span style="font-weight:400;color:var(--text-mut);">(≈ pv_ad)</span></th>
+          <th class="num">매출 (원)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="partial"><td>W13 (부분)</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+        <tr class="partial"><td>W14</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+        <tr class="partial"><td>W15</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+        <tr><td>W16</td><td class="num">3,136</td><td class="num">3,323</td><td class="num">54,742</td></tr>
+        <tr><td>W17</td><td class="num">12,669</td><td class="num">12,627</td><td class="num">159,268</td></tr>
+        <tr><td>W18</td><td class="num">19,660</td><td class="num">19,543</td><td class="num">249,728</td></tr>
+        <tr class="total"><td>합계 (3/26~5/3)</td><td class="num">35,465</td><td class="num">35,493</td><td class="num">463,739</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <strong>매칭 검증 (W17, 4/20~26)</strong>
+      <ul style="padding-left:18px;margin-top:6px;">
+        <li>request 12,669 vs c_ad_entry 15,032 — 차이 16% (애드팝콘 미연동 광고 일부 추정)</li>
+        <li>impression 12,627 vs pv_ad 12,149 — 거의 일치 (4% 차이)</li>
+        <li>reward 11,688 (Airbridge) → 매출 159,268원 발생</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Appendix. 유입 채널 비중 -->
+  <div class="section" id="appendix-channel" style="background:#FAFAFA;">
+    <div class="section-header">
+      <div class="section-num" style="background:var(--text-mut);">A</div>
+      <div>
+        <div class="section-title">[Appendix] 유입 채널 비중 (Airbridge 원본)</div>
+        <div class="section-sub">3/26~5/3 누적 · Airbridge attribution 전체 채널 (참고용)</div>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>순위</th>
+          <th>채널</th>
+          <th class="num">클릭</th>
+          <th class="num">가입</th>
+          <th class="num">비중</th>
+          <th>비중 시각화</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>instagram_fanpage</td><td class="num">16,855</td><td class="num">4,197</td><td class="num"><strong>30.33%</strong></td><td><span class="channel-bar" style="width: 303px;"></span></td></tr>
+        <tr><td>2</td><td>unattributed</td><td class="num">0</td><td class="num">3,565</td><td class="num"><strong>25.76%</strong></td><td><span class="channel-bar" style="width: 258px;"></span></td></tr>
+        <tr><td>3</td><td>paid_myseatcheck</td><td class="num">25,654</td><td class="num">1,897</td><td class="num"><strong>13.71%</strong></td><td><span class="channel-bar" style="width: 137px;"></span></td></tr>
+        <tr><td>4</td><td>round_push</td><td class="num">14,512</td><td class="num">1,013</td><td class="num">7.32%</td><td><span class="channel-bar" style="width: 73px;"></span></td></tr>
+        <tr><td>5</td><td>round_step</td><td class="num">116,271</td><td class="num">949</td><td class="num">6.86%</td><td><span class="channel-bar" style="width: 69px;"></span></td></tr>
+        <tr><td>6</td><td>paid_tenping</td><td class="num">3,567</td><td class="num">670</td><td class="num">4.84%</td><td><span class="channel-bar" style="width: 48px;"></span></td></tr>
+        <tr><td>7</td><td>round_popup_bottom</td><td class="num">8,169</td><td class="num">387</td><td class="num">2.80%</td><td><span class="channel-bar" style="width: 28px;"></span></td></tr>
+        <tr><td>8</td><td>instagram_Influencer</td><td class="num">2,182</td><td class="num">342</td><td class="num">2.47%</td><td><span class="channel-bar" style="width: 25px;"></span></td></tr>
+        <tr><td>9</td><td>instagram_ownedmedia</td><td class="num">1,748</td><td class="num">296</td><td class="num">2.14%</td><td><span class="channel-bar" style="width: 21px;"></span></td></tr>
+        <tr><td>10</td><td>navercafe_fanpage</td><td class="num">359</td><td class="num">117</td><td class="num">0.85%</td><td><span class="channel-bar" style="width: 9px;"></span></td></tr>
+        <tr><td>11</td><td>kakao_opentalk_Influencer</td><td class="num">205</td><td class="num">61</td><td class="num">0.44%</td><td><span class="channel-bar" style="width: 4px;"></span></td></tr>
+        <tr><td>12</td><td><strong>paid_happypoint</strong> 🆕</td><td class="num">63,784</td><td class="num">61</td><td class="num">0.44%</td><td><span class="channel-bar" style="width: 4px;"></span></td></tr>
+        <tr><td>13</td><td>kakao_notitalk_ticket_winners_apply</td><td class="num">8,891</td><td class="num">53</td><td class="num">0.38%</td><td><span class="channel-bar" style="width: 4px;"></span></td></tr>
+        <tr><td>14</td><td>round_commerce_big_banner</td><td class="num">878</td><td class="num">50</td><td class="num">0.36%</td><td><span class="channel-bar" style="width: 4px;"></span></td></tr>
+        <tr><td>15</td><td>round_main_big_banner</td><td class="num">1,211</td><td class="num">38</td><td class="num">0.27%</td><td><span class="channel-bar" style="width: 3px;"></span></td></tr>
+        <tr><td>16</td><td>offline_pocha</td><td class="num">181</td><td class="num">30</td><td class="num">0.22%</td><td><span class="channel-bar" style="width: 2px;"></span></td></tr>
+        <tr><td>17</td><td>instagram_Somoim</td><td class="num">1,026</td><td class="num">27</td><td class="num">0.20%</td><td><span class="channel-bar" style="width: 2px;"></span></td></tr>
+        <tr><td>18</td><td>round_kakaotalk_friend</td><td class="num">79</td><td class="num">18</td><td class="num">0.13%</td><td><span class="channel-bar" style="width: 1px;"></span></td></tr>
+        <tr><td>19</td><td>naverblog_bloger</td><td class="num">158</td><td class="num">17</td><td class="num">0.12%</td><td><span class="channel-bar" style="width: 1px;"></span></td></tr>
+        <tr><td>20</td><td>polyball_web_pick_top</td><td class="num">2,475</td><td class="num">13</td><td class="num">0.09%</td><td></td></tr>
+        <tr><td>21</td><td>instagram_influencer</td><td class="num">75</td><td class="num">11</td><td class="num">0.08%</td><td></td></tr>
+        <tr><td>22</td><td>wallet_GAME</td><td class="num">67</td><td class="num">8</td><td class="num">0.06%</td><td></td></tr>
+        <tr><td>23</td><td>kakao_channel_channeltalk</td><td class="num">1,311</td><td class="num">5</td><td class="num">0.04%</td><td></td></tr>
+        <tr><td>24</td><td>polyball_web_apply_top</td><td class="num">373</td><td class="num">3</td><td class="num">0.02%</td><td></td></tr>
+        <tr><td>25</td><td>wallet_TICKET</td><td class="num">57</td><td class="num">3</td><td class="num">0.02%</td><td></td></tr>
+        <tr><td>26</td><td>기타 (10개 채널)</td><td class="num">—</td><td class="num">8</td><td class="num">0.06%</td><td></td></tr>
+        <tr class="total"><td colspan="2">합계 (Airbridge 기준, 3/26~5/3)</td><td class="num">238,889</td><td class="num">13,839</td><td class="num">100%</td><td></td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <strong>참고</strong>
+      <ul style="padding-left:18px;margin-top:6px;">
+        <li>Airbridge attribution 기준 가입 합계 (13,839명)는 서버 가입 (18,329명)보다 적음 — 앱 signup 채널 attribution 미작동 (4/24부터 일부 추적 시작, 채널 매칭 안됨)</li>
+        <li>unattributed 25.76%의 다수가 앱 가입자 (Airbridge가 앱에선 channel 못 잡음)</li>
+        <li><strong>서버 가입자의 채널별 체크는 현재 불가</strong> (개발 진행중) — 본 채널 비중은 Airbridge 기준</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer">
+    폴리볼 4월 월간 리포트 · 2026.04.29 · 작성: 정회성 (그로스 마케터)
+  </div>
+
+</div>
+</body>
+</html>

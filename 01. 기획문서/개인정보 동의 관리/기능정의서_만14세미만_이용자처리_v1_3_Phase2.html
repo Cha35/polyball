@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PolyBall 기능정의서 — 만 14세 미만 이용자 처리 v1.3 Phase 2</title>
+  <style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --primary: #2563EB;
+    --primary-light: #EFF6FF;
+    --primary-mid: #BFDBFE;
+    --dark: #0F172A;
+    --mid: #475569;
+    --muted: #94A3B8;
+    --border: #E2E8F0;
+    --bg: #F1F5F9;
+    --white: #FFFFFF;
+    --orange: #EA580C;
+    --undef-bg: #FFF7ED;
+    --undef-text: #C2410C;
+    --later-bg: #F5F3FF;
+    --later-text: #7C3AED;
+    --later-border: #DDD6FE;
+    --row-head: #EFF6FF;
+    --row-alt: #F8FAFC;
+    --sidebar-w: 240px;
+    --topbar-h: 48px;
+    --new-bg: #ECFDF5;
+    --new-text: #065F46;
+    --new-border: #6EE7B7;
+    --danger-bg: #FEF2F2;
+    --danger-text: #991B1B;
+    --danger-border: #FECACA;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--dark);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .layout { display: flex; min-height: 100vh; padding-top: var(--topbar-h); }
+
+  /* ── 상단 바 ── */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: var(--topbar-h);
+    background: var(--dark);
+    display: flex; align-items: center;
+    padding: 0 24px; gap: 16px; z-index: 200;
+  }
+  .topbar-brand { font-size: 13px; font-weight: 800; color: var(--white); letter-spacing: -0.3px; }
+  .topbar-divider { width: 1px; height: 16px; background: #334155; }
+  .topbar-meta { font-size: 11px; color: #64748B; font-family: 'DM Mono', monospace; }
+  .topbar-version {
+    margin-left: auto;
+    font-size: 10px; font-weight: 700;
+    color: var(--primary); background: #1E293B;
+    border: 1px solid #334155; border-radius: 4px;
+    padding: 2px 10px; font-family: 'DM Mono', monospace;
+  }
+
+  /* ── 사이드바 ── */
+  .sidebar {
+    position: fixed; top: var(--topbar-h); left: 0;
+    width: var(--sidebar-w);
+    height: calc(100vh - var(--topbar-h));
+    background: var(--white);
+    border-right: 1px solid var(--border);
+    overflow-y: auto; z-index: 100;
+    padding: 0 0 40px;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* ── 탭 ── */
+  .tab-bar {
+    display: flex; border-bottom: 1px solid var(--border);
+    background: var(--bg); position: sticky; top: 0; z-index: 10;
+  }
+  .tab-btn {
+    flex: 1; padding: 10px 4px;
+    font-size: 10px; font-weight: 700;
+    color: var(--muted); background: none;
+    border: none; border-bottom: 2px solid transparent;
+    cursor: pointer; text-align: center;
+    font-family: 'Noto Sans KR', sans-serif;
+    transition: all 0.15s;
+    line-height: 1.4;
+  }
+  .tab-btn:hover { color: var(--mid); background: var(--white); }
+  .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); background: var(--white); }
+
+  .sidebar-group { padding: 0 12px; margin-bottom: 4px; }
+  .sidebar-group-label {
+    font-size: 9px; font-weight: 800; letter-spacing: 1.2px;
+    text-transform: uppercase; color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    padding: 8px 8px 4px;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 8px;
+    width: 100%; padding: 7px 8px;
+    border: none; background: none; cursor: pointer;
+    border-radius: 6px; text-align: left;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 11px; color: var(--mid);
+    transition: background 0.15s;
+  }
+  .sidebar-item:hover { background: var(--bg); }
+  .sidebar-item.active { background: var(--primary-light); color: var(--primary); font-weight: 700; }
+  .sidebar-item-id {
+    font-size: 9px; font-weight: 700;
+    font-family: 'DM Mono', monospace;
+    color: var(--muted); min-width: 32px;
+  }
+  .sidebar-item.active .sidebar-item-id { color: var(--primary); }
+  .sidebar-divider { height: 1px; background: var(--border); margin: 8px 12px; }
+  .sidebar-nav { display: none; padding-top: 8px; }
+  .sidebar-nav.active { display: block; }
+
+  /* ── 메인 ── */
+  .main {
+    margin-left: var(--sidebar-w);
+    flex: 1; padding: 32px 40px 80px;
+    max-width: 920px;
+  }
+  .content-wrap { display: flex; flex-direction: column; gap: 32px; }
+  .tab-content { display: none; }
+  .tab-content.active { display: flex; flex-direction: column; gap: 32px; }
+
+  /* ── 표지 ── */
+  .cover {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px; padding: 36px 40px;
+  }
+  .cover-tag {
+    font-size: 10px; font-weight: 800; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--primary);
+    font-family: 'DM Mono', monospace; margin-bottom: 10px;
+  }
+  .cover h1 { font-size: 24px; font-weight: 900; color: var(--dark); margin-bottom: 6px; }
+  .cover-sub { font-size: 13px; color: var(--mid); margin-bottom: 20px; line-height: 1.7; }
+  .cover-meta {
+    display: flex; gap: 24px; flex-wrap: wrap;
+    border-top: 1px solid var(--border); padding-top: 16px;
+  }
+  .cover-meta-item { font-size: 11px; color: var(--muted); }
+  .cover-meta-item span { color: var(--dark); font-weight: 600; }
+
+  /* ── 섹션 ── */
+  .section {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden;
+  }
+  .section.hidden { display: none; }
+  .section-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 24px;
+    background: var(--primary);
+    border-bottom: 1px solid var(--primary-mid);
+  }
+  .section-num {
+    font-size: 10px; font-weight: 800;
+    font-family: 'DM Mono', monospace;
+    color: rgba(255,255,255,0.7);
+    background: rgba(255,255,255,0.15);
+    border-radius: 4px; padding: 2px 8px;
+  }
+  .section-title { font-size: 15px; font-weight: 800; color: var(--white); }
+  .section-badge {
+    margin-left: auto;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 10px; border-radius: 20px;
+    font-family: 'DM Mono', monospace;
+  }
+  .badge-new { background: #FEF3C7; color: #92400E; }
+  .badge-wip { background: #F5F3FF; color: #7C3AED; }
+  .section-body { padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+
+  .sub-h3 {
+    font-size: 12px; font-weight: 800; color: var(--dark);
+    text-transform: uppercase; letter-spacing: 0.8px;
+    font-family: 'DM Mono', monospace;
+    border-left: 3px solid var(--primary);
+    padding-left: 8px; margin-bottom: 8px;
+  }
+
+  /* ── 테이블 ── */
+  .spec-table {
+    width: 100%; border-collapse: collapse; font-size: 12px;
+    border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+  }
+  .spec-table thead tr { background: var(--primary-light); }
+  .spec-table th {
+    padding: 9px 14px; text-align: left;
+    font-weight: 700; color: var(--primary); font-size: 11px;
+    border-bottom: 1px solid var(--primary-mid);
+  }
+  .spec-table td {
+    padding: 9px 14px; border-bottom: 1px solid var(--border);
+    vertical-align: top; color: var(--mid);
+  }
+  .spec-table tbody tr:last-child td { border-bottom: none; }
+  .spec-table tbody tr:nth-child(even) td { background: var(--row-alt); }
+  .spec-2col td:first-child {
+    font-weight: 600; color: var(--dark); white-space: nowrap;
+    background: var(--row-head); width: 180px;
+  }
+
+  .confirmed { color: #166534; font-weight: 600; }
+  .undef { color: var(--undef-text); background: var(--undef-bg); font-weight: 600; }
+  .later { color: var(--later-text); background: var(--later-bg); font-weight: 600; }
+  .new-item { color: var(--new-text); background: var(--new-bg); font-weight: 600; }
+
+  /* ── 박스 ── */
+  .rule-box {
+    background: var(--primary-light); border: 1px solid var(--primary-mid);
+    border-radius: 8px; padding: 12px 14px;
+    font-size: 12px; color: #1e40af; line-height: 1.7;
+  }
+  .info-box {
+    background: var(--undef-bg); border: 1px solid #FED7AA;
+    border-radius: 8px; padding: 12px 14px;
+    font-size: 12px; color: var(--undef-text); line-height: 1.7;
+  }
+  .new-box {
+    background: var(--new-bg); border: 1px solid var(--new-border);
+    border-radius: 8px; padding: 12px 14px;
+    font-size: 12px; color: var(--new-text); line-height: 1.7;
+  }
+  .danger-box {
+    background: var(--danger-bg); border: 1px solid var(--danger-border);
+    border-radius: 8px; padding: 12px 14px;
+    font-size: 12px; color: var(--danger-text); line-height: 1.7;
+  }
+
+  /* ── 플로우 다이어그램 ── */
+  .flow-box {
+    background: #F8FAFC; border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px; font-size: 12px;
+    line-height: 2; color: var(--mid);
+  }
+  .flow-step {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 6px 0;
+  }
+  .flow-num {
+    min-width: 24px; height: 24px;
+    background: var(--primary); color: var(--white);
+    border-radius: 50%; font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .flow-arrow {
+    display: flex; align-items: center; justify-content: center;
+    padding: 2px 0; color: var(--muted); font-size: 14px;
+    padding-left: 8px;
+  }
+  .flow-branch {
+    margin-left: 34px;
+    padding: 6px 12px;
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 6px; font-size: 11px; color: var(--mid);
+    line-height: 1.7;
+  }
+  .flow-branch strong { color: var(--dark); }
+
+  /* ── 타임라인 ── */
+  .timeline { display: flex; flex-direction: column; gap: 0; }
+  .tl-item {
+    display: flex; gap: 16px; padding: 12px 0;
+    border-left: 2px solid var(--primary-mid);
+    margin-left: 11px; padding-left: 20px;
+    position: relative;
+  }
+  .tl-item::before {
+    content: '';
+    position: absolute; left: -7px; top: 14px;
+    width: 12px; height: 12px;
+    background: var(--primary); border: 2px solid var(--white);
+    border-radius: 50%;
+  }
+  .tl-item:last-child { border-left-color: transparent; }
+  .tl-date {
+    min-width: 64px; font-size: 12px; font-weight: 700;
+    color: var(--primary); font-family: 'DM Mono', monospace;
+  }
+  .tl-desc { font-size: 12px; color: var(--mid); line-height: 1.7; }
+  .tl-desc strong { color: var(--dark); }
+
+  /* ── 바텀시트 목업 ── */
+  .bs-mock {
+    background: #F8FAFC; border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden; max-width: 360px;
+  }
+  .bs-mock-header {
+    font-size: 9px; font-weight: 800; letter-spacing: 1px; color: var(--muted);
+    text-transform: uppercase; font-family: 'DM Mono', monospace;
+    padding: 7px 12px; background: #F1F5F9; border-bottom: 1px solid var(--border);
+  }
+  .bs-mock-body {
+    padding: 16px; background: var(--white);
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .bs-handle { width: 36px; height: 4px; background: #E2E8F0; border-radius: 2px; align-self: center; }
+  .bs-title { font-size: 14px; font-weight: 700; color: var(--dark); text-align: center; }
+  .bs-sub { font-size: 12px; color: var(--mid); text-align: center; line-height: 1.6; }
+  .bs-divider { height: 1px; background: var(--border); margin: 4px 0; }
+  .bs-check-item {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 6px 0; font-size: 12px; color: var(--dark);
+  }
+  .bs-check {
+    width: 18px; height: 18px; border: 2px solid var(--border);
+    border-radius: 4px; flex-shrink: 0; margin-top: 1px;
+  }
+  .bs-check.on { background: var(--primary); border-color: var(--primary); }
+  .bs-check-label { line-height: 1.5; }
+  .bs-check-sub { font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.5; }
+  .bs-btn-primary {
+    width: 100%; padding: 13px; border-radius: 12px; border: none;
+    background: var(--primary); color: var(--white);
+    font-size: 14px; font-weight: 700; text-align: center;
+  }
+  .bs-btn-disabled {
+    width: 100%; padding: 13px; border-radius: 12px; border: none;
+    background: #E2E8F0; color: var(--muted);
+    font-size: 14px; font-weight: 700; text-align: center;
+  }
+  .bs-link { font-size: 11px; color: var(--primary); text-decoration: underline; cursor: default; }
+
+  /* ── 팝업 목업 ── */
+  .popup-mock {
+    background: #F8FAFC; border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden; max-width: 320px;
+  }
+  .popup-mock-body {
+    padding: 24px 20px 16px; background: var(--white);
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    text-align: center;
+  }
+  .popup-icon { font-size: 32px; }
+  .popup-title { font-size: 16px; font-weight: 700; color: var(--dark); }
+  .popup-desc { font-size: 12px; color: var(--mid); line-height: 1.7; }
+  .popup-btns { display: flex; gap: 8px; width: 100%; margin-top: 8px; }
+  .popup-btn {
+    flex: 1; padding: 11px; border-radius: 10px; border: none;
+    font-size: 13px; font-weight: 700; text-align: center;
+  }
+  .popup-btn-primary { background: var(--primary); color: var(--white); }
+  .popup-btn-secondary { background: var(--bg); color: var(--mid); }
+
+  /* Phase 2 overrides */
+  .sidebar { display: none; }
+  .layout { margin-left: 0; padding: 32px 24px; max-width: 900px; margin: 0 auto; }
+  .tab-content { display: flex !important; flex-direction: column; gap: 32px; }
+  .topbar { position: static; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">PolyBall</div>
+  <div class="topbar-divider"></div>
+  <div class="topbar-meta">기능정의서 · 만 14세 미만 이용자 처리 · Phase 2</div>
+  <div class="topbar-version">v1.3</div>
+</div>
+
+<div class="layout">
+<main class="main">
+
+  <div style="background:#FFFBEB;border:2px solid #F59E0B;border-radius:12px;padding:16px 20px;margin-bottom:24px;">
+    <div style="font-size:13px;font-weight:700;color:#92400E;margin-bottom:6px;">⏸ Phase 2 — 추가 검토 후 진행</div>
+    <div style="font-size:12px;color:#92400E;line-height:1.6;">본 문서는 만 14세 미만 이용자 처리에 관한 기능정의서입니다. Phase 1(동의 체계 개편 + CI→DI 전환)과 독립적으로 진행되며, 법무 검토 확정 후 착수합니다.<br>Phase 1 문서: 기능정의서_개인정보_동의체계_개편_v1_3_Phase1.html</div>
+  </div>
+
+
+
+  <!-- 표지 -->
+  <div class="cover">
+    <div class="cover-tag">SPEC · MN · v1.3 · Phase 2</div>
+    <h1>만 14세 미만 이용자 처리</h1>
+    <div class="cover-sub">만 14세 미만 이용자의 본인인증 시 법정대리인 동의를 통해 서비스 이용을 허용하고,<br>법정대리인 미동의 시 본인인증 미완료로 처리하는 프로세스를 정의합니다.</div>
+    <div class="cover-meta">
+      <div class="cover-meta-item">작성일 <span>2026-05-12</span></div>
+      <div class="cover-meta-item">버전 <span>v1.3 Phase 2</span></div>
+      <div class="cover-meta-item">이전 버전 <span>v1.0 (강제 탈퇴 방식)</span></div>
+      <div class="cover-meta-item">법적 근거 <span>개인정보보호법 §22의2</span></div>
+    </div>
+  </div>
+
+  <!-- MN-00 개요 -->
+  <div class="section" id="t3-overview">
+    <div class="section-header">
+      <span class="section-num">MN-00</span>
+      <span class="section-title">개요</span>
+    </div>
+    <div class="section-body">
+      <div class="rule-box">
+        <strong>v1.2 변경: 강제 탈퇴 → 법정대리인 동의 방식으로 전환</strong><br>
+        v1.0/v1.1에서는 14세 미만 판별 시 즉시 강제 탈퇴 + 파기였으나, v1.2에서는 법정대리인 본인인증(2차)을 통해 동의를 받고 서비스 이용을 허용합니다. 법정대리인 미동의 시 본인인증 미완료 처리(탈퇴 아님).
+      </div>
+      <table class="spec-table spec-2col">
+        <tr><td>정책</td><td>만 14세 미만 이용자는 법정대리인 동의 완료 시 서비스 이용 가능</td></tr>
+        <tr><td>처리 방식</td><td>14세 미만 판별 → 법정대리인 본인인증(2차) → 동의 완료 시 인증 완료 / 미동의 시 인증 미완료</td></tr>
+        <tr><td>미동의 시</td><td class="new-item"><strong>서비스 이용 차단</strong> — 법정대리인 인증 완료 전까지 앱 메인 진입 불가 (신규 가입 시 가입 불가)</td></tr>
+        <tr><td>회원가입 시 14세 체크박스</td><td class="new-item">삭제 (v1.1 대비 변경)</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- MN-01 1차: 본인인증 시 판별 -->
+  <div class="section" id="t3-first">
+    <div class="section-header">
+      <span class="section-num">MN-01</span>
+      <span class="section-title">본인인증 시 14세 미만 판별</span>
+    </div>
+    <div class="section-body">
+      <table class="spec-table spec-2col">
+        <tr><td>판별 시점</td><td>유저 본인인증(DI-04) 진행 시, KCB/NICE 모듈 인증 완료 후 반환된 생년월일 기준</td></tr>
+        <tr><td>판별 기준</td><td>현재 날짜 기준 만 14세 미만 여부 계산</td></tr>
+        <tr><td>14세 이상</td><td>정상 인증 완료 → DI 저장, is_verified = true</td></tr>
+        <tr><td>14세 미만</td><td>MN-02 법정대리인 동의 프로세스로 분기</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- MN-02 2차: 법정대리인 동의 -->
+  <div class="section" id="t3-second">
+    <div class="section-header">
+      <span class="section-num">MN-02</span>
+      <span class="section-title">법정대리인 동의 프로세스</span>
+      <span class="section-badge badge-new">NEW v1.2</span>
+    </div>
+    <div class="section-body">
+      <div class="sub-h3">전체 플로우</div>
+      <div class="flow-box">
+        <div class="flow-step"><div class="flow-num">1</div><div><strong>유저 본인인증 진행</strong> → KCB/NICE 모듈 완료</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step"><div class="flow-num">2</div><div><strong>만 14세 미만 판별</strong> → 법정대리인 동의 필요 안내 팝업 노출</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step"><div class="flow-num">3</div><div><strong>법정대리인 본인인증 (2차)</strong> → KCB/NICE 모듈 재실행 (법정대리인 명의)</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-branch">
+          <strong>✅ 법정대리인 인증 완료:</strong> 법정대리인 동의 처리 → 유저 is_verified = true → 당첨 자격 획득<br>
+          <strong>❌ 법정대리인 미인증 / 취소:</strong> <strong>서비스 이용 차단</strong> (is_verified = false) → 재접속 시 MN-02 팝업 재노출
+        </div>
+      </div>
+
+      <div class="sub-h3">법정대리인 동의 안내 팝업</div>
+      <div class="popup-mock">
+        <div class="bs-mock-header">법정대리인 동의 안내</div>
+        <div class="popup-mock-body">
+          <div class="popup-icon">👨‍👩‍👧</div>
+          <div class="popup-title">법정대리인 동의가 필요해요</div>
+          <div class="popup-desc">
+            만 14세 미만 이용자는 관련 법령에 따라<br>
+            <strong>법정대리인(보호자)의 본인인증</strong>이 필요합니다.<br>
+            보호자의 휴대전화로 인증을 진행해 주세요.
+          </div>
+          <div class="popup-btns">
+            <div class="popup-btn popup-btn-primary" style="width:100%;">보호자 인증하기</div>
+            <div style="font-size:10px;color:#DC2626;text-align:center;margin-top:8px;">법정대리인 인증 완료 전까지 서비스 이용이 제한됩니다.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-h3">분기 상세</div>
+      <table class="spec-table">
+        <thead>
+          <tr><th style="width:140px;">분기</th><th>처리</th><th>유저 상태</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>[보호자 인증하기]</strong></td>
+            <td>KCB/NICE 본인인증 모듈 재실행 (법정대리인 명의). 인증 완료 시 법정대리인 동의 처리</td>
+            <td>is_verified = true, is_under_14 = true, guardian_verified = true</td>
+          </tr>
+          <tr>
+            <td><strong>인증 미완료 / 실패</strong></td>
+            <td>인증 실패 안내 → 재시도 가능. 인증 미완료 시 <strong>서비스 이용 차단</strong> 유지. 재접속 시 팝업 재노출.</td>
+            <td>is_verified = false<br>서비스 이용 불가</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="info-box">
+        ⚠ 법정대리인 동의는 개보법 §22④에 따른 법적 필수 요건입니다. 만 14세 미만임을 알게 된 시점부터 법정대리인 동의 없이 개인정보를 처리하면 위법이므로, 인증 완료 전까지 서비스 이용을 차단하며 "다음에 하기" 옵션은 제공하지 않습니다. 법정대리인의 본인인증(2차)은 유저의 본인인증과 동일한 KCB/NICE 모듈을 사용하되, 법정대리인 명의로 진행합니다.
+      </div>
+    </div>
+  </div>
+
+  <!-- MN-03 이용약관 보완 -->
+  <div class="section" id="t3-tos">
+    <div class="section-header">
+      <span class="section-num">MN-03</span>
+      <span class="section-title">이용약관 보완 사항</span>
+    </div>
+    <div class="section-body">
+      <div class="new-box">
+        <strong>권장 추가 조항 (예시)</strong><br><br>
+        "만 14세 미만 이용자가 서비스를 이용하려는 경우, 「개인정보보호법」 제22조의2에 따라 법정대리인의 동의가 필요합니다. 법정대리인의 동의가 완료되지 않은 경우, 본인인증이 필요한 일부 서비스(티켓 당첨 등)의 이용이 제한될 수 있습니다."
+      </div>
+      <table class="spec-table spec-2col" style="margin-top:16px;">
+        <tr><td>법적 근거</td><td>개인정보보호법 §22의2 — 만 14세 미만 아동의 개인정보 수집 시 법정대리인 동의 필요</td></tr>
+        <tr><td>v1.1 대비 변경</td><td>강제 탈퇴 조항 삭제 → 법정대리인 동의 미완료 시 일부 기능 제한으로 변경</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- MN-04 예외 및 리스크 -->
+  <div class="section" id="t3-risk">
+    <div class="section-header">
+      <span class="section-num">MN-04</span>
+      <span class="section-title">예외 및 리스크</span>
+    </div>
+    <div class="section-body">
+      <table class="spec-table">
+        <thead>
+          <tr><th>항목</th><th>내용</th><th style="width:80px;">우선순위</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>법정대리인 관계 확인</strong></td>
+            <td>현재 구조에서는 2차 본인인증이 실제 '법정대리인'인지 확인하는 수단이 없음 (제3자가 대리 인증 가능). 가족관계증명서 등 추가 확인 수단 도입 여부 법무 검토 필요</td>
+            <td>🟡 Mid</td>
+          </tr>
+          <tr>
+            <td><strong>14세 미만 유저 전환</strong></td>
+            <td>시간이 지나 만 14세가 되는 유저의 처리. is_under_14 플래그를 생년월일 기반 배치로 자동 전환하고, 14세 도달 시 본인 명의 재동의를 받는 플로우 필요</td>
+            <td>🟢 Low</td>
+          </tr>
+          <tr>
+            <td><strong>법정대리인 DI 처리</strong></td>
+            <td>법정대리인의 2차 본인인증 시 수집되는 DI의 저장·보유·파기 정책 정의 필요. 유저의 DI와 별도 관리</td>
+            <td>🟡 Mid</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+
+
+  <!-- AG-03 연령 확인 UI 추가분 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">AG-03+</span>
+      <span class="section-title">AG-03 신규 가입 바텀시트 — 연령 확인 UI 추가</span>
+      <span class="section-badge badge-new">Phase 2 추가</span>
+    </div>
+    <div class="section-body">
+      <div class="rule-box">
+        <strong>Phase 1의 AG-03 바텀시트에 아래 연령 확인 영역을 추가합니다.</strong><br>
+        Phase 1에서는 기존 "만 14세 이상 확인" 체크박스를 유지하고, Phase 2 확정 시 아래 UI로 교체합니다.
+      </div>
+      <div class="sub-h3">추가할 UI 영역</div>
+      <div style="background:#f8f9fb;border:1px solid #E2E8F0;border-radius:10px;padding:14px;max-width:320px;margin:10px 0;">
+        <div style="font-size:12px;font-weight:700;color:#1F30E9;margin-bottom:8px;">연령 확인</div>
+        <div style="display:flex;gap:8px;">
+          <div style="flex:1;padding:10px;border-radius:8px;border:2px solid #1F30E9;background:white;text-align:center;font-size:11px;font-weight:600;color:#1F30E9;">만 14세 이상입니다</div>
+          <div style="flex:1;padding:10px;border-radius:8px;border:2px solid #E2E8F0;background:white;text-align:center;font-size:11px;font-weight:600;color:#64748B;">만 14세 미만입니다</div>
+        </div>
+        <div style="font-size:10px;color:#64748B;margin-top:6px;">만 14세 미만 선택 시 본인인증 및 법정대리인 인증이 필요합니다.</div>
+      </div>
+      <div class="sub-h3">분기 동작</div>
+      <table class="spec-table spec-2col">
+        <tr><td>"만 14세 이상" 선택</td><td>기존 플로우 그대로. 본인인증 없이 가입 진행.</td></tr>
+        <tr><td>"만 14세 미만" 선택</td><td>즉시 본인인증 → MN-02 법정대리인 인증 → 완료 시 가입. 미완료 시 가입 불가.</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- PM-01 법정대리인 조건부 노출 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">PM+</span>
+      <span class="section-title">PM-01 동의 관리 — 법정대리인 항목 조건부 노출</span>
+      <span class="section-badge badge-new">Phase 2 추가</span>
+    </div>
+    <div class="section-body">
+      <table class="spec-table spec-2col">
+        <tr><td>대상 항목</td><td>법정대리인 본인인증 개인정보 수집 및 이용</td></tr>
+        <tr><td>노출 조건</td><td>is_under_14 = true AND guardian_verified = true인 유저에게만 노출</td></tr>
+        <tr><td>미해당 유저</td><td>PM-01 목록에서 해당 항목 미노출 (만 14세 이상 유저에게는 보이지 않음)</td></tr>
+        <tr><td>철회 처리</td><td>법정대리인 동의 철회 시 서비스 이용 차단 → MN-02 팝업 재노출</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 첨부 문서 -->
+  <div style="margin-top:32px; padding:24px; background:white; border:1px solid #E2E8F0; border-radius:12px;">
+    <div style="font-size:16px; font-weight:800; color:#00143F; margin-bottom:16px; padding-bottom:10px; border-bottom:2px solid #D97706;">📎 첨부 문서 — Phase 2 동의서</div>
+    <div style="font-size:12px; color:#64748B; margin-bottom:16px;">아래 문서는 법무검토 완료(2026-05-14) 기준입니다.</div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <thead><tr>
+        <th style="background:#F1F5F9;padding:8px 12px;text-align:left;border-bottom:1px solid #E2E8F0;font-size:11px;font-weight:700;color:#475569;">파일명</th>
+        <th style="background:#F1F5F9;padding:8px 12px;text-align:left;border-bottom:1px solid #E2E8F0;font-size:11px;font-weight:700;color:#475569;">비고</th>
+      </tr></thead>
+      <tbody>
+        <tr><td style="padding:8px 12px;border-bottom:1px solid #E2E8F0;">폴리볼_개인정보_수집_및_동의서_선택_법정대리인_본인인증.docx</td><td style="padding:8px 12px;border-bottom:1px solid #E2E8F0;">법정대리인 동의 시 징구</td></tr>
+        <tr><td style="padding:8px 12px;">폴리볼_개인정보_수집_및_동의서_선택_본인인증.docx</td><td style="padding:8px 12px;">참고용 (Phase 1에도 포함)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</main>
+</div>
+
+</body>
+</html>

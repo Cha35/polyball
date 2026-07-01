@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PolyBall 기능정의서 — 픽 (예측) v1.0</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --primary: #2563EB;
+    --primary-light: #EFF6FF;
+    --primary-mid: #BFDBFE;
+    --dark: #0F172A;
+    --mid: #475569;
+    --muted: #94A3B8;
+    --border: #E2E8F0;
+    --bg: #F1F5F9;
+    --white: #FFFFFF;
+    --orange: #EA580C;
+    --undef-bg: #FFF7ED;
+    --undef-text: #C2410C;
+    --later-bg: #F5F3FF;
+    --later-text: #7C3AED;
+    --later-border: #DDD6FE;
+    --row-head: #EFF6FF;
+    --row-alt: #F8FAFC;
+    --sidebar-w: 220px;
+    --topbar-h: 48px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--dark);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  /* ══════════════════════════════════
+     레이아웃
+  ══════════════════════════════════ */
+  .layout {
+    display: flex;
+    min-height: 100vh;
+    padding-top: var(--topbar-h);
+  }
+
+  /* ── 상단 바 ── */
+  .topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: var(--topbar-h);
+    background: var(--dark);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 16px;
+    z-index: 200;
+  }
+  .topbar-brand {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--white);
+    letter-spacing: -0.3px;
+  }
+  .topbar-divider { width: 1px; height: 16px; background: #334155; }
+  .topbar-meta {
+    font-size: 11px;
+    color: #64748B;
+    font-family: 'DM Mono', monospace;
+  }
+  .topbar-version {
+    margin-left: auto;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--primary);
+    background: #1E293B;
+    border: 1px solid #334155;
+    border-radius: 4px;
+    padding: 2px 10px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── 사이드바 ── */
+  .sidebar {
+    position: fixed;
+    top: var(--topbar-h);
+    left: 0;
+    width: var(--sidebar-w);
+    height: calc(100vh - var(--topbar-h));
+    background: var(--white);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    z-index: 100;
+    padding: 20px 0 40px;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .sidebar-group { margin-bottom: 4px; }
+  .sidebar-group-label {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    padding: 10px 16px 4px;
+    text-transform: uppercase;
+    font-family: 'DM Mono', monospace;
+  }
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--mid);
+    text-decoration: none;
+    transition: all .12s;
+    border-left: 2px solid transparent;
+    background: none;
+    border-top: none;
+    border-right: none;
+    border-bottom: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .sidebar-item:hover {
+    background: var(--primary-light);
+    color: var(--primary);
+    border-left-color: var(--primary-mid);
+  }
+  .sidebar-item.active {
+    background: var(--primary-light);
+    color: var(--primary);
+    border-left-color: var(--primary);
+  }
+
+  /* 필터링 — 숨김 */
+  .filter-block { transition: none; }
+  .filter-block.hidden { display: none; }
+  .sidebar-item-id {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--muted);
+    background: var(--bg);
+    border-radius: 3px;
+    padding: 1px 5px;
+    flex-shrink: 0;
+  }
+  .sidebar-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 8px 16px;
+  }
+
+  /* ── 메인 컨텐츠 ── */
+  .main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    padding: 40px 48px 120px;
+    max-width: calc(100% - var(--sidebar-w));
+  }
+  .content-wrap { max-width: 800px; }
+
+  /* ══════════════════════════════════
+     표지
+  ══════════════════════════════════ */
+  .cover {
+    padding: 8px 0 40px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+  .cover-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: var(--primary);
+    background: var(--primary-light);
+    border: 1px solid var(--primary-mid);
+    border-radius: 4px;
+    padding: 3px 10px;
+    margin-bottom: 12px;
+    font-family: 'DM Mono', monospace;
+  }
+  .cover h1 {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--dark);
+    letter-spacing: -0.8px;
+    margin-bottom: 6px;
+  }
+  .cover-sub { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
+  .cover-meta { display: flex; gap: 20px; flex-wrap: wrap; }
+  .cover-meta-item { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .cover-meta-item span { color: var(--mid); font-weight: 600; }
+
+  /* ── 범례 ── */
+  .legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    margin-bottom: 40px;
+    font-size: 11px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; color: var(--mid); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  /* ══════════════════════════════════
+     섹션
+  ══════════════════════════════════ */
+  .section { margin-bottom: 56px; scroll-margin-top: 24px; }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--primary);
+  }
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--primary);
+    background: var(--primary-light);
+    border-radius: 4px;
+    padding: 2px 8px;
+  }
+  .section-title { font-size: 20px; font-weight: 900; color: var(--dark); letter-spacing: -0.5px; }
+
+  /* ── 서브섹션 ── */
+  .sub { margin-bottom: 40px; scroll-margin-top: 24px; }
+  .sub-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .screen-id {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--primary);
+    background: var(--primary-light);
+    border: 1px solid var(--primary-mid);
+    border-radius: 4px;
+    padding: 2px 8px;
+    white-space: nowrap;
+  }
+  .screen-name { font-size: 16px; font-weight: 800; color: var(--dark); }
+  .screen-desc { font-size: 11px; color: var(--muted); }
+
+  /* ── 서브 h3 ── */
+  .sub-h3 {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--muted);
+    letter-spacing: 0.8px;
+    margin: 20px 0 8px;
+    text-transform: uppercase;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ══════════════════════════════════
+     디스크립션 카드
+  ══════════════════════════════════ */
+  .desc-wrap { margin-bottom: 20px; }
+  .desc-wrap-label {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    font-family: 'DM Mono', monospace;
+    text-transform: uppercase;
+  }
+  .desc-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .desc-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: #F8FAFC;
+    border-bottom: 1px solid var(--border);
+  }
+  .desc-card-tag {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    color: var(--primary);
+    background: var(--primary-light);
+    border: 1px solid var(--primary-mid);
+    border-radius: 3px;
+    padding: 2px 7px;
+    font-family: 'DM Mono', monospace;
+    white-space: nowrap;
+  }
+  .desc-card-name { font-size: 12px; font-weight: 800; color: var(--dark); }
+  .desc-card-body { padding: 12px 16px; }
+
+  .desc-item {
+    font-size: 12px;
+    color: var(--mid);
+    padding-left: 14px;
+    position: relative;
+    margin-bottom: 5px;
+    line-height: 1.65;
+  }
+  .desc-item::before { content: '·'; position: absolute; left: 4px; color: var(--muted); }
+  .desc-item:last-child { margin-bottom: 0; }
+  .desc-item.depth2 {
+    padding-left: 26px;
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-bottom: 3px;
+  }
+  .desc-item.depth2::before { content: '–'; left: 14px; font-size: 10px; }
+  .desc-item strong { color: var(--dark); font-weight: 700; }
+  .desc-item em {
+    font-style: normal;
+    background: var(--primary-light);
+    color: var(--primary);
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-family: 'DM Mono', monospace;
+  }
+  .desc-item .tag-undef {
+    font-style: italic;
+    color: var(--undef-text);
+    background: var(--undef-bg);
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ══════════════════════════════════
+     스펙 테이블
+  ══════════════════════════════════ */
+  .spec-wrap { margin-bottom: 0; }
+  .spec-wrap-label {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    font-family: 'DM Mono', monospace;
+    text-transform: uppercase;
+  }
+  .spec-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  .spec-table th {
+    background: var(--primary);
+    color: var(--white);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 9px 14px;
+    text-align: left;
+  }
+  .spec-table td {
+    padding: 8px 14px;
+    font-size: 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.6;
+  }
+  .spec-table tr:last-child td { border-bottom: none; }
+  .spec-table tr:nth-child(even) td { background: var(--row-alt); }
+  .spec-2col td:first-child {
+    width: 180px;
+    font-weight: 700;
+    color: var(--primary);
+    background: var(--row-head) !important;
+    white-space: nowrap;
+    font-size: 11px;
+  }
+
+  td.confirmed { background: #F0FDF4 !important; color: #166534; }
+  td.confirmed::before { content: '✓ '; }
+  td.undef { background: var(--undef-bg) !important; color: var(--undef-text); font-style: italic; }
+  td.undef::before { content: '⚠ '; font-style: normal; }
+  td.later { background: var(--later-bg) !important; color: var(--later-text); font-style: italic; }
+  td.later::before { content: '🕐 '; font-style: normal; }
+
+  /* ── 인라인 태그 ── */
+  .tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 3px;
+    padding: 1px 6px;
+    margin-right: 3px;
+    vertical-align: middle;
+    font-family: 'DM Mono', monospace;
+  }
+  .tag-green  { background: #DCFCE7; color: #166534; }
+  .tag-gray   { background: #F1F5F9; color: #475569; }
+  .tag-orange { background: var(--undef-bg); color: var(--orange); }
+
+  /* ── 플로우 ── */
+  .flow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+  }
+  .flow-step {
+    background: var(--primary-light);
+    border: 1px solid var(--primary-mid);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--primary);
+    line-height: 1.4;
+  }
+  .flow-step small { display: block; font-size: 10px; font-weight: 500; color: var(--muted); }
+  .flow-arrow { font-size: 12px; color: var(--muted); }
+  .flow-label { font-size: 10px; color: var(--muted); }
+
+  /* ── 규칙/정보 박스 ── */
+  .rule-box {
+    background: var(--white);
+    border-left: 3px solid var(--primary);
+    border-radius: 0 8px 8px 0;
+    padding: 11px 16px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: var(--mid);
+    line-height: 1.7;
+  }
+  .rule-box strong { color: var(--dark); }
+  .info-box {
+    background: var(--undef-bg);
+    border-left: 3px solid #F97316;
+    border-radius: 0 8px 8px 0;
+    padding: 11px 16px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: #7C2D12;
+    line-height: 1.7;
+  }
+</style>
+
+<body>
+
+<!-- 상단 바 -->
+<div class="topbar">
+  <div class="topbar-brand">PolyBall</div>
+  <div class="topbar-divider"></div>
+  <div class="topbar-meta">기능정의서 · 픽 (예측)</div>
+  <div class="topbar-version">v1.1</div>
+</div>
+
+<!-- 사이드바 -->
+<aside class="sidebar">
+  <div class="sidebar-group">
+    <div class="sidebar-group-label">전체 보기</div>
+    <button class="sidebar-item active" data-filter="all">
+      <span class="sidebar-item-id">ALL</span>전체
+    </button>
+  </div>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-label">픽 플로우</div>
+    <button class="sidebar-item" data-filter="pick">
+      <span class="sidebar-item-id">01</span>픽 플로우 개요
+    </button>
+    <button class="sidebar-item" data-filter="pk01">
+      <span class="sidebar-item-id">PK-01</span>Pick Main
+    </button>
+    <button class="sidebar-item" data-filter="pk13">
+      <span class="sidebar-item-id">PK-13</span>Prediction History
+    </button>
+  </div>
+</aside>
+
+<!-- 메인 -->
+<div class="layout">
+  <main class="main">
+  <div class="content-wrap">
+    <div class="cover">
+      <div class="cover-tag">SPEC · v1.1</div>
+      <h1>픽 (예측) 기능정의서</h1>
+      <div class="cover-sub">픽 플로우 — 픽 관련 기능정의서 통합 예정</div>
+      <div class="cover-meta">
+        <div class="cover-meta-item">기준 파일 <span>PickMain.tsx</span></div>
+        <div class="cover-meta-item">분리 기준 <span>기능정의서_온보딩_픽_v2.4</span></div>
+        <div class="cover-meta-item">최종 수정 <span>2026-04-09</span></div>
+        <div class="cover-meta-item">버전 <span>v1.1</span></div>
+      </div>
+      <div style="margin-top:14px;padding:10px 14px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;font-size:11px;color:#1e40af;">
+        ℹ️ 이 문서는 <strong>기능정의서_온보딩_픽_v2.4</strong>에서 픽(예측) 영역만 분리한 파일입니다. 출석보상(AT), 어드민 이벤트마켓 등 픽 관련 기능정의서와 통합 예정입니다.
+      </div>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#DCFCE7;border:1px solid #86EFAC;"></div>확정</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#FFF7ED;border:1px solid #FED7AA;"></div>⚠ 미정의</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#F5F3FF;border:1px solid #DDD6FE;"></div>🕐 추후 결정</div>
+    </div>
+    <!-- ══════════════════════════ -->
+    <!-- 02. 픽 플로우              -->
+    <!-- ══════════════════════════ -->
+    <div class="section filter-block" data-filter="pick" id="pick">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <span class="section-title">픽 플로우</span>
+      </div>
+      <div class="flow">
+        <div class="flow-step">PK-01<small>Pick Main</small></div>
+        <div class="flow-arrow">↔</div>
+        <div class="flow-step">PK-13<small>Prediction History</small></div>
+      </div>
+    </div>
+
+
+    <!-- PK-01: Pick Main -->
+    <div class="sub filter-block" data-filter="pk01" id="pk01">
+      <div class="sub-header">
+        <span class="screen-id">PK-01</span>
+        <span class="screen-name">Pick Main (픽 메인)</span>
+        <span class="screen-desc">오늘의 경기 예측</span>
+      </div>
+
+      <div class="desc-wrap">
+        <div class="desc-wrap-label">Description</div>
+
+        <div class="desc-card">
+          <div class="desc-card-header">
+            <span class="desc-card-tag">OVERVIEW</span>
+            <span class="desc-card-name">화면 개요</span>
+          </div>
+          <div class="desc-card-body">
+            <div class="desc-item">오늘(당일 기준) 진행되는 KBO 경기의 승부 및 경기 흐름을 예측하는 메인 화면</div>
+            <div class="desc-item">메인마켓(승리팀 예측)과 서브마켓(경기 흐름 예측)을 각각 별도 카드로 제공</div>
+            <div class="desc-item">마켓은 매일 00:00에 오픈되며, 경기 시작 시간까지 예측 가능</div>
+            <div class="desc-item">예측 마감 후 미선택 마켓은 선택지 영역이 제거되고, 선택 완료 마켓은 버튼 유지</div>
+            <div class="desc-item">적중 시 응모권 획득 (기본 1개, x2배 찬스 적용 시 2개)</div>
+          </div>
+        </div>
+
+        <div class="desc-card">
+          <div class="desc-card-header">
+            <span class="desc-card-tag">COMPONENT</span>
+            <span class="desc-card-name">주요 UI 구성</span>
+          </div>
+          <div class="desc-card-body">
+            <div class="desc-item"><strong>GNB:</strong> PICK 로고 (좌) / 응모권 아이콘 + 실시간 보유 수 (중) / 알림 아이콘 (우)</div>
+            <div class="desc-item depth2">응모권 아이콘 클릭 시 응모 페이지로 이동 (GNB 응모 탭과 동일)</div>
+            <div class="desc-item depth2">알림 아이콘 클릭 시 알림함으로 이동</div>
+            <div class="desc-item"><strong>앱 설치 배너:</strong> "PICK 앱 설치하고 푸시 알림 받기" + 설치하기 버튼 + X 닫기</div>
+            <div class="desc-item depth2">설치하기 클릭 시 OS별 앱스토어(플레이스토어/앱스토어)로 이동</div>
+            <div class="desc-item depth2">X 클릭 시 배너 닫기 (localStorage.appBannerDismissed = 'true')</div>
+            <div class="desc-item"><strong>지난 예측 결과 배너:</strong> 🎯 아이콘 + "지난 예측 결과 확인하기 / 나의 승부픽 적중률 보기" → PK-13 이동</div>
+            <div class="desc-item"><strong>섹션 헤더:</strong> "오늘의 승부PIKK!" + 잔여 마켓 수 표기 (예: 20 예측 참여 가능)</div>
+            <div class="desc-item"><strong>서브 텍스트:</strong> "예정된 경기를 예측해 보세요."</div>
+            <div class="desc-item"><strong>경기 카드 그룹:</strong> 응원팀 배지 + 메인마켓 카드 + 서브마켓 카드들</div>
+          </div>
+        </div>
+
+        <div class="desc-card">
+          <div class="desc-card-header">
+            <span class="desc-card-tag">LOGIC</span>
+            <span class="desc-card-name">핵심 로직</span>
+          </div>
+          <div class="desc-card-body">
+            <div class="desc-item"><strong>경기 데이터 로드:</strong> 당일 경기 데이터를 날짜 기준으로 로드</div>
+            <div class="desc-item"><strong>예측 상태 관리:</strong></div>
+            <div class="desc-item depth2">mainPicks: Record&lt;gameId, {team: 'home'|'away'}&gt;</div>
+            <div class="desc-item depth2">subPicks: Record&lt;gameId, Record&lt;situationId, 'optA'|'optB'&gt;&gt;</div>
+            <div class="desc-item depth2">localStorage.pick_participated, localStorage.submarket_picks에 저장</div>
+            <div class="desc-item"><strong>경기 상태 판단:</strong></div>
+            <div class="desc-item depth2">open: 00:00 ~ 경기 시작 시간 (예측 가능)</div>
+            <div class="desc-item depth2">closed: 경기 시작 시간 이후 (예측 마감)</div>
+            <div class="desc-item"><strong>마감 시 UI 처리:</strong> 미선택 마켓은 선택지 버튼 영역 제거, 선택 완료 마켓은 선택 완료 버튼 유지</div>
+            <div class="desc-item"><strong>정렬 우선순위:</strong> 1) 응원팀 경기, 2) 미완료 경기, 3) 경기 시간순</div>
+          </div>
+        </div>
+
+        <div class="desc-card">
+          <div class="desc-card-header">
+            <span class="desc-card-tag">INTERACTION</span>
+            <span class="desc-card-name">예측 인터랙션</span>
+          </div>
+          <div class="desc-card-body">
+            <div class="desc-item"><strong>예측 버튼 클릭:</strong> 확정 모달 표시</div>
+            <div class="desc-item depth2">모달 타이틀: "[팀명] 승리로 예측을 확정하시겠어요?"</div>
+            <div class="desc-item depth2">모달 서브: "한 번 선택하면 변경할 수 없어요."</div>
+            <div class="desc-item depth2">"확정" (검정 버튼) / "취소" (화이트 버튼)</div>
+            <div class="desc-item"><strong>예측 후 변경:</strong> 불가 (선택 완료 버튼으로 전환, 비활성)</div>
+            <div class="desc-item"><strong>x2배 찬스:</strong> 선택률 30% 이하일 때 "30%↓ 적중 시 2배🔥" 툴팁 표시</div>
+            <div class="desc-item depth2">선택 전/후 모두 툴팁 유지, 해당 선택지 위에 표시</div>
+          </div>
+        </div>
+
+        <div class="desc-card">
+          <div class="desc-card-header">
+            <span class="desc-card-tag">CARD</span>
+            <span class="desc-card-name">메인마켓 카드</span>
+          </div>
+          <div class="desc-card-body">
+            <div class="desc-item"><strong>배경:</strong> 다크 그라데이션 + 번개/조명 효과 배경 (구장 이미지 희미하게 적용 예정)</div>
+            <div class="desc-item"><strong>뱃지:</strong> 🏆 승부예측</div>
+            <div class="desc-item"><strong>매치업:</strong> 원정팀명 (좌) / 구장명+날짜시간 (중, 블루 텍스트) / 홈팀명+H뱃지 (우)</div>
+            <div class="desc-item"><strong>프로그레스바:</strong> 원정팀/홈팀 선택률 시각화 (오렌지/다크)</div>
+            <div class="desc-item"><strong>[선택 전 - open]</strong></div>
+            <div class="desc-item depth2">원정팀 버튼 (오렌지 배경) / 홈팀 버튼 (검정 배경)</div>
+            <div class="desc-item depth2">선택률 30% 이하 선택지: "30%↓ 적중 시 2배🔥" 툴팁 표시</div>
+            <div class="desc-item"><strong>[선택 후 - open]</strong></div>
+            <div class="desc-item depth2">"[팀명] 승리 선택 완료" 단일 버튼 (회색, 비활성)</div>
+            <div class="desc-item depth2">x2배 툴팁 유지</div>
+            <div class="desc-item"><strong>[마감 - 미선택]</strong></div>
+            <div class="desc-item depth2">선택지 버튼 영역 제거, 하단 "예측종료" 표시</div>
+            <div class="desc-item"><strong>[마감 - 선택 완료]</strong></div>
+            <div class="desc-item depth2">선택 완료 버튼 유지 (회색, 비활성), 하단 "예측종료" 표시</div>
+            <div class="desc-item"><strong>하단 정보:</strong> 👥 N명 참여 / ⏱ 종료까지 HH:MM:SS 또는 예측종료 / 🎫 +1</div>
+          </div>
+        </div>
+
+        <div class="desc-card">
+          <div class="desc-card-header">
+            <span class="desc-card-tag">CARD</span>
+            <span class="desc-card-name">서브마켓 카드</span>
+          </div>
+          <div class="desc-card-body">
+            <div class="desc-item"><strong>배경:</strong> 화이트, 라운드</div>
+            <div class="desc-item"><strong>뱃지:</strong> Q (질문 표시) + 질문 텍스트</div>
+            <div class="desc-item"><strong>프로그레스바:</strong> optA/optB 선택률 시각화 (블루/회색)</div>
+            <div class="desc-item"><strong>[선택 전 - open]</strong></div>
+            <div class="desc-item depth2">optA 버튼 / optB 버튼 (각각 선택 가능)</div>
+            <div class="desc-item"><strong>[선택 후 - open]</strong></div>
+            <div class="desc-item depth2">"[선택지명] 선택 완료" 단일 버튼 (회색, 비활성)</div>
+            <div class="desc-item"><strong>[마감 - 미선택]</strong></div>
+            <div class="desc-item depth2">선택지 버튼 영역 제거, 하단 "예측종료" 표시</div>
+            <div class="desc-item"><strong>[마감 - 선택 완료]</strong></div>
+            <div class="desc-item depth2">선택 완료 버튼 유지 (회색, 비활성), 하단 "예측종료" 표시</div>
+            <div class="desc-item"><strong>하단 정보:</strong> 👥 N명 참여 / ⏱ 종료까지 HH:MM:SS 또는 예측종료 / 🎫 +1</div>
+          </div>
+        </div>
+
+        <div class="desc-card">
+          <div class="desc-card-header">
+            <span class="desc-card-tag">POLICY</span>
+            <span class="desc-card-name">정책 및 규칙</span>
+          </div>
+          <div class="desc-card-body">
+            <div class="desc-item"><strong>마켓 오픈:</strong> 매일 00:00 당일 경기 마켓 오픈</div>
+            <div class="desc-item depth2">단, 매주 월요일은 경기 없는 날 → 화요일 경기 마켓이 월요일 00:00에 오픈</div>
+            <div class="desc-item"><strong>예측 가능 시간:</strong> 00:00 ~ 경기 시작 시간</div>
+            <div class="desc-item"><strong>예측 수정:</strong> 불가 (최초 선택 후 변경 불가)</div>
+            <div class="desc-item"><strong>메인마켓:</strong> 해당 경기의 원정팀 vs 홈팀 승리팀 예측, 경기 전체 마켓의 타이틀 역할</div>
+            <div class="desc-item"><strong>서브마켓:</strong> 해당 경기의 부가 마켓, 2개의 선택지로 구성</div>
+            <div class="desc-item"><strong>메인/서브 독립성:</strong> 메인 예측 없이도 서브 예측 가능</div>
+            <div class="desc-item"><strong>보상:</strong> 적중 시 응모권 1개, x2배 찬스 적중 시 2개</div>
+            <div class="desc-item"><strong>x2배 찬스:</strong> 마감 시점 선택률 30% 이하 → 적중 시 2배 지급</div>
+            <div class="desc-item"><strong>특수 경기 결과 처리:</strong> 무승부 / 우천취소 등 원정팀·홈팀 선택지에 해당하지 않는 결과는 전원 적중 처리</div>
+          </div>
+        </div>
+
+        <div class="desc-card">
+          <div class="desc-card-header">
+            <span class="desc-card-tag">POLICY</span>
+            <span class="desc-card-name">출석 보상</span>
+          </div>
+          <div class="desc-card-body">
+            <div class="desc-item"><strong>지급 시점:</strong> 당일 최초 접속 시 자동 지급 · 상단 토스트 메시지로 안내</div>
+            <div class="desc-item"><strong>일반 요일 (화,수,목,금,일):</strong> 응모권 +1장</div>
+            <div class="desc-item"><strong>보너스 요일 (월,토):</strong> 응모권 +2장 (기본 1장 + 보너스 1장 추가 지급) — 월/토 접속률 제고 목적</div>
+            <div class="desc-item"><strong>연속 출석:</strong> 무제한 누적 — 연속 출석일수별 추가 보상은 <span class="tag-later">추후 설계 예정</span></div>
+            <div class="desc-item"><strong>재지급 없음:</strong> 재진입/새로고침 시 중복 지급 없음</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="spec-wrap">
+        <div class="spec-wrap-label">Spec</div>
+        <table class="spec-table spec-2col">
+          <tr><td>진입</td><td>GNB 픽 탭 / OB-05 CTA 버튼</td></tr>
+          <tr><td>응모권 표시</td><td class="confirmed">실시간 보유 응모권 수 표시, 클릭 시 응모 페이지 이동</td></tr>
+          <tr><td>알림 아이콘</td><td>클릭 시 알림함 이동</td></tr>
+          <tr><td>앱 설치 배너</td><td>설치하기 클릭 → OS별 앱스토어 이동 / X 클릭 → 배너 닫기</td></tr>
+          <tr><td>잔여 마켓 수 표기</td><td class="confirmed">전체 마켓 수 기준 "N 예측 참여 가능" 표시</td></tr>
+          <tr><td>예측 가능 시간</td><td class="confirmed">00:00 ~ 경기 시작 시간</td></tr>
+          <tr><td>예측 수정</td><td class="confirmed">불가 (최초 선택 후 변경 불가)</td></tr>
+          <tr><td>메인/서브 독립성</td><td class="confirmed">메인 예측 없이도 서브 예측 가능</td></tr>
+        </table>
+
+        <div class="sub-h3">정렬 우선순위</div>
+        <table class="spec-table">
+          <thead><tr><th>순위</th><th>조건</th></tr></thead>
+          <tbody>
+            <tr><td>1순위</td><td>응원팀 경기 (home === userFavoriteTeam || away === userFavoriteTeam)</td></tr>
+            <tr><td>2순위</td><td>미완료 경기 (!allCompleted)</td></tr>
+            <tr><td>3순위</td><td>경기 시작 시간순 (time.localeCompare)</td></tr>
+          </tbody>
+        </table>
+
+        <div class="sub-h3">경기 상태</div>
+        <table class="spec-table">
+          <thead><tr><th>상태</th><th>조건</th><th>버튼</th></tr></thead>
+          <tbody>
+            <tr><td>open</td><td>00:00 ~ 경기 시작 시간</td><td>활성</td></tr>
+            <tr><td>closed</td><td>경기 시작 시간 이후</td><td>비활성</td></tr>
+          </tbody>
+        </table>
+
+        <div class="sub-h3">출석 보상 요일별 지급 기준</div>
+        <table class="spec-table">
+          <thead><tr><th>요일</th><th>구분</th><th>기본 보상</th><th>추가 보상</th><th>합계</th></tr></thead>
+          <tbody>
+            <tr><td>월</td><td>보너스 요일</td><td>+1</td><td>+1 (보너스)</td><td>+2</td></tr>
+            <tr><td>화</td><td>일반 요일</td><td>+1</td><td>-</td><td>+1</td></tr>
+            <tr><td>수</td><td>일반 요일</td><td>+1</td><td>-</td><td>+1</td></tr>
+            <tr><td>목</td><td>일반 요일</td><td>+1</td><td>-</td><td>+1</td></tr>
+            <tr><td>금</td><td>일반 요일</td><td>+1</td><td>-</td><td>+1</td></tr>
+            <tr><td>토</td><td>보너스 요일</td><td>+1</td><td>+1 (보너스)</td><td>+2</td></tr>
+            <tr><td>일</td><td>일반 요일</td><td>+1</td><td>-</td><td>+1</td></tr>
+          </tbody>
+        </table>
+
+        <div class="sub-h3">마켓 리스트</div>
+        <table class="spec-table">
+          <thead>
+            <tr>
+              <th style="width:36px;">No.</th>
+              <th style="width:72px;">구분</th>
+              <th>마켓 질문 (~할까요?)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:700;color:var(--primary);">1</td>
+              <td><span style="display:inline-block;font-size:10px;font-weight:700;background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;border-radius:4px;padding:1px 7px;font-family:'DM Mono',monospace;">메인마켓</span></td>
+              <td>오늘의 승리팀은 어디일까요?</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:700;color:var(--primary);">2</td>
+              <td><span style="display:inline-block;font-size:10px;font-weight:700;background:var(--primary-light);color:var(--primary);border:1px solid var(--primary-mid);border-radius:4px;padding:1px 7px;font-family:'DM Mono',monospace;">서브마켓</span></td>
+              <td>1회에 점수가 나올까요?</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:700;color:var(--primary);">3</td>
+              <td><span style="display:inline-block;font-size:10px;font-weight:700;background:var(--primary-light);color:var(--primary);border:1px solid var(--primary-mid);border-radius:4px;padding:1px 7px;font-family:'DM Mono',monospace;">서브마켓</span></td>
+              <td>빅이닝(4점 이상)이 발생할까요?</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:700;color:var(--primary);">4</td>
+              <td><span style="display:inline-block;font-size:10px;font-weight:700;background:var(--primary-light);color:var(--primary);border:1px solid var(--primary-mid);border-radius:4px;padding:1px 7px;font-family:'DM Mono',monospace;">서브마켓</span></td>
+              <td>양 팀 합산 득점이 10점 이상일까요?</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:700;color:var(--primary);">5</td>
+              <td><span style="display:inline-block;font-size:10px;font-weight:700;background:var(--primary-light);color:var(--primary);border:1px solid var(--primary-mid);border-radius:4px;padding:1px 7px;font-family:'DM Mono',monospace;">서브마켓</span></td>
+              <td>양 팀 합산 홈런이 3개 이상일까요?</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:700;color:var(--primary);">6</td>
+              <td><span style="display:inline-block;font-size:10px;font-weight:700;background:var(--primary-light);color:var(--primary);border:1px solid var(--primary-mid);border-radius:4px;padding:1px 7px;font-family:'DM Mono',monospace;">서브마켓</span></td>
+              <td>첫 득점이 2회 안에 발생할까요?</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:700;color:var(--primary);">7</td>
+              <td><span style="display:inline-block;font-size:10px;font-weight:700;background:var(--primary-light);color:var(--primary);border:1px solid var(--primary-mid);border-radius:4px;padding:1px 7px;font-family:'DM Mono',monospace;">서브마켓</span></td>
+              <td>양 팀 모두 3점 이상 기록할까요?</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:700;color:var(--primary);">8</td>
+              <td><span style="display:inline-block;font-size:10px;font-weight:700;background:var(--primary-light);color:var(--primary);border:1px solid var(--primary-mid);border-radius:4px;padding:1px 7px;font-family:'DM Mono',monospace;">서브마켓</span></td>
+              <td>5회 종료 시 점수 차가 1점 이하일까요?</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:700;color:var(--primary);">9</td>
+              <td><span style="display:inline-block;font-size:10px;font-weight:700;background:var(--primary-light);color:var(--primary);border:1px solid var(--primary-mid);border-radius:4px;padding:1px 7px;font-family:'DM Mono',monospace;">서브마켓</span></td>
+              <td>양 팀 합산 안타가 20개 이상일까요?</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:700;color:var(--primary);">10</td>
+              <td><span style="display:inline-block;font-size:10px;font-weight:700;background:var(--primary-light);color:var(--primary);border:1px solid var(--primary-mid);border-radius:4px;padding:1px 7px;font-family:'DM Mono',monospace;">서브마켓</span></td>
+              <td>양 팀 선발투수의 삼진 합계가 12개 이상일까요?</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:700;color:var(--primary);">11</td>
+              <td><span style="display:inline-block;font-size:10px;font-weight:700;background:var(--primary-light);color:var(--primary);border:1px solid var(--primary-mid);border-radius:4px;padding:1px 7px;font-family:'DM Mono',monospace;">서브마켓</span></td>
+              <td>양 팀 선발 투수 중 무실점(0자책)이 나올까요?</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:700;color:var(--primary);">12</td>
+              <td><span style="display:inline-block;font-size:10px;font-weight:700;background:var(--primary-light);color:var(--primary);border:1px solid var(--primary-mid);border-radius:4px;padding:1px 7px;font-family:'DM Mono',monospace;">서브마켓</span></td>
+              <td>어느 한 팀이라도 10점 이상 득점을 할까요?</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:700;color:var(--primary);">13</td>
+              <td><span style="display:inline-block;font-size:10px;font-weight:700;background:var(--primary-light);color:var(--primary);border:1px solid var(--primary-mid);border-radius:4px;padding:1px 7px;font-family:'DM Mono',monospace;">서브마켓</span></td>
+              <td>먼저 점수를 올린 팀이 최종 승리할까요?</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:700;color:var(--primary);">14</td>
+              <td><span style="display:inline-block;font-size:10px;font-weight:700;background:var(--primary-light);color:var(--primary);border:1px solid var(--primary-mid);border-radius:4px;padding:1px 7px;font-family:'DM Mono',monospace;">서브마켓</span></td>
+              <td>5회까지 양 팀 합산 득점이 6점 이상일까요?</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:700;color:var(--primary);">15</td>
+              <td><span style="display:inline-block;font-size:10px;font-weight:700;background:var(--primary-light);color:var(--primary);border:1px solid var(--primary-mid);border-radius:4px;padding:1px 7px;font-family:'DM Mono',monospace;">서브마켓</span></td>
+              <td>양 팀 선발 투수 모두 투구수 80개 이상을 기록할까요?</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:20px;padding:8px 12px;background:var(--bg);border-radius:6px;">
+          ※ No.1 메인마켓은 경기당 1개 고정 노출. No.2~15 서브마켓은 경기당 최대 N개 노출 (어드민 이벤트마켓 정의서 참고)
+        </div>
+
+        <div class="sub-h3">보상 정책</div>
+        <table class="spec-table">
+          <thead><tr><th>마켓</th><th>기본 보상</th><th>x2배 조건</th><th>x2배 보상</th></tr></thead>
+          <tbody>
+            <tr><td>메인마켓</td><td>응모권 1개</td><td>선택률 ≤ 30%</td><td>응모권 2개</td></tr>
+            <tr><td>서브마켓 (각)</td><td>응모권 1개</td><td>선택률 ≤ 30%</td><td>응모권 2개</td></tr>
+          </tbody>
+        </table>
+
+        <div class="sub-h3">localStorage 저장</div>
+        <table class="spec-table spec-2col">
+          <tr><td>pick_participated</td><td>메인마켓 예측 내역 (JSON)</td></tr>
+          <tr><td>submarket_picks</td><td>서브마켓 예측 내역 (JSON)</td></tr>
+          <tr><td>pick_first_prediction_YYYY-MM-DD</td><td>최초 예측 여부 ('true')</td></tr>
+          <tr><td>appBannerDismissed</td><td>앱 배너 닫기 ('true')</td></tr>
+          <tr><td>attendance_last_date</td><td class="confirmed">최초 접속 처리한 마지막 날짜 (YYYY-MM-DD)</td></tr>
+          <tr><td>attendance_streak_total</td><td class="confirmed">실제 누적 연속 접속일 수 (초기화 없이 무제한 누적)</td></tr>
+        </table>
+      </div>
+    </div>
+
+
+    <!-- PK-13: Prediction History -->
+    <div class="sub filter-block" data-filter="pk13" id="pk13">
+      <div class="sub-header">
+        <span class="screen-id">PK-13</span>
+        <span class="screen-name">내 예측 히스토리</span>
+        <span class="screen-desc">나의 예측 결과 및 응모권 적중 내역 확인</span>
+      </div>
+
+      <div class="desc-wrap">
+        <div class="desc-wrap-label">Description</div>
+
+        <div class="desc-card">
+          <div class="desc-card-header">
+            <span class="desc-card-tag">OVERVIEW</span>
+            <span class="desc-card-name">화면 개요</span>
+          </div>
+          <div class="desc-card-body">
+            <div class="desc-item">나의 전체 예측 내역과 적중/실패 결과를 확인하는 화면</div>
+            <div class="desc-item">메인마켓과 서브마켓 예측이 날짜별 리스트로 통합 표시</div>
+            <div class="desc-item">적중 여부와 획득 응모권 수를 각 항목별로 표시</div>
+            <div class="desc-item">"더보기" 버튼으로 추가 내역 로드</div>
+          </div>
+        </div>
+
+        <div class="desc-card">
+          <div class="desc-card-header">
+            <span class="desc-card-tag">COMPONENT</span>
+            <span class="desc-card-name">UI 구성 요소</span>
+          </div>
+          <div class="desc-card-body">
+            <div class="desc-item"><strong>헤더:</strong> ← 백 버튼 + "내 예측 히스토리"</div>
+            <div class="desc-item"><strong>유저 카드:</strong> 아바타 + 닉네임 + 응원팀 뱃지(MY [팀명]) + 통계 3개</div>
+            <div class="desc-item depth2">통계: 총 예측 수 / 예측 적중 / 예측 적중률</div>
+            <div class="desc-item"><strong>섹션 타이틀:</strong> "전체 예측 내역"</div>
+            <div class="desc-item"><strong>예측 리스트:</strong> 날짜 / 마켓명 / 내 선택+결과 / 적중 또는 실패 뱃지</div>
+            <div class="desc-item depth2">적중: "적중 +N" 뱃지 (블루)</div>
+            <div class="desc-item depth2">실패: "실패" 뱃지 (회색)</div>
+            <div class="desc-item"><strong>더보기 버튼:</strong> 하단 "더보기 ∨" 클릭 시 추가 내역 로드</div>
+          </div>
+        </div>
+
+        <div class="desc-card">
+          <div class="desc-card-header">
+            <span class="desc-card-tag">LOGIC</span>
+            <span class="desc-card-name">데이터 변환 로직</span>
+          </div>
+          <div class="desc-card-body">
+            <div class="desc-item">예측 내역을 날짜 역순(최신순)으로 리스트 표시</div>
+            <div class="desc-item">각 항목: 날짜 / 경기명+마켓명 / 내 선택 및 결과 / 적중 여부 + 획득 응모권</div>
+            <div class="desc-item">"더보기" 클릭 시 추가 내역 페이지네이션 로드</div>
+          </div>
+        </div>
+
+        <div class="desc-card">
+          <div class="desc-card-header">
+            <span class="desc-card-tag">DATA</span>
+            <span class="desc-card-name">데이터 구조</span>
+          </div>
+          <div class="desc-card-body">
+            <div class="desc-item"><strong>PredictionRecord:</strong> id, date, awayTeam, homeTeam, myPrediction, gameResult, subMarketPicks, subMarketResults, situations</div>
+            <div class="desc-item"><strong>PredictionCard:</strong> id, date, type('main'|'sub'), gameInfo, marketName, myChoice, result, isCorrect, ticketsEarned</div>
+            <div class="desc-item><strong>gameResult:</strong> 'away' | 'home' | 'draw' | 'pending' | 'canceled'</div>
+          </div>
+        </div>
+
+        <div class="desc-card">
+          <div class="desc-card-header">
+            <span class="desc-card-tag">EDGE CASE</span>
+            <span class="desc-card-name">예외 케이스</span>
+          </div>
+          <div class="desc-card-body">
+            <div class="desc-item"><strong>경기 취소:</strong> gameResult === 'canceled' → 응모권 반환 <span class="tag-undef">미정의</span></div>
+            <div class="desc-item"><strong>무승부:</strong> gameResult === 'draw' → 처리 방법 <span class="tag-undef">미정의</span></div>
+            <div class="desc-item><strong>결과 대기:</strong> gameResult === 'pending' → "결과 대기중" 표시</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="spec-wrap">
+        <div class="spec-wrap-label">Spec</div>
+        <table class="spec-table spec-2col">
+          <tr><td>진입</td><td>PK-01 "지난 예측 결과 확인하기" 배너 클릭</td></tr>
+          <tr><td>헤더</td><td>← 백 버튼 + "내 예측 히스토리"</td></tr>
+          <tr><td>정렬</td><td>날짜 역순 (최신순)</td></tr>
+          <tr><td>더보기</td><td>하단 "더보기 ∨" 버튼으로 추가 내역 로드</td></tr>
+        </table>
+
+        <div class="sub-h3">유저 카드 통계</div>
+        <table class="spec-table spec-2col">
+          <tr><td>총 예측 수</td><td>전체 예측 참여 횟수</td></tr>
+          <tr><td>예측 적중</td><td>적중한 예측 횟수</td></tr>
+          <tr><td>예측 적중률</td><td>적중 / 전체 × 100 (%)</td></tr>
+        </table>
+
+        <div class="sub-h3">예측 항목 상태</div>
+        <table class="spec-table">
+          <thead><tr><th>결과</th><th>뱃지</th><th>획득 응모권</th></tr></thead>
+          <tbody>
+            <tr><td>적중 (기본)</td><td>적중 +1 (블루)</td><td>+1개</td></tr>
+            <tr><td>적중 (x2배)</td><td>적중 +2 (블루)</td><td>+2개</td></tr>
+            <tr><td>실패</td><td>실패 (회색)</td><td>0개</td></tr>
+            <tr><td>결과 대기</td><td>대기 (회색)</td><td>미정</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+  </div>
+
+  </div>
+  </main>
+</div>
+
+<script>
+const sidebar = document.querySelector('.sidebar');
+const sidebarItems = sidebar.querySelectorAll('.sidebar-item');
+const filterBlocks = document.querySelectorAll('.filter-block');
+
+sidebarItems.forEach(item => {
+  item.addEventListener('click', () => {
+    const filter = item.dataset.filter;
+    sidebarItems.forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+    if (filter === 'all') {
+      filterBlocks.forEach(block => block.classList.remove('hidden'));
+    } else {
+      filterBlocks.forEach(block => {
+        if (block.dataset.filter === filter) {
+          block.classList.remove('hidden');
+        } else {
+          block.classList.add('hidden');
+        }
+      });
+    }
+  });
+});
+</script>
+</body>
+</html>

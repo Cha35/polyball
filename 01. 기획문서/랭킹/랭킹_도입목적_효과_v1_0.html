@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>랭킹 제도 도입 목적 및 효과 — PolyBall</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Pretendard:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #1F30E9;
+    --primary-light: #EEF0FD;
+    --primary-mid: #C7CCFA;
+    --navy: #001432;
+    --mint: #09FFEE;
+    --white: #ffffff;
+    --bg: #F9F9F9;
+    --border: #E5E5E5;
+    --dark: #101015;
+    --mid: #454545;
+    --muted: #888888;
+    --light: #B0B0B3;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--dark); font-size: 14px; line-height: 1.6; }
+
+  .page { max-width: 800px; margin: 0 auto; padding: 48px 24px 80px; }
+
+  /* Cover */
+  .cover { background: var(--navy); border-radius: 20px; padding: 48px 44px; margin-bottom: 32px; position: relative; overflow: hidden; }
+  .cover::before { content: ''; position: absolute; top: -60px; right: -60px; width: 280px; height: 280px; background: radial-gradient(circle, rgba(9,255,238,0.12) 0%, transparent 70%); border-radius: 50%; }
+  .cover::after { content: ''; position: absolute; bottom: -40px; left: 20%; width: 200px; height: 200px; background: radial-gradient(circle, rgba(31,48,233,0.3) 0%, transparent 70%); border-radius: 50%; }
+  .cover-eyebrow { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; color: var(--mint); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; position: relative; z-index: 1; }
+  .cover h1 { font-size: 32px; font-weight: 900; color: white; letter-spacing: -1.5px; line-height: 1.2; margin-bottom: 12px; position: relative; z-index: 1; }
+  .cover h1 span { color: var(--mint); }
+  .cover-sub { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.7; margin-bottom: 28px; position: relative; z-index: 1; max-width: 520px; }
+  .cover-meta { display: flex; gap: 24px; flex-wrap: wrap; position: relative; z-index: 1; }
+  .cover-meta-item { font-size: 12px; color: rgba(255,255,255,0.45); font-family: 'DM Mono', monospace; }
+  .cover-meta-item strong { color: rgba(255,255,255,0.8); font-weight: 600; margin-right: 6px; }
+
+  /* Section */
+  .section { background: var(--white); border-radius: 16px; border: 1px solid var(--border); padding: 32px; margin-bottom: 20px; }
+  .section-label { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+  .section-num { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 600; color: var(--primary); background: var(--primary-light); border: 1px solid var(--primary-mid); border-radius: 4px; padding: 2px 8px; }
+  .section-title { font-size: 20px; font-weight: 900; color: var(--dark); letter-spacing: -0.5px; }
+
+  /* Summary cards */
+  .summary-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+  .summary-card { background: var(--navy); border-radius: 12px; padding: 20px 18px; }
+  .summary-card-icon { font-size: 22px; margin-bottom: 10px; }
+  .summary-card-label { font-size: 10px; font-weight: 700; color: var(--mint); letter-spacing: 1px; text-transform: uppercase; font-family: 'DM Mono', monospace; margin-bottom: 6px; }
+  .summary-card-val { font-size: 13px; font-weight: 700; color: white; line-height: 1.5; }
+
+  /* BM chain */
+  .bm-chain { background: var(--primary-light); border-radius: 12px; padding: 20px 24px; margin-bottom: 20px; }
+  .bm-chain-label { font-size: 10px; font-weight: 800; color: var(--primary); letter-spacing: 1px; text-transform: uppercase; font-family: 'DM Mono', monospace; margin-bottom: 14px; }
+  .bm-chain-flow { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+  .bm-node { background: white; border: 1.5px solid var(--primary-mid); border-radius: 8px; padding: 8px 14px; font-size: 12px; font-weight: 700; color: var(--primary); white-space: nowrap; }
+  .bm-node.trigger { background: var(--primary); color: white; border-color: var(--primary); }
+  .bm-node.result { background: var(--navy); color: var(--mint); border-color: var(--navy); }
+  .bm-node.note { background: #FEF9C3; color: #854D0E; border-color: #FCD34D; font-size: 11px; font-weight: 600; }
+  .bm-arr { color: var(--muted); font-size: 16px; font-weight: 700; }
+  .bm-chain-note { margin-top: 10px; font-size: 12px; color: var(--muted); line-height: 1.6; }
+  .bm-chain-note strong { color: var(--dark); font-weight: 700; }
+
+  /* Table */
+  .tbl { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 16px; }
+  .tbl th { background: var(--bg); padding: 10px 14px; text-align: left; font-weight: 700; color: var(--dark); border: 1px solid var(--border); font-size: 12px; }
+  .tbl td { padding: 11px 14px; border: 1px solid var(--border); color: var(--mid); vertical-align: top; line-height: 1.65; }
+  .tbl tr:hover td { background: #FAFAFA; }
+  .tbl td strong { color: var(--dark); font-weight: 700; }
+  .tbl td.num { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--primary); font-weight: 600; text-align: center; }
+
+  /* Purpose blocks */
+  .purpose-list { display: flex; flex-direction: column; gap: 16px; }
+  .purpose-item { display: flex; gap: 16px; align-items: flex-start; }
+  .purpose-num { width: 32px; height: 32px; background: var(--primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 700; color: white; flex-shrink: 0; margin-top: 2px; }
+  .purpose-content {}
+  .purpose-title { font-size: 15px; font-weight: 800; color: var(--dark); margin-bottom: 6px; letter-spacing: -0.3px; }
+  .purpose-desc { font-size: 13px; color: var(--mid); line-height: 1.7; }
+  .purpose-desc strong { color: var(--dark); font-weight: 700; }
+
+  /* Effect cards */
+  .effect-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+  .effect-card { border-radius: 12px; padding: 20px; border: 1px solid var(--border); }
+  .effect-card.direct { background: var(--primary-light); border-color: var(--primary-mid); }
+  .effect-card.indirect { background: #F0FDF4; border-color: #86EFAC; }
+  .effect-card-type { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+  .effect-card.direct .effect-card-type { color: var(--primary); }
+  .effect-card.indirect .effect-card-type { color: #166534; }
+  .effect-card-title { font-size: 14px; font-weight: 800; color: var(--dark); margin-bottom: 8px; }
+  .effect-card-desc { font-size: 12.5px; color: var(--mid); line-height: 1.65; }
+  .effect-card-desc strong { color: var(--dark); font-weight: 700; }
+
+  /* Formula box */
+  .formula-box { background: var(--navy); border-radius: 12px; padding: 20px 24px; margin-bottom: 16px; }
+  .formula-label { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.5); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
+  .formula-eq { font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 600; color: var(--mint); line-height: 2; }
+  .formula-note { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 8px; line-height: 1.6; }
+  .formula-note strong { color: rgba(255,255,255,0.85); }
+
+  /* Warning box */
+  .warn-box { background: #FFF7ED; border: 1px solid #FED7AA; border-radius: 12px; padding: 18px 20px; }
+  .warn-box-title { font-size: 13px; font-weight: 800; color: #C2410C; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .warn-list { list-style: none; padding: 0; }
+  .warn-list li { font-size: 13px; color: #7C2D12; padding-left: 14px; position: relative; margin-bottom: 6px; line-height: 1.65; }
+  .warn-list li::before { content: '·'; position: absolute; left: 4px; }
+  .warn-list li:last-child { margin-bottom: 0; }
+  .warn-list li strong { color: #C2410C; font-weight: 700; }
+
+  /* Insight box */
+  .insight-box { background: linear-gradient(135deg, var(--primary-light) 0%, #F0FDF4 100%); border: 1px solid var(--primary-mid); border-radius: 12px; padding: 18px 20px; margin-bottom: 16px; }
+  .insight-box-title { font-size: 12px; font-weight: 800; color: var(--primary); margin-bottom: 8px; font-family: 'DM Mono', monospace; letter-spacing: 0.5px; text-transform: uppercase; }
+  .insight-box-desc { font-size: 13px; color: var(--mid); line-height: 1.7; }
+  .insight-box-desc strong { color: var(--dark); font-weight: 700; }
+
+  /* Divider */
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+  /* KPI tracker */
+  .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .kpi-card { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .kpi-card-label { font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; font-family: 'DM Mono', monospace; margin-bottom: 6px; }
+  .kpi-card-val { font-size: 18px; font-weight: 900; color: var(--dark); letter-spacing: -0.5px; margin-bottom: 4px; }
+  .kpi-card-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .kpi-card.highlight { background: var(--primary-light); border-color: var(--primary-mid); }
+  .kpi-card.highlight .kpi-card-val { color: var(--primary); }
+
+  .sub-h { font-size: 13px; font-weight: 800; color: var(--dark); margin: 20px 0 10px; letter-spacing: -0.3px; }
+
+  @media (max-width: 600px) {
+    .page { padding: 24px 16px 60px; }
+    .cover { padding: 32px 24px; }
+    .cover h1 { font-size: 24px; }
+    .summary-grid { grid-template-columns: 1fr; }
+    .effect-grid { grid-template-columns: 1fr; }
+    .kpi-grid { grid-template-columns: 1fr; }
+    .cover-meta { gap: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Cover -->
+  <div class="cover">
+    <div class="cover-eyebrow">PolyBall · 기획 제안</div>
+    <h1>주간 랭킹 제도<br><span>도입 목적 및 예상 효과</span></h1>
+    <div class="cover-sub">마켓 참여 → 적중 수 기반 랭킹 → 광고 시청 기회 확대로 이어지는 BM 연결 구조와, 랭킹 제도가 만들어내는 재방문 루프의 설계 의도를 정리한 문서입니다.</div>
+    <div class="cover-meta">
+      <div class="cover-meta-item"><strong>작성</strong>2026.05.21</div>
+      <div class="cover-meta-item"><strong>버전</strong>v1.0</div>
+      <div class="cover-meta-item"><strong>대상</strong>내부 공유용</div>
+    </div>
+  </div>
+
+
+  <!-- ══ 01. 현재 BM 구조 ══ -->
+  <div class="section">
+    <div class="section-label">
+      <span class="section-num">01</span>
+      <span class="section-title">현재 광고 수익 구조</span>
+    </div>
+
+    <div class="bm-chain">
+      <div class="bm-chain-label">현재 광고 발생 경로 ①  —  픽 적중 후 2배 RV</div>
+      <div class="bm-chain-flow">
+        <div class="bm-node">마켓 참여 (픽)</div>
+        <span class="bm-arr">→</span>
+        <div class="bm-node">경기 적중</div>
+        <span class="bm-arr">→</span>
+        <div class="bm-node trigger">유저가 "2배" 버튼 선택</div>
+        <span class="bm-arr">→</span>
+        <div class="bm-node">RV 광고 시청</div>
+        <span class="bm-arr">→</span>
+        <div class="bm-node result">응모권 2배 지급</div>
+      </div>
+      <div class="bm-chain-note">※ 광고 노출은 <strong>자동이 아닙니다.</strong> 유저가 "2배 버튼"을 직접 눌러야 발생합니다. (앱 전용 · 메인마켓 한정)</div>
+    </div>
+
+    <div class="bm-chain">
+      <div class="bm-chain-label">현재 광고 발생 경로 ②  —  응모 완료 후 추가 응모 RV</div>
+      <div class="bm-chain-flow">
+        <div class="bm-node">응모 완료</div>
+        <span class="bm-arr">→</span>
+        <div class="bm-node trigger">유저가 "광고 보고 1장 더" 선택</div>
+        <span class="bm-arr">→</span>
+        <div class="bm-node">RV 광고 시청</div>
+        <span class="bm-arr">→</span>
+        <div class="bm-node result">추가 응모 1회</div>
+      </div>
+      <div class="bm-chain-note">※ 마찬가지로 유저의 자발적 선택에 종속. 1일 5회 한도. 앱 전용.</div>
+    </div>
+
+    <div class="insight-box">
+      <div class="insight-box-title">핵심 전제</div>
+      <div class="insight-box-desc">두 경로 모두 <strong>"광고 시청 기회의 수"</strong>가 늘어야 수익이 늘어납니다. 기회를 늘리는 유일한 방법은 <strong>픽 참여 횟수</strong>와 <strong>응모 세션 수</strong>를 늘리는 것입니다. 랭킹은 이 두 가지를 늘리기 위한 설계입니다.</div>
+    </div>
+  </div>
+
+
+  <!-- ══ 02. 도입 목적 ══ -->
+  <div class="section">
+    <div class="section-label">
+      <span class="section-num">02</span>
+      <span class="section-title">도입 목적</span>
+    </div>
+
+    <div class="purpose-list">
+
+      <div class="purpose-item">
+        <div class="purpose-num">1</div>
+        <div class="purpose-content">
+          <div class="purpose-title">픽 참여 횟수 증가 → 2배 RV 노출 기회 확대</div>
+          <div class="purpose-desc">현재 유저는 관심 있는 경기만 선택적으로 참여합니다. 랭킹 기준이 <strong>적중 수 절대값</strong>이기 때문에, 순위를 올리려면 더 많은 마켓에 참여해야 유리합니다. 참여 횟수가 늘수록 적중 기회가 늘고, "보상 2배 버튼" 노출 횟수도 늘어납니다. 버튼 노출 횟수 × 유저 CTR = 실제 광고 시청 수로 직결됩니다.</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="purpose-item">
+        <div class="purpose-num">2</div>
+        <div class="purpose-content">
+          <div class="purpose-title">재방문 루프 생성 → 응모 세션 수 증가</div>
+          <div class="purpose-desc">현재 재방문 트리거는 당첨 결과 확인(월요일)과 외부 캠페인에 의존합니다. 일간 분석 데이터에서도 알림톡·인플루언서 투입 없는 날 DAU가 급감하는 패턴이 반복됩니다. 랭킹이 생기면 <strong>"내 순위가 어떻게 됐지"</strong>라는 이유로 앱을 다시 열게 되고, 이 재방문이 응모 탭 진입으로 이어지면 응모 완료 RV 노출 기회가 추가로 생깁니다. 외부 비용 없이 작동하는 내부 재방문 동인입니다.</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="purpose-item">
+        <div class="purpose-num">3</div>
+        <div class="purpose-content">
+          <div class="purpose-title">보상(응모권)의 광고 순환 구조 설계</div>
+          <div class="purpose-desc">2·3위 보상인 <strong>응모권 50장</strong>은 유저를 다시 응모 화면으로 유인합니다. 응모 완료 후에는 추가 RV 시청 기회가 노출됩니다. 랭킹 보상 자체가 광고 노출 기회를 만드는 순환 구조입니다. 1위 확정 티켓은 서비스 내 희소성 자원으로 신규 유입과 구전 효과를 기대합니다.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ══ 03. 예상 효과 ══ -->
+  <div class="section">
+    <div class="section-label">
+      <span class="section-num">03</span>
+      <span class="section-title">예상 효과</span>
+    </div>
+
+    <div class="effect-grid">
+      <div class="effect-card direct">
+        <div class="effect-card-type">직접 효과</div>
+        <div class="effect-card-title">2배 RV 버튼 노출 기회 증가</div>
+        <div class="effect-card-desc">픽 참여 횟수 증가 → 적중 건수 증가 → 버튼 노출 횟수 증가. 실제 광고 매출은 <strong>버튼 노출 횟수 × 유저 CTR</strong>로 결정됩니다.</div>
+      </div>
+      <div class="effect-card indirect">
+        <div class="effect-card-type">간접 효과</div>
+        <div class="effect-card-title">주중 재방문율 개선</div>
+        <div class="effect-card-desc">외부 자극 없이 작동하는 자체 재방문 동인 확보. 재방문 → 응모 → 응모 완료 RV 노출 기회 추가 생성.</div>
+      </div>
+      <div class="effect-card indirect">
+        <div class="effect-card-type">간접 효과</div>
+        <div class="effect-card-title">보상 → 응모 순환 구조</div>
+        <div class="effect-card-desc">2·3위 응모권 50장 → 추가 응모 세션 → 응모 완료 RV 기회. 보상이 광고 노출을 만드는 선순환.</div>
+      </div>
+      <div class="effect-card direct">
+        <div class="effect-card-type">직접 효과</div>
+        <div class="effect-card-title">확정 티켓 희소성 → 신규 유입</div>
+        <div class="effect-card-desc">"실력으로 얻는 티켓"이라는 포지셔닝이 구전 효과로 이어질 가능성. 신규 유입 → 광고 노출 풀 확대.</div>
+      </div>
+    </div>
+
+    <div class="formula-box">
+      <div class="formula-label">광고 매출 증가 공식</div>
+      <div class="formula-eq">
+        광고 매출 증가 = (추가 버튼 노출 횟수) × (유저 CTR)<br>
+        추가 버튼 노출 = (참여 증가분) × (적중률)
+      </div>
+      <div class="formula-note">광고 노출은 <strong>자동 증가가 아닙니다.</strong> 참여 횟수가 늘어야 버튼 노출 기회가 늘고, 유저가 실제로 버튼을 눌러야 매출이 발생합니다. CTR 추적이 효과 검증의 핵심 지표입니다.</div>
+    </div>
+  </div>
+
+
+  <!-- ══ 04. 검증 지표 ══ -->
+  <div class="section">
+    <div class="section-label">
+      <span class="section-num">04</span>
+      <span class="section-title">검증 지표</span>
+    </div>
+
+    <div class="sub-h">랭킹 도입 전후 추적해야 할 지표</div>
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th style="width:200px;">지표</th>
+          <th>측정 방법</th>
+          <th style="width:180px;">랭킹 기여 경로</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>1인당 주간 픽 참여 횟수</strong></td>
+          <td>주간 집계 기준 유저별 마켓 참여 수 평균</td>
+          <td>목적 ① 직접 확인</td>
+        </tr>
+        <tr>
+          <td><strong>2배 버튼 CTR</strong></td>
+          <td>버튼 노출 수 대비 클릭 수</td>
+          <td>실제 광고 매출 기여 검증</td>
+        </tr>
+        <tr>
+          <td><strong>주중 재방문율</strong></td>
+          <td>월~일 중 2회 이상 접속 유저 비율</td>
+          <td>목적 ② 직접 확인</td>
+        </tr>
+        <tr>
+          <td><strong>주간 응모 세션 수</strong></td>
+          <td>유저당 주간 응모 완료 횟수</td>
+          <td>응모 RV 노출 기회 변화</td>
+        </tr>
+        <tr>
+          <td><strong>NSM (주간 콘텐츠 이용 유저)</strong></td>
+          <td>최근 7일 내 픽 또는 응모 1회 이상 유니크 유저</td>
+          <td>전반적 서비스 활성 지표</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="kpi-grid">
+      <div class="kpi-card highlight">
+        <div class="kpi-card-label">핵심 선행 지표</div>
+        <div class="kpi-card-val">2배 버튼 CTR</div>
+        <div class="kpi-card-desc">참여 횟수가 늘어도 CTR이 유지·개선되지 않으면 매출 증가 없음. 가장 먼저 확인해야 할 지표.</div>
+      </div>
+      <div class="kpi-card highlight">
+        <div class="kpi-card-label">핵심 선행 지표</div>
+        <div class="kpi-card-val">1인당 주간 픽 참여 수</div>
+        <div class="kpi-card-desc">랭킹 도입이 참여 행동 변화로 이어졌는지 가장 직접적으로 확인하는 지표.</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══ 05. 한계 및 리스크 ══ -->
+  <div class="section">
+    <div class="section-label">
+      <span class="section-num">05</span>
+      <span class="section-title">한계 및 주의사항</span>
+    </div>
+
+    <div class="warn-box">
+      <div class="warn-box-title">⚠ 과대 해석 방지</div>
+      <ul class="warn-list">
+        <li><strong>광고 노출은 자동 증가가 아닙니다.</strong> 랭킹이 만드는 것은 "광고 시청 기회"이며, 실제 매출은 유저가 버튼을 누르는 비율(CTR)에 달려 있습니다.</li>
+        <li><strong>유저 풀이 작으면 랭킹 경쟁 자체가 형성되지 않습니다.</strong> 현재 주간 활성 유저 81명 수준에서는 랭킹보다 확정 티켓 보상을 전면에 내세워 참여를 유도하는 것이 중요합니다. 경쟁 긴장감은 유저 수 300~500명 이상일 때 본격 형성될 것으로 예상합니다.</li>
+        <li><strong>CTR 변화를 반드시 추적해야 합니다.</strong> 참여 횟수가 늘어도 유저가 버튼을 누르지 않으면 매출로 이어지지 않습니다. CTR이 하락한다면 보상 설계를 재검토해야 합니다.</li>
+        <li><strong>보상 구조는 주단위로 모니터링하며 재검토합니다.</strong> 초기 확정 티켓 보상이 지속 가능한지, 4위 이하 공백으로 이탈이 발생하지 않는지 지속 관찰이 필요합니다.</li>
+      </ul>
+    </div>
+  </div>
+
+
+  <!-- ══ 06. 요약 ══ -->
+  <div class="section">
+    <div class="section-label">
+      <span class="section-num">06</span>
+      <span class="section-title">한줄 요약</span>
+    </div>
+
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-card-icon">🎯</div>
+        <div class="summary-card-label">Why</div>
+        <div class="summary-card-val">픽 참여 횟수를 늘려 광고 시청 기회를 확대하기 위해</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-icon">⚙️</div>
+        <div class="summary-card-label">How</div>
+        <div class="summary-card-val">적중 수 기반 랭킹으로 재방문과 참여 반복을 유도</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-icon">📊</div>
+        <div class="summary-card-label">Measure</div>
+        <div class="summary-card-val">2배 버튼 CTR과 1인당 주간 픽 참여 수로 효과 검증</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>포인트예측(PZ) v2.0 회의 안건표</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap');
+:root{
+  --primary:#2563EB;--primary-light:#EFF6FF;--primary-mid:#BFDBFE;
+  --dark:#0F172A;--mid:#475569;--muted:#94A3B8;--border:#E2E8F0;
+  --bg:#F8FAFC;--white:#FFF;
+  --green-bg:#F0FDF4;--green-text:#166534;--green-border:#BBF7D0;
+  --amber-bg:#FFFBEB;--amber-text:#92400E;--amber-border:#FDE68A;
+  --red-bg:#FEF2F2;--red-text:#991B1B;--red-border:#FECACA;
+  --purple-bg:#F5F3FF;--purple-text:#5B21B6;--purple-border:#DDD6FE;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--dark);font-size:13px;line-height:1.6}
+.page{max-width:800px;margin:0 auto;padding:32px 24px 80px}
+
+/* 헤더 */
+.header{display:flex;align-items:flex-start;justify-content:space-between;padding-bottom:20px;border-bottom:2px solid var(--dark);margin-bottom:32px}
+.header-left h1{font-size:22px;font-weight:900;letter-spacing:-.5px;margin-bottom:4px}
+.header-left .sub{font-size:13px;color:var(--muted)}
+.header-right{text-align:right;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.8}
+.header-right b{color:var(--mid)}
+
+/* 컨텍스트 */
+.context{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:32px}
+.context-title{font-size:11px;font-weight:800;letter-spacing:1px;color:var(--muted);text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:12px}
+.context p{font-size:13px;color:var(--mid);line-height:1.8;margin-bottom:8px}
+.context p:last-child{margin-bottom:0}
+.context b{color:var(--dark)}
+
+/* 다이어그램 */
+.diagram{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:32px}
+.diagram-title{font-size:11px;font-weight:800;letter-spacing:1px;color:var(--muted);text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:16px}
+.dual-track{display:grid;grid-template-columns:1fr 40px 1fr;gap:0;align-items:stretch}
+.track{border-radius:8px;padding:16px}
+.track-kbo{background:#F0FDF4;border:1px solid #BBF7D0}
+.track-pz{background:var(--primary-light);border:1px solid var(--primary-mid)}
+.track-label{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:10px}
+.track-kbo .track-label{color:#166534}
+.track-pz .track-label{color:var(--primary)}
+.track h3{font-size:15px;font-weight:800;margin-bottom:8px}
+.track-kbo h3{color:#166534}
+.track-pz h3{color:#1E40AF}
+.track-flow{font-size:12px;line-height:2;color:var(--mid)}
+.track-flow .arrow{color:var(--muted);font-size:11px}
+.track-divider{display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--border);font-weight:300}
+.track-bottom{margin-top:12px;padding-top:10px;border-top:1px dashed;font-size:11px;font-weight:600}
+.track-kbo .track-bottom{border-color:#86EFAC;color:#166534}
+.track-pz .track-bottom{border-color:var(--primary-mid);color:#1E40AF}
+
+/* 포인트 라이프사이클 */
+.lifecycle{display:flex;align-items:stretch;gap:6px;margin-top:16px}
+.lc-box{flex:1;border-radius:8px;padding:12px 10px;text-align:center}
+.lc-box.earn{background:#F0FDF4;border:1px solid #BBF7D0}
+.lc-box.spend{background:#FEF2F2;border:1px solid #FECACA}
+.lc-box.reward{background:var(--primary-light);border:1px solid var(--primary-mid)}
+.lc-box.expire{background:#F5F3FF;border:1px solid #DDD6FE}
+.lc-label{font-size:10px;font-weight:700;letter-spacing:.5px;margin-bottom:4px}
+.lc-box.earn .lc-label{color:#166534}
+.lc-box.spend .lc-label{color:#991B1B}
+.lc-box.reward .lc-label{color:#1E40AF}
+.lc-box.expire .lc-label{color:#5B21B6}
+.lc-val{font-size:11px;color:var(--mid);line-height:1.6}
+.lc-arrow{display:flex;align-items:center;font-size:16px;color:var(--border);flex-shrink:0}
+
+/* 안건 */
+.agenda{margin-bottom:36px}
+.agenda-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;font-size:13px;font-weight:800;font-family:'DM Mono',monospace;flex-shrink:0}
+.agenda-num.decide{background:var(--primary);color:var(--white)}
+.agenda-num.share{background:var(--purple-bg);color:var(--purple-text);border:1px solid var(--purple-border)}
+.agenda-header{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+.agenda-type{font-size:10px;font-weight:700;letter-spacing:.5px;border-radius:4px;padding:2px 8px}
+.agenda-type.decide{background:var(--primary-light);color:var(--primary)}
+.agenda-type.share{background:var(--purple-bg);color:var(--purple-text)}
+.agenda h2{font-size:17px;font-weight:800;letter-spacing:-.3px}
+.agenda-why{background:var(--bg);border-left:3px solid var(--border);padding:10px 14px;margin:12px 0;font-size:12px;color:var(--mid);line-height:1.8}
+.agenda-why b{color:var(--dark)}
+.agenda-direction{background:var(--green-bg);border:1px solid var(--green-border);border-radius:8px;padding:12px 14px;margin:12px 0;font-size:12px;line-height:1.8;color:var(--green-text)}
+.agenda-direction b{font-weight:700}
+.agenda-options{margin:12px 0}
+.option{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;display:grid;grid-template-columns:60px 1fr;gap:8px;font-size:12px}
+.option.recommended{border-color:var(--primary);border-width:2px}
+.option-label{font-weight:700;color:var(--mid);font-family:'DM Mono',monospace;font-size:11px;padding-top:1px}
+.option-label.rec{color:var(--primary)}
+.option-body{color:var(--mid);line-height:1.7}
+.option-body b{color:var(--dark)}
+.rec-badge{display:inline-block;font-size:9px;font-weight:700;background:var(--primary);color:var(--white);border-radius:3px;padding:1px 6px;margin-left:6px;vertical-align:1px}
+
+/* 테이블 */
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:12px}
+th{background:#EFF6FF;font-weight:600;padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);font-size:11px;color:var(--mid)}
+td{padding:8px 10px;border-bottom:1px solid #F1F5F9;vertical-align:top;line-height:1.7}
+tr:nth-child(even) td{background:#F8FAFC}
+.c{text-align:center}.r{text-align:right}
+.mono{font-family:'DM Mono',monospace}
+.pos{color:#166534;font-weight:600}
+.neg{color:#991B1B;font-weight:600}
+.hl td{background:#EFF6FF!important;font-weight:600}
+
+/* 보류 */
+.hold-list{margin:12px 0}
+.hold-item{display:grid;grid-template-columns:1fr 140px 100px;gap:8px;padding:10px 14px;border-bottom:1px solid #F1F5F9;font-size:12px;align-items:center}
+.hold-item:last-child{border-bottom:none}
+.hold-item b{color:var(--dark)}
+.hold-status{font-size:10px;font-weight:700;border-radius:4px;padding:2px 8px;text-align:center}
+.hold-status.wait{background:var(--amber-bg);color:var(--amber-text)}
+.hold-status.hold{background:var(--purple-bg);color:var(--purple-text)}
+.hold-owner{font-size:11px;color:var(--muted);text-align:center}
+
+/* 하단 */
+.footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);line-height:1.8}
+.footer b{color:var(--mid)}
+.divider{height:1px;background:var(--border);margin:32px 0}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- 헤더 -->
+<div class="header">
+  <div class="header-left">
+    <h1>포인트예측(PZ) v2.0 회의 안건표</h1>
+    <div class="sub">폴리코인 정책 확정 및 법령 리스크 공유</div>
+  </div>
+  <div class="header-right">
+    일시 <b>2026-04-29</b><br>
+    첨부 <b>PZ 정책서 v2.0-draft</b><br>
+    목표 <b>결정 안건 3건 · 공유 안건 1건</b>
+  </div>
+</div>
+
+<!-- 컨텍스트: 왜 이 회의가 필요한가 -->
+<div class="context">
+  <div class="context-title">회의 배경</div>
+  <p>기존 포인트예측 v1.0(파리뮤추얼 기반)이 <b>사행행위규제법·도박개장죄·국민체육진흥법에 직접 저촉</b>되는 구조임이 확인되어, 법령 리스크를 회피하는 새로운 구조(v2.0)를 설계했습니다.</p>
+  <p>v2.0의 핵심은 <b>민심마켓·네이버 치지직·신한 쏠야구와 동일한 합법 설계 원칙</b>(비구매·고정비용·비제로섬)을 적용하면서, KBO 픽/응모 체계와 완전 독립된 포인트 경제를 운영하는 것입니다.</p>
+  <p>오늘 회의에서 <b>3개 미확정 항목을 결정</b>하면 기능정의서 v2.0 작성에 착수할 수 있습니다.</p>
+</div>
+
+<!-- 구조도: 듀얼 트랙 -->
+<div class="diagram">
+  <div class="diagram-title">서비스 구조 — 듀얼 트랙</div>
+  <div class="dual-track">
+    <div class="track track-kbo">
+      <div class="track-label">야구 탭 (KBO 픽)</div>
+      <h3>응모권 체계</h3>
+      <div class="track-flow">
+        KBO 경기 예측 (무료 참여)<br>
+        <span class="arrow">↓</span> 성공 시<br>
+        응모권 1장 획득<br>
+        <span class="arrow">↓</span><br>
+        직관 티켓 응모 참여
+      </div>
+      <div class="track-bottom">변경 없음 · 기존 그대로 유지</div>
+    </div>
+    <div class="track-divider">│</div>
+    <div class="track track-pz">
+      <div class="track-label">포인트예측 탭 (PZ) — 신규</div>
+      <h3>폴리코인 체계</h3>
+      <div class="track-flow">
+        K리그·KBL·E스포츠·정치·시사 예측<br>
+        <span class="arrow">↓</span> 참여 시 10P 차감<br>
+        성공 → 구간별 고정 보상 획득<br>
+        실패 → 10P 소멸
+      </div>
+      <div class="track-bottom">폴리코인 ≠ 응모권 · 교환 경로 없음</div>
+    </div>
+  </div>
+</div>
+
+<!-- 폴리코인 라이프사이클 -->
+<div class="diagram">
+  <div class="diagram-title">폴리코인 라이프사이클</div>
+  <div class="lifecycle">
+    <div class="lc-box earn">
+      <div class="lc-label">획득</div>
+      <div class="lc-val">가입 보너스<br>출석 체크<br>PZ 정답 보상</div>
+    </div>
+    <div class="lc-arrow">→</div>
+    <div class="lc-box spend">
+      <div class="lc-label">소비</div>
+      <div class="lc-val">PZ 마켓 참여<br>(10P 고정 차감)</div>
+    </div>
+    <div class="lc-arrow">→</div>
+    <div class="lc-box reward">
+      <div class="lc-label">보상</div>
+      <div class="lc-val">정답 시 구간 보상<br>플랫폼 직접 지급<br>(비제로섬)</div>
+    </div>
+    <div class="lc-arrow">→</div>
+    <div class="lc-box expire">
+      <div class="lc-label">소멸</div>
+      <div class="lc-val">90일 유효기간<br>미사용 시 자동 소멸</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- 안건 1: 배율 확정 -->
+<div class="agenda">
+  <div class="agenda-header">
+    <span class="agenda-num decide">1</span>
+    <span class="agenda-type decide">결정 필요</span>
+  </div>
+  <h2>마켓 카테고리별 보상 배율 확정</h2>
+
+  <div class="agenda-why">
+    <b>왜 안건인가:</b> 배율이 확정되어야 공급 수치(가입 보너스·출석 보상)를 역산할 수 있고, 플랫폼 인플레이션 통제 여부를 판단할 수 있습니다. 배율은 유저 체감 보상(참여 동기)과 경제 안정성(인플레이션) 사이의 균형점입니다.
+  </div>
+
+  <div class="agenda-direction">
+    <b>우리 방향:</b> 민심마켓(50/100/150)보다 보수적인 40/80/120을 권장합니다. 이유는 세 가지입니다. ① 광고 보상(RV→P) 경로가 아직 미확정이라 보상 수입원이 제한적, ② 기프티콘 등 외부 소각처 없이 PZ 참여만으로 경제를 돌려야 함, ③ 90일 만료 정책이 인플레이션을 잡아주므로 극단적 긴축은 불필요. 배율은 나중에 올리기는 쉽지만 내리면 유저 반발이 큽니다.
+  </div>
+
+  <table>
+    <thead><tr><th style="width:22%">카테고리</th><th style="width:13%" class="c">안 A</th><th style="width:13%" class="c">안 B</th><th style="width:13%" class="c">민심마켓</th><th>시뮬레이션 결과 (안 A 기준)</th></tr></thead>
+    <tbody>
+      <tr><td><b>스포츠 승부예측</b><br><span style="font-size:11px;color:var(--muted)">K리그·KBL·E스포츠</span></td><td class="c mono"><b>40</b></td><td class="c mono">50</td><td class="c mono" style="color:var(--muted)">50</td><td>45%구간 보상 22P (2.2배). 유저 일일 +14.8P</td></tr>
+      <tr><td><b>정치 · 경제 · 시사</b></td><td class="c mono"><b>80</b></td><td class="c mono">100</td><td class="c mono" style="color:var(--muted)">100</td><td>45%구간 보상 44P (4.4배). 참여 동기 충분</td></tr>
+      <tr><td><b>기록 · 이벤트</b><br><span style="font-size:11px;color:var(--muted)">추후 확장 시</span></td><td class="c mono"><b>120</b></td><td class="c mono">150</td><td class="c mono" style="color:var(--muted)">150</td><td>45%구간 보상 66P (6.6배). 고난이도 보상감</td></tr>
+      <tr class="hl"><td><b>플랫폼 월간 순발행</b><br><span style="font-size:11px">(PZ 참여 1,100명 기준)</span></td><td class="c mono">+488K P</td><td class="c mono">+820K P</td><td class="c mono" style="color:var(--muted)">—</td><td>안 A가 인플레이션 40% 적음. 90일 만료로 통제 가능.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="option recommended">
+    <div class="option-label rec">안 A <span class="rec-badge">권장</span></div>
+    <div class="option-body"><b>40/80/120 배율.</b> 보수적 출발. 광고 보상·기프티콘 등 추가 경로 확보 후 배율 상향 가능. 올리기는 쉽고 내리기는 어렵습니다.</div>
+  </div>
+  <div class="option">
+    <div class="option-label">안 B</div>
+    <div class="option-body"><b>50/100/150 배율.</b> 민심마켓 동일. 유저 체감 강하나 인플레이션 커짐. 소각 장치(프리미엄 마켓 등) 필요성 높아짐.</div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- 안건 2: 소멸 기준 -->
+<div class="agenda">
+  <div class="agenda-header">
+    <span class="agenda-num decide">2</span>
+    <span class="agenda-type decide">결정 필요</span>
+  </div>
+  <h2>폴리코인 소멸 기준 (90일 유효기간)</h2>
+
+  <div class="agenda-why">
+    <b>왜 안건인가:</b> 90일 유효기간은 확정됐지만, "90일을 어디서부터 세는가"에 따라 유저 경험과 인플레이션 통제 효과가 다릅니다. 개발 구현 방식도 달라집니다.
+  </div>
+
+  <div class="agenda-direction">
+    <b>우리 방향:</b> 획득일 기준(안 A)을 권장합니다. 사용일 갱신 방식은 활발한 유저의 포인트가 영구 유지되어 인플레이션 통제 효과가 반감됩니다. 항공 마일리지·통신사 포인트 대부분이 획득일 기준입니다.
+  </div>
+
+  <div class="option recommended">
+    <div class="option-label rec">안 A <span class="rec-badge">권장</span></div>
+    <div class="option-body"><b>획득일 기준 만료.</b> 1월 1일에 받은 100P → 4월 1일에 자동 소멸. 단순하고 예측 가능. 인플레이션 통제 효과 확실. 포인트를 "쓰게 만드는" 압력이 강함.</div>
+  </div>
+  <div class="option">
+    <div class="option-label">안 B</div>
+    <div class="option-body"><b>마지막 사용일 기준 갱신.</b> 포인트를 1번이라도 쓰면 전체 잔액의 만료가 90일 뒤로 연장. 유저 친화적이나 활발한 유저 포인트가 영구 유지되어 인플레이션 통제 어려움.</div>
+  </div>
+  <div class="option">
+    <div class="option-label">안 C</div>
+    <div class="option-body"><b>FIFO(선입선출) 만료.</b> 가장 오래된 포인트부터 순서대로 소멸. 정밀하지만 개발 복잡도 높음. 유저에게 "어떤 포인트가 먼저 사라지는지" 안내 필요.</div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- 안건 3: 공급 수치 -->
+<div class="agenda">
+  <div class="agenda-header">
+    <span class="agenda-num decide">3</span>
+    <span class="agenda-type decide">결정 필요</span>
+  </div>
+  <h2>공급 수치 확정 (가입 보너스 · 출석 보상)</h2>
+
+  <div class="agenda-why">
+    <b>왜 안건인가:</b> 신규 유저의 첫 참여 경험과 일일 리텐션을 결정하는 수치입니다. 참여비 10P가 확정됐으므로, "신규 유저가 몇 번 참여할 수 있는가"와 "매일 출석하면 몇 번 추가 참여 가능한가"가 핵심입니다.
+  </div>
+
+  <div class="agenda-direction">
+    <b>우리 방향:</b> 가입 보너스는 참여 10~20회분(100~200P), 출석 보상은 참여 0.5~1회분(5~10P)이 적정합니다. 가입 보너스가 너무 크면 초기 인플레이션이 심하고, 너무 작으면 첫 경험이 부족합니다. v1.0의 5,000P는 참여비 10P 기준 500회분으로 과다합니다.
+  </div>
+
+  <table>
+    <thead><tr><th style="width:22%">항목</th><th class="c" style="width:13%">안 A</th><th class="c" style="width:13%">안 B</th><th class="c" style="width:13%">안 C</th><th>판단 기준</th></tr></thead>
+    <tbody>
+      <tr><td><b>신규 가입 보너스</b></td><td class="c mono">100P</td><td class="c mono"><b>200P</b></td><td class="c mono">500P</td><td>100P=10회, 200P=20회, 500P=50회 참여 가능</td></tr>
+      <tr><td><b>일일 출석 보상</b></td><td class="c mono">5P</td><td class="c mono"><b>10P</b></td><td class="c mono">20P</td><td>5P=0.5회, 10P=1회, 20P=2회 추가 참여분</td></tr>
+      <tr class="hl"><td><b>신규 유저 포인트 소진</b><br><span style="font-size:11px">(일 6.5회 참여, 정답률 52%)</span></td><td class="c mono">~14일</td><td class="c mono"><b>~25일</b></td><td class="c mono">~45일</td><td>너무 빠르면 이탈, 너무 느리면 인플레이션</td></tr>
+    </tbody>
+  </table>
+
+  <div class="option recommended">
+    <div class="option-label rec">안 B <span class="rec-badge">권장</span></div>
+    <div class="option-body"><b>가입 200P + 출석 10P.</b> 신규 유저가 약 25일간 참여 가능. 90일 만료 주기 내에서 자연스러운 사이클. 일일 출석 10P = 매일 1회 참여분을 출석만으로 확보하여 최소 리텐션 보장.</div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- 안건 4: 보류 항목 공유 -->
+<div class="agenda">
+  <div class="agenda-header">
+    <span class="agenda-num share">4</span>
+    <span class="agenda-type share">현황 공유</span>
+  </div>
+  <h2>보류 항목 현황 — 외부 결과 대기 건</h2>
+
+  <div class="agenda-why">
+    <b>왜 공유하는가:</b> 아래 항목들은 법무팀·금감원 등 외부 결과에 따라 포인트 정책 전체가 변경될 수 있는 건들입니다. 오늘 결정 사항이 아니지만, 진행 현황을 공유하고 리스크를 인지해야 합니다.
+  </div>
+
+  <div style="background:var(--white);border:1px solid var(--border);border-radius:8px;overflow:hidden">
+    <div style="display:grid;grid-template-columns:1fr 140px 80px;gap:8px;padding:8px 14px;background:#F1F5F9;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.5px">
+      <div>항목</div><div class="c">상태</div><div class="c">담당</div>
+    </div>
+    <div class="hold-item">
+      <div><b>유료 포인트 (현금 충전)</b><br><span style="font-size:11px;color:var(--muted)">허용 시 가치 기준·전자금융거래법 재검토 필요</span></div>
+      <div class="hold-status wait">법무 검토 중</div>
+      <div class="hold-owner">법무팀</div>
+    </div>
+    <div class="hold-item">
+      <div><b>보험 BM (이벤트 패스)</b><br><span style="font-size:11px;color:var(--muted)">금감원 문의 진행 예정. 중개업 라이선스·사행성 리스크</span></div>
+      <div class="hold-status wait">금감원 문의 대기</div>
+      <div class="hold-owner">마데팀</div>
+    </div>
+    <div class="hold-item">
+      <div><b>보험 패스 → 응모권 지급 구조</b><br><span style="font-size:11px;color:var(--muted)">현금→응모권 경로 생성 시 기존 응모권 체계 충돌</span></div>
+      <div class="hold-status wait">보험 BM과 동시 검토</div>
+      <div class="hold-owner">마데팀</div>
+    </div>
+    <div class="hold-item">
+      <div><b>기프티콘 교환</b><br><span style="font-size:11px;color:var(--muted)">포인트에 경제적 가치 부여 → 선불전자지급수단 해당 가능</span></div>
+      <div class="hold-status hold">법무 결과 후 검토</div>
+      <div class="hold-owner">기획</div>
+    </div>
+    <div class="hold-item">
+      <div><b>STC(스테이블 코인) 연계</b><br><span style="font-size:11px;color:var(--muted)">관련 법제화 완료 후 검토. 현재 기능정의서에서 관련 문구 전면 삭제</span></div>
+      <div class="hold-status hold">법제화 대기</div>
+      <div class="hold-owner">—</div>
+    </div>
+    <div class="hold-item">
+      <div><b>게임물 해당 여부</b><br><span style="font-size:11px;color:var(--muted)">해당 시 경품 1만원 이하 제한 적용. 기존 응모(티켓)에도 소급 영향</span></div>
+      <div class="hold-status hold">확인 필요</div>
+      <div class="hold-owner">법무팀</div>
+    </div>
+  </div>
+
+  <div style="background:var(--red-bg);border:1px solid var(--red-border);border-radius:8px;padding:12px 14px;margin-top:12px;font-size:12px;line-height:1.8;color:var(--red-text)">
+    <b>⚠️ 유의:</b> "유료 포인트" 법무 결과에 따라 오늘 결정한 배율·공급 수치가 변경될 수 있습니다. 유료 충전이 허용되면 가치 기준이 무가치 선언형에서 내부 기준형으로 전환되어야 하며, 이에 따라 경제 구조 재시뮬레이션이 필요합니다.
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- 회의 후 다음 단계 -->
+<div class="context">
+  <div class="context-title">회의 후 다음 단계</div>
+  <p><b>안건 1~3 확정 시</b> → 기능정의서 PZ v2.0 작성 착수 (예상 소요: 2~3일)</p>
+  <p><b>법무 결과 수령 시</b> → 포인트 정책 재검토 및 기능정의서 반영</p>
+  <p><b>금감원 결과 수령 시</b> → 보험 BM 구조 확정 및 응모권 체계 영향도 분석</p>
+</div>
+
+<div class="footer">
+  <b>첨부 문서:</b> 포인트예측 정책서 v2.0-draft (전체 12개 섹션, 법령 리스크 포함)<br>
+  <b>시뮬레이터:</b> 포인트 경제 시뮬레이션 HTML (슬라이더 조작으로 수치 확인 가능)<br>
+  <b>참고:</b> 본 안건표의 법령 분석은 AI 기반 자가 체크이며, 최종 법적 판단은 법무팀에서 진행합니다.
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>커뮤니티 컨트랙트 풀</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #1F30E9;
+    --navy: #00143F;
+    --mint: #09FFEE;
+    --teal: #0A8A7A;
+    --teal-bg: #EDFAF7;
+    --teal-border: #B0E8E0;
+    --white: #ffffff;
+    --bg: #F2FBF9;
+    --card-bg: #ffffff;
+    --text-main: #0A1F1C;
+    --text-sub: #4A6060;
+    --text-light: #8AABAA;
+    --border: #D8EEEB;
+    --tag-bg: #E0F5F2;
+    --tag-text: #0A7A6A;
+    --risk-bg: #FFF4F4;
+    --badge-green-bg: #EDFAF4;
+    --badge-green-text: #1A8A5A;
+    --host-bg: #EEF0FF;
+    --host-border: #C5CAFF;
+    --host-text: #1F30E9;
+    --guest-bg: #FFF8E8;
+    --guest-border: #FFE4A0;
+    --guest-text: #A06800;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text-main); line-height: 1.6; }
+
+  .header { background: var(--teal); padding: 48px 40px 40px; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -60px; right: -60px; width: 280px; height: 280px; background: radial-gradient(circle, rgba(9,255,238,0.15) 0%, transparent 70%); border-radius: 50%; }
+  .header::after { content: ''; position: absolute; bottom: -40px; left: 20%; width: 200px; height: 200px; background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%); border-radius: 50%; }
+  .header-inner { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; }
+  .header-label { display: inline-block; font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; color: #A0FFE8; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 14px; padding: 4px 10px; border: 1px solid rgba(160,255,232,0.35); border-radius: 4px; }
+  .header h1 { font-size: 30px; font-weight: 900; color: var(--white); line-height: 1.3; margin-bottom: 10px; }
+  .header h1 span { color: #A0FFE8; }
+  .header-sub { font-size: 14px; color: rgba(255,255,255,0.6); }
+  .header-desc { margin-top: 16px; font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.7; max-width: 600px; }
+  .header-meta { margin-top: 24px; display: flex; gap: 20px; flex-wrap: wrap; }
+  .meta-chip { font-size: 12px; color: rgba(255,255,255,0.6); display: flex; align-items: center; gap: 6px; }
+  .meta-chip .dot { width: 6px; height: 6px; border-radius: 50%; background: #A0FFE8; flex-shrink: 0; }
+
+  .intro-banner { max-width: 860px; margin: 32px auto 0; padding: 0 24px; }
+  .intro-box { background: var(--white); border: 1px solid var(--border); border-left: 4px solid var(--teal); border-radius: 12px; padding: 20px 24px; }
+  .intro-box p { font-size: 13.5px; color: var(--text-sub); line-height: 1.75; }
+  .intro-box strong { color: var(--text-main); font-weight: 700; }
+
+  .section { max-width: 860px; margin: 0 auto; padding: 32px 24px 0; }
+  .section-title { font-size: 11px; font-family: 'DM Mono', monospace; font-weight: 500; color: var(--text-light); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+
+  .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 24px; overflow: hidden; transition: box-shadow 0.2s; }
+  .card:hover { box-shadow: 0 8px 32px rgba(10,138,122,0.1); }
+  .card-header { padding: 24px 28px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 16px; }
+  .card-number { width: 36px; height: 36px; background: var(--teal); color: var(--white); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; flex-shrink: 0; margin-top: 2px; }
+  .card-title-wrap { flex: 1; }
+  .card-title { font-size: 18px; font-weight: 900; color: var(--text-main); margin-bottom: 6px; line-height: 1.3; }
+  .card-tagline { font-size: 13px; color: var(--text-sub); }
+  .card-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .tag { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; background: var(--tag-bg); color: var(--tag-text); }
+  .tag.b2b { background: #EEF0FF; color: var(--blue); }
+  .card-body { padding: 24px 28px; }
+
+  .section-label { font-size: 10px; font-family: 'DM Mono', monospace; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); margin-bottom: 10px; margin-top: 22px; }
+  .section-label:first-child { margin-top: 0; }
+
+  .bg-text { font-size: 13.5px; color: var(--text-sub); line-height: 1.8; }
+  .bg-text strong { color: var(--text-main); font-weight: 700; }
+
+  /* 호스트/게스트 그리드 */
+  .hg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
+  .hg-box { border-radius: 10px; padding: 14px 16px; }
+  .hg-box.host { background: var(--host-bg); border: 1px solid var(--host-border); }
+  .hg-box.guest { background: var(--guest-bg); border: 1px solid var(--guest-border); }
+  .hg-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+  .hg-box.host .hg-label { color: var(--host-text); }
+  .hg-box.guest .hg-label { color: var(--guest-text); }
+  .hg-item { font-size: 12.5px; color: var(--text-sub); line-height: 1.7; padding: 3px 0; display: flex; gap: 7px; align-items: flex-start; }
+
+  .case-box { background: #F2FDFB; border: 1px solid #C8EDE8; border-radius: 10px; padding: 14px 16px; margin-top: 10px; }
+  .case-title { font-size: 11px; font-weight: 700; color: var(--teal); letter-spacing: 0.05em; margin-bottom: 8px; text-transform: uppercase; }
+  .case-item { font-size: 13px; color: var(--text-sub); line-height: 1.7; padding: 6px 0; border-bottom: 1px solid #D8EEEA; display: flex; gap: 10px; align-items: flex-start; }
+  .case-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .case-item .case-name { font-weight: 700; color: var(--text-main); white-space: nowrap; min-width: 100px; }
+
+  .flow-wrap { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+  .flow-step { display: flex; align-items: flex-start; gap: 10px; }
+  .flow-arrow { font-size: 12px; color: var(--teal); font-family: 'DM Mono', monospace; font-weight: 500; padding-top: 2px; min-width: 28px; }
+  .flow-text { font-size: 13.5px; color: var(--text-main); line-height: 1.65; }
+  .flow-text em { font-style: normal; font-weight: 700; color: var(--teal); }
+
+  .diff-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
+  .diff-box { border-radius: 10px; padding: 14px 16px; }
+  .diff-box.web2 { background: #F5F5F5; border: 1px solid #E0E0E0; }
+  .diff-box.web3 { background: var(--badge-green-bg); border: 1px solid #B8EDD5; }
+  .diff-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+  .diff-box.web2 .diff-label { color: #888; }
+  .diff-box.web3 .diff-label { color: var(--badge-green-text); }
+  .diff-item { font-size: 12.5px; color: var(--text-sub); line-height: 1.7; padding: 3px 0; display: flex; gap: 7px; align-items: flex-start; }
+
+  .risk-box { background: var(--risk-bg); border: 1px solid #FADADD; border-radius: 10px; padding: 14px 16px; margin-top: 4px; }
+  .risk-item { font-size: 13px; color: #8B2020; line-height: 1.7; display: flex; gap: 8px; align-items: flex-start; padding: 4px 0; }
+  .risk-item + .risk-item { border-top: 1px solid #F5C6C6; }
+
+  .footer { max-width: 860px; margin: 32px auto 0; padding: 0 24px 48px; }
+  .footer-inner { background: var(--teal); border-radius: 16px; padding: 28px 32px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  .footer-text { font-size: 13px; color: rgba(255,255,255,0.6); }
+  .footer-text strong { color: #A0FFE8; font-weight: 700; }
+  .footer-badge { font-family: 'DM Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.35); letter-spacing: 0.08em; }
+
+  @media (max-width: 600px) {
+    .header { padding: 36px 20px 32px; }
+    .header h1 { font-size: 22px; }
+    .intro-banner, .section, .footer { padding-left: 16px; padding-right: 16px; }
+    .card-header { padding: 20px 20px 16px; flex-direction: column; gap: 10px; }
+    .card-body { padding: 20px; }
+    .diff-grid, .hg-grid { grid-template-columns: 1fr; }
+    .footer-inner { flex-direction: column; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="header-label">Smart Contract Ideation — Type B</div>
+    <h1><span>커뮤니티 컨트랙트 풀</span><br>호스트가 조건을 설계하고, 다수가 참여해 함께 실행한다</h1>
+    <div class="header-sub">Community Contract Pool · 1:N 구조</div>
+    <div class="header-desc">한 명의 호스트가 조건을 공개하면, 불특정 다수의 게스트가 판단하고 참여합니다. 조건이 달성되면 자동 실행 — 플랫폼도, 중재자도 필요 없습니다. 집단 행동의 신뢰 문제를 코드로 해결합니다.</div>
+    <div class="header-meta">
+      <div class="meta-chip"><span class="dot"></span> 사업부 내부 공유용</div>
+      <div class="meta-chip"><span class="dot"></span> 아이디어 발산 단계</div>
+      <div class="meta-chip"><span class="dot"></span> 2026.06</div>
+    </div>
+  </div>
+</div>
+
+<div class="intro-banner">
+  <div class="intro-box">
+    <p>커뮤니티 컨트랙트 풀의 핵심은 <strong>"집단 참여 기반의 조건부 자동 실행"</strong>입니다. 호스트는 조건을 설계하는 생산자, 게스트는 조건을 보고 참여하는 소비자/투자자입니다. <strong>참여 인원·금액·기간 등 조건이 충족되는 순간 컨트랙트가 자동으로 실행</strong>되며, 미달 시 자동 환불됩니다. 유튜브가 콘텐츠 생산을 민주화했듯, 이 구조는 <strong>계약/금융 상품 생산을 민주화</strong>합니다.</p>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Ideas — 4 Concepts</div>
+
+  <!-- CARD 1: 공동구매 -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-number">01</div>
+      <div class="card-title-wrap">
+        <div class="card-title">동네 공동구매 조건부 계약</div>
+        <div class="card-tagline">"30명 모이면 내가 협상해올게" — 집단 행동을 코드로 보장하다</div>
+        <div class="card-tags">
+          <span class="tag">공동구매</span><span class="tag">조건부 결제</span><span class="tag">자동 환불</span><span class="tag">B2C</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+
+      <div class="section-label">배경 & 문제</div>
+      <div class="bg-text">카카오톡 단체방에서 공동구매를 진행할 때 가장 큰 문제는 <strong>"방장이 돈 들고 사라지는 것"</strong>과 <strong>"인원 미달 시 환불 불확실성"</strong>입니다. 현재는 방장 개인 신뢰에 완전히 의존하는 구조입니다. 당근마켓 같은 플랫폼도 공동구매 에스크로는 제공하지 않습니다.</div>
+
+      <div class="case-box" style="margin-top:12px;">
+        <div class="case-title">해외 유사 서비스</div>
+        <div class="case-item"><span class="case-name">Mirror.xyz</span><span>크리에이터가 조건(모금액)을 설정하고 다수가 참여, 달성 시 콘텐츠/프로젝트 자동 실행. 미달 시 전액 자동 환불.</span></div>
+        <div class="case-item"><span class="case-name">Juicebox</span><span>프로젝트 자금을 스마트 컨트랙트로 모금 관리. 투명한 자금 흐름과 조건부 실행으로 신뢰 문제 해결.</span></div>
+      </div>
+
+      <div class="section-label">호스트가 할 수 있는 것</div>
+      <div class="hg-grid">
+        <div class="hg-box host">
+          <div class="hg-label">🏠 Host (방장/총무)</div>
+          <div class="hg-item"><span>→</span><span>참여 인원 목표 설정 (예: 30명)</span></div>
+          <div class="hg-item"><span>→</span><span>마감 기한 설정</span></div>
+          <div class="hg-item"><span>→</span><span>성사 시 수수료 자동 수취</span></div>
+          <div class="hg-item"><span>→</span><span>업체와 협상 후 결과 온체인 등록</span></div>
+        </div>
+        <div class="hg-box guest">
+          <div class="hg-label">👥 Guest (참여자)</div>
+          <div class="hg-item"><span>→</span><span>조건 확인 후 참여 의사 표명</span></div>
+          <div class="hg-item"><span>→</span><span>목표 달성 시 자동 결제</span></div>
+          <div class="hg-item"><span>→</span><span>미달 시 자동 전액 환불</span></div>
+          <div class="hg-item"><span>→</span><span>방장 신뢰 없이도 안전하게 참여</span></div>
+        </div>
+      </div>
+
+      <div class="section-label">작동 방식</div>
+      <div class="flow-wrap">
+        <div class="flow-step"><div class="flow-arrow">01 →</div><div class="flow-text">호스트가 <em>목표 인원·금액·기한</em> 설정 후 컨트랙트 공개</div></div>
+        <div class="flow-step"><div class="flow-arrow">02 →</div><div class="flow-text">게스트들이 참여 — 자금은 컨트랙트에 <em>잠금</em> (호스트 접근 불가)</div></div>
+        <div class="flow-step"><div class="flow-arrow">03 →</div><div class="flow-text">목표 달성 시 → 호스트에게 자금 <em>자동 지급</em>, 호스트는 업체와 계약 진행</div></div>
+        <div class="flow-step"><div class="flow-arrow">04 →</div><div class="flow-text">미달 시 → 참여자 전원 <em>자동 환불</em></div></div>
+      </div>
+
+      <div class="section-label">성공 체크 기준 (오라클)</div>
+      <div class="case-box">
+        <div class="case-item"><span class="case-name">참여 수 오라클</span><span>컨트랙트 내부에서 참여자 수를 자동 카운팅 → 목표 인원 도달 시 트리거</span></div>
+        <div class="case-item"><span class="case-name">기한 오라클</span><span>마감 기한 도달 시 → 달성/미달 판단 후 자동 실행 또는 자동 환불</span></div>
+        <div class="case-item"><span class="case-name">납품 확인 오라클</span><span>상품 수령 후 게스트 다수 서명 → 최종 정산 처리</span></div>
+      </div>
+
+      <div class="section-label">Web2 대비 차별점</div>
+      <div class="diff-grid">
+        <div class="diff-box web2">
+          <div class="diff-label">기존 Web2</div>
+          <div class="diff-item"><span>✕</span><span>방장 개인 신뢰에 전적 의존</span></div>
+          <div class="diff-item"><span>✕</span><span>미달 시 환불 보장 없음</span></div>
+          <div class="diff-item"><span>✕</span><span>자금 흐름 불투명</span></div>
+        </div>
+        <div class="diff-box web3">
+          <div class="diff-label">스마트 컨트랙트</div>
+          <div class="diff-item"><span>✓</span><span>방장도 자금 접근 불가 — 조건 달성 시만 지급</span></div>
+          <div class="diff-item"><span>✓</span><span>미달 시 자동 환불 보장</span></div>
+          <div class="diff-item"><span>✓</span><span>모든 참여 내역 온체인 공개</span></div>
+        </div>
+      </div>
+
+      <div class="section-label">리스크 / 고려사항</div>
+      <div class="risk-box">
+        <div class="risk-item"><span>⚠</span><span>호스트가 자금 수령 후 업체와 실제 계약을 이행하는지 오프체인 검증 필요</span></div>
+        <div class="risk-item"><span>⚠</span><span>소비자 보호법상 청약 철회 권리와의 충돌 가능성 검토 필요</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CARD 2: 계 컨트랙트 -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-number">02</div>
+      <div class="card-title-wrap">
+        <div class="card-title">친구끼리 계 컨트랙트</div>
+        <div class="card-tagline">한국 전통 '계'의 Web3 버전 — 먹튀를 코드로 막다</div>
+        <div class="card-tags">
+          <span class="tag">한국 특화</span><span class="tag">계 / 순환 저축</span><span class="tag">먹튀 방지</span><span class="tag">킬러 유즈케이스</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+
+      <div class="section-label">배경 & 문제</div>
+      <div class="bg-text">한국의 '계'는 수십 년간 유지된 소규모 공동 금융 문화입니다. 그러나 매년 <strong>계주(방장) 먹튀 사건</strong>이 반복되고, 피해 금액도 수백만~수천만 원에 달합니다. 카카오페이로 납입을 관리해도, <strong>계주가 돈을 들고 사라지는 것을 막을 방법이 없습니다.</strong> 이 문제는 "신뢰 외에 다른 보장이 없는 구조"에서 비롯됩니다.</div>
+
+      <div class="case-box" style="margin-top:12px;">
+        <div class="case-title">해외 유사 서비스</div>
+        <div class="case-item"><span class="case-name">PoolTogether</span><span>여러 명이 자금을 풀에 예치 → 스마트 컨트랙트가 이자 생성 → 랜덤 당첨자에게 자동 지급. 전 세계 수백억 예치.</span></div>
+        <div class="case-item"><span class="case-name">탈중앙 ROSCA</span><span>순환 저축 신용조합(계)을 스마트 컨트랙트로 구현. 아프리카·동남아 등 계 문화권에서 실제 도입 증가.</span></div>
+      </div>
+
+      <div class="section-label">호스트가 할 수 있는 것</div>
+      <div class="hg-grid">
+        <div class="hg-box host">
+          <div class="hg-label">🏠 Host (계주)</div>
+          <div class="hg-item"><span>→</span><span>인원·금액·주기·순번 설정</span></div>
+          <div class="hg-item"><span>→</span><span>컨트랙트 공개 및 참여자 초대</span></div>
+          <div class="hg-item"><span>→</span><span>계주 몫 순번에 자동 수령</span></div>
+          <div class="hg-item"><span>→</span><span>자금 임의 접근 불가 (신뢰 강제)</span></div>
+        </div>
+        <div class="hg-box guest">
+          <div class="hg-label">👥 Guest (계원)</div>
+          <div class="hg-item"><span>→</span><span>조건 확인 후 참여 서명</span></div>
+          <div class="hg-item"><span>→</span><span>주기별 자동 납입</span></div>
+          <div class="hg-item"><span>→</span><span>내 순번에 자동 지급 보장</span></div>
+          <div class="hg-item"><span>→</span><span>계주 먹튀 리스크 원천 차단</span></div>
+        </div>
+      </div>
+
+      <div class="section-label">작동 방식</div>
+      <div class="flow-wrap">
+        <div class="flow-step"><div class="flow-arrow">01 →</div><div class="flow-text">계주가 <em>인원·금액·순번·주기</em> 설정 후 컨트랙트 생성</div></div>
+        <div class="flow-step"><div class="flow-arrow">02 →</div><div class="flow-text">참여자 전원 납입 → 컨트랙트에 <em>자동 잠금</em></div></div>
+        <div class="flow-step"><div class="flow-arrow">03 →</div><div class="flow-text">설정된 순번·날짜에 따라 해당 순서의 사람에게 <em>자동 지급</em></div></div>
+        <div class="flow-step"><div class="flow-arrow">04 →</div><div class="flow-text">미납 발생 시 → 자동 알림 + 해당 회차 <em>지급 보류</em></div></div>
+      </div>
+
+      <div class="section-label">성공 체크 기준 (오라클)</div>
+      <div class="case-box">
+        <div class="case-item"><span class="case-name">납입 확인 오라클</span><span>참여자 전원 납입 완료 여부를 컨트랙트 내부에서 자동 체크</span></div>
+        <div class="case-item"><span class="case-name">순번/기한 오라클</span><span>블록체인 타임스탬프 기준으로 지급 일자 자동 트리거</span></div>
+        <div class="case-item"><span class="case-name">미납 오라클</span><span>납입 미완료 시 → 해당 회차 지급 자동 보류 + 참여자 전원 알림</span></div>
+      </div>
+
+      <div class="section-label">Web2 대비 차별점</div>
+      <div class="diff-grid">
+        <div class="diff-box web2">
+          <div class="diff-label">기존 Web2</div>
+          <div class="diff-item"><span>✕</span><span>계주가 자금 보관 → 먹튀 가능</span></div>
+          <div class="diff-item"><span>✕</span><span>분쟁 시 민사소송 외 방법 없음</span></div>
+          <div class="diff-item"><span>✕</span><span>카카오페이도 계주 신뢰에 의존</span></div>
+        </div>
+        <div class="diff-box web3">
+          <div class="diff-label">스마트 컨트랙트</div>
+          <div class="diff-item"><span>✓</span><span>자금을 컨트랙트가 보관 — 계주도 접근 불가</span></div>
+          <div class="diff-item"><span>✓</span><span>순번·지급 자동 실행, 개입 불가</span></div>
+          <div class="diff-item"><span>✓</span><span>한국 문화 특화 킬러 유즈케이스</span></div>
+        </div>
+      </div>
+
+      <div class="section-label">리스크 / 고려사항</div>
+      <div class="risk-box">
+        <div class="risk-item"><span>⚠</span><span>중도 탈퇴 처리 로직 설계 필요 (미납 시 잔여 참여자 처리)</span></div>
+        <div class="risk-item"><span>⚠</span><span>유사수신행위 규제 해당 여부 법률 검토 필요</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CARD 3: 팀 목표 -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-number">03</div>
+      <div class="card-title-wrap">
+        <div class="card-title">팀 목표 달성 인센티브</div>
+        <div class="card-tagline">"목표 달성하면 자동으로 인센티브가 지급된다" — 인사관리의 신뢰 문제를 코드로</div>
+        <div class="card-tags">
+          <span class="tag">인센티브</span><span class="tag">팀 목표</span><span class="tag b2b">B2B 확장 가능</span><span class="tag">자동 정산</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+
+      <div class="section-label">배경 & 문제</div>
+      <div class="bg-text">조직에서 <strong>"목표 달성했는데 인센티브가 안 나온다"</strong>는 불신은 구성원 이탈의 주요 원인 중 하나입니다. 현재 인센티브는 경영진 재량에 달려 있어 기준이 불투명하고, 사후에 조건이 바뀌는 경우도 빈번합니다. 스마트 컨트랙트로 <strong>조건과 지급을 사전에 코드로 고정</strong>하면 신뢰 문제가 구조적으로 해결됩니다.</div>
+
+      <div class="case-box" style="margin-top:12px;">
+        <div class="case-title">해외 유사 사례</div>
+        <div class="case-item"><span class="case-name">Coordinape</span><span>DAO 기반 팀 보상 분배 플랫폼. 팀원들이 서로의 기여도를 평가하고 스마트 컨트랙트로 자동 분배. Web3 조직에서 널리 사용.</span></div>
+        <div class="case-item"><span class="case-name">Superfluid</span><span>실시간 급여 스트리밍 프로토콜. 목표 달성 여부에 따라 급여/보상 흐름을 자동 조절 가능.</span></div>
+      </div>
+
+      <div class="section-label">호스트가 할 수 있는 것</div>
+      <div class="hg-grid">
+        <div class="hg-box host">
+          <div class="hg-label">🏠 Host (팀장/경영진)</div>
+          <div class="hg-item"><span>→</span><span>목표 지표 및 달성 기준 설정</span></div>
+          <div class="hg-item"><span>→</span><span>인센티브 총액을 컨트랙트에 예치</span></div>
+          <div class="hg-item"><span>→</span><span>분배 비율 사전 공개 (투명성)</span></div>
+          <div class="hg-item"><span>→</span><span>사후 조건 변경 불가 (신뢰 강제)</span></div>
+        </div>
+        <div class="hg-box guest">
+          <div class="hg-label">👥 Guest (팀원)</div>
+          <div class="hg-item"><span>→</span><span>조건 및 분배 기준 사전 확인</span></div>
+          <div class="hg-item"><span>→</span><span>목표 달성 시 자동 지급 보장</span></div>
+          <div class="hg-item"><span>→</span><span>경영진 재량 없이 코드로 실행</span></div>
+          <div class="hg-item"><span>→</span><span>달성 여부 온체인 공개 검증</span></div>
+        </div>
+      </div>
+
+      <div class="section-label">작동 방식</div>
+      <div class="flow-wrap">
+        <div class="flow-step"><div class="flow-arrow">01 →</div><div class="flow-text">팀장이 <em>목표 지표·분배 비율·인센티브 총액</em>을 컨트랙트에 등록</div></div>
+        <div class="flow-step"><div class="flow-arrow">02 →</div><div class="flow-text">인센티브 총액 컨트랙트에 <em>잠금</em> — 경영진도 임의 인출 불가</div></div>
+        <div class="flow-step"><div class="flow-arrow">03 →</div><div class="flow-text">목표 달성 데이터 오라클 전달 → 컨트랙트 <em>자동 검증</em></div></div>
+        <div class="flow-step"><div class="flow-arrow">04 →</div><div class="flow-text">달성 확인 시 → 팀원별 분배 비율대로 <em>자동 지급</em></div></div>
+      </div>
+
+      <div class="section-label">성공 체크 기준 (오라클)</div>
+      <div class="case-box">
+        <div class="case-item"><span class="case-name">매출 오라클</span><span>ERP/회계 시스템 API 연동 → 분기 매출 데이터를 컨트랙트에 전달, 목표 달성 여부 자동 판단</span></div>
+        <div class="case-item"><span class="case-name">KPI 오라클</span><span>사전 합의된 KPI 달성 여부를 데이터 소스(CRM, 분석툴 등)에서 자동 수집</span></div>
+        <div class="case-item"><span class="case-name">다중 서명 오라클</span><span>정량 지표 외 정성 평가가 필요한 경우 → 복수 관리자 서명 후 컨트랙트 실행</span></div>
+      </div>
+
+      <div class="section-label">Web2 대비 차별점</div>
+      <div class="diff-grid">
+        <div class="diff-box web2">
+          <div class="diff-label">기존 Web2</div>
+          <div class="diff-item"><span>✕</span><span>경영진 재량으로 조건 사후 변경 가능</span></div>
+          <div class="diff-item"><span>✕</span><span>인센티브 지급 여부 불투명</span></div>
+          <div class="diff-item"><span>✕</span><span>구성원 불신 → 이탈 원인</span></div>
+        </div>
+        <div class="diff-box web3">
+          <div class="diff-label">스마트 컨트랙트</div>
+          <div class="diff-item"><span>✓</span><span>조건 배포 후 수정 불가 — 신뢰 강제</span></div>
+          <div class="diff-item"><span>✓</span><span>달성 즉시 자동 지급, 지연 없음</span></div>
+          <div class="diff-item"><span>✓</span><span>B2B SaaS로 확장 가능한 구조</span></div>
+        </div>
+      </div>
+
+      <div class="section-label">리스크 / 고려사항</div>
+      <div class="risk-box">
+        <div class="risk-item"><span>⚠</span><span>정성적 KPI(고객 만족도, 팀워크 등)는 오라클 자동화 불가 → 다중 서명 보완 필요</span></div>
+        <div class="risk-item"><span>⚠</span><span>근로기준법상 임금 지급 방식 규정과의 충돌 여부 검토 필요</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CARD 4: 공동 투자 풀 -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-number">04</div>
+      <div class="card-title-wrap">
+        <div class="card-title">소규모 공동 투자 풀</div>
+        <div class="card-tagline">"우리 동네 카페에 같이 투자하자" — 수익 분배를 코드로 자동화하다</div>
+        <div class="card-tags">
+          <span class="tag">공동 투자</span><span class="tag">수익 분배</span><span class="tag">커뮤니티 펀딩</span><span class="tag">B2C / B2B</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+
+      <div class="section-label">배경 & 문제</div>
+      <div class="bg-text">소규모 창업자·자영업자가 주변 지인들에게 <strong>"같이 투자하면 수익 나눠줄게"</strong>라고 제안하는 상황은 흔하지만, 실제로 이를 신뢰 있게 실행할 방법이 없습니다. 공식 투자 계약은 법무 비용이 크고, 구두 약속은 분쟁으로 이어지기 쉽습니다. 스마트 컨트랙트는 <strong>소액·비공식 투자의 신뢰 인프라</strong>가 될 수 있습니다.</div>
+
+      <div class="case-box" style="margin-top:12px;">
+        <div class="case-title">해외 유사 사례</div>
+        <div class="case-item"><span class="case-name">Syndicate</span><span>소규모 투자 클럽을 스마트 컨트랙트로 운영. 자금 모집·분배·청산을 자동화. 법인 설립 없이 투자 그룹 구성 가능.</span></div>
+        <div class="case-item"><span class="case-name">Mirror.xyz</span><span>크리에이터 프로젝트에 다수가 소액 투자 → 수익 발생 시 지분 비율대로 자동 분배.</span></div>
+      </div>
+
+      <div class="section-label">호스트가 할 수 있는 것</div>
+      <div class="hg-grid">
+        <div class="hg-box host">
+          <div class="hg-label">🏠 Host (사업자/창업자)</div>
+          <div class="hg-item"><span>→</span><span>모집 금액·수익 분배 비율·기간 설정</span></div>
+          <div class="hg-item"><span>→</span><span>수익 발생 시 자동 분배 조건 등록</span></div>
+          <div class="hg-item"><span>→</span><span>법무 비용 없이 투자 계약 구현</span></div>
+          <div class="hg-item"><span>→</span><span>투명한 자금 사용 내역 공개</span></div>
+        </div>
+        <div class="hg-box guest">
+          <div class="hg-label">👥 Guest (투자자/지인)</div>
+          <div class="hg-item"><span>→</span><span>조건 확인 후 소액 참여 가능</span></div>
+          <div class="hg-item"><span>→</span><span>수익 발생 시 지분 비율대로 자동 수령</span></div>
+          <div class="hg-item"><span>→</span><span>목표 미달 시 자동 환불</span></div>
+          <div class="hg-item"><span>→</span><span>구두 약속이 아닌 코드로 보장</span></div>
+        </div>
+      </div>
+
+      <div class="section-label">작동 방식</div>
+      <div class="flow-wrap">
+        <div class="flow-step"><div class="flow-arrow">01 →</div><div class="flow-text">호스트가 <em>모집 금액·분배 비율·기간</em>을 컨트랙트에 등록</div></div>
+        <div class="flow-step"><div class="flow-arrow">02 →</div><div class="flow-text">게스트들이 소액 참여 → 자금 컨트랙트에 <em>잠금</em></div></div>
+        <div class="flow-step"><div class="flow-arrow">03 →</div><div class="flow-text">목표 금액 달성 시 → 호스트에게 <em>자동 지급</em> (미달 시 자동 환불)</div></div>
+        <div class="flow-step"><div class="flow-arrow">04 →</div><div class="flow-text">수익 발생 시 → 오라클이 수익 데이터 전달 → 지분 비율대로 <em>자동 분배</em></div></div>
+      </div>
+
+      <div class="section-label">성공 체크 기준 (오라클)</div>
+      <div class="case-box">
+        <div class="case-item"><span class="case-name">모집 달성 오라클</span><span>컨트랙트 내부에서 총 참여 금액 자동 집계 → 목표 달성 시 트리거</span></div>
+        <div class="case-item"><span class="case-name">수익 오라클</span><span>POS·정산 시스템 API 연동 → 매출 데이터를 컨트랙트에 전달, 분배 자동 실행</span></div>
+        <div class="case-item"><span class="case-name">기한 오라클</span><span>투자 기간 만료 시 → 청산 및 원금+수익 자동 반환</span></div>
+      </div>
+
+      <div class="section-label">Web2 대비 차별점</div>
+      <div class="diff-grid">
+        <div class="diff-box web2">
+          <div class="diff-label">기존 Web2</div>
+          <div class="diff-item"><span>✕</span><span>구두 약속 → 분쟁 발생 시 증명 불가</span></div>
+          <div class="diff-item"><span>✕</span><span>공식 계약 시 법무 비용 수백만원</span></div>
+          <div class="diff-item"><span>✕</span><span>수익 분배 시기·금액 불투명</span></div>
+        </div>
+        <div class="diff-box web3">
+          <div class="diff-label">스마트 컨트랙트</div>
+          <div class="diff-item"><span>✓</span><span>조건·분배 비율 온체인 공개 — 투명성 보장</span></div>
+          <div class="diff-item"><span>✓</span><span>법무 비용 없이 계약 강제력 확보</span></div>
+          <div class="diff-item"><span>✓</span><span>수익 발생 즉시 자동 분배</span></div>
+        </div>
+      </div>
+
+      <div class="section-label">리스크 / 고려사항</div>
+      <div class="risk-box">
+        <div class="risk-item"><span>⚠</span><span>자본시장법상 투자 계약 증권 해당 여부 → 법적 리스크 가장 높은 아이디어</span></div>
+        <div class="risk-item"><span>⚠</span><span>수익 오라클 조작 가능성 → 검증된 외부 오라클 또는 멀티 서명 보완 필요</span></div>
+        <div class="risk-item"><span>⚠</span><span>초기 단계에서는 소규모·지인 기반으로 범위를 좁혀 리스크 최소화 권장</span></div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <div class="footer-inner">
+    <div class="footer-text"><strong>커뮤니티 컨트랙트 풀</strong> — 1:N 구조 · 4개 아이디어<br>셀프 커밋 컨트랙트(1:1) 문서와 함께 검토하세요.</div>
+    <div class="footer-badge">DRAFT · 2026.06 · 내부 검토용</div>
+  </div>
+</div>
+
+</body>
+</html>

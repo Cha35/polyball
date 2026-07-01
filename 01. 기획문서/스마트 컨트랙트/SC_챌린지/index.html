@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SC 챌린지 템플릿 아이디에이션 v1.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --primary: #1F30E9;
+    --navy: #00143F;
+    --mint: #09FFEE;
+    --bg-01: #ffffff;
+    --bg-02: #f9f9f9;
+    --line-03: #e5e5e5;
+    --text-03: #101015;
+    --text-04: #454545;
+    --text-05: #888888;
+  }
+  body {
+    font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    background: var(--bg-02);
+    color: var(--text-03);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* HEADER */
+  .doc-header {
+    background: var(--navy);
+    color: white;
+    padding: 40px 48px 36px;
+    position: relative;
+    overflow: hidden;
+  }
+  .doc-header::after {
+    content: '';
+    position: absolute;
+    right: -60px; top: -60px;
+    width: 280px; height: 280px;
+    border-radius: 50%;
+    background: rgba(31,48,233,0.3);
+  }
+  .doc-header::before {
+    content: '';
+    position: absolute;
+    right: 80px; bottom: -40px;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: rgba(9,255,238,0.12);
+  }
+  .doc-header-inner { position: relative; z-index: 1; }
+  .doc-label {
+    display: inline-block;
+    background: rgba(9,255,238,0.15);
+    color: var(--mint);
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.08em;
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+  }
+  .doc-title { font-size: 28px; font-weight: 700; color: #fff; letter-spacing: -0.03em; margin-bottom: 8px; }
+  .doc-subtitle { font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 20px; }
+  .doc-meta { display: flex; gap: 20px; flex-wrap: wrap; }
+  .doc-meta-item { font-size: 12px; color: rgba(255,255,255,0.5); }
+  .doc-meta-item span { color: rgba(255,255,255,0.85); font-weight: 600; margin-left: 4px; }
+
+  /* LAYOUT */
+  .container { max-width: 1040px; margin: 0 auto; padding: 32px 24px 60px; }
+
+  /* TEMPLATE BLOCK */
+  .template-block {
+    background: var(--bg-01);
+    border-radius: 16px;
+    border: 1px solid var(--line-03);
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+
+  /* TEMPLATE HEADER */
+  .tmpl-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--line-03);
+  }
+  .tmpl-header.t1 { background: linear-gradient(135deg, #1F30E9 0%, #3B5BF5 100%); }
+  .tmpl-header.t2 { background: linear-gradient(135deg, #059669 0%, #10B981 100%); }
+  .tmpl-header.t3 { background: linear-gradient(135deg, #D97706 0%, #F59E0B 100%); }
+  .tmpl-icon-wrap {
+    width: 52px; height: 52px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; flex-shrink: 0;
+  }
+  .tmpl-header-text { flex: 1; }
+  .tmpl-type-label {
+    font-size: 11px; font-weight: 600;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .tmpl-title { font-size: 20px; font-weight: 700; color: white; letter-spacing: -0.02em; }
+  .tmpl-desc { font-size: 13px; color: rgba(255,255,255,0.75); margin-top: 4px; }
+  .tmpl-badge {
+    background: rgba(255,255,255,0.2);
+    color: white;
+    font-size: 11px; font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
+  }
+
+  /* TEMPLATE BODY */
+  .tmpl-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    border-bottom: 1px solid var(--line-03);
+  }
+  .tmpl-body-col {
+    padding: 20px 22px;
+    border-right: 1px solid var(--line-03);
+  }
+  .tmpl-body-col:last-child { border-right: none; }
+  .col-title {
+    font-size: 11px; font-weight: 700;
+    color: var(--text-05);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--line-03);
+  }
+  .col-content { font-size: 13px; color: var(--text-04); line-height: 1.7; }
+  .col-content strong { color: var(--text-03); font-weight: 600; }
+  .col-content li { list-style: none; padding-left: 14px; position: relative; margin-bottom: 5px; }
+  .col-content li::before { content: '·'; position: absolute; left: 4px; color: var(--text-05); }
+
+  /* IF THEN */
+  .ifthen-block {
+    padding: 20px 28px;
+    background: var(--bg-02);
+    border-bottom: 1px solid var(--line-03);
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .ifthen-item {
+    flex: 1;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .ifthen-lbl {
+    font-size: 10px; font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 5px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .if-lbl { background: #DBEAFE; color: #1E40AF; }
+  .then-lbl { background: #D1FAE5; color: #065F46; }
+  .ifthen-txt { font-size: 13px; color: var(--text-04); line-height: 1.6; }
+  .ifthen-arrow {
+    font-size: 18px; color: var(--line-03);
+    flex-shrink: 0;
+    padding-top: 4px;
+  }
+
+  /* BOTTOM ROW */
+  .tmpl-bottom {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  .tmpl-bottom-col {
+    padding: 16px 22px;
+    border-right: 1px solid var(--line-03);
+  }
+  .tmpl-bottom-col:last-child { border-right: none; }
+  .bottom-label {
+    font-size: 11px; font-weight: 700;
+    color: var(--text-05);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .bottom-value { font-size: 13px; color: var(--text-04); line-height: 1.6; }
+  .bottom-value strong { color: var(--text-03); font-weight: 600; }
+
+  /* TAGS */
+  .tag {
+    display: inline-block;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-right: 4px; margin-bottom: 4px;
+  }
+  .tag-blue { background: #EFF6FF; color: #1D4ED8; }
+  .tag-green { background: #F0FDF4; color: #065F46; }
+  .tag-amber { background: #FFFBEB; color: #92400E; }
+  .tag-red { background: #FEF2F2; color: #991B1B; }
+  .tag-gray { background: #F1F5F9; color: #475569; }
+  .tag-ok { background: #D1FAE5; color: #065F46; }
+  .tag-warn { background: #FEF3C7; color: #92400E; }
+
+  /* VERSION ROW */
+  .version-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+  .version-cell {
+    padding: 14px 22px;
+    border-right: 1px solid var(--line-03);
+  }
+  .version-cell:last-child { border-right: none; }
+  .version-cell.safe { background: #F0FDF4; }
+  .version-cell.risk { background: #FEF2F2; }
+  .version-title-sm {
+    font-size: 12px; font-weight: 700;
+    margin-bottom: 5px;
+  }
+  .safe .version-title-sm { color: #065F46; }
+  .risk .version-title-sm { color: #991B1B; }
+  .version-desc-sm { font-size: 12px; color: var(--text-04); line-height: 1.6; }
+
+  /* SHARED SECTION */
+  .shared-section {
+    background: var(--bg-01);
+    border-radius: 16px;
+    border: 1px solid var(--line-03);
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .shared-header {
+    background: var(--primary);
+    padding: 14px 24px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .shared-header.navy-bg { background: var(--navy); }
+  .shared-header-num {
+    width: 26px; height: 26px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: white;
+    flex-shrink: 0;
+  }
+  .shared-header-title { font-size: 15px; font-weight: 700; color: white; letter-spacing: -0.02em; }
+  .shared-header-sub { font-size: 12px; color: rgba(255,255,255,0.65); margin-top: 2px; }
+  .shared-badge { margin-left: auto; background: rgba(255,255,255,0.15); color: white; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; }
+  .shared-body { padding: 20px 24px; }
+
+  /* TABLE */
+  .spec-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .spec-table th { background: var(--primary); color: white; padding: 10px 14px; text-align: left; font-weight: 600; font-size: 12px; }
+  .spec-table td { padding: 10px 14px; border-bottom: 1px solid var(--line-03); vertical-align: top; color: var(--text-04); line-height: 1.6; }
+  .spec-table td:first-child { font-weight: 600; color: var(--text-03); background: var(--bg-02); font-size: 12px; width: 140px; }
+  .spec-table tr:last-child td { border-bottom: none; }
+
+  /* CALLOUT */
+  .callout { border-radius: 10px; padding: 14px 16px; font-size: 13px; line-height: 1.7; margin-bottom: 12px; }
+  .callout:last-child { margin-bottom: 0; }
+  .callout-blue { background: #EFF6FF; border-left: 3px solid var(--primary); color: #1E3A8A; }
+  .callout-green { background: #F0FDF4; border-left: 3px solid #22C55E; color: #14532D; }
+  .callout-amber { background: #FFFBEB; border-left: 3px solid #F59E0B; color: #78350F; }
+  .callout-red { background: #FEF2F2; border-left: 3px solid #EF4444; color: #7F1D1D; }
+  .callout strong { font-weight: 700; }
+
+  .section-label {
+    font-size: 11px; font-weight: 700;
+    color: var(--text-05);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin: 28px 0 12px;
+  }
+  .section-label:first-child { margin-top: 0; }
+
+  .doc-footer { text-align: center; font-size: 11px; color: var(--text-05); padding: 0 0 20px; }
+
+  @media (max-width: 800px) {
+    .tmpl-body { grid-template-columns: 1fr 1fr; }
+    .tmpl-body-col:nth-child(2) { border-right: none; }
+    .tmpl-body-col:nth-child(3) { border-top: 1px solid var(--line-03); }
+    .tmpl-bottom { grid-template-columns: 1fr; }
+    .tmpl-bottom-col { border-right: none; border-bottom: 1px solid var(--line-03); }
+    .ifthen-block { flex-direction: column; }
+    .ifthen-arrow { display: none; }
+    .doc-header { padding: 28px 20px 24px; }
+    .container { padding: 20px 16px 40px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <div class="doc-header-inner">
+    <div class="doc-label">Ideation · Smart Contract</div>
+    <div class="doc-title">SC 챌린지 템플릿 아이디에이션</div>
+    <div class="doc-subtitle">월렛 서비스 내 스마트 컨트랙트 템플릿 — 챌린지/대회 3종</div>
+    <div class="doc-meta">
+      <div class="doc-meta-item">버전<span>v1.0</span></div>
+      <div class="doc-meta-item">작성일<span>2026.06.02</span></div>
+      <div class="doc-meta-item">상태<span>아이디에이션</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ── WHY SC ── -->
+  <div class="shared-section" style="margin-bottom:28px;">
+    <div class="shared-header navy-bg">
+      <div class="shared-header-num">💡</div>
+      <div>
+        <div class="shared-header-title">왜 이 챌린지를 SC로 만들어야 하는가</div>
+        <div class="shared-header-sub">시장 검증 → Web2 한계 → SC 전환 논리</div>
+      </div>
+      <span class="shared-badge">BACKGROUND</span>
+    </div>
+    <div class="shared-body">
+
+      <!-- ① 시장 검증 -->
+      <div style="margin-bottom:28px;">
+        <div style="font-size:13px;font-weight:700;color:var(--text-03);margin-bottom:4px;letter-spacing:-0.02em;">
+          ① 시장 검증 — "돈을 거는 행위가 목표 달성률을 높인다"는 건 이미 증명됐다
+        </div>
+        <div style="font-size:13px;color:var(--text-04);line-height:1.7;margin-bottom:14px;">
+          서약 계약(Commitment Contract) 모델은 국내외에서 이미 동작하는 비즈니스입니다. 단순 의지에만 의존하지 않고 금전적 페널티·보상을 결합했을 때 목표 달성률이 유의미하게 높아진다는 것은 아래 레퍼런스들을 통해 검증됐습니다.
+        </div>
+
+        <!-- 국내 -->
+        <div style="font-size:11px;font-weight:700;color:var(--text-05);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;">국내</div>
+        <div style="background:var(--bg-02);border-radius:10px;padding:14px 16px;margin-bottom:14px;">
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <div style="width:36px;height:36px;background:#EFF6FF;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🇰🇷</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--text-03);margin-bottom:3px;">챌린저스 (Challengers)</div>
+              <div style="font-size:12px;color:var(--text-04);line-height:1.7;">목표를 설정하고 참가비를 예치. 달성 실패 시 벌금이 성공자에게 분배되는 구조로 국내 서약 계약 모델을 검증한 서비스. 높은 목표 달성률로 모델 유효성을 증명했으나, 이후 뷰티 체험단 BM으로 피벗.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 해외 -->
+        <div style="font-size:11px;font-weight:700;color:var(--text-05);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;">해외</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+
+          <div style="background:var(--bg-02);border-radius:10px;padding:14px 16px;">
+            <div style="font-size:13px;font-weight:700;color:var(--text-03);margin-bottom:3px;">StickK <span style="font-size:11px;font-weight:400;color:var(--text-05);">미국</span></div>
+            <div style="font-size:12px;color:var(--text-04);line-height:1.7;">예일대 교수진 설립. 체중 감량·금연 등 목표에 돈을 거는 서약 계약 시스템. 심판(Referee) 지정 시 목표 달성률 약 80% 달성.</div>
+          </div>
+
+          <div style="background:var(--bg-02);border-radius:10px;padding:14px 16px;">
+            <div style="font-size:13px;font-weight:700;color:var(--text-03);margin-bottom:3px;">GymPact <span style="font-size:11px;font-weight:400;color:var(--text-05);">미국</span></div>
+            <div style="font-size:12px;color:var(--text-04);line-height:1.7;">운동 목표 달성 특화. 현금 보상으로 실제 운동을 독려. 약속한 운동 목표의 90% 달성률 기록.</div>
+          </div>
+
+          <div style="background:var(--bg-02);border-radius:10px;padding:14px 16px;">
+            <div style="font-size:13px;font-weight:700;color:var(--text-03);margin-bottom:3px;">HealthyWage <span style="font-size:11px;font-weight:400;color:var(--text-05);">미국</span></div>
+            <div style="font-size:12px;color:var(--text-04);line-height:1.7;">다이어트 특화. "살을 빼서 돈을 획득하라"는 슬로건으로 체중 감량 목표에 금전적 인센티브를 직접 결합.</div>
+          </div>
+
+          <div style="background:var(--bg-02);border-radius:10px;padding:14px 16px;">
+            <div style="font-size:13px;font-weight:700;color:var(--text-03);margin-bottom:3px;">Weight Wins <span style="font-size:11px;font-weight:400;color:var(--text-05);">영국</span></div>
+            <div style="font-size:12px;color:var(--text-04);line-height:1.7;">서약 접근법이 일반적인 다이어트 방법보다 성공적이라는 연구 결과 기반. 목표 달성을 금전 서약으로 지원.</div>
+          </div>
+
+          <div style="background:var(--bg-02);border-radius:10px;padding:14px 16px;">
+            <div style="font-size:13px;font-weight:700;color:var(--text-03);margin-bottom:3px;">21Habit <span style="font-size:11px;font-weight:400;color:var(--text-05);">글로벌</span></div>
+            <div style="font-size:12px;color:var(--text-04);line-height:1.7;">"21일 안에 습관을 만들거나 끊기" 모토. 단기 목표와 습관 형성에 특화된 서약 계약 플랫폼.</div>
+          </div>
+
+          <div style="background:var(--bg-02);border-radius:10px;padding:14px 16px;display:flex;align-items:center;">
+            <div style="font-size:12px;color:var(--text-05);line-height:1.7;">이 외 Strava, Mindbloom, FitID, Health Month 등 GPS 트래킹·소셜 지원 결합 서비스 다수 운영 중.</div>
+          </div>
+
+        </div>
+      </div>
+
+      <div style="height:1px;background:var(--line-03);margin-bottom:24px;"></div>
+
+      <!-- ② Web2 한계 -->
+      <div style="margin-bottom:28px;">
+        <div style="font-size:13px;font-weight:700;color:var(--text-03);margin-bottom:4px;letter-spacing:-0.02em;">
+          ② Web2의 구조적 한계 — 그런데 왜 성장이 막혔나
+        </div>
+        <div style="font-size:13px;color:var(--text-04);line-height:1.7;margin-bottom:14px;">
+          모델은 검증됐지만 Web2 구조에서는 세 가지 근본적인 한계가 존재합니다. 챌린저스가 뷰티 체험단으로 피벗한 것도 이 한계의 결과입니다.
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+
+          <div style="border:1.5px solid #FECACA;border-radius:10px;padding:16px;background:#FEF2F2;">
+            <div style="font-size:20px;margin-bottom:8px;">⚔️</div>
+            <div style="font-size:13px;font-weight:700;color:#991B1B;margin-bottom:6px;">이해상충 구조</div>
+            <div style="font-size:12px;color:var(--text-04);line-height:1.7;">유저가 실패해야 플랫폼이 돈을 버는 구조. 유저 성공률이 높아질수록 플랫폼 수익이 악화. 서비스와 유저의 목표가 근본적으로 충돌.</div>
+          </div>
+
+          <div style="border:1.5px solid #FECACA;border-radius:10px;padding:16px;background:#FEF2F2;">
+            <div style="font-size:20px;margin-bottom:8px;">🏦</div>
+            <div style="font-size:13px;font-weight:700;color:#991B1B;margin-bottom:6px;">플랫폼 신뢰 의존</div>
+            <div style="font-size:12px;color:var(--text-04);line-height:1.7;">유저의 예치금이 회사 계좌에 보관. 플랫폼 파산·횡령 시 예치금 회수 불가. 유저는 규칙이 아닌 회사를 믿어야 하는 구조.</div>
+          </div>
+
+          <div style="border:1.5px solid #FECACA;border-radius:10px;padding:16px;background:#FEF2F2;">
+            <div style="font-size:20px;margin-bottom:8px;">💸</div>
+            <div style="font-size:13px;font-weight:700;color:#991B1B;margin-bottom:6px;">운영 비용 폭발</div>
+            <div style="font-size:12px;color:var(--text-04);line-height:1.7;">사진 인증 검수 인건비, 정산 CS, 분쟁 처리 비용이 규모가 커질수록 폭발적으로 증가. 사람이 개입해야 돌아가는 구조의 한계.</div>
+          </div>
+
+        </div>
+      </div>
+
+      <div style="height:1px;background:var(--line-03);margin-bottom:24px;"></div>
+
+      <!-- ③ SC 전환 논리 -->
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--text-03);margin-bottom:4px;letter-spacing:-0.02em;">
+          ③ SC로의 전환 — 세 가지 한계를 구조적으로 해결한다
+        </div>
+        <div style="font-size:13px;color:var(--text-04);line-height:1.7;margin-bottom:14px;">
+          스마트 컨트랙트는 단순히 Web2를 Web3로 옮기는 것이 아닙니다. Web2의 구조적 한계를 코드 레벨에서 제거합니다.
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+
+          <div style="border:1.5px solid #BBF7D0;border-radius:10px;padding:16px;background:#F0FDF4;">
+            <div style="font-size:11px;font-weight:700;color:var(--text-05);margin-bottom:6px;letter-spacing:0.04em;">이해상충 해결</div>
+            <div style="font-size:13px;font-weight:700;color:#065F46;margin-bottom:6px;">유저가 성공해도 플랫폼이 수익을 낸다</div>
+            <div style="font-size:12px;color:var(--text-04);line-height:1.7;">예치금이 DeFi 프로토콜에 자동 예치되어 이자를 생산. 유저 성공 여부와 무관하게 예치 기간 동안 이자가 발생하고 플랫폼은 이 이자의 일부를 수수료로 수취.</div>
+          </div>
+
+          <div style="border:1.5px solid #BBF7D0;border-radius:10px;padding:16px;background:#F0FDF4;">
+            <div style="font-size:11px;font-weight:700;color:var(--text-05);margin-bottom:6px;letter-spacing:0.04em;">신뢰 의존 해결</div>
+            <div style="font-size:13px;font-weight:700;color:#065F46;margin-bottom:6px;">회사를 믿는 것에서 코드를 믿는 것으로</div>
+            <div style="font-size:12px;color:var(--text-04);line-height:1.7;">유저의 예치금은 회사 계좌가 아닌 SC에 보관. 조건이 충족될 때만 코드가 자동 실행. 플랫폼이 임의로 개입하거나 자금을 유용하는 것이 구조적으로 불가능.</div>
+          </div>
+
+          <div style="border:1.5px solid #BBF7D0;border-radius:10px;padding:16px;background:#F0FDF4;">
+            <div style="font-size:11px;font-weight:700;color:var(--text-05);margin-bottom:6px;letter-spacing:0.04em;">운영 비용 해결</div>
+            <div style="font-size:13px;font-weight:700;color:#065F46;margin-bottom:6px;">사람 없이 돌아가는 정산 구조</div>
+            <div style="font-size:12px;color:var(--text-04);line-height:1.7;">오라클 기반 자동 검증으로 인증 검수 인건비 제거. SC 자동 정산으로 분쟁·CS 비용 구조적 감소. 규모가 커져도 운영 비용이 선형적으로 늘지 않음.</div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="section-label">템플릿 3종</div>
+
+  <!-- ── TYPE 1 개인 챌린지 ── -->
+  <div class="template-block">
+    <div class="tmpl-header t1">
+      <div class="tmpl-icon-wrap">🎯</div>
+      <div class="tmpl-header-text">
+        <div class="tmpl-type-label">Type 1 · 1인 목표 달성</div>
+        <div class="tmpl-title">개인 챌린지</div>
+        <div class="tmpl-desc">호스트가 목표를 설정하고 스테이킹. 게스트가 응원 스테이킹으로 참여하는 구조</div>
+      </div>
+      <span class="tmpl-badge">✅ 초기 론칭 추천</span>
+    </div>
+
+    <!-- IF THEN -->
+    <div class="ifthen-block">
+      <div class="ifthen-item">
+        <span class="ifthen-lbl if-lbl">IF</span>
+        <span class="ifthen-txt">호스트가 목표·기간을 설정하고 스테이킹. 게스트가 응원 스테이킹으로 참여</span>
+      </div>
+      <div class="ifthen-arrow">→</div>
+      <div class="ifthen-item">
+        <span class="ifthen-lbl then-lbl">THEN</span>
+        <span class="ifthen-txt">달성 시 호스트 원금+이자 회수. 응원 게스트에게도 이자 분배</span>
+      </div>
+    </div>
+
+    <!-- 4 COLS -->
+    <div class="tmpl-body">
+      <div class="tmpl-body-col">
+        <div class="col-title">플랫폼 이익</div>
+        <div class="col-content">
+          <ul>
+            <li>DeFi 이자 수수료 일부 귀속</li>
+            <li>템플릿 개설 수수료</li>
+            <li>TVL 증가 → 이자 풀 자동 확대</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tmpl-body-col">
+        <div class="col-title">유저 가치</div>
+        <div class="col-content">
+          <ul>
+            <li>목표 달성 동기 강화 (스테이킹 압박)</li>
+            <li>응원 구조 → 소셜 요소 내재화</li>
+            <li>성공 시 이자 보너스 수령</li>
+            <li>게스트도 응원으로 이자 수익</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tmpl-body-col">
+        <div class="col-title">SC여야 하는 이유</div>
+        <div class="col-content">
+          응원 게스트 이자 분배를 <strong>중간자 없이 자동 실행.</strong><br><br>
+          Web2에선 호스트가 응원금을 직접 관리해야 해서 신뢰 문제 발생. SC가 이를 구조적으로 차단.
+        </div>
+      </div>
+      <div class="tmpl-body-col">
+        <div class="col-title">검증 방식</div>
+        <div class="col-content">
+          <span class="tag tag-blue">앱 내 행동</span>
+          <span class="tag tag-gray">외부 API</span><br>
+          걸음수, 운동 기록, 수면 등<br>
+          헬스앱 API 연동 우선<br><br>
+          <span class="tag tag-ok">오라클 의존도 낮음</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 원금 보장/손실 -->
+    <div class="version-row">
+      <div class="version-cell safe">
+        <div class="version-title-sm">✅ Safe — 원금 보장</div>
+        <div class="version-desc-sm">원금 전액 반환 + 이자만 상금. 달성 실패 시에도 원금 돌려받음. 참여 허들 낮음. 법적 리스크 낮음.</div>
+      </div>
+      <div class="version-cell risk">
+        <div class="version-title-sm">⚠️ Risk — 원금 손실 가능</div>
+        <div class="version-desc-sm">미달성 시 스테이킹 일부 손실. 참여 동기 강하나 법무 검토 필요.</div>
+      </div>
+    </div>
+
+    <!-- 하단 -->
+    <div class="tmpl-bottom">
+      <div class="tmpl-bottom-col">
+        <div class="bottom-label">참여 구조</div>
+        <div class="bottom-value">호스트 1인 + 응원 게스트 N명 (인원 무제한)</div>
+      </div>
+      <div class="tmpl-bottom-col">
+        <div class="bottom-label">이자 재원</div>
+        <div class="bottom-value">스테이킹 기간 DeFi 수익 (Aave, Compound 등)</div>
+      </div>
+      <div class="tmpl-bottom-col">
+        <div class="bottom-label">개발 복잡도</div>
+        <div class="bottom-value"><span class="tag tag-ok">낮음</span> 구조 단순, 초기 구현 용이</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── TYPE 2 그룹 챌린지 ── -->
+  <div class="template-block">
+    <div class="tmpl-header t2">
+      <div class="tmpl-icon-wrap">👥</div>
+      <div class="tmpl-header-text">
+        <div class="tmpl-type-label">Type 2 · 다수 공동 참여</div>
+        <div class="tmpl-title">그룹 챌린지</div>
+        <div class="tmpl-desc">N명이 동일 조건으로 참여. 성공자가 실패자 이자를 가져가는 구조</div>
+      </div>
+      <span class="tmpl-badge">✅ 초기 론칭 추천</span>
+    </div>
+
+    <div class="ifthen-block">
+      <div class="ifthen-item">
+        <span class="ifthen-lbl if-lbl">IF</span>
+        <span class="ifthen-txt">N명이 동일 조건으로 스테이킹 후 챌린지 참여 (최소/최대 인원 설정)</span>
+      </div>
+      <div class="ifthen-arrow">→</div>
+      <div class="ifthen-item">
+        <span class="ifthen-lbl then-lbl">THEN</span>
+        <span class="ifthen-txt">성공자 원금+이자 반환. 실패자 이자가 성공자 풀로 자동 재분배</span>
+      </div>
+    </div>
+
+    <div class="tmpl-body">
+      <div class="tmpl-body-col">
+        <div class="col-title">플랫폼 이익</div>
+        <div class="col-content">
+          <ul>
+            <li>DeFi 이자 수수료 일부 귀속</li>
+            <li>참여자 수 비례 TVL 증가</li>
+            <li>그룹 구조 → 바이럴 효과로 신규 유저 유입</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tmpl-body-col">
+        <div class="col-title">유저 가치</div>
+        <div class="col-content">
+          <ul>
+            <li>집단 압박 효과 → 목표 완수율 향상</li>
+            <li>성공 시 실패자 이자까지 추가 수익</li>
+            <li>혼자선 흐지부지되는 목표를 그룹으로 완수</li>
+            <li>참여자 多 → 이자 풀 자동 증가</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tmpl-body-col">
+        <div class="col-title">SC여야 하는 이유</div>
+        <div class="col-content">
+          성공/실패 판정과 이자 재분배를 <strong>완전 자동화.</strong><br><br>
+          Web2에선 운영자가 수동 정산해야 하고 조작 가능성 존재. SC가 판정과 분배를 코드로 확정.
+        </div>
+      </div>
+      <div class="tmpl-body-col">
+        <div class="col-title">검증 방식</div>
+        <div class="col-content">
+          <span class="tag tag-blue">앱 내 행동</span><br>
+          개인별 성공/실패 자동 판정<br>
+          걸음수, 운동 기록 등<br><br>
+          <span class="tag tag-ok">오라클 의존도 낮음</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="version-row">
+      <div class="version-cell safe">
+        <div class="version-title-sm">✅ Safe — 원금 보장</div>
+        <div class="version-desc-sm">원금 전액 보장. 실패자 이자만 성공자에게 이동. 모두 성공하면 전원 원금+이자 수령.</div>
+      </div>
+      <div class="version-cell risk">
+        <div class="version-title-sm">⚠️ Risk — 원금 손실 가능</div>
+        <div class="version-desc-sm">실패자 원금 일부가 성공자 풀에 포함. 상금 규모 커지나 법무 검토 필요.</div>
+      </div>
+    </div>
+
+    <div class="tmpl-bottom">
+      <div class="tmpl-bottom-col">
+        <div class="bottom-label">참여 구조</div>
+        <div class="bottom-value">동일 조건 N명 (최소/최대 인원 호스트 설정)</div>
+      </div>
+      <div class="tmpl-bottom-col">
+        <div class="bottom-label">이자 재원</div>
+        <div class="bottom-value">스테이킹 기간 DeFi 수익 + 실패자 이자 재분배</div>
+      </div>
+      <div class="tmpl-bottom-col">
+        <div class="bottom-label">개발 복잡도</div>
+        <div class="bottom-value"><span class="tag tag-ok">낮음</span> 개인 챌린지 구조 확장으로 구현</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── TYPE 3 대회/토너먼트 ── -->
+  <div class="template-block">
+    <div class="tmpl-header t3">
+      <div class="tmpl-icon-wrap">🏆</div>
+      <div class="tmpl-header-text">
+        <div class="tmpl-type-label">Type 3 · 경쟁 순위 기반</div>
+        <div class="tmpl-title">대회 / 토너먼트</div>
+        <div class="tmpl-desc">참가비를 SC가 보관하고 순위에 따라 상금 풀+이자를 자동 분배하는 구조</div>
+      </div>
+      <span class="tmpl-badge">🔶 초기엔 조건부</span>
+    </div>
+
+    <div class="ifthen-block">
+      <div class="ifthen-item">
+        <span class="ifthen-lbl if-lbl">IF</span>
+        <span class="ifthen-txt">참가자 N명이 참가비를 스테이킹하고 대회에 참여 (동호회, 해커톤, 스포츠 기록 등)</span>
+      </div>
+      <div class="ifthen-arrow">→</div>
+      <div class="ifthen-item">
+        <span class="ifthen-lbl then-lbl">THEN</span>
+        <span class="ifthen-txt">순위 확정 후 상위 N명에게 전체 풀+이자 차등 분배. 탈락자 원금 반환(보장 버전)</span>
+      </div>
+    </div>
+
+    <div class="tmpl-body">
+      <div class="tmpl-body-col">
+        <div class="col-title">플랫폼 이익</div>
+        <div class="col-content">
+          <ul>
+            <li>참가비 풀 이자 수수료</li>
+            <li>대회 개설 수수료</li>
+            <li>참가자 多 → TVL·이자 자동 증가</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tmpl-body-col">
+        <div class="col-title">유저 가치</div>
+        <div class="col-content">
+          <ul>
+            <li>공정한 실력 경쟁 보장</li>
+            <li>참가자 많을수록 상금 풀 자동 증가</li>
+            <li>주최자 먹튀·상금 미지급 분쟁 구조적 차단</li>
+            <li>소규모 동호회도 안전한 대회 운영 가능</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tmpl-body-col">
+        <div class="col-title">SC여야 하는 이유</div>
+        <div class="col-content">
+          참가비를 <strong>주최자가 아닌 SC가 보관.</strong><br><br>
+          Web2에선 주최자 계좌로 입금 → 먹튀·미지급 분쟁 실제 발생. SC는 조건 충족 시에만 자동 지급.
+        </div>
+      </div>
+      <div class="tmpl-body-col">
+        <div class="col-title">검증 방식</div>
+        <div class="col-content">
+          <span class="tag tag-blue">앱 내 기록</span>
+          <span class="tag tag-gray">외부 API</span>
+          <span class="tag tag-amber">상호 인증</span><br>
+          종목에 따라 선택 적용<br><br>
+          <span class="tag tag-warn">오라클 의존도 중간</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="version-row">
+      <div class="version-cell safe">
+        <div class="version-title-sm">✅ Safe — 원금 보장</div>
+        <div class="version-desc-sm">참가비 전액 환불 + 이자만 상금 풀. 참여 허들 낮고 대회 흥행 목적에 유리. 법적 리스크 낮음.</div>
+      </div>
+      <div class="version-cell risk">
+        <div class="version-title-sm">⚠️ Risk — 원금 손실 가능</div>
+        <div class="version-desc-sm">참가비 전액이 상금 풀. 우승 시 대형 보상. 실력 기반 설계 시 리스크 완화 가능. 법무 검토 필수.</div>
+      </div>
+    </div>
+
+    <div class="tmpl-bottom">
+      <div class="tmpl-bottom-col">
+        <div class="bottom-label">참여 구조</div>
+        <div class="bottom-value">참가비 스테이킹 + 순위 경쟁 (1등 독식 / 상위 N% / 등수별 차등)</div>
+      </div>
+      <div class="tmpl-bottom-col">
+        <div class="bottom-label">이자 재원</div>
+        <div class="bottom-value">참가비 풀 전체 DeFi 예치 → 이자 발생</div>
+      </div>
+      <div class="tmpl-bottom-col">
+        <div class="bottom-label">개발 복잡도</div>
+        <div class="bottom-value"><span class="tag tag-amber">중간</span> 검증 방식 다양 → 초기엔 종목 범위 제한 필요</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 공통 변수 -->
+  <div class="shared-section">
+    <div class="shared-header">
+      <div class="shared-header-num">★</div>
+      <div>
+        <div class="shared-header-title">호스트 설정 변수 (3종 공통)</div>
+        <div class="shared-header-sub">템플릿 선택 후 아래 변수 조합으로 챌린지/대회 생성</div>
+      </div>
+      <span class="shared-badge">TEMPLATE</span>
+    </div>
+    <div class="shared-body">
+      <table class="spec-table">
+        <thead>
+          <tr><th style="width:140px;">변수</th><th>설명</th><th style="width:220px;">옵션 예시</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>챌린지 유형</td><td>템플릿 선택</td><td>개인 / 그룹 / 대회</td></tr>
+          <tr><td>종목/주제</td><td>챌린지 내용 설명</td><td>자유 텍스트 또는 카테고리 선택</td></tr>
+          <tr><td>스테이킹 금액</td><td>참가비 / 예치금</td><td>최소 금액 설정 + 자유 입력</td></tr>
+          <tr><td>참여 인원</td><td>최소 / 최대 인원</td><td>1인 고정 / N명 범위 설정</td></tr>
+          <tr><td>기간</td><td>시작~종료 일시</td><td>단기 1~7일 / 중기 30일 / 장기 100일~</td></tr>
+          <tr><td>검증 방식</td><td>성공/실패 판정 방법</td><td>앱 내 행동 / 외부 API 오라클 / 상호 인증</td></tr>
+          <tr><td>분배 방식</td><td>상금 배분 구조</td><td>1등 독식 / 상위 N% / 등수별 차등 / 전원 균등</td></tr>
+          <tr><td>원금 보장 여부</td><td>버전 선택</td><td>Safe (원금 보장) / Risk (원금 손실 가능)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 미결 사항 -->
+  <div class="shared-section">
+    <div class="shared-header navy-bg">
+      <div class="shared-header-num">⚠</div>
+      <div>
+        <div class="shared-header-title">미결 사항</div>
+        <div class="shared-header-sub">다음 단계 착수 전 확정 필요</div>
+      </div>
+      <span class="shared-badge">TODO</span>
+    </div>
+    <div class="shared-body">
+      <div class="callout callout-red">
+        <strong>⚠️ 원금 손실 버전 — 법무 검토 필수</strong><br>
+        한국 기준 사행행위규제법·게임산업법 저촉 가능성. 실력 기반 대회 구조로 설계 시 리스크 완화 가능하나 법무팀 검토 선행 필요.
+      </div>
+      <div class="callout callout-amber">
+        <strong>💡 DeFi 이자율 변동 리스크</strong><br>
+        Aave, Compound 기준 현재 스테이블코인 이자율 연 3~5%. 시장 상황에 따라 변동. TVL이 충분하지 않으면 개인이 받는 이자가 소액일 수 있음. 최소 이자율 보완 구조 검토 필요.
+      </div>
+      <table class="spec-table" style="margin-top:12px;">
+        <thead><tr><th style="width:180px;">항목</th><th>내용</th><th style="width:100px;">담당</th></tr></thead>
+        <tbody>
+          <tr><td>기반 체인 확정</td><td>EVM 계열, Solana 등 체인 환경에 따라 SC 설계 방식 달라짐</td><td>개발/기획</td></tr>
+          <tr><td>DeFi 프로토콜 선정</td><td>Aave / Compound 등 이자 재원 프로토콜 확정</td><td>개발</td></tr>
+          <tr><td>플랫폼 수수료율</td><td>이자의 몇 %를 플랫폼이 수취할지 BM 설계 필요</td><td>기획/사업</td></tr>
+          <tr><td>손실 버전 법무 검토</td><td>원금 손실 버전 론칭 여부 결정 전 선행</td><td>법무</td></tr>
+          <tr><td>오라클 검증 범위</td><td>초기 지원 검증 방식 확정 (앱 내 행동 우선 vs 외부 API 병행)</td><td>개발/기획</td></tr>
+          <tr><td>초기 론칭 우선순위</td><td>3종 중 초기 론칭 대상 1~2종 선정 필요</td><td>기획</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="doc-footer">
+    SC_챌린지_템플릿_아이디에이션_v1_0 &nbsp;·&nbsp; 아이디에이션 단계 &nbsp;·&nbsp; 2026.06.02
+  </div>
+
+</div>
+</body>
+</html>

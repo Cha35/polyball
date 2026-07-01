@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>기능정의서 — 동행자 초대 · 함께 응모 v1.0</title>
+  <style>
+    :root {
+      --blue:#2563eb;--blue-light:#eff6ff;--blue-border:#bfdbfe;
+      --green:#16a34a;--green-light:#f0fdf4;--green-border:#bbf7d0;
+      --red:#dc2626;--red-light:#fef2f2;--red-border:#fecaca;
+      --yellow:#d97706;--yellow-light:#fffbeb;--yellow-border:#fde68a;
+      --purple:#7c3aed;--purple-light:#f5f3ff;--purple-border:#ddd6fe;
+      --gray:#6b7280;--gray-light:#f9fafb;--gray-border:#e5e7eb;
+      --text:#111827;--text-sub:#374151;--radius:8px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Apple SD Gothic Neo',sans-serif;color:var(--text);background:#f3f4f6;font-size:14px;line-height:1.6;}
+    .container{max-width:1100px;margin:0 auto;padding:32px 24px 80px;}
+    .doc-header{background:#1e3a8a;color:white;padding:32px 40px;border-radius:var(--radius);margin-bottom:28px;}
+    .doc-header .badge{display:inline-block;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);border-radius:4px;padding:2px 8px;font-size:11px;letter-spacing:.05em;margin-bottom:10px;}
+    .doc-header h1{font-size:24px;font-weight:700;margin-bottom:6px;}
+    .doc-header p{font-size:13px;opacity:.75;}
+    .meta-grid{display:flex;gap:28px;margin-top:18px;flex-wrap:wrap;}
+    .meta-item{font-size:12px;opacity:.7;}
+    .meta-item strong{display:block;opacity:1;font-size:13px;margin-bottom:2px;}
+    .toc{background:white;border-radius:var(--radius);padding:18px 24px;margin-bottom:24px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+    .toc h3{font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;}
+    .toc ol{padding-left:20px;columns:2;column-gap:40px;}
+    .toc li{margin-bottom:4px;font-size:13px;break-inside:avoid;}
+    .toc a{color:var(--blue);text-decoration:none;}
+    .toc a:hover{text-decoration:underline;}
+    .section{background:white;border-radius:var(--radius);padding:26px 30px;margin-bottom:22px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+    .section-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid var(--gray-border);}
+    .section-num{width:32px;height:32px;background:var(--blue);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0;}
+    .section-num.green{background:#059669;}
+    .section-num.purple{background:var(--purple);}
+    .section-num.orange{background:#ea580c;}
+    .section-num.teal{background:#0d9488;}
+    .section-title{font-size:17px;font-weight:700;}
+    .section-subtitle{font-size:12px;color:var(--gray);margin-top:2px;}
+    .sub-section{margin-bottom:24px;}
+    .sub-title{font-size:13px;font-weight:700;color:var(--blue);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+    .sub-title::before{content:'';display:inline-block;width:3px;height:13px;background:var(--blue);border-radius:2px;}
+    .sub-title.green{color:#059669;} .sub-title.green::before{background:#059669;}
+    .sub-title.purple{color:var(--purple);} .sub-title.purple::before{background:var(--purple);}
+    .sub-title.orange{color:#ea580c;} .sub-title.orange::before{background:#ea580c;}
+    .sub-title.teal{color:#0d9488;} .sub-title.teal::before{background:#0d9488;}
+    table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:4px;}
+    th{background:var(--gray-light);color:var(--text-sub);font-weight:600;padding:9px 12px;text-align:left;border:1px solid var(--gray-border);white-space:nowrap;}
+    td{padding:9px 12px;border:1px solid var(--gray-border);vertical-align:top;}
+    tr:hover td{background:#fafafa;}
+    .td-label{font-weight:600;color:var(--text-sub);white-space:nowrap;width:160px;}
+    .callout{border-radius:6px;padding:11px 15px;margin-bottom:12px;font-size:13px;border-left:3px solid;}
+    .callout-info{background:var(--blue-light);border-color:var(--blue);}
+    .callout-warn{background:var(--yellow-light);border-color:var(--yellow);}
+    .callout-success{background:var(--green-light);border-color:var(--green);}
+    .callout-purple{background:var(--purple-light);border-color:var(--purple);}
+    .callout strong{font-weight:700;display:block;margin-bottom:4px;}
+    .tag{display:inline-block;border-radius:4px;padding:2px 7px;font-size:11px;font-weight:600;letter-spacing:.03em;}
+    .tag-app{background:#dbeafe;color:#1d4ed8;}
+    .tag-web{background:#d1fae5;color:#065f46;}
+    .tag-both{background:#ede9fe;color:#5b21b6;}
+    .tag-new{background:#fef9c3;color:#854d0e;}
+    .tag-tobe{background:#fce7f3;color:#9d174d;}
+    .tag-tbd{background:var(--yellow-light);color:var(--yellow);border:1px solid var(--yellow-border);}
+    .screen-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-top:10px;}
+    .screen-card{border:1px solid var(--gray-border);border-radius:8px;overflow:hidden;font-size:12px;}
+    .screen-card-header{background:var(--gray-light);padding:7px 12px;font-weight:600;border-bottom:1px solid var(--gray-border);font-size:12px;}
+    .screen-card-header.blue{background:var(--blue-light);color:var(--blue);}
+    .screen-card-header.green{background:var(--green-light);color:var(--green);}
+    .screen-card-header.purple{background:var(--purple-light);color:var(--purple);}
+    .screen-card-header.orange{background:#fff7ed;color:#ea580c;}
+    .screen-card-header.teal{background:#f0fdfa;color:#0d9488;}
+    .screen-card-body{padding:10px 12px;}
+    .screen-card-body ul{padding-left:15px;}
+    .screen-card-body li{margin-bottom:3px;}
+    .spec-list{list-style:none;padding:0;}
+    .spec-list li{padding:8px 0;border-bottom:1px solid var(--gray-border);display:flex;gap:12px;align-items:flex-start;font-size:13px;}
+    .spec-list li:last-child{border-bottom:none;}
+    .spec-idx{background:var(--blue-light);color:var(--blue);border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700;flex-shrink:0;margin-top:2px;}
+    .spec-idx.green{background:var(--green-light);color:var(--green);}
+    .spec-idx.purple{background:var(--purple-light);color:var(--purple);}
+    .spec-idx.orange{background:#fff7ed;color:#ea580c;}
+    .flow-wrap{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:14px;background:var(--gray-light);border-radius:var(--radius);border:1px solid var(--gray-border);margin-bottom:12px;}
+    .flow-step{background:white;border:1px solid var(--gray-border);border-radius:6px;padding:7px 13px;font-size:12px;font-weight:600;text-align:center;min-width:90px;}
+    .flow-step.start{border-color:var(--blue);color:var(--blue);}
+    .flow-step.end{border-color:var(--green);color:var(--green);}
+    .flow-step.decision{background:var(--yellow-light);border-color:var(--yellow-border);color:var(--yellow);}
+    .flow-step.new{background:var(--blue-light);border-color:var(--blue-border);color:var(--blue);}
+    .flow-arrow{color:var(--gray);font-size:16px;flex-shrink:0;}
+    hr{border:none;border-top:1px solid var(--gray-border);margin:18px 0;}
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ══ Header ══ -->
+  <div class="doc-header">
+    <span class="badge">SPEC v1.0</span>
+    <h1>동행자 초대 · 함께 응모 기능정의서</h1>
+    <p>당첨 후 동행자 초대 / 응모 시점 함께 응모 / 동행자 경기 정보 카드 / CRM 푸시</p>
+    <div class="meta-grid">
+      <div class="meta-item"><strong>작성일</strong>2026-04-23</div>
+      <div class="meta-item"><strong>참조 PRD</strong>응모 고도화 PRD v1.0</div>
+      <div class="meta-item"><strong>참조 정의서</strong>응모_v1.0 / 마이_v1.0 / 공유_v1.2 / 알림함_NF_v1.1</div>
+      <div class="meta-item"><strong>버전</strong>v1.0 (초안)</div>
+    </div>
+  </div>
+
+  <!-- ══ TOC ══ -->
+  <div class="toc">
+    <h3>목차</h3>
+    <ol>
+      <li><a href="#s0">서비스 개요</a></li>
+      <li><a href="#s1">CI — 동행자 초대 (당첨자 측)</a></li>
+      <li><a href="#s2">CA — 초대 수락 (동행자 측)</a></li>
+      <li><a href="#s3">GC — 동행자 경기 정보 카드</a></li>
+      <li><a href="#s4">TE — 함께 응모 (호스트 측)</a></li>
+      <li><a href="#s5">TG — 함께 응모 (게스트 측)</a></li>
+      <li><a href="#s6">CRM — 푸시 알림 정의</a></li>
+      <li><a href="#s7">공통 정책</a></li>
+      <li><a href="#s8">미결 사항 (TBD)</a></li>
+    </ol>
+  </div>
+
+  <!-- ══════════════════════════════════
+       0. 서비스 개요
+  ══════════════════════════════════ -->
+  <div class="section" id="s0">
+    <div class="section-header">
+      <div class="section-num">0</div>
+      <div>
+        <div class="section-title">서비스 개요</div>
+        <div class="section-subtitle">기능 목적 · 전체 구조 · 연관 문서</div>
+      </div>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title">기능 목적</div>
+      <table>
+        <tr><td class="td-label">핵심 가치</td><td>당첨 시 동행자를 앱에서 초대하여 동행자 정보를 수집하고, 응모 시점에 친구와 함께 응모하여 광고 노출 및 유저 획득을 확대하는 기능</td></tr>
+        <tr><td class="td-label">BM 연결</td><td>① 당첨 1건당 유저 1→2~3명 확대 (유저 획득 효율) ② 함께 응모 시 팀 인원 수 × RV 광고 노출 (광고 인벤토리 배가) ③ 응모권 합산 소진 → 픽 참여 증가 → 광고 노출</td></tr>
+        <tr><td class="td-label">플랫폼</td><td><span class="tag tag-app">APP 전용</span> 동행자 초대 링크 수신 → 앱 설치 필수. 웹은 앱 설치 유도로 대체</td></tr>
+      </table>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title">화면 구조</div>
+      <table>
+        <thead><tr><th>화면 ID</th><th>화면명</th><th>역할</th><th>진입 경로</th></tr></thead>
+        <tbody>
+          <tr><td><strong>CI-01</strong></td><td>동행자 초대 영역</td><td>티켓 상세(MY-03) 내 동행자 초대/상태 표시</td><td>마이 > 내 지갑 > 티켓 카드 클릭</td></tr>
+          <tr><td><strong>CI-02</strong></td><td>초대 공유 시트</td><td>카카오톡 / 링크 복사 선택</td><td>CI-01 "동행자 초대하기" 클릭</td></tr>
+          <tr><td><strong>CA-01</strong></td><td>초대 수락 화면</td><td>동행자가 초대 내용 확인 + 수락</td><td>초대 딥링크 → 앱 진입 (온보딩 후)</td></tr>
+          <tr><td><strong>GC-01</strong></td><td>경기 정보 카드</td><td>동행자 마이 지갑 내 경기 정보 노출</td><td>마이 > 내 지갑</td></tr>
+          <tr><td><strong>TE-01</strong></td><td>함께 응모 선택</td><td>응모 상세 내 "혼자/함께" 응모 분기</td><td>응모 상세 화면</td></tr>
+          <tr><td><strong>TE-02</strong></td><td>함께 응모 초대</td><td>게스트 초대 공유 시트</td><td>TE-01 "함께 응모" 선택</td></tr>
+          <tr><td><strong>TE-03</strong></td><td>함께 응모 합산</td><td>호스트+게스트 응모권 합산 표시 + 보너스</td><td>게스트 합류 완료 후</td></tr>
+          <tr><td><strong>TG-01</strong></td><td>함께 응모 합류</td><td>게스트 응모권 선택 + 합류</td><td>함께 응모 딥링크 → 앱 진입</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title">플로우 요약</div>
+      <p style="font-weight:600;font-size:13px;margin-bottom:8px;color:var(--text-sub);">경로 A — 동행자 초대 (당첨 후)</p>
+      <div class="flow-wrap">
+        <div class="flow-step start">당첨 확정</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step">티켓 상세</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step new">CI-01<br>동행자 영역</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step decision">초대?</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step new">CI-02<br>공유 시트</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step new">CA-01<br>초대 수락</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step end">확정</div>
+      </div>
+
+      <p style="font-weight:600;font-size:13px;margin-bottom:8px;color:var(--text-sub);">경로 B — 함께 응모 (응모 시점)</p>
+      <div class="flow-wrap">
+        <div class="flow-step start">응모 상세</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step new">TE-01<br>방식 선택</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step new">TE-02<br>초대 발송</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step new">TG-01<br>게스트 합류</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step new">TE-03<br>합산 응모</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step">응모 완료<br>+ RV 광고</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step end">당첨 시<br>자동 확정</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       1. CI — 동행자 초대 (당첨자 측)
+  ══════════════════════════════════ -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <div>
+        <div class="section-title">CI — 동행자 초대 (당첨자 측)</div>
+        <div class="section-subtitle">티켓 상세(MY-03) 내 동행자 초대 영역 · 3가지 상태</div>
+      </div>
+    </div>
+
+    <div class="callout callout-info"><strong>기존 화면 확장</strong>마이_기능정의서_v1.0의 티켓 상세(MY-03) 화면에 동행자 영역을 추가합니다. 기존 티켓 카드 하단, 경고 문구 상단에 배치됩니다.</div>
+
+    <div class="sub-section">
+      <div class="sub-title">CI-01 동행자 영역 — 상태별 정의</div>
+      <table>
+        <thead><tr><th>상태</th><th>조건</th><th>UI 구성</th><th>CTA</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>미초대</strong></td>
+            <td>당첨 확정 후 동행자 미초대</td>
+            <td>👥 아이콘 + "함께 갈 동행자를 초대해 보세요" + 카운터(0/N명)</td>
+            <td>Primary 버튼 "동행자 초대하기" + 텍스트 링크 "다음에 할게요"</td>
+          </tr>
+          <tr>
+            <td><strong>수락 대기중</strong></td>
+            <td>초대 발송 후 동행자 미수락</td>
+            <td>⏳ 아바타 + "초대 발송됨" + 주황 상태("수락 대기중") + 카운터(0/N명)</td>
+            <td>"다시 보내기" 버튼 + "다른 사람 초대하기" 텍스트 링크</td>
+          </tr>
+          <tr>
+            <td><strong>확정</strong></td>
+            <td>동행자 수락 완료</td>
+            <td>✅ 아바타 + 동행자 닉네임 + 녹색 상태("수락 완료") + "확정" 뱃지 + 카운터(N/N명)</td>
+            <td>없음 (변경은 교환 가능 전환 전까지 가능)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title">CI-01 동작 정의</div>
+      <ul class="spec-list">
+        <li><span class="spec-idx">CI-1</span>동행자 영역은 티켓 상태 "준비중"부터 "교환 가능" 전환 전까지 노출. 서류 제출 여부와 무관하게 독립 표시</li>
+        <li><span class="spec-idx">CI-2</span>동행자 슬롯 수: 당첨 매수 − 1. 2매 당첨 → 1명, 3매 당첨(기아 3매 응모) → 2명</li>
+        <li><span class="spec-idx">CI-3</span>"다음에 할게요" 탭 시 동행자 영역 축소. 티켓 상세 재진입 시 축소 상태 유지하되, 동행자 영역은 계속 노출</li>
+        <li><span class="spec-idx">CI-4</span>"다시 보내기" 탭 시 기존 초대 링크와 동일한 공유 시트(CI-02) 재호출</li>
+        <li><span class="spec-idx">CI-5</span>"다른 사람 초대하기" 탭 시 기존 초대 취소 → 미초대 상태로 전환 → 새 초대 가능</li>
+        <li><span class="spec-idx">CI-6</span>동행자 변경: 교환 가능 전환(경기 2시간 전) 전까지 자유롭게 변경 가능. 횟수 제한 없음</li>
+        <li><span class="spec-idx">CI-7</span>교환 가능 전환 시점 + 동행자 미초대 → 인앱 팝업 1회 노출: "아직 동행자를 초대하지 않았어요. 지금 초대할까요?" + "초대하기" / "괜찮아요"</li>
+        <li><span class="spec-idx">CI-8</span>"괜찮아요" 선택 시 동일 팝업 재노출 안 함. 내부 재무 처리는 임직원 정보로 fallback</li>
+      </ul>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title">CI-02 초대 공유 시트</div>
+      <table>
+        <tr><td class="td-label">트리거</td><td>"동행자 초대하기" 버튼 탭</td></tr>
+        <tr><td class="td-label">공유 방식</td><td>커스텀 공유 시트: 카카오톡 / 링크 복사 (기존 SH 공유 시트 패턴 재사용)</td></tr>
+        <tr><td class="td-label">공유 메시지</td><td><span class="tag tag-tbd">UXW 확정 필요</span> 경기 정보(날짜·팀·구장) + 초대 안내 + 딥링크</td></tr>
+        <tr><td class="td-label">딥링크 구조</td><td><code>polyball.kr/invite?ticket_id={ticketId}&host={userId}</code> — 레퍼럴 링크(<code>/join?ref=</code>)와 분리</td></tr>
+        <tr><td class="td-label">공유 썸네일</td><td>경기 정보 카드 형태. SVG 형식 (디자인 가이드 Share 컴포넌트 참조)</td></tr>
+      </table>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title">CI — 기아 3매 당첨 시 (동행자 2명)</div>
+      <div class="callout callout-purple"><strong>기아 3매 응모 당첨 케이스</strong>동행자 슬롯 2개가 노출됩니다. 각 슬롯은 독립적으로 초대/수락/확정 상태를 관리합니다. 부분 확정(1명만 수락) 시 확정된 동행자만 표시, 미확정 슬롯은 초대 가능 상태 유지.</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       2. CA — 초대 수락 (동행자 측)
+  ══════════════════════════════════ -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <div class="section-num green">2</div>
+      <div>
+        <div class="section-title">CA — 초대 수락 (동행자 측)</div>
+        <div class="section-subtitle">딥링크 진입 → 가입/로그인 → 본인인증 → 수락</div>
+      </div>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title green">동행자 유형별 플로우</div>
+      <table>
+        <thead><tr><th>유형</th><th>플로우</th><th>예상 스텝</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>비회원 (앱 미설치)</strong></td>
+            <td>링크 수신 → 스토어 이동 → 앱 설치 → 회원가입 → 온보딩(응원팀 선택) → 본인인증 → CA-01 초대 수락 → 확정</td>
+            <td>7스텝</td>
+          </tr>
+          <tr>
+            <td><strong>기존 회원 (본인인증 완료)</strong></td>
+            <td>링크 수신 → 앱 진입 → CA-01 초대 수락 → 확정</td>
+            <td>3스텝</td>
+          </tr>
+          <tr>
+            <td><strong>기존 회원 (본인인증 미완료)</strong></td>
+            <td>링크 수신 → 앱 진입 → 본인인증 → CA-01 초대 수락 → 확정</td>
+            <td>4스텝</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title green">CA-01 초대 수락 화면</div>
+      <div class="screen-grid">
+        <div class="screen-card">
+          <div class="screen-card-header green">헤더</div>
+          <div class="screen-card-body"><ul>
+            <li>타이틀: "직관 초대"</li>
+            <li>X 닫기 버튼</li>
+          </ul></div>
+        </div>
+        <div class="screen-card">
+          <div class="screen-card-header green">경기 정보</div>
+          <div class="screen-card-body"><ul>
+            <li>원정팀 vs 홈팀</li>
+            <li>날짜 · 시간 · 구장</li>
+            <li>좌석 정보</li>
+          </ul></div>
+        </div>
+        <div class="screen-card">
+          <div class="screen-card-header green">초대 안내</div>
+          <div class="screen-card-body"><ul>
+            <li>"[닉네임]님이 함께 직관 가자고 초대했어요"</li>
+            <li>"수락하면 경기 정보를 앱에서 확인할 수 있어요"</li>
+          </ul></div>
+        </div>
+        <div class="screen-card">
+          <div class="screen-card-header green">하단 CTA</div>
+          <div class="screen-card-body"><ul>
+            <li>Primary 버튼: "초대 수락하기"</li>
+            <li>본인인증 미완료 시: "본인인증 후 수락하기" (인증 화면 → 수락 자동 처리)</li>
+          </ul></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title green">CA — 동작 정의</div>
+      <ul class="spec-list">
+        <li><span class="spec-idx green">CA-1</span>비회원 딥링크 진입 시 스토어로 이동. 앱 설치 + 가입 + 온보딩 완료 후 CA-01 화면으로 자동 랜딩 (딥링크 파라미터 유지)</li>
+        <li><span class="spec-idx green">CA-2</span>온보딩은 기존 프로세스 그대로 수행 (응원팀 선택 포함). 스킵 불가</li>
+        <li><span class="spec-idx green">CA-3</span>본인인증 필수. 휴대전화번호 수집 목적(애플 가입자 대응) + DI 기반 어뷰징 방지</li>
+        <li><span class="spec-idx green">CA-4</span>"초대 수락하기" 탭 → 수락 완료 화면: "수락 완료! 경기 정보를 마이에서 확인해 보세요" + 마이 이동 CTA</li>
+        <li><span class="spec-idx green">CA-5</span>수락 완료 시 당첨자(호스트)에게 푸시 발송: "동행자가 초대를 수락했어요" (CRM 섹션 참조)</li>
+        <li><span class="spec-idx green">CA-6</span>신규 가입자 동행자에게 웰컴 응모권 5장 지급. 수락 완료 화면에서 안내: "환영해요! 응모권 5장을 드렸어요"</li>
+        <li><span class="spec-idx green">CA-7</span>기존 가입자 동행자에게는 응모권 미지급</li>
+        <li><span class="spec-idx green">CA-8</span>레퍼럴 보상 자동 지급 안 함. 레퍼럴 코드는 별도 경로(RF-01 ⑦)에서 수동 입력</li>
+        <li><span class="spec-idx green">CA-9</span>이미 취소된 초대 링크 진입 시 안내 화면: "이 초대는 더 이상 유효하지 않아요" + 홈 이동 CTA</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       3. GC — 동행자 경기 정보 카드
+  ══════════════════════════════════ -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <div class="section-num purple">3</div>
+      <div>
+        <div class="section-title">GC — 동행자 경기 정보 카드</div>
+        <div class="section-subtitle">동행자 마이 지갑 내 경기 정보 노출 (QR/난수 미노출)</div>
+      </div>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title purple">GC-01 경기 정보 카드</div>
+      <table>
+        <tr><td class="td-label">노출 위치</td><td>마이 > 내 지갑 영역. 기존 티켓 카드와 동일 위치, 다른 UI</td></tr>
+        <tr><td class="td-label">노출 조건</td><td>초대 수락 완료 후 ~ 경기 종료 + 3일 (기존 티켓 종료 정책과 동일)</td></tr>
+        <tr><td class="td-label">카드 구성</td><td>경기 정보(원정 vs 홈, 날짜, 시간, 구장) + "티켓은 [호스트 닉네임]님이 수령해요" 안내</td></tr>
+        <tr><td class="td-label">QR / 난수번호</td><td><strong>미노출</strong>. 교환 주체는 당첨자(호스트)이므로 동행자에게 교환 정보를 제공하지 않음</td></tr>
+        <tr><td class="td-label">카드 클릭</td><td>경기 상세 정보 바텀시트. 경기 정보 + 교환 장소 + 호스트 닉네임 표시</td></tr>
+        <tr><td class="td-label">상태 뱃지</td><td>"직관 예정" (경기 전) / "직관 완료" (경기 후)</td></tr>
+      </table>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title purple">GC — 동작 정의</div>
+      <ul class="spec-list">
+        <li><span class="spec-idx purple">GC-1</span>동행자 카드는 기존 티켓 카드와 시각적으로 구분. 호스트 티켓은 파란 헤더, 동행자 카드는 회색 또는 연보라 헤더로 차별화</li>
+        <li><span class="spec-idx purple">GC-2</span>함께 응모로 당첨된 경우 자동 생성. 당첨 후 초대로 수락한 경우에도 동일 카드 생성</li>
+        <li><span class="spec-idx purple">GC-3</span>호스트가 동행자를 변경한 경우, 기존 동행자의 카드 삭제 + "초대가 취소되었어요" 안내 필요</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       4. TE — 함께 응모 (호스트 측)
+  ══════════════════════════════════ -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <div class="section-num orange">4</div>
+      <div>
+        <div class="section-title">TE — 함께 응모 (호스트 측)</div>
+        <div class="section-subtitle">응모 상세 내 함께 응모 분기 · 초대 · 합산 · 보너스</div>
+      </div>
+    </div>
+
+    <div class="callout callout-info"><strong>기존 응모 상세 확장</strong>응모_기능정의서_v1.0의 응모 상세 화면에 "혼자 응모 / 함께 응모" 분기를 추가합니다. 기존 혼자 응모 플로우는 변경 없이 유지됩니다.</div>
+
+    <div class="sub-section">
+      <div class="sub-title orange">TE-01 응모 방식 선택</div>
+      <table>
+        <tr><td class="td-label">노출 위치</td><td>응모 상세 화면, 응모권 Stepper 영역 상단</td></tr>
+        <tr><td class="td-label">선택지</td><td>탭 또는 라디오 버튼: "혼자 응모" (기본 선택) / "함께 응모"</td></tr>
+        <tr><td class="td-label">"혼자 응모" 선택</td><td>기존 응모 플로우 그대로. Stepper + 응모하기 CTA</td></tr>
+        <tr><td class="td-label">"함께 응모" 선택</td><td>TE-02 초대 화면으로 전환. 게스트 합류 전까지 응모 버튼 비활성</td></tr>
+      </table>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title orange">TE-02 함께 응모 초대</div>
+      <table>
+        <tr><td class="td-label">UI 구성</td><td>"함께 응모할 친구를 초대해 보세요" 안내 + 공유 시트 CTA</td></tr>
+        <tr><td class="td-label">공유 방식</td><td>카카오톡 / 링크 복사 (CI-02와 동일 패턴, 다른 딥링크)</td></tr>
+        <tr><td class="td-label">딥링크 구조</td><td><code>polyball.kr/entry-together?entry_id={entryId}&host={userId}</code></td></tr>
+        <tr><td class="td-label">공유 메시지</td><td><span class="tag tag-tbd">UXW 확정 필요</span> 경기 정보 + "함께 응모하면 보너스 응모권!" + 딥링크</td></tr>
+        <tr><td class="td-label">대기 상태</td><td>초대 발송 후 "게스트 합류 대기중" 표시. "다시 보내기" / "취소" 제공</td></tr>
+      </table>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title orange">TE-03 함께 응모 합산</div>
+      <table>
+        <tr><td class="td-label">트리거</td><td>게스트 합류 완료 후 자동 전환</td></tr>
+        <tr><td class="td-label">합산 표시</td><td>"[호스트] N장 + [게스트] N장 = 합계 N장" + 보너스 표시 "(+N장 보너스)"</td></tr>
+        <tr><td class="td-label">보너스 계산</td><td>합산 응모권 10장당 +1장. 소수점 이하 버림. 예: 합산 153장 → 보너스 15장 → 총 168장</td></tr>
+        <tr><td class="td-label">호스트 Stepper</td><td>호스트가 본인 사용량 조절 가능. 게스트 사용량은 게스트가 결정 (수정 불가)</td></tr>
+        <tr><td class="td-label">CTA</td><td>"응모하기" — 호스트만 최종 응모 실행 가능</td></tr>
+      </table>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title orange">TE — 동작 정의</div>
+      <ul class="spec-list">
+        <li><span class="spec-idx orange">TE-1</span>함께 응모 완료 시 호스트 · 게스트 각각에게 응모 완료 화면 노출 + RV 광고 노출. 기존 1일 5회 한도는 각 유저별 독립 적용</li>
+        <li><span class="spec-idx orange">TE-2</span>함께 응모 당첨 시 호스트 이름으로 처리. 티켓은 호스트 지갑에만 적재. 게스트는 동행자 자동 확정 (당첨 후 초대 프로세스 스킵)</li>
+        <li><span class="spec-idx orange">TE-3</span>함께 응모 미당첨 시 호스트 · 게스트 모두에게 미당첨 결과 안내</li>
+        <li><span class="spec-idx orange">TE-4</span>게스트 합류 전 호스트가 "취소" 시 혼자 응모 모드로 복귀</li>
+        <li><span class="spec-idx orange">TE-5</span>팀 응원전 점수: 호스트 · 게스트 각각 1회 응모로 카운트하여 점수 적립</li>
+        <li><span class="spec-idx orange">TE-6</span>함께 응모 시 매수 분기: 2매 경기 → 2인 팀, 기아 3매 경기 → 3인 팀(호스트 + 게스트 2명)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       5. TG — 함께 응모 (게스트 측)
+  ══════════════════════════════════ -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <div class="section-num teal">5</div>
+      <div>
+        <div class="section-title">TG — 함께 응모 (게스트 측)</div>
+        <div class="section-subtitle">딥링크 진입 → 합류 → 응모권 선택 → 합산 응모</div>
+      </div>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title teal">TG-01 함께 응모 합류 화면</div>
+      <div class="screen-grid">
+        <div class="screen-card">
+          <div class="screen-card-header teal">경기 정보</div>
+          <div class="screen-card-body"><ul>
+            <li>"[호스트 닉네임]님이 함께 응모하자고 초대했어요"</li>
+            <li>원정팀 vs 홈팀 · 날짜 · 시간 · 구장</li>
+            <li>좌석 정보</li>
+          </ul></div>
+        </div>
+        <div class="screen-card">
+          <div class="screen-card-header teal">응모권 선택</div>
+          <div class="screen-card-body"><ul>
+            <li>Stepper: 사용할 응모권 수량 선택</li>
+            <li>보유 응모권 표시</li>
+            <li>"함께 응모하면 보너스 응모권이 추가돼요"</li>
+          </ul></div>
+        </div>
+        <div class="screen-card">
+          <div class="screen-card-header teal">하단 CTA</div>
+          <div class="screen-card-body"><ul>
+            <li>Primary: "합류하기"</li>
+            <li>응모권 0장: "응모권 모으러 가기" (픽 화면 이동)</li>
+          </ul></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title teal">TG — 동작 정의</div>
+      <ul class="spec-list">
+        <li><span class="spec-idx">TG-1</span>비회원/앱 미설치 게스트: 스토어 이동 → 설치 → 가입 → 온보딩 → TG-01 자동 랜딩</li>
+        <li><span class="spec-idx">TG-2</span>게스트 응모권 0장 시: CTA "응모권 모으러 가기" → 픽(승부예측) 메인으로 이동</li>
+        <li><span class="spec-idx">TG-3</span>"합류하기" 탭 → 호스트에게 합류 알림 → TE-03 합산 화면 자동 갱신</li>
+        <li><span class="spec-idx">TG-4</span>게스트는 합류 후 응모권 수량 수정 불가. 수정 필요 시 합류 취소 → 재합류</li>
+        <li><span class="spec-idx">TG-5</span>이미 마감된 응모 링크 진입 시: "이 응모는 마감되었어요" 안내 + 응모 메인 이동 CTA</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       6. CRM — 푸시 알림 정의
+  ══════════════════════════════════ -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <div class="section-num">6</div>
+      <div>
+        <div class="section-title">CRM — 푸시 알림 정의</div>
+        <div class="section-subtitle">동행자 초대 · 함께 응모 관련 알림 이벤트</div>
+      </div>
+    </div>
+
+    <div class="callout callout-info"><strong>알림함 탭 배치</strong>기존 알림함(NF v1.1) "응모" 탭에 배치. 신규 이벤트 추가.</div>
+
+    <div class="sub-section">
+      <div class="sub-title">당첨자(호스트) 대상</div>
+      <table>
+        <thead><tr><th>이벤트</th><th>조건</th><th>메시지</th><th>발송 한도</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>초대 리마인드 ①</td>
+            <td>당첨 48시간 경과 + 동행자 미초대</td>
+            <td><span class="tag tag-tbd">UXW</span> "함께 갈 친구가 있다면 초대해 보세요"</td>
+            <td>1회</td>
+          </tr>
+          <tr>
+            <td>초대 리마인드 ②</td>
+            <td>경기 48시간 전 + 동행자 미수락</td>
+            <td><span class="tag tag-tbd">UXW</span> "경기가 곧이에요! 같이 갈 사람에게 티켓 정보를 공유해 보세요"</td>
+            <td>1회</td>
+          </tr>
+          <tr>
+            <td>수락 완료</td>
+            <td>동행자 수락 즉시</td>
+            <td><span class="tag tag-tbd">UXW</span> "동행자가 초대를 수락했어요"</td>
+            <td>즉시 1회</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title">동행자(게스트) 대상</div>
+      <table>
+        <thead><tr><th>이벤트</th><th>조건</th><th>메시지</th><th>발송 한도</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>수락 리마인드</td>
+            <td>초대 링크 수신 + 앱 진입 + 24시간 경과 + 미수락</td>
+            <td><span class="tag tag-tbd">UXW</span> "직관 티켓이 기다리고 있어요. 초대를 수락해 주세요"</td>
+            <td>1회 (앱 설치 + 알림 동의 유저만)</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout callout-warn"><strong>앱 미설치 동행자</strong>푸시 발송 불가. 당첨자 경유 재공유 유도(리마인드 ②)로 대체. 카카오 알림톡은 추후 검토 사항.</div>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title">공통 규칙</div>
+      <ul class="spec-list">
+        <li><span class="spec-idx">P-1</span>동행자 관련 푸시는 서비스 알림으로 분류</li>
+        <li><span class="spec-idx">P-2</span>야간 발송 제한(21시~08시) 적용 <span class="tag tag-tbd">법무 확인</span></li>
+        <li><span class="spec-idx">P-3</span>알림함 저장: 모든 이벤트는 알림함 > 응모 탭에 기록 보관</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       7. 공통 정책
+  ══════════════════════════════════ -->
+  <div class="section" id="s7">
+    <div class="section-header">
+      <div class="section-num">7</div>
+      <div>
+        <div class="section-title">공통 정책</div>
+        <div class="section-subtitle">보상 · 재무 · 링크 · 어뷰징 정책</div>
+      </div>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title">보상 정책</div>
+      <table>
+        <thead><tr><th>항목</th><th>대상</th><th>내용</th></tr></thead>
+        <tbody>
+          <tr><td>웰컴 응모권</td><td>동행자 (신규 가입자만)</td><td>5장 지급. 초대 수락 완료 시점. 기존 회원 미지급</td></tr>
+          <tr><td>레퍼럴 보상</td><td>동행자 초대 경로</td><td>자동 지급 안 함. RF-01 ⑦ 수동 입력 경로 분리</td></tr>
+          <tr><td>함께 응모 보너스</td><td>호스트+게스트 공동</td><td>합산 응모권 10장당 +1장. 소수점 버림. 응모 시 자동 적용</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title">재무 처리</div>
+      <table>
+        <thead><tr><th>동행자 상태</th><th>재무 처리 방식</th></tr></thead>
+        <tbody>
+          <tr><td>확정 (초대 수락 또는 함께 응모 당첨)</td><td>동행자 정보(이름, 휴대전화번호)로 매수 분리 처리</td></tr>
+          <tr><td>미확정 (미초대 또는 미수락)</td><td>임직원 담당자 정보로 매수 분리 처리</td></tr>
+        </tbody>
+      </table>
+      <div class="callout callout-success"><strong>재무 명단 스냅샷 시점</strong>교환 가능 전환(경기 2시간 전) 시점의 동행자 상태를 기준으로 확정.</div>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title">딥링크 정책</div>
+      <table>
+        <thead><tr><th>링크 종류</th><th>URL 패턴</th><th>목적</th></tr></thead>
+        <tbody>
+          <tr><td>동행자 초대</td><td><code>/invite?ticket_id=&host=</code></td><td>당첨 후 동행자 수락</td></tr>
+          <tr><td>함께 응모</td><td><code>/entry-together?entry_id=&host=</code></td><td>응모 시점 게스트 합류</td></tr>
+          <tr><td>레퍼럴 (기존)</td><td><code>/join?ref=</code></td><td>신규 유저 유입 보상</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title">어뷰징 방지</div>
+      <ul class="spec-list">
+        <li><span class="spec-idx">AB-1</span>본인인증(DI) 기반 1인 1계정 정책. 동행자도 DI 확인 후 수락 가능</li>
+        <li><span class="spec-idx">AB-2</span>함께 응모 보너스 10%는 어뷰징 인센티브가 제한적. 다계정 → DI 중복 → 차단</li>
+        <li><span class="spec-idx">AB-3</span>동행자 변경 횟수는 제한 없으나, 변경 이력 로깅하여 비정상 패턴 모니터링</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       8. 미결 사항
+  ══════════════════════════════════ -->
+  <div class="section" id="s8">
+    <div class="section-header">
+      <div class="section-num">8</div>
+      <div>
+        <div class="section-title">미결 사항 (TBD)</div>
+        <div class="section-subtitle">기획 확정 전 결정 필요 항목</div>
+      </div>
+    </div>
+
+    <table>
+      <thead><tr><th>#</th><th>항목</th><th>담당</th><th>상태</th></tr></thead>
+      <tbody>
+        <tr><td>01</td><td>동행자 초대 시 개인정보수집이용 동의 범위 확인</td><td>법무</td><td><span class="tag tag-tbd">TBD</span></td></tr>
+        <tr><td>02</td><td>서류 제출 방식(설문 vs 전자계약) 확정 — 대행사 협의</td><td>운영</td><td><span class="tag tag-tbd">TBD</span></td></tr>
+        <tr><td>03</td><td>딥링크 구현 방식 — 동행자 초대 / 함께 응모 분리</td><td>개발</td><td><span class="tag tag-tbd">TBD</span></td></tr>
+        <tr><td>04</td><td>웰컴 응모권 수량 최종 확정 (5장 기준)</td><td>PM</td><td><span class="tag tag-tbd">TBD</span></td></tr>
+        <tr><td>05</td><td>보너스 비율(10장당 +1) 운영 비용 시뮬레이션</td><td>PM · 재무</td><td><span class="tag tag-tbd">TBD</span></td></tr>
+        <tr><td>06</td><td>동행자 변경 시 최종 정보 확정 시점 확인</td><td>운영 · 개발</td><td><span class="tag tag-tbd">TBD</span></td></tr>
+        <tr><td>07</td><td>CRM 푸시 UXW 문구 확정</td><td>UXW</td><td><span class="tag tag-tbd">TBD</span></td></tr>
+        <tr><td>08</td><td>공유 메시지 카피 + 썸네일 확정</td><td>UXW · 디자인</td><td><span class="tag tag-tbd">TBD</span></td></tr>
+        <tr><td>09</td><td>동행자 경기 정보 카드 디자인</td><td>디자인</td><td><span class="tag tag-tbd">TBD</span></td></tr>
+        <tr><td>10</td><td>함께 응모 합산 UI 인터랙션</td><td>디자인</td><td><span class="tag tag-tbd">TBD</span></td></tr>
+        <tr><td>11</td><td>야간 푸시 발송 가능 여부 — 서비스 알림 분류</td><td>법무 · 개발</td><td><span class="tag tag-tbd">TBD</span></td></tr>
+        <tr><td>12</td><td>함께 응모 광고(RV) 호스트·게스트 각각 노출 확인</td><td>광고사업팀</td><td><span class="tag tag-tbd">TBD</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Footer -->
+  <div style="text-align:center;padding:24px 0;font-size:12px;color:var(--gray);">
+    본 문서는 내부 검토용입니다. 최종 스펙은 기획·개발·법무 리뷰 후 확정됩니다.
+  </div>
+
+</div>
+</body>
+</html>

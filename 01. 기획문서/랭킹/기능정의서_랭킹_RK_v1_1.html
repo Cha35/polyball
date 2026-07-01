@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>랭킹 기능정의서 v1.1 — PolyBall</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Pretendard:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #1F30E9; --primary-light: #EEF0FD; --primary-mid: #C7CCFA;
+    --navy: #00143F; --mint: #09FFEE; --white: #ffffff;
+    --bg: #F8F9FF; --border: #E8EAEF;
+    --dark: #111827; --mid: #374151; --muted: #6B7280; --light: #9CA3AF;
+    --conf-bg: #DCFCE7; --conf-border: #86EFAC; --conf-text: #166534;
+    --undef-bg: #FFF7ED; --undef-border: #FED7AA; --orange: #C2410C;
+    --later-bg: #F5F3FF; --later-border: #DDD6FE; --later-text: #6D28D9;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Pretendard', sans-serif; background: #F0F2F8; color: var(--dark); font-size: 13px; }
+  .app { display: flex; min-height: 100vh; }
+  aside { width: 224px; background: var(--white); border-right: 1px solid var(--border); position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; }
+  .layout { flex: 1; overflow: hidden; }
+  .main { max-width: 960px; margin: 0 auto; padding: 32px 24px 80px; }
+
+  .sidebar-logo { padding: 20px 16px 12px; border-bottom: 1px solid var(--border); }
+  .sidebar-logo-text { font-size: 15px; font-weight: 900; color: var(--primary); letter-spacing: -0.5px; }
+  .sidebar-logo-sub { font-size: 10px; color: var(--muted); margin-top: 2px; font-family: 'DM Mono', monospace; }
+  .sidebar-group { padding: 12px 8px 4px; }
+  .sidebar-group-label { font-size: 9px; font-weight: 800; color: var(--light); letter-spacing: 1px; text-transform: uppercase; font-family: 'DM Mono', monospace; padding: 0 8px; margin-bottom: 4px; }
+  .sidebar-item { display: flex; align-items: center; gap: 8px; width: 100%; padding: 7px 10px; border: none; background: none; cursor: pointer; border-radius: 6px; text-align: left; font-family: 'Pretendard', sans-serif; font-size: 12px; color: var(--mid); transition: background 0.15s; }
+  .sidebar-item:hover { background: var(--primary-light); color: var(--primary); }
+  .sidebar-item-id { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--primary); background: var(--primary-light); border: 1px solid var(--primary-mid); border-radius: 3px; padding: 1px 5px; white-space: nowrap; flex-shrink: 0; }
+  .sidebar-divider { height: 1px; background: var(--border); margin: 8px 16px; }
+
+  .cover { background: var(--primary); border-radius: 16px; padding: 40px; margin-bottom: 24px; color: white; }
+  .cover-tag { font-family: 'DM Mono', monospace; font-size: 10px; background: rgba(255,255,255,0.15); border-radius: 4px; padding: 3px 10px; display: inline-block; margin-bottom: 16px; }
+  .cover h1 { font-size: 28px; font-weight: 900; letter-spacing: -1px; margin-bottom: 8px; }
+  .cover-sub { font-size: 13px; color: rgba(255,255,255,0.75); margin-bottom: 24px; line-height: 1.6; }
+  .cover-meta { display: flex; flex-direction: column; gap: 6px; }
+  .cover-meta-item { font-size: 12px; color: rgba(255,255,255,0.6); }
+  .cover-meta-item span { color: white; font-weight: 600; margin-left: 6px; }
+
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; padding: 12px 16px; background: var(--white); border-radius: 10px; border: 1px solid var(--border); }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--mid); }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+
+  .section { background: var(--white); border-radius: 12px; border: 1px solid var(--border); padding: 28px; margin-bottom: 20px; }
+  .section-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--primary); }
+  .section-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--primary); background: var(--primary-light); border-radius: 4px; padding: 2px 8px; }
+  .section-title { font-size: 20px; font-weight: 900; color: var(--dark); letter-spacing: -0.5px; }
+
+  .sub { margin-bottom: 40px; }
+  .sub-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .screen-id { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 600; color: var(--primary); background: var(--primary-light); border: 1px solid var(--primary-mid); border-radius: 4px; padding: 2px 8px; white-space: nowrap; }
+  .screen-name { font-size: 16px; font-weight: 800; color: var(--dark); }
+  .screen-desc { font-size: 11px; color: var(--muted); }
+  .sub-h3 { font-size: 10px; font-weight: 800; color: var(--muted); letter-spacing: 0.8px; margin: 20px 0 8px; text-transform: uppercase; font-family: 'DM Mono', monospace; }
+
+  .desc-wrap { margin-bottom: 12px; }
+  .desc-wrap-label { font-size: 9px; font-weight: 800; letter-spacing: 1.2px; color: var(--muted); margin-bottom: 8px; font-family: 'DM Mono', monospace; text-transform: uppercase; }
+  .desc-card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 12px; }
+  .desc-card-header { display: flex; align-items: center; gap: 8px; padding: 9px 16px; background: var(--bg); border-bottom: 1px solid var(--border); }
+  .desc-card-tag { font-size: 9px; font-weight: 800; color: var(--muted); background: var(--white); border: 1px solid var(--border); border-radius: 3px; padding: 1px 6px; font-family: 'DM Mono', monospace; letter-spacing: 0.5px; }
+  .desc-card-name { font-size: 12px; font-weight: 700; color: var(--dark); }
+  .desc-card-body { padding: 14px 16px; }
+  .desc-item { font-size: 12px; color: var(--mid); padding-left: 14px; position: relative; margin-bottom: 5px; line-height: 1.65; }
+  .desc-item::before { content: '·'; position: absolute; left: 4px; color: var(--muted); }
+  .desc-item:last-child { margin-bottom: 0; }
+  .desc-item.depth2 { padding-left: 26px; font-size: 11.5px; color: var(--muted); }
+  .desc-item.depth2::before { content: '–'; left: 14px; }
+  .desc-item.conf { color: var(--conf-text); }
+  .desc-item.conf::before { content: '✓'; color: #22C55E; }
+  .desc-item.warn { color: var(--orange); }
+  .desc-item.warn::before { content: '⚠'; color: var(--orange); }
+  .desc-item.later { color: var(--later-text); }
+  .desc-item.later::before { content: '🕐'; }
+  strong { font-weight: 700; color: var(--dark); }
+  code { font-family: 'DM Mono', monospace; font-size: 11px; background: var(--bg); border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px; color: var(--mid); }
+
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700; border-radius: 4px; padding: 2px 7px; font-family: 'DM Mono', monospace; }
+  .badge-conf { background: var(--conf-bg); color: var(--conf-text); border: 1px solid var(--conf-border); }
+  .badge-undef { background: var(--undef-bg); color: var(--orange); border: 1px solid var(--undef-border); }
+  .badge-later { background: var(--later-bg); color: var(--later-text); border: 1px solid var(--later-border); }
+
+  .policy-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 12px; }
+  .policy-table th { background: var(--bg); padding: 8px 12px; text-align: left; font-weight: 700; color: var(--dark); border: 1px solid var(--border); font-size: 11px; }
+  .policy-table td { padding: 9px 12px; border: 1px solid var(--border); color: var(--mid); vertical-align: top; line-height: 1.6; }
+
+  .flow { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+  .flow-node { background: var(--primary-light); border: 1px solid var(--primary-mid); border-radius: 8px; padding: 7px 14px; font-size: 12px; font-weight: 700; color: var(--primary); white-space: nowrap; }
+  .flow-node.dark { background: var(--primary); color: white; border-color: var(--primary); }
+  .flow-node.grey { background: var(--bg); color: var(--mid); border-color: var(--border); }
+  .flow-node.conf { background: var(--conf-bg); color: var(--conf-text); border-color: var(--conf-border); }
+  .flow-node.warn { background: var(--undef-bg); color: var(--orange); border-color: var(--undef-border); }
+  .flow-arr { color: var(--muted); font-size: 14px; font-weight: 700; }
+
+  /* Phone wireframe */
+  .wireframe-area { display: flex; gap: 20px; flex-wrap: wrap; margin: 16px 0; }
+  .phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .phone-label { font-size: 11px; font-weight: 700; color: var(--dark); text-align: center; max-width: 200px; }
+  .phone-sublabel { font-size: 10px; color: var(--muted); }
+  .phone { width: 200px; background: var(--white); border-radius: 24px; border: 2px solid #D1D5DB; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+  .phone-notch { background: #D1D5DB; height: 14px; display: flex; align-items: center; justify-content: center; }
+  .phone-notch-bar { width: 40px; height: 4px; background: #9CA3AF; border-radius: 4px; }
+  .phone-screen { background: #F8F9FF; }
+
+  /* Phone UI components */
+  .p-gnb { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background: var(--white); border-bottom: 1px solid var(--border); }
+  .p-gnb-title { font-size: 11px; font-weight: 800; color: var(--dark); }
+  .p-gnb-back { font-size: 14px; color: var(--dark); }
+
+  .p-week-badge { margin: 8px 8px 4px; background: var(--primary-light); border-radius: 6px; padding: 5px 8px; display: flex; align-items: center; justify-content: space-between; }
+  .p-week-text { font-size: 9px; font-weight: 700; color: var(--primary); }
+  .p-week-sub { font-size: 8px; color: var(--muted); }
+
+  .p-my-rank { margin: 4px 8px; background: var(--navy); border-radius: 8px; padding: 8px 10px; }
+  .p-my-rank-label { font-size: 8px; color: rgba(255,255,255,0.6); margin-bottom: 2px; }
+  .p-my-rank-row { display: flex; align-items: center; justify-content: space-between; }
+  .p-my-rank-num { font-size: 14px; font-weight: 900; color: var(--mint); font-family: 'DM Mono', monospace; }
+  .p-my-rank-stats { display: flex; gap: 10px; }
+  .p-my-stat { text-align: center; }
+  .p-my-stat-val { font-size: 11px; font-weight: 800; color: white; }
+  .p-my-stat-label { font-size: 7px; color: rgba(255,255,255,0.5); }
+
+  .p-rank-item { display: flex; align-items: center; gap: 6px; padding: 6px 10px; background: var(--white); margin: 2px 8px; border-radius: 8px; border: 1px solid var(--border); }
+  .p-rank-item.top1 { border-color: #FCD34D; background: #FFFBEB; }
+  .p-rank-item.top2 { border-color: #D1D5DB; background: #F9FAFB; }
+  .p-rank-item.top3 { border-color: #D97706; background: #FFF7ED; }
+  .p-rank-num { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 700; width: 16px; text-align: center; color: var(--muted); }
+  .p-rank-num.gold { color: #D97706; }
+  .p-rank-num.silver { color: #6B7280; }
+  .p-rank-num.bronze { color: #B45309; }
+  .p-rank-nick { flex: 1; font-size: 9px; font-weight: 600; color: var(--dark); }
+  .p-rank-score { text-align: right; }
+  .p-rank-score-val { font-size: 10px; font-weight: 800; color: var(--primary); }
+  .p-rank-score-sub { font-size: 7px; color: var(--muted); }
+  .p-reward-badge { font-size: 7px; font-weight: 700; padding: 1px 4px; border-radius: 3px; white-space: nowrap; }
+  .p-reward-ticket { background: #FEF9C3; color: #854D0E; }
+  .p-reward-entry { background: var(--primary-light); color: var(--primary); }
+  .p-section-label { padding: 6px 10px 2px; font-size: 8px; font-weight: 800; color: var(--muted); letter-spacing: 0.5px; text-transform: uppercase; font-family: 'DM Mono', monospace; }
+  .p-more { text-align: center; padding: 4px; font-size: 8px; color: var(--muted); padding-bottom: 6px; }
+
+  /* 마이 화면 phone components */
+  .p-my-gnb { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background: var(--navy); }
+  .p-my-gnb-logo { font-size: 11px; font-weight: 900; color: white; }
+  .p-my-gnb-icons { display: flex; gap: 6px; font-size: 11px; }
+  .p-profile-card { margin: 6px 8px; background: var(--white); border-radius: 10px; padding: 8px 10px; display: flex; align-items: center; gap: 8px; }
+  .p-avatar { width: 28px; height: 28px; background: var(--primary-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .p-profile-name { font-size: 10px; font-weight: 800; color: var(--dark); }
+  .p-profile-team { font-size: 8px; color: var(--muted); }
+  .p-wallet-section { margin: 6px 8px 0; }
+  .p-wallet-title { font-size: 10px; font-weight: 800; color: var(--dark); margin-bottom: 4px; }
+
+  /* 확정 티켓 액션 카드 (미선택) */
+  .p-ticket-action { background: var(--primary); border-radius: 8px; padding: 8px 10px; margin-bottom: 6px; }
+  .p-ticket-action-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px; }
+  .p-ticket-action-badge { font-size: 7px; font-weight: 800; color: var(--mint); background: rgba(9,255,238,0.15); border-radius: 3px; padding: 1px 4px; }
+  .p-ticket-action-arr { font-size: 10px; color: rgba(255,255,255,0.6); }
+  .p-ticket-action-title { font-size: 10px; font-weight: 800; color: white; margin-bottom: 2px; }
+  .p-ticket-action-sub { font-size: 8px; color: rgba(255,255,255,0.65); }
+
+  /* 보유 티켓 카드 (준비중) */
+  .p-ticket-card { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; margin-bottom: 6px; }
+  .p-ticket-card-badge { display: inline-flex; align-items: center; gap: 3px; background: #FFF7ED; border: 1px solid #FED7AA; border-radius: 4px; padding: 1px 5px; font-size: 7px; font-weight: 800; color: var(--orange); margin-bottom: 5px; }
+  .p-ticket-card-game { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .p-ticket-card-team { font-size: 10px; font-weight: 800; color: var(--dark); }
+  .p-ticket-card-date { font-size: 8px; color: var(--primary); font-weight: 600; }
+  .p-ticket-card-venue { font-size: 7px; color: var(--muted); margin-bottom: 4px; }
+  .p-ticket-card-info { font-size: 7.5px; color: var(--muted); line-height: 1.5; border-top: 1px solid var(--border); padding-top: 4px; }
+
+  /* RK-03 components */
+  .p-ticket-badge { display: inline-flex; align-items: center; gap: 3px; background: #FEF9C3; border: 1px solid #FCD34D; border-radius: 4px; padding: 2px 6px; font-size: 8px; font-weight: 700; color: #854D0E; margin: 4px 8px; }
+  .p-sheet-sub { font-size: 8px; color: var(--muted); line-height: 1.4; }
+  .p-game-card { margin: 3px 8px; background: var(--white); border-radius: 8px; border: 1px solid var(--border); padding: 7px 8px; }
+  .p-game-card.selected { border-color: var(--primary); background: var(--primary-light); }
+  .p-game-venue { font-size: 7px; color: var(--muted); margin-bottom: 3px; }
+  .p-game-teams { display: flex; align-items: center; justify-content: space-between; }
+  .p-game-team { font-size: 9px; font-weight: 700; color: var(--dark); }
+  .p-game-date { font-size: 7px; color: var(--primary); font-weight: 600; text-align: center; }
+  .p-game-status { font-size: 7px; color: #16A34A; background: #DCFCE7; border-radius: 3px; padding: 1px 4px; margin-top: 3px; display: inline-block; }
+  .p-game-status.upcoming { color: var(--muted); background: var(--bg); }
+  .p-cta { margin: 6px 8px; background: var(--primary); border-radius: 8px; padding: 8px; text-align: center; font-size: 10px; font-weight: 800; color: white; }
+  .p-cta.disabled { background: #D1D5DB; color: #9CA3AF; }
+  .p-validity { text-align: center; font-size: 7px; color: var(--muted); padding: 0 8px 8px; }
+
+  /* Reward sheet */
+  .p-reward-sheet { padding: 10px; background: var(--white); }
+  .p-reward-title { font-size: 13px; font-weight: 900; color: var(--dark); text-align: center; margin-bottom: 4px; }
+  .p-reward-emoji { text-align: center; font-size: 24px; margin-bottom: 6px; }
+  .p-reward-desc { font-size: 9px; color: var(--muted); text-align: center; margin-bottom: 10px; line-height: 1.5; }
+  .p-reward-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-top: 1px solid var(--border); }
+  .p-reward-item-label { font-size: 9px; color: var(--mid); }
+  .p-reward-item-val { font-size: 10px; font-weight: 700; color: var(--dark); }
+  .p-complete-note { background: var(--primary-light); border-radius: 6px; padding: 6px 8px; margin: 0 10px 10px; font-size: 8px; color: var(--primary); line-height: 1.5; }
+
+  /* Undefined */
+  .undef-wrap { border: 1px solid var(--undef-border); border-radius: 8px; overflow: hidden; margin-bottom: 12px; }
+  .undef-wrap-header { background: var(--undef-bg); padding: 8px 14px; font-size: 11px; font-weight: 800; color: var(--orange); border-bottom: 1px solid var(--undef-border); }
+  .undef-list { list-style: none; }
+  .undef-list li { display: flex; gap: 10px; padding: 7px 14px; border-top: 1px solid var(--undef-border); align-items: flex-start; }
+  .undef-list li:first-child { border-top: none; }
+  .u-id { font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 700; color: var(--orange); background: var(--undef-bg); border-radius: 3px; padding: 1px 5px; white-space: nowrap; flex-shrink: 0; margin-top: 1px; }
+  .u-desc { font-size: 11px; color: var(--mid); line-height: 1.5; }
+  .u-later { font-size: 11px; color: var(--later-text); line-height: 1.5; }
+
+  .changelog { display: flex; flex-direction: column; gap: 8px; }
+  .changelog-item { display: flex; gap: 14px; align-items: flex-start; }
+  .changelog-version { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 700; background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary-mid); border-radius: 4px; padding: 2px 7px; white-space: nowrap; flex-shrink: 0; }
+  .changelog-meta { display: flex; flex-direction: column; gap: 3px; }
+  .changelog-date { font-size: 10px; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .changelog-desc { font-size: 12px; color: var(--mid); line-height: 1.6; }
+
+  .section-divider { height: 1px; background: var(--border); margin: 8px 0 20px; }
+
+  /* Logic box */
+  .logic-box { background: var(--navy); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; }
+  .logic-formula { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 700; color: var(--mint); margin-bottom: 8px; }
+  .logic-note { font-size: 11px; color: rgba(255,255,255,0.7); line-height: 1.6; }
+  .logic-note span { color: white; font-weight: 700; }
+
+  @media (max-width: 700px) { aside { display: none; } .main { padding: 16px 12px 60px; } }
+</style>
+</head>
+<body>
+<div class="app">
+<aside>
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-text">PolyBall.</div>
+    <div class="sidebar-logo-sub">랭킹 기능정의서 v1.1</div>
+  </div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-label">개요</div>
+    <button class="sidebar-item"><span class="sidebar-item-id">POL</span>정책 요약</button>
+    <button class="sidebar-item"><span class="sidebar-item-id">Flow</span>플로우 개요</button>
+  </div>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-label">화면 정의</div>
+    <button class="sidebar-item"><span class="sidebar-item-id">RK-01</span>랭킹 메인</button>
+    <button class="sidebar-item"><span class="sidebar-item-id">RK-02</span>보상 수령 모달</button>
+    <button class="sidebar-item"><span class="sidebar-item-id">RK-03</span>확정 티켓 선택</button>
+    <button class="sidebar-item"><span class="sidebar-item-id">MY</span>마이 화면 노출</button>
+  </div>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-label">연동 로직</div>
+    <button class="sidebar-item"><span class="sidebar-item-id">EM</span>응모 연동 로직</button>
+    <button class="sidebar-item"><span class="sidebar-item-id">EP</span>진입점</button>
+  </div>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-label">참고</div>
+    <button class="sidebar-item"><span class="sidebar-item-id">DB</span>데이터 구조</button>
+    <button class="sidebar-item"><span class="sidebar-item-id">⚠</span>미정의 요약</button>
+  </div>
+</aside>
+
+<div class="layout">
+<main class="main">
+
+  <div class="cover">
+    <div class="cover-tag">SPEC · v1.1</div>
+    <h1>랭킹 기능정의서</h1>
+    <div class="cover-sub">주간 랭킹 시스템 / 확정 티켓 정책·마이 노출·응모 연동 로직 / 진입점 (추후 확정)</div>
+    <div class="cover-meta">
+      <div class="cover-meta-item">최초 작성 <span>2026-05-21</span></div>
+      <div class="cover-meta-item">버전 <span>v1.1 — 확정 티켓 변경 불가 원칙·경기 취소 처리 / 마이 화면 노출 방식 신설 / 응모 연동 로직(당첨자 수 차감·미오픈 처리) 신설 / 진입점 추후 결정 명시 / 적중률 미노출 확정</span></div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#DCFCE7;border:1px solid #86EFAC;"></div>확정</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#FFF7ED;border:1px solid #FED7AA;"></div>⚠ 미정의</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#F5F3FF;border:1px solid #DDD6FE;"></div>🕐 추후 결정</div>
+  </div>
+
+
+  <!-- ══ 01. 정책 요약 ══ -->
+  <div class="section" id="pol">
+    <div class="section-header"><span class="section-num">01</span><span class="section-title">정책 요약</span></div>
+
+    <div class="desc-wrap">
+      <div class="desc-wrap-label">Ranking Rules</div>
+      <table class="policy-table">
+        <thead><tr><th style="width:150px;">항목</th><th>내용</th><th style="width:80px;">상태</th></tr></thead>
+        <tbody>
+          <tr><td><strong>랭킹 산정 기준</strong></td><td>주간 <strong>적중 수</strong> (정답 수 절대값) 높은 순 정렬</td><td><span class="badge badge-conf">확정</span></td></tr>
+          <tr><td><strong>동률 처리</strong></td><td>적중 수 동률 시 <strong>참여 수 많은 유저</strong> 상위 순위</td><td><span class="badge badge-conf">확정</span></td></tr>
+          <tr><td><strong>오답 패널티</strong></td><td>없음 — 틀려도 적중 수 감소 없음</td><td><span class="badge badge-conf">확정</span></td></tr>
+          <tr><td><strong>최소 참여 기준</strong></td><td>없음 — 적중 수 기준으로 자연 해소</td><td><span class="badge badge-conf">확정</span></td></tr>
+          <tr><td><strong>집계 대상 마켓</strong></td><td>오픈되는 모든 마켓 (KBO + 확장 마켓 전체)</td><td><span class="badge badge-conf">확정</span></td></tr>
+          <tr><td><strong>적중률 노출</strong></td><td>랭킹 화면 미노출 — 적중 수·참여 수만 표시 / 마이 개인 통계 별도 검토</td><td><span class="badge badge-conf">확정</span></td></tr>
+          <tr><td><strong>등급·칭호</strong></td><td>없음 — 순위 숫자만 표시 (초기 스테이지)</td><td><span class="badge badge-conf">확정</span></td></tr>
+          <tr><td><strong>커뮤니티</strong></td><td>불필요 — 현재 유저 규모 미충족 / 로드맵 후순위</td><td><span class="badge badge-conf">확정</span></td></tr>
+          <tr><td><strong>랭킹 방식</strong></td><td>순위 기반 / 추후 비율 기반 전환 검토</td><td><span class="badge badge-conf">확정</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="desc-wrap">
+      <div class="desc-wrap-label">Reward Rules</div>
+      <table class="policy-table">
+        <thead><tr><th style="width:150px;">순위</th><th>보상</th><th style="width:80px;">상태</th></tr></thead>
+        <tbody>
+          <tr><td>🥇 <strong>1위</strong></td><td>확정 티켓 1장 — 오픈 예정 회차에서 유저가 직접 선택</td><td><span class="badge badge-conf">확정</span></td></tr>
+          <tr><td>🥈 <strong>2위</strong></td><td>응모권 50장</td><td><span class="badge badge-conf">확정</span></td></tr>
+          <tr><td>🥉 <strong>3위</strong></td><td>응모권 50장</td><td><span class="badge badge-conf">확정</span></td></tr>
+          <tr><td>4위 이하</td><td>없음 (예측 참여 응모권으로 대체)</td><td><span class="badge badge-conf">확정</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="desc-wrap">
+      <div class="desc-wrap-label">Confirmed Ticket Policy</div>
+      <table class="policy-table">
+        <thead><tr><th style="width:150px;">항목</th><th>내용</th><th style="width:80px;">상태</th></tr></thead>
+        <tbody>
+          <tr><td><strong>사용 범위</strong></td><td>오픈 예정 회차만 선택 가능 — 응모 진행 중인 회차 사용 불가</td><td><span class="badge badge-conf">확정</span></td></tr>
+          <tr><td><strong>선택 변경</strong></td><td><strong>변경 불가 (원칙)</strong> — 한 번 선택 후 취소·변경 불허</td><td><span class="badge badge-conf">확정</span></td></tr>
+          <tr><td><strong>경기 취소 시</strong></td><td>선택 경기 취소·일정 변경 시 <strong>시스템 자동 초기화</strong> → 재선택 알림 발송</td><td><span class="badge badge-conf">확정</span></td></tr>
+          <tr><td><strong>유효기간</strong></td><td>2026 페넌트레이스 종료일까지 (별도 D-day 없음)</td><td><span class="badge badge-conf">확정</span></td></tr>
+          <tr><td><strong>선택 범위</strong></td><td>오픈 예정 경기 전체 (무제한)</td><td><span class="badge badge-conf">확정</span></td></tr>
+          <tr><td><strong>확정 처리 절차</strong></td><td>경기 선택 후 → 해당 회차 당첨자 발표 시 당첨자와 함께 연락 진행 / 그 전까지 <strong>준비중</strong> 상태</td><td><span class="badge badge-conf">확정</span></td></tr>
+          <tr><td><strong>보상 변경 가능성</strong></td><td>주단위 모니터링 후 재검토</td><td><span class="badge badge-conf">확정</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="desc-wrap">
+      <div class="desc-wrap-label">Weekly Cycle</div>
+      <table class="policy-table">
+        <thead><tr><th style="width:150px;">단계</th><th>타이밍</th><th style="width:80px;">상태</th></tr></thead>
+        <tbody>
+          <tr><td><strong>주간 시작</strong></td><td>매주 월요일 00:00</td><td><span class="badge badge-conf">확정</span></td></tr>
+          <tr><td><strong>주간 마감</strong></td><td>매주 일요일 23:59</td><td><span class="badge badge-conf">확정</span></td></tr>
+          <tr><td><strong>집계</strong></td><td>매주 월요일 오전 (자동)</td><td><span class="badge badge-conf">확정</span></td></tr>
+          <tr><td><strong>검수</strong></td><td>매주 월요일 오전 중 운영팀</td><td><span class="badge badge-conf">확정</span></td></tr>
+          <tr><td><strong>보상 지급</strong></td><td>매주 월요일 오후</td><td><span class="badge badge-conf">확정</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+  <!-- ══ 02. 플로우 개요 ══ -->
+  <div class="section" id="flow">
+    <div class="section-header"><span class="section-num">02</span><span class="section-title">플로우 개요</span></div>
+
+    <div class="sub-h3">주간 랭킹 집계 플로우</div>
+    <div class="flow" style="margin-bottom:6px;">
+      <div class="flow-node grey">마켓 참여 (픽)</div>
+      <span class="flow-arr">→</span>
+      <div class="flow-node">적중 시 적중 수 +1</div>
+      <span class="flow-arr">→</span>
+      <div class="flow-node">주간 적중 수 누적</div>
+      <span class="flow-arr">→</span>
+      <div class="flow-node dark">일요일 23:59 마감</div>
+    </div>
+    <div class="flow" style="margin-bottom:20px;">
+      <div class="flow-node grey">월요일 오전 자동 집계</div>
+      <span class="flow-arr">→</span>
+      <div class="flow-node grey">운영팀 검수</div>
+      <span class="flow-arr">→</span>
+      <div class="flow-node dark">월요일 오후 보상 지급</div>
+    </div>
+
+    <div class="sub-h3">1위 — 확정 티켓 수령 플로우</div>
+    <div class="flow" style="margin-bottom:20px;">
+      <div class="flow-node conf">보상 알림 수신</div>
+      <span class="flow-arr">→</span>
+      <div class="flow-node">RK-02 보상 모달</div>
+      <span class="flow-arr">→</span>
+      <div class="flow-node">RK-03 경기 선택</div>
+      <span class="flow-arr">→</span>
+      <div class="flow-node grey">마이 준비중 노출</div>
+      <span class="flow-arr">→</span>
+      <div class="flow-node conf">당첨자 발표 시 연락</div>
+    </div>
+
+    <div class="sub-h3">경기 취소 시 예외 플로우</div>
+    <div class="flow" style="margin-bottom:20px;">
+      <div class="flow-node grey">선택 경기 취소/변경</div>
+      <span class="flow-arr">→</span>
+      <div class="flow-node warn">시스템 자동 초기화</div>
+      <span class="flow-arr">→</span>
+      <div class="flow-node">재선택 알림 발송</div>
+      <span class="flow-arr">→</span>
+      <div class="flow-node">RK-03 재진입</div>
+    </div>
+
+    <div class="sub-h3">2·3위 — 응모권 수령 플로우</div>
+    <div class="flow">
+      <div class="flow-node conf">보상 알림 수신</div>
+      <span class="flow-arr">→</span>
+      <div class="flow-node">RK-02 보상 모달</div>
+      <span class="flow-arr">→</span>
+      <div class="flow-node conf">응모권 50장 즉시 지급</div>
+    </div>
+  </div>
+
+
+  <!-- ══ 03. 화면 정의 ══ -->
+  <div class="section" id="screens">
+    <div class="section-header"><span class="section-num">03</span><span class="section-title">화면 정의</span></div>
+
+    <!-- RK-01 -->
+    <div class="sub" id="rk01">
+      <div class="sub-header">
+        <span class="screen-id">RK-01</span>
+        <span class="screen-name">랭킹 메인</span>
+        <span class="screen-desc">이번 주 실시간 랭킹 리스트 + 내 순위</span>
+      </div>
+      <div class="desc-wrap">
+        <div class="desc-card">
+          <div class="desc-card-header"><span class="desc-card-tag">OVERVIEW</span><span class="desc-card-name">화면 개요</span></div>
+          <div class="desc-card-body">
+            <div class="desc-item">이번 주 주간 랭킹 실시간 확인 화면</div>
+            <div class="desc-item">상단 고정 영역: <strong>내 순위·적중 수·참여 수</strong> 항상 노출</div>
+            <div class="desc-item">리스트: 적중 수 내림차순 / 동률 시 참여 수 내림차순</div>
+            <div class="desc-item">1~3위 보상 뱃지 표시 / 적중률 미노출</div>
+          </div>
+        </div>
+        <div class="desc-card">
+          <div class="desc-card-header"><span class="desc-card-tag">LOGIC</span><span class="desc-card-name">처리 로직</span></div>
+          <div class="desc-card-body">
+            <div class="desc-item">마켓 정산 즉시 적중 수 갱신 (실시간)</div>
+            <div class="desc-item">일요일 23:59 이후 확정 상태 전환 → "집계 완료" 배지 표시</div>
+            <div class="desc-item">확정 상태 이후 수정 불가</div>
+          </div>
+        </div>
+      </div>
+      <div class="sub-h3">Wireframe</div>
+      <div class="wireframe-area">
+        <div class="phone-wrap">
+          <div class="phone-label">진행 중</div>
+          <div class="phone">
+            <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+            <div class="phone-screen">
+              <div class="p-gnb"><span class="p-gnb-back">←</span><span class="p-gnb-title">주간 랭킹</span><span></span></div>
+              <div class="p-week-badge"><span class="p-week-text">W22 · 5.18 ~ 5.24</span><span class="p-week-sub">진행 중 🟢</span></div>
+              <div class="p-my-rank">
+                <div class="p-my-rank-label">내 순위</div>
+                <div class="p-my-rank-row">
+                  <div class="p-my-rank-num">#12</div>
+                  <div class="p-my-rank-stats">
+                    <div class="p-my-stat"><div class="p-my-stat-val">8</div><div class="p-my-stat-label">적중 수</div></div>
+                    <div class="p-my-stat"><div class="p-my-stat-val">45</div><div class="p-my-stat-label">참여 수</div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="p-section-label">이번 주 랭킹</div>
+              <div class="p-rank-item top1"><span class="p-rank-num gold">1</span><span class="p-rank-nick">야구왕김철수</span><div class="p-rank-score"><div class="p-rank-score-val">23</div><div class="p-rank-score-sub">참여 198</div></div><span class="p-reward-badge p-reward-ticket">🎫 확정티켓</span></div>
+              <div class="p-rank-item top2"><span class="p-rank-num silver">2</span><span class="p-rank-nick">예측고수박민준</span><div class="p-rank-score"><div class="p-rank-score-val">21</div><div class="p-rank-score-sub">참여 210</div></div><span class="p-reward-badge p-reward-entry">🎟 50장</span></div>
+              <div class="p-rank-item top3"><span class="p-rank-num bronze">3</span><span class="p-rank-nick">홈런예언자</span><div class="p-rank-score"><div class="p-rank-score-val">21</div><div class="p-rank-score-sub">참여 185</div></div><span class="p-reward-badge p-reward-entry">🎟 50장</span></div>
+              <div class="p-rank-item"><span class="p-rank-num">4</span><span class="p-rank-nick">승부사이지민</span><div class="p-rank-score"><div class="p-rank-score-val">19</div><div class="p-rank-score-sub">참여 160</div></div></div>
+              <div class="p-more">· · · 더보기</div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-wrap">
+          <div class="phone-label">집계 완료</div>
+          <div class="phone">
+            <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+            <div class="phone-screen">
+              <div class="p-gnb"><span class="p-gnb-back">←</span><span class="p-gnb-title">주간 랭킹</span><span></span></div>
+              <div class="p-week-badge" style="background:#DCFCE7;"><span class="p-week-text" style="color:#166534;">W22 · 5.18 ~ 5.24</span><span class="p-week-sub" style="color:#16A34A;">집계 완료 ✓</span></div>
+              <div class="p-my-rank">
+                <div class="p-my-rank-label">최종 내 순위</div>
+                <div class="p-my-rank-row">
+                  <div class="p-my-rank-num">#12</div>
+                  <div class="p-my-rank-stats">
+                    <div class="p-my-stat"><div class="p-my-stat-val">8</div><div class="p-my-stat-label">적중 수</div></div>
+                    <div class="p-my-stat"><div class="p-my-stat-val">45</div><div class="p-my-stat-label">참여 수</div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="p-section-label">최종 랭킹</div>
+              <div class="p-rank-item top1"><span class="p-rank-num gold">1</span><span class="p-rank-nick">야구왕김철수</span><div class="p-rank-score"><div class="p-rank-score-val">23</div><div class="p-rank-score-sub">참여 198</div></div><span class="p-reward-badge p-reward-ticket">🎫 확정티켓</span></div>
+              <div class="p-rank-item top2"><span class="p-rank-num silver">2</span><span class="p-rank-nick">예측고수박민준</span><div class="p-rank-score"><div class="p-rank-score-val">21</div><div class="p-rank-score-sub">참여 210</div></div><span class="p-reward-badge p-reward-entry">🎟 50장</span></div>
+              <div class="p-rank-item top3"><span class="p-rank-num bronze">3</span><span class="p-rank-nick">홈런예언자</span><div class="p-rank-score"><div class="p-rank-score-val">21</div><div class="p-rank-score-sub">참여 185</div></div><span class="p-reward-badge p-reward-entry">🎟 50장</span></div>
+              <div class="p-more">· · ·</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- RK-02 -->
+    <div class="sub" id="rk02">
+      <div class="sub-header">
+        <span class="screen-id">RK-02</span>
+        <span class="screen-name">보상 수령 모달</span>
+        <span class="screen-desc">보상 지급 후 첫 진입 시 트리거</span>
+      </div>
+      <div class="desc-wrap">
+        <div class="desc-card">
+          <div class="desc-card-header"><span class="desc-card-tag">OVERVIEW</span><span class="desc-card-name">분기 처리</span></div>
+          <div class="desc-card-body">
+            <div class="desc-item">1위: "경기 선택하기" CTA → RK-03 이동</div>
+            <div class="desc-item">2·3위: "지금 받기" CTA → 응모권 50장 즉시 지급 후 닫힘</div>
+            <div class="desc-item">미수령 상태 재진입 시 동일 모달 재노출</div>
+          </div>
+        </div>
+      </div>
+      <div class="sub-h3">Wireframe</div>
+      <div class="wireframe-area">
+        <div class="phone-wrap">
+          <div class="phone-label">1위 수령</div>
+          <div class="phone">
+            <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+            <div class="phone-screen">
+              <div style="background:rgba(0,20,63,0.6); padding:16px 8px 8px;">
+                <div style="background:white; border-radius:16px; overflow:hidden;">
+                  <div class="p-reward-sheet">
+                    <div class="p-reward-emoji">🏆</div>
+                    <div class="p-reward-title">이번 주 1위!</div>
+                    <div class="p-reward-desc">W22 주간 랭킹 최종 1위입니다.<br>확정 티켓을 획득했어요.</div>
+                    <div class="p-reward-item"><span class="p-reward-item-label">최종 순위</span><span class="p-reward-item-val">🥇 1위</span></div>
+                    <div class="p-reward-item"><span class="p-reward-item-label">적중 수</span><span class="p-reward-item-val">23개</span></div>
+                    <div class="p-reward-item"><span class="p-reward-item-label">보상</span><span class="p-reward-item-val">🎫 확정 티켓 1장</span></div>
+                  </div>
+                  <div style="padding:0 10px 10px;"><div class="p-cta">경기 선택하기 →</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-wrap">
+          <div class="phone-label">2·3위 수령</div>
+          <div class="phone">
+            <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+            <div class="phone-screen">
+              <div style="background:rgba(0,20,63,0.6); padding:16px 8px 8px;">
+                <div style="background:white; border-radius:16px; overflow:hidden;">
+                  <div class="p-reward-sheet">
+                    <div class="p-reward-emoji">🥈</div>
+                    <div class="p-reward-title">이번 주 2위!</div>
+                    <div class="p-reward-desc">W22 주간 랭킹 최종 2위입니다.<br>응모권 50장을 획득했어요.</div>
+                    <div class="p-reward-item"><span class="p-reward-item-label">최종 순위</span><span class="p-reward-item-val">🥈 2위</span></div>
+                    <div class="p-reward-item"><span class="p-reward-item-label">적중 수</span><span class="p-reward-item-val">21개</span></div>
+                    <div class="p-reward-item"><span class="p-reward-item-label">보상</span><span class="p-reward-item-val">🎟 응모권 50장</span></div>
+                  </div>
+                  <div style="padding:0 10px 10px;"><div class="p-cta">지금 받기</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- RK-03 -->
+    <div class="sub" id="rk03">
+      <div class="sub-header">
+        <span class="screen-id">RK-03</span>
+        <span class="screen-name">확정 티켓 — 경기 선택</span>
+        <span class="screen-desc">RK-02 "경기 선택하기" 탭 시 진입</span>
+      </div>
+      <div class="desc-wrap">
+        <div class="desc-card">
+          <div class="desc-card-header"><span class="desc-card-tag">OVERVIEW</span><span class="desc-card-name">화면 개요</span></div>
+          <div class="desc-card-body">
+            <div class="desc-item">오픈 예정 회차만 노출 — 응모 진행 중 회차 제외</div>
+            <div class="desc-item">경기 선택 후 "선택 완료" 탭 시 확정 처리 → 변경 불가</div>
+            <div class="desc-item">선택 완료 전 나가기 시 미수령 상태 유지 (재진입 가능)</div>
+          </div>
+        </div>
+        <div class="desc-card">
+          <div class="desc-card-header"><span class="desc-card-tag">LOGIC</span><span class="desc-card-name">처리 로직</span></div>
+          <div class="desc-card-body">
+            <div class="desc-item">status = <code>오픈예정</code>인 회차만 목록 조회</div>
+            <div class="desc-item">선택 완료 즉시 → 해당 회차 당첨자 수 −1 반영 (응모 캘린더 실시간 갱신)</div>
+            <div class="desc-item">선택 완료 후 변경 불가 — 버튼 비노출 처리</div>
+            <div class="desc-item">선택 완료 화면에서 확정 처리 절차 안내 문구 노출</div>
+          </div>
+        </div>
+      </div>
+      <div class="sub-h3">Wireframe</div>
+      <div class="wireframe-area">
+        <div class="phone-wrap">
+          <div class="phone-label">경기 미선택</div>
+          <div class="phone">
+            <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+            <div class="phone-screen">
+              <div class="p-gnb"><span class="p-gnb-back">←</span><span class="p-gnb-title">직관 경기 선택</span><span></span></div>
+              <div class="p-ticket-badge">🎫 확정 티켓 1장 보유</div>
+              <div style="padding:0 10px 4px;"><div class="p-sheet-sub">오픈 예정 경기에만 사용할 수 있어요.</div></div>
+              <div class="p-game-card"><div class="p-game-venue">잠실 야구장</div><div class="p-game-teams"><span class="p-game-team">LG</span><span class="p-game-date">5.26 화 18:30</span><span class="p-game-team">KT</span></div><span class="p-game-status upcoming">오픈예정</span></div>
+              <div class="p-game-card"><div class="p-game-venue">수원 KT위즈파크</div><div class="p-game-teams"><span class="p-game-team">KT</span><span class="p-game-date">5.27 수 18:30</span><span class="p-game-team">삼성</span></div><span class="p-game-status upcoming">오픈예정</span></div>
+              <div class="p-game-card"><div class="p-game-venue">고척 스카이돔</div><div class="p-game-teams"><span class="p-game-team">키움</span><span class="p-game-date">5.28 목 18:30</span><span class="p-game-team">NC</span></div><span class="p-game-status upcoming">오픈예정</span></div>
+              <div class="p-cta disabled" style="margin-top:6px;">경기를 선택해 주세요</div>
+              <div class="p-validity">2026 페넌트레이스 종료 전 사용 가능</div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-wrap">
+          <div class="phone-label">선택 완료 직후 안내</div>
+          <div class="phone">
+            <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+            <div class="phone-screen">
+              <div style="background:rgba(0,20,63,0.6); padding:16px 8px 8px;">
+                <div style="background:white; border-radius:16px; overflow:hidden;">
+                  <div class="p-reward-sheet">
+                    <div class="p-reward-emoji">🎫</div>
+                    <div class="p-reward-title">경기 선택 완료!</div>
+                    <div class="p-reward-desc">LG vs KT<br>5.26 (화) 18:30 · 잠실 야구장</div>
+                    <div class="p-reward-item"><span class="p-reward-item-label">상태</span><span class="p-reward-item-val" style="color:var(--orange);">준비중</span></div>
+                  </div>
+                  <div class="p-complete-note">해당 경기 당첨자 발표 시 당첨자와 함께 연락드릴 예정이에요. 그 전까지는 마이에서 '준비중' 상태로 확인할 수 있어요.</div>
+                  <div style="padding:0 10px 10px;"><div class="p-cta">확인</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- MY -->
+    <div class="sub" id="my">
+      <div class="sub-header">
+        <span class="screen-id">MY</span>
+        <span class="screen-name">마이 화면 — 확정 티켓 노출</span>
+        <span class="screen-desc">마이 > 내 지갑 영역 내 상태별 처리</span>
+      </div>
+      <div class="desc-wrap">
+        <div class="desc-card">
+          <div class="desc-card-header"><span class="desc-card-tag">STATUS FLOW</span><span class="desc-card-name">확정 티켓 상태별 노출 위치</span></div>
+          <div class="desc-card-body">
+            <div class="desc-item"><strong>미선택 상태</strong>: 내 지갑 섹션 최상단 — 보유 티켓 카드 위 액션 카드로 별도 노출 (강조)</div>
+            <div class="desc-item depth2">경기 선택 전이므로 보유 티켓 영역에 포함하지 않음</div>
+            <div class="desc-item depth2">문구: "🎫 랭킹 1위 보상 · 직관할 경기를 선택해 주세요 →"</div>
+            <div class="desc-item"><strong>선택 완료 (준비중) 상태</strong>: 보유 티켓 영역에 통합 — <strong>"준비중"</strong> 뱃지로 일반 당첨 티켓과 구분</div>
+            <div class="desc-item depth2">카드 하단 안내 문구: "동일 회차 당첨자 발표 시 함께 연락드려요."</div>
+            <div class="desc-item"><strong>준비 완료 상태</strong>: 기존 당첨 티켓 처리와 동일</div>
+            <div class="desc-item conf">퀵 메뉴(내 예측·응모·응모권) 영역 별도 노출 없음</div>
+          </div>
+        </div>
+      </div>
+      <div class="sub-h3">Wireframe</div>
+      <div class="wireframe-area">
+        <div class="phone-wrap">
+          <div class="phone-label">미선택 상태</div>
+          <div class="phone">
+            <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+            <div class="phone-screen">
+              <div class="p-my-gnb"><span class="p-my-gnb-logo">PolyBall.</span><div class="p-my-gnb-icons"><span>🔔</span><span>⚙️</span></div></div>
+              <div class="p-profile-card"><div class="p-avatar">🦊</div><div><div class="p-profile-name">야구왕피커</div><div class="p-profile-team">MY SSG</div></div></div>
+              <div style="margin:6px 8px 0;">
+                <div style="display:flex; gap:4px; margin-bottom:6px;">
+                  <div style="flex:1; background:var(--white); border-radius:8px; padding:8px; text-align:center; border:1px solid var(--border);"><div style="font-size:8px; color:var(--muted);">내 예측</div></div>
+                  <div style="flex:1; background:var(--white); border-radius:8px; padding:8px; text-align:center; border:1px solid var(--border);"><div style="font-size:8px; color:var(--muted);">응모 4</div></div>
+                  <div style="flex:1; background:var(--white); border-radius:8px; padding:8px; text-align:center; border:1px solid var(--border);"><div style="font-size:8px; color:var(--muted);">응모권 319</div></div>
+                </div>
+              </div>
+              <div class="p-wallet-section">
+                <div class="p-wallet-title">내 지갑</div>
+                <!-- 확정 티켓 액션 카드 (미선택) -->
+                <div class="p-ticket-action">
+                  <div class="p-ticket-action-top">
+                    <span class="p-ticket-action-badge">🎫 확정 티켓</span>
+                    <span class="p-ticket-action-arr">→</span>
+                  </div>
+                  <div class="p-ticket-action-title">랭킹 1위 보상</div>
+                  <div class="p-ticket-action-sub">직관할 경기를 선택해 주세요</div>
+                </div>
+                <!-- 기존 보유 티켓 -->
+                <div style="font-size:9px; color:var(--muted); margin-bottom:4px;">보유 티켓 <span style="color:var(--primary); font-weight:700;">0 / 0</span></div>
+                <div style="background:var(--bg); border-radius:8px; padding:10px; text-align:center; font-size:9px; color:var(--muted);">아직 교환 가능한 당첨 티켓이 없어요.</div>
+              </div>
+              <div style="height:6px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phone-wrap">
+          <div class="phone-label">선택 완료 (준비중)</div>
+          <div class="phone">
+            <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+            <div class="phone-screen">
+              <div class="p-my-gnb"><span class="p-my-gnb-logo">PolyBall.</span><div class="p-my-gnb-icons"><span>🔔</span><span>⚙️</span></div></div>
+              <div class="p-profile-card"><div class="p-avatar">🦊</div><div><div class="p-profile-name">야구왕피커</div><div class="p-profile-team">MY SSG</div></div></div>
+              <div style="margin:6px 8px 0;">
+                <div style="display:flex; gap:4px; margin-bottom:6px;">
+                  <div style="flex:1; background:var(--white); border-radius:8px; padding:8px; text-align:center; border:1px solid var(--border);"><div style="font-size:8px; color:var(--muted);">내 예측</div></div>
+                  <div style="flex:1; background:var(--white); border-radius:8px; padding:8px; text-align:center; border:1px solid var(--border);"><div style="font-size:8px; color:var(--muted);">응모 4</div></div>
+                  <div style="flex:1; background:var(--white); border-radius:8px; padding:8px; text-align:center; border:1px solid var(--border);"><div style="font-size:8px; color:var(--muted);">응모권 319</div></div>
+                </div>
+              </div>
+              <div class="p-wallet-section">
+                <div class="p-wallet-title">내 지갑</div>
+                <div style="font-size:9px; color:var(--muted); margin-bottom:4px;">보유 티켓 <span style="color:var(--primary); font-weight:700;">1 / 1</span></div>
+                <!-- 준비중 확정 티켓 카드 -->
+                <div class="p-ticket-card">
+                  <div class="p-ticket-card-badge">⏳ 준비중</div>
+                  <div class="p-ticket-card-game">
+                    <span class="p-ticket-card-team">LG</span>
+                    <span class="p-ticket-card-date">5.26 (화) 18:30</span>
+                    <span class="p-ticket-card-team">KT</span>
+                  </div>
+                  <div class="p-ticket-card-venue">잠실 야구장 · 확정 티켓</div>
+                  <div class="p-ticket-card-info">동일 회차 당첨자 발표 시 함께 연락드려요.</div>
+                </div>
+              </div>
+              <div style="height:6px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══ 04. 응모 연동 로직 ══ -->
+  <div class="section" id="em">
+    <div class="section-header"><span class="section-num">04</span><span class="section-title">응모 연동 로직</span></div>
+
+    <div class="desc-wrap">
+      <div class="desc-wrap-label">당첨자 수 차감 공식</div>
+      <div class="logic-box">
+        <div class="logic-formula">응모 노출 당첨자 수 = 원 당첨자 수 − 확정 티켓 사용자 수</div>
+        <div class="logic-note">결과값이 <span>0 이하</span>이면 해당 회차 <span>응모 미오픈</span> 처리</div>
+      </div>
+    </div>
+
+    <div class="desc-wrap">
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">EXAMPLE</span><span class="desc-card-name">케이스 예시</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item"><strong>케이스 A</strong> — 원 당첨자 2명 / 확정 티켓 1명 → 응모 오픈, 당첨자 수 1명 노출</div>
+          <div class="desc-item"><strong>케이스 B</strong> — 원 당첨자 2명 / 확정 티켓 2명 → 응모 미오픈 처리</div>
+          <div class="desc-item"><strong>케이스 C</strong> — 원 당첨자 2명 / 확정 티켓 0명 → 응모 오픈, 당첨자 수 2명 (정상)</div>
+        </div>
+      </div>
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">LOGIC</span><span class="desc-card-name">처리 로직</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item conf">확정 티켓 선택 완료 즉시 → 해당 회차 당첨자 수 실시간 차감</div>
+          <div class="desc-item conf">응모 캘린더 내 미래 경기 당첨자 수도 즉시 반영</div>
+          <div class="desc-item conf">응모 미오픈 시 → 해당 회차 응모 화면 미노출 처리 (마감 처리)</div>
+          <div class="desc-item conf">응모 오픈 알림 기능 없음 → 미오픈 알림 처리 불필요</div>
+          <div class="desc-item">응모 미오픈 상태 응모 캘린더 표시 방식 → 미정의 (기획 필요)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══ 05. 진입점 ══ -->
+  <div class="section" id="ep">
+    <div class="section-header"><span class="section-num">05</span><span class="section-title">진입점</span></div>
+
+    <div class="desc-wrap">
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">DECISION</span><span class="desc-card-name">배너 영역 사용 불가 — 추후 결정</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item warn">픽 메인 배너 영역 사용 불가 — 현재 배너 과다 (친구 초대 배너 등 이미 복수 노출 중)</div>
+          <div class="desc-item later">추후 결정: 아래 두 방향 중 선택</div>
+          <div class="desc-item depth2" style="color:var(--later-text);">① 픽 메인 상단 <strong>별도 구좌 신설</strong> — 랭킹 현황 미니 카드 (내 순위 + 1위와의 차이)</div>
+          <div class="desc-item depth2" style="color:var(--later-text);">② 하단 내비게이션 <strong>탭 추가</strong> — 랭킹 탭 신설 (탭 구조 변경 공수 수반)</div>
+        </div>
+      </div>
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">NOTE</span><span class="desc-card-name">방향별 고려 사항</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item"><strong>별도 구좌 신설</strong>: 개발 공수 낮음 / 탭 구조 유지 / 랭킹 인지도가 낮을 초기에 적합</div>
+          <div class="desc-item depth2">문구 예시: "이번 주 내 순위 #12 · 1위까지 5개 차이 🏆"</div>
+          <div class="desc-item"><strong>탭 추가</strong>: 진입이 가장 쉽고 명확 / 탭 구조 변경 공수·UI 재설계 필요 / 랭킹이 핵심 기능으로 자리잡은 이후 적합</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══ 06. 데이터 구조 ══ -->
+  <div class="section" id="db">
+    <div class="section-header"><span class="section-num">06</span><span class="section-title">데이터 구조</span></div>
+    <div class="desc-wrap">
+      <div class="desc-wrap-label">weekly_ranking</div>
+      <table class="policy-table">
+        <thead><tr><th>필드</th><th>타입</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td><code>week_id</code></td><td>string</td><td>주차 ID (예: 2026-W22)</td></tr>
+          <tr><td><code>user_id</code></td><td>string</td><td>유저 고유 ID</td></tr>
+          <tr><td><code>correct_count</code></td><td>int</td><td>주간 적중 수 (1순위 정렬)</td></tr>
+          <tr><td><code>participate_count</code></td><td>int</td><td>주간 참여 수 (동률 시 2순위 정렬)</td></tr>
+          <tr><td><code>rank</code></td><td>int</td><td>최종 순위 (집계 완료 후 산정)</td></tr>
+          <tr><td><code>status</code></td><td>enum</td><td>IN_PROGRESS / FINALIZED</td></tr>
+          <tr><td><code>reward_status</code></td><td>enum</td><td>PENDING / ISSUED / RECEIVED</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="desc-wrap">
+      <div class="desc-wrap-label">confirmed_ticket</div>
+      <table class="policy-table">
+        <thead><tr><th>필드</th><th>타입</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td><code>ticket_id</code></td><td>string</td><td>확정 티켓 고유 ID</td></tr>
+          <tr><td><code>user_id</code></td><td>string</td><td>소유 유저 ID</td></tr>
+          <tr><td><code>week_id</code></td><td>string</td><td>획득 주차</td></tr>
+          <tr><td><code>game_id</code></td><td>string / null</td><td>선택 경기 ID (미선택 시 null)</td></tr>
+          <tr><td><code>status</code></td><td>enum</td><td>UNSELECTED / PENDING / READY / EXPIRED</td></tr>
+          <tr><td><code>expire_date</code></td><td>date</td><td>2026 페넌트레이스 종료일</td></tr>
+          <tr><td><code>is_changeable</code></td><td>bool</td><td>false 고정 (경기 취소 시 시스템이 true로 임시 전환 후 재선택 완료 시 false)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+  <!-- ══ 07. 미정의 요약 ══ -->
+  <div class="section" id="undef">
+    <div class="section-header">
+      <span class="section-num" style="background:var(--undef-bg);color:var(--orange);border:1px solid var(--undef-border);">⚠</span>
+      <span class="section-title">미정의 요약</span>
+    </div>
+    <div class="undef-wrap">
+      <div class="undef-wrap-header">⚠ 미정의 — 확인 필요</div>
+      <ul class="undef-list">
+        <li><span class="u-id">시즌 막판</span><span class="u-desc">페넌트레이스 종료 직전 수령자가 선택 가능 경기 없을 시 처리 방안 미확정</span></li>
+        <li><span class="u-id">EM</span><span class="u-desc">응모 미오픈 회차의 응모 캘린더 내 표시 방식 미정의</span></li>
+      </ul>
+    </div>
+    <div class="undef-wrap" style="border-color:var(--later-border);">
+      <div class="undef-wrap-header" style="background:var(--later-bg);color:var(--later-text);border-color:var(--later-border);">🕐 추후 결정</div>
+      <ul class="undef-list">
+        <li><span class="u-id">EP</span><span class="u-later">랭킹 진입점 — 픽 메인 상단 별도 구좌 신설 vs 하단 탭 추가</span></li>
+        <li><span class="u-id">보상변경</span><span class="u-later">보상 구조 변경 가능성 — 주단위 모니터링 후 재검토</span></li>
+      </ul>
+    </div>
+  </div>
+
+
+  <!-- ══ 08. 변경 이력 ══ -->
+  <div class="section" id="changelog">
+    <div class="section-header"><span class="section-num">08</span><span class="section-title">변경 이력</span></div>
+    <div class="changelog">
+      <div class="changelog-item">
+        <span class="changelog-version">v1.1</span>
+        <div class="changelog-meta">
+          <div class="changelog-date">2026.05.21</div>
+          <div class="changelog-desc">확정 티켓 변경 불가 원칙 추가 / 경기 취소 시 자동 초기화 플로우 추가 / 마이 화면 노출 방식 신설 (미선택 액션 카드·준비중 통합 카드 와이어프레임 포함) / 응모 연동 로직 신설 (당첨자 수 차감 공식·미오픈 처리) / 확정 처리 절차 안내 문구 정의 / 적중률 미노출 확정 / 커뮤니티 로드맵 후순위 명시 / 진입점 추후 결정 명시 (배너 불가·탭 또는 상단 별도 구좌)</div>
+        </div>
+      </div>
+      <div class="changelog-item">
+        <span class="changelog-version">v1.0</span>
+        <div class="changelog-meta">
+          <div class="changelog-date">2026.05.21</div>
+          <div class="changelog-desc">최초 작성 — 랭킹 산정 기준(적중 수)·동률 처리·보상 구조·주간 사이클·확정 티켓 기본 정책 확정</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+</div>
+</div>
+</body>
+</html>

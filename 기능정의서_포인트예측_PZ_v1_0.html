@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PolyBall 기능정의서 — 포인트예측 v1.0</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --primary: #2563EB;
+    --primary-light: #EFF6FF;
+    --primary-mid: #BFDBFE;
+    --dark: #0F172A;
+    --mid: #475569;
+    --muted: #94A3B8;
+    --border: #E2E8F0;
+    --bg: #F1F5F9;
+    --white: #FFFFFF;
+    --undef-bg: #FFF7ED;
+    --undef-text: #C2410C;
+    --later-bg: #F5F3FF;
+    --later-text: #7C3AED;
+    --later-border: #DDD6FE;
+    --row-head: #EFF6FF;
+    --row-alt: #F8FAFC;
+    --sidebar-w: 220px;
+    --topbar-h: 48px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--dark); font-size: 13px; line-height: 1.6; }
+
+  .layout { display: flex; min-height: 100vh; padding-top: var(--topbar-h); }
+
+  /* 상단 바 */
+  .topbar { position: fixed; top: 0; left: 0; right: 0; height: var(--topbar-h); background: var(--dark); display: flex; align-items: center; padding: 0 24px; gap: 16px; z-index: 200; }
+  .topbar-brand { font-size: 13px; font-weight: 800; color: var(--white); letter-spacing: -0.3px; }
+  .topbar-divider { width: 1px; height: 16px; background: #334155; }
+  .topbar-meta { font-size: 11px; color: #64748B; font-family: 'DM Mono', monospace; }
+  .topbar-version { margin-left: auto; font-size: 10px; font-weight: 700; color: var(--primary); background: #1E293B; border: 1px solid #334155; border-radius: 4px; padding: 2px 10px; font-family: 'DM Mono', monospace; }
+
+  /* 사이드바 */
+  .sidebar { position: fixed; top: var(--topbar-h); left: 0; width: var(--sidebar-w); height: calc(100vh - var(--topbar-h)); background: var(--white); border-right: 1px solid var(--border); overflow-y: auto; z-index: 100; padding: 20px 0 40px; }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .sidebar-group { margin-bottom: 4px; }
+  .sidebar-group-label { font-size: 9px; font-weight: 800; letter-spacing: 1.2px; color: var(--muted); padding: 10px 16px 4px; text-transform: uppercase; font-family: 'DM Mono', monospace; }
+  .sidebar-item { display: flex; align-items: center; gap: 8px; padding: 6px 16px; font-size: 12px; font-weight: 600; color: var(--mid); text-decoration: none; transition: all .12s; border-left: 2px solid transparent; background: none; border-top: none; border-right: none; border-bottom: none; width: 100%; text-align: left; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; }
+  .sidebar-item:hover { background: var(--primary-light); color: var(--primary); border-left-color: var(--primary-mid); }
+  .sidebar-item.active { background: var(--primary-light); color: var(--primary); border-left-color: var(--primary); }
+  .sidebar-item-id { font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 600; color: var(--muted); background: var(--bg); border-radius: 3px; padding: 1px 5px; flex-shrink: 0; }
+  .sidebar-divider { height: 1px; background: var(--border); margin: 8px 16px; }
+
+  /* 메인 */
+  .main { margin-left: var(--sidebar-w); flex: 1; padding: 40px 48px 120px; max-width: calc(100% - var(--sidebar-w)); }
+  .content-wrap { max-width: 800px; }
+
+  /* 표지 */
+  .cover { padding: 8px 0 40px; border-bottom: 1px solid var(--border); margin-bottom: 40px; }
+  .cover-tag { display: inline-block; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; color: var(--primary); background: var(--primary-light); border: 1px solid var(--primary-mid); border-radius: 4px; padding: 3px 10px; margin-bottom: 12px; font-family: 'DM Mono', monospace; }
+  .cover h1 { font-size: 28px; font-weight: 900; color: var(--dark); letter-spacing: -0.8px; margin-bottom: 6px; }
+  .cover-sub { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
+  .cover-meta { display: flex; gap: 20px; flex-wrap: wrap; }
+  .cover-meta-item { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .cover-meta-item span { color: var(--mid); font-weight: 600; }
+
+  /* 범례 */
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; margin-bottom: 40px; font-size: 11px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; color: var(--mid); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  /* 섹션 */
+  .section { margin-bottom: 56px; scroll-margin-top: 24px; }
+  .section-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--primary); }
+  .section-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--primary); background: var(--primary-light); border-radius: 4px; padding: 2px 8px; }
+  .section-title { font-size: 20px; font-weight: 900; color: var(--dark); letter-spacing: -0.5px; }
+
+  /* 서브섹션 */
+  .sub { margin-bottom: 40px; scroll-margin-top: 24px; }
+  .sub-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .screen-id { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 600; color: var(--primary); background: var(--primary-light); border: 1px solid var(--primary-mid); border-radius: 4px; padding: 2px 8px; white-space: nowrap; }
+  .screen-name { font-size: 16px; font-weight: 800; color: var(--dark); }
+  .screen-desc { font-size: 11px; color: var(--muted); }
+  .sub-h3 { font-size: 10px; font-weight: 800; color: var(--muted); letter-spacing: 0.8px; margin: 20px 0 8px; text-transform: uppercase; font-family: 'DM Mono', monospace; }
+
+  /* 디스크립션 카드 */
+  .desc-wrap { margin-bottom: 20px; }
+  .desc-wrap-label { font-size: 9px; font-weight: 800; letter-spacing: 1.2px; color: var(--muted); margin-bottom: 8px; font-family: 'DM Mono', monospace; text-transform: uppercase; }
+  .desc-card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 8px; }
+  .desc-card-header { display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: #F8FAFC; border-bottom: 1px solid var(--border); }
+  .desc-card-tag { font-size: 9px; font-weight: 800; letter-spacing: 0.8px; color: var(--primary); background: var(--primary-light); border: 1px solid var(--primary-mid); border-radius: 3px; padding: 2px 7px; font-family: 'DM Mono', monospace; white-space: nowrap; }
+  .desc-card-name { font-size: 12px; font-weight: 800; color: var(--dark); }
+  .desc-card-body { padding: 12px 16px; }
+  .desc-item { font-size: 12px; color: var(--mid); padding-left: 14px; position: relative; margin-bottom: 5px; line-height: 1.65; }
+  .desc-item::before { content: '·'; position: absolute; left: 4px; color: var(--muted); }
+  .desc-item:last-child { margin-bottom: 0; }
+  .desc-item.depth2 { padding-left: 26px; font-size: 11.5px; color: var(--muted); margin-bottom: 3px; }
+  .desc-item.depth2::before { content: '–'; left: 14px; font-size: 10px; }
+  .desc-item strong { color: var(--dark); font-weight: 700; }
+  .desc-item em { font-style: normal; background: var(--primary-light); color: var(--primary); font-size: 10px; font-weight: 700; border-radius: 3px; padding: 1px 5px; font-family: 'DM Mono', monospace; }
+  .tag-undef { font-style: italic; color: var(--undef-text); background: var(--undef-bg); font-size: 10px; font-weight: 600; border-radius: 3px; padding: 1px 5px; font-family: 'DM Mono', monospace; }
+  .tag-later { font-style: italic; color: var(--later-text); background: var(--later-bg); font-size: 10px; font-weight: 600; border-radius: 3px; padding: 1px 5px; font-family: 'DM Mono', monospace; }
+
+  /* 스펙 테이블 */
+  .spec-wrap { margin-bottom: 0; }
+  .spec-wrap-label { font-size: 9px; font-weight: 800; letter-spacing: 1.2px; color: var(--muted); margin-bottom: 8px; font-family: 'DM Mono', monospace; text-transform: uppercase; }
+  .spec-table { width: 100%; border-collapse: collapse; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 8px; }
+  .spec-table th { background: var(--primary); color: var(--white); font-size: 11px; font-weight: 700; padding: 9px 14px; text-align: left; }
+  .spec-table td { padding: 8px 14px; font-size: 12px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.6; }
+  .spec-table tr:last-child td { border-bottom: none; }
+  .spec-table tr:nth-child(even) td { background: var(--row-alt); }
+  .spec-2col td:first-child { width: 200px; font-weight: 700; color: var(--primary); background: var(--row-head) !important; white-space: nowrap; font-size: 11px; }
+  td.confirmed { background: #F0FDF4 !important; color: #166534; }
+  td.confirmed::before { content: '✓ '; }
+  td.undef { background: var(--undef-bg) !important; color: var(--undef-text); font-style: italic; }
+  td.undef::before { content: '⚠ '; font-style: normal; }
+  td.later { background: var(--later-bg) !important; color: var(--later-text); font-style: italic; }
+  td.later::before { content: '🕐 '; font-style: normal; }
+
+  /* 플로우 */
+  .flow { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; margin-bottom: 8px; }
+  .flow-step { background: var(--primary-light); border: 1px solid var(--primary-mid); border-radius: 6px; padding: 4px 12px; font-size: 11px; font-weight: 700; color: var(--primary); line-height: 1.4; }
+  .flow-step small { display: block; font-size: 10px; font-weight: 500; color: var(--muted); }
+  .flow-arrow { font-size: 12px; color: var(--muted); }
+  .flow-branch { font-size: 11px; color: var(--undef-text); font-weight: 600; }
+
+  /* 룰/인포 박스 */
+  .rule-box { background: var(--white); border-left: 3px solid var(--primary); border-radius: 0 8px 8px 0; padding: 11px 16px; margin-bottom: 10px; font-size: 12px; color: var(--mid); line-height: 1.7; }
+  .rule-box strong { color: var(--dark); }
+  .info-box { background: var(--undef-bg); border-left: 3px solid #F97316; border-radius: 0 8px 8px 0; padding: 11px 16px; margin-bottom: 10px; font-size: 12px; color: #7C2D12; line-height: 1.7; }
+  .info-box-blue { background: var(--primary-light); border-left: 3px solid var(--primary); border-radius: 0 8px 8px 0; padding: 11px 16px; margin-bottom: 10px; font-size: 12px; color: #1e40af; line-height: 1.7; }
+  .info-box-green { background: #F0FDF4; border-left: 3px solid #16A34A; border-radius: 0 8px 8px 0; padding: 11px 16px; margin-bottom: 10px; font-size: 12px; color: #14532D; line-height: 1.7; }
+
+  /* 배지 */
+  .badge { display: inline-block; font-size: 10px; font-weight: 700; border-radius: 4px; padding: 2px 8px; font-family: 'DM Mono', monospace; vertical-align: middle; margin-right: 4px; }
+  .badge-open   { background: #DCFCE7; color: #166534; border: 1px solid #86EFAC; }
+  .badge-closed { background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; }
+  .badge-settled{ background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
+  .badge-new    { background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary-mid); }
+  .badge-ext    { background: #F0FDF4; color: #166534; border: 1px solid #86EFAC; }
+  .badge-adm    { background: #FDF4FF; color: #7E22CE; border: 1px solid #E9D5FF; }
+
+  /* UXW 테이블 */
+  .uxw-table { width: 100%; border-collapse: collapse; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 8px; }
+  .uxw-table th { background: #1E293B; color: var(--white); font-size: 11px; font-weight: 700; padding: 9px 14px; text-align: left; }
+  .uxw-table td { padding: 8px 14px; font-size: 12px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.6; }
+  .uxw-table tr:last-child td { border-bottom: none; }
+  .uxw-table tr:nth-child(even) td { background: var(--row-alt); }
+  .uxw-table td:first-child { width: 160px; font-weight: 600; color: var(--mid); font-size: 11px; }
+  .uxw-quote { font-family: 'Noto Sans KR', sans-serif; font-size: 12px; font-weight: 700; color: var(--dark); background: var(--primary-light); border-radius: 4px; padding: 2px 8px; display: inline-block; }
+
+  /* 포인트 정책 박스 */
+  .policy-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+  .policy-card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 14px; text-align: center; }
+  .policy-card-label { font-size: 10px; font-weight: 700; color: var(--muted); margin-bottom: 6px; font-family: 'DM Mono', monospace; text-transform: uppercase; }
+  .policy-card-value { font-size: 20px; font-weight: 900; color: var(--primary); }
+  .policy-card-sub { font-size: 10px; color: var(--muted); margin-top: 4px; }
+
+  /* 배팅 구간 테이블 강조 */
+  .tier-highlight { background: var(--primary-light) !important; font-weight: 700; color: var(--primary) !important; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">PolyBall</div>
+  <div class="topbar-divider"></div>
+  <div class="topbar-meta">기능정의서 · 포인트예측</div>
+  <div class="topbar-version">v1.0</div>
+</div>
+
+<aside class="sidebar">
+  <div class="sidebar-group">
+    <div class="sidebar-group-label">개요</div>
+    <button class="sidebar-item active" onclick="scrollTo('cover')"><span class="sidebar-item-id">00</span>문서 개요</button>
+    <button class="sidebar-item" onclick="scrollTo('policy')"><span class="sidebar-item-id">01</span>포인트 정책</button>
+    <button class="sidebar-item" onclick="scrollTo('flow')"><span class="sidebar-item-id">02</span>전체 플로우</button>
+  </div>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-label">신규 화면</div>
+    <button class="sidebar-item" onclick="scrollTo('pz01')"><span class="sidebar-item-id">PZ-01</span>포인트예측 메인</button>
+    <button class="sidebar-item" onclick="scrollTo('pz02')"><span class="sidebar-item-id">PZ-02</span>마켓 상세</button>
+    <button class="sidebar-item" onclick="scrollTo('pz03')"><span class="sidebar-item-id">PZ-03</span>랭킹</button>
+  </div>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-label">기존 화면 확장</div>
+    <button class="sidebar-item" onclick="scrollTo('pk13')"><span class="sidebar-item-id">PK-13</span>예측 히스토리</button>
+    <button class="sidebar-item" onclick="scrollTo('my01')"><span class="sidebar-item-id">MY-01</span>마이 메인</button>
+    <button class="sidebar-item" onclick="scrollTo('my08')"><span class="sidebar-item-id">MY-08</span>포인트 내역</button>
+  </div>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-label">어드민</div>
+    <button class="sidebar-item" onclick="scrollTo('adm06')"><span class="sidebar-item-id">ADM-06</span>마켓 등록/관리</button>
+  </div>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-label">미확정</div>
+    <button class="sidebar-item" onclick="scrollTo('undef')"><span class="sidebar-item-id">⚠</span>미확정 항목</button>
+  </div>
+</aside>
+
+<div class="layout">
+<main class="main">
+<div class="content-wrap">
+
+  <!-- 표지 -->
+  <div class="cover" id="cover">
+    <div class="cover-tag">SPEC · v1.0</div>
+    <h1>포인트예측 기능정의서</h1>
+    <div class="cover-sub">PZ-01 ~ PZ-03 · PK-13 확장 · MY-01/MY-08 확장 · ADM-06 신규</div>
+    <div class="cover-meta">
+      <div class="cover-meta-item">작성일 <span>2026-04-24</span></div>
+      <div class="cover-meta-item">버전 <span>v1.0</span></div>
+      <div class="cover-meta-item">플랫폼 <span>APP + WEB</span></div>
+      <div class="cover-meta-item">상태 <span>WIP</span></div>
+    </div>
+    <div style="margin-top:16px">
+      <div class="info-box-blue">
+        포인트예측은 응모권과 직접 교환 없는 <strong>독립 재화(포인트)</strong> 기반의 파리뮤추얼 예측 콘텐츠입니다.
+        초기에는 축구(K리그), 농구(KBL), E스포츠 등 정규 일정 기반 마켓으로 시작하며, 추후 국제·사회 등 비스포츠 마켓으로 확장합니다.
+        월렛/스테이블 코인화 전환 가능성 검토를 위한 <strong>테스트베드</strong>로 운영합니다.
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#DCFCE7;border:1px solid #86EFAC"></div>확정</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#FFF7ED;border:1px solid #FED7AA"></div>⚠ 미정의</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#F5F3FF;border:1px solid #DDD6FE"></div>🕐 추후 결정</div>
+    <div class="legend-item"><span class="badge badge-new">NEW</span>신규 화면</div>
+    <div class="legend-item"><span class="badge badge-ext">EXT</span>기존 확장</div>
+    <div class="legend-item"><span class="badge badge-adm">ADM</span>어드민 전용</div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- 01. 포인트 정책                         -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="policy">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">포인트 정책</span>
+    </div>
+
+    <div class="sub-h3">공급 정책</div>
+    <div class="policy-grid">
+      <div class="policy-card">
+        <div class="policy-card-label">신규 지급</div>
+        <div class="policy-card-value">5,000p</div>
+        <div class="policy-card-sub">최초 1회 · 가입 완료 시</div>
+      </div>
+      <div class="policy-card">
+        <div class="policy-card-label">일일 최대 획득</div>
+        <div class="policy-card-value">1,000p</div>
+        <div class="policy-card-sub">픽·출석·광고 등 합산</div>
+      </div>
+      <div class="policy-card">
+        <div class="policy-card-label">소각 (Rake)</div>
+        <div class="policy-card-value">10%</div>
+        <div class="policy-card-sub">마켓 배팅 풀 기준</div>
+      </div>
+    </div>
+
+    <div class="sub-h3">일일 포인트 획득 경로</div>
+    <div class="desc-card">
+      <div class="desc-card-header"><span class="desc-card-tag">EARN</span><span class="desc-card-name">획득 경로별 지급량</span></div>
+      <div class="desc-card-body">
+        <table class="spec-table spec-2col">
+          <tr><td>신규 가입 보너스</td><td>5,000p · 최초 1회</td></tr>
+          <tr><td>KBO 예측 참여 보상</td><td>예측 1회당 일정량 지급 <span class="tag-undef">단가 미확정</span></td></tr>
+          <tr><td>출석 보상</td><td>일일 고정 지급 <span class="tag-undef">단가 미확정</span></td></tr>
+          <tr><td>광고 시청 보상</td><td>RV 시청 1회당 일정량 <span class="tag-undef">단가 미확정</span></td></tr>
+          <tr><td>예측 적중 정산</td><td>파리뮤추얼 정산 후 지급 (rake 10% 차감)</td></tr>
+          <tr><td>일일 상한</td><td>1,000p (정산 수령 포인트 제외)</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="sub-h3">배팅 상한 정책 (구간별)</div>
+    <div class="info-box-blue">구간 진입 직후 유저는 보유량 대비 최대 20~30%까지 배팅 가능합니다. 구간 상단에 가까울수록 실효 비율은 10%에 수렴합니다.</div>
+    <table class="spec-table">
+      <thead><tr><th>보유량 구간</th><th>최대 배팅</th><th>구간 진입 시 실효 비율</th><th>구간 상단 실효 비율</th></tr></thead>
+      <tbody>
+        <tr><td>~ 1,000p</td><td>100p</td><td>100% (100p 보유 시)</td><td>10%</td></tr>
+        <tr><td>1,001 ~ 3,000p</td><td class="tier-highlight">300p</td><td>약 30% (1,001p 시)</td><td>10%</td></tr>
+        <tr><td>3,001 ~ 10,000p</td><td class="tier-highlight">1,000p</td><td>약 33% (3,001p 시)</td><td>10%</td></tr>
+        <tr><td>10,001 ~ 30,000p</td><td class="tier-highlight">3,000p</td><td>약 30% (10,001p 시)</td><td>10%</td></tr>
+        <tr><td>30,001 ~ 100,000p</td><td class="tier-highlight">10,000p</td><td>약 33% (30,001p 시)</td><td>10%</td></tr>
+        <tr><td>100,001p ~</td><td class="tier-highlight">30,000p</td><td>약 30% (100,001p 시)</td><td>~10%</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sub-h3">파리뮤추얼 정산 공식</div>
+    <div class="rule-box">
+      <strong>예상 배당률</strong> = (전체 배팅 풀 × 0.9) ÷ 해당 선택지 배팅 풀<br>
+      <strong>실수령 포인트</strong> = 내 배팅량 × 예상 배당률 (소수점 버림)<br>
+      <strong>Rake 소각</strong> = 전체 배팅 풀 × 10% (유저에게 미노출, 서버 처리)
+    </div>
+    <div class="info-box">⚠ 예상 배당률은 실시간으로 변동됩니다. 마감 시점의 배팅 풀 기준으로 최종 정산되며, 화면 노출 배당률은 참고값입니다.</div>
+
+    <div class="sub-h3">마켓 유형</div>
+    <table class="spec-table">
+      <thead><tr><th>유형</th><th>선택지 수</th><th>예시</th><th>생성 방식</th></tr></thead>
+      <tbody>
+        <tr><td><strong>경기 승부예측 — 축구</strong></td><td>3지선다 (홈승/무승부/원정승)</td><td>전북 현대 vs 울산 HD</td><td>자동 <span class="tag-undef">개발 확인 필요</span></td></tr>
+        <tr><td><strong>경기 승부예측 — 농구(KBL)</strong></td><td>2지선다 (홈승/원정승)</td><td>서울 SK vs 원주 DB</td><td>자동 <span class="tag-undef">개발 확인 필요</span></td></tr>
+        <tr><td><strong>시즌/이벤트 마켓</strong></td><td>2개 이상 다지선다</td><td>K리그 우승팀, LCK 우승팀</td><td>어드민 수기 등록</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- 02. 전체 플로우                         -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="flow">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">전체 플로우</span>
+    </div>
+
+    <div class="sub-h3">핵심 플로우</div>
+    <div class="flow">
+      <div class="flow-step">GNB<small>포인트예측 탭</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">PZ-01<small>메인 리스트</small></div>
+      <div class="flow-arrow">→ 마켓 카드 클릭</div>
+      <div class="flow-step">PZ-02<small>마켓 상세</small></div>
+      <div class="flow-arrow">→ 선택지 클릭</div>
+      <div class="flow-step">바텀시트<small>포인트 입력</small></div>
+      <div class="flow-arrow">→ 확정</div>
+      <div class="flow-step">토스트<small>예측 완료</small></div>
+    </div>
+
+    <div class="sub-h3">예외 플로우</div>
+    <div class="flow">
+      <div class="flow-step">PZ-02<small>마켓 상세</small></div>
+      <div class="flow-arrow">→ 포인트 부족</div>
+      <div class="flow-step">입력 블락<small>최소 10p 안내</small></div>
+    </div>
+    <div class="flow">
+      <div class="flow-step">PZ-01 / PZ-02<small>비로그인</small></div>
+      <div class="flow-arrow">→ 마켓 클릭</div>
+      <div class="flow-step">로그인 유도<small>바텀시트</small></div>
+    </div>
+    <div class="flow">
+      <div class="flow-step">정산 완료<small>서버 자동</small></div>
+      <div class="flow-arrow">→ 알림 발송 <span class="tag-undef">미확정</span></div>
+      <div class="flow-step">PZ-02<small>결과 확인</small></div>
+      <div class="flow-arrow">+</div>
+      <div class="flow-step">MY-08<small>포인트 내역</small></div>
+    </div>
+
+    <div class="sub-h3">진입 경로 전체</div>
+    <table class="spec-table">
+      <thead><tr><th>진입 경로</th><th>도달 화면</th></tr></thead>
+      <tbody>
+        <tr><td>GNB 포인트예측 탭 클릭</td><td>PZ-01 메인</td></tr>
+        <tr><td>PZ-01 마켓 카드 클릭</td><td>PZ-02 마켓 상세</td></tr>
+        <tr><td>PZ-01 랭킹 아이콘 클릭</td><td>PZ-03 랭킹</td></tr>
+        <tr><td>PZ-01 내 포인트 "내역 보기" 클릭</td><td>MY-08 포인트 내역</td></tr>
+        <tr><td>MY-01 내 지갑 포인트 카드 클릭</td><td>MY-08 포인트 내역</td></tr>
+        <tr><td>MY-01 내 활동 "포인트 예측" 클릭</td><td>PK-13 포인트 예측 탭</td></tr>
+        <tr><td>PK-13 포인트 예측 탭 항목 클릭</td><td>PZ-02 마켓 상세</td></tr>
+        <tr><td>정산 완료 알림 딥링크 <span class="tag-undef">미확정</span></td><td>PZ-02 마켓 상세</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- PZ-01 포인트예측 메인                   -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="pz01">
+    <div class="section-header">
+      <span class="section-num">PZ-01</span>
+      <span class="section-title">포인트예측 메인 <span class="badge badge-new">NEW</span></span>
+    </div>
+
+    <div class="sub">
+      <div class="sub-header">
+        <span class="screen-id">PZ-01</span>
+        <span class="screen-name">포인트예측 메인</span>
+        <span class="screen-desc">GNB 포인트예측 탭 진입 시 표시되는 마켓 리스트 화면</span>
+      </div>
+
+      <div class="sub-h3">OVERVIEW</div>
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">OVERVIEW</span><span class="desc-card-name">화면 개요</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item">GNB "포인트예측" 탭 클릭 시 진입</div>
+          <div class="desc-item">전체 오픈 마켓을 <strong>섹션 타이틀</strong>로 카테고리 구분하여 리스트 노출</div>
+          <div class="desc-item">마감된 마켓은 하단 배치 또는 비노출</div>
+          <div class="desc-item">로그인 여부에 따라 상단 포인트 잔액 영역 분기</div>
+        </div>
+      </div>
+
+      <div class="sub-h3">COMPONENT</div>
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">COMPONENT</span><span class="desc-card-name">GNB 영역</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item"><strong>좌:</strong> 탭 타이틀 — "포인트예측" <span class="tag-undef">탭명 최종 미확정</span></div>
+          <div class="desc-item"><strong>우:</strong> 🏆 랭킹 아이콘 → PZ-03 진입 / 🔔 알림 아이콘 → 알림함</div>
+        </div>
+      </div>
+
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">COMPONENT</span><span class="desc-card-name">포인트 잔액 배너</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item"><strong>로그인 상태:</strong> "내 포인트 N,NNNp" + "내역 보기 →" (MY-08 진입)</div>
+          <div class="desc-item"><strong>비로그인 상태:</strong> "로그인하고 예측을 시작해 보세요." + "로그인하기" CTA</div>
+          <div class="desc-item">포인트 잔액은 배팅 완료 시 즉시 차감 반영</div>
+        </div>
+      </div>
+
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">COMPONENT</span><span class="desc-card-name">마켓 리스트 구조</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item">섹션 타이틀로 카테고리 구분 — 탭 필터 없음</div>
+          <div class="desc-item">카테고리 노출 순서: 어드민 설정 기준 <span class="tag-undef">미확정</span></div>
+          <div class="desc-item"><strong>경기 승부예측 카드:</strong> 팀명 + 팀 아이콘 스코어보드 형태 + 경기 일시</div>
+          <div class="desc-item.depth2">축구(K리그) → 3지선다 pill (홈승/무승부/원정승)</div>
+          <div class="desc-item.depth2">농구(KBL) → 2지선다 pill (홈승/원정승)</div>
+          <div class="desc-item"><strong>시즌/이벤트 마켓 카드 — 2지선다:</strong> 좌우 pill 2개</div>
+          <div class="desc-item"><strong>시즌/이벤트 마켓 카드 — 다지선다(3개+):</strong> 세로 리스트형, 상위 3개 미리보기 + "N개 선택지 더보기"</div>
+        </div>
+      </div>
+
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">COMPONENT</span><span class="desc-card-name">마켓 카드 공통 요소</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item"><strong>선택지별 노출:</strong> 선택지명 + 투입 포인트량 + 예상 배당률 (rake 10% 적용)</div>
+          <div class="desc-item"><strong>마감 카운트다운:</strong> 2시간 이내 시 붉은색 강조 ("NH M분 후 마감")</div>
+          <div class="desc-item"><strong>카드 하단:</strong> 👥 N명 참여 + 💰 총 N,NNNp</div>
+          <div class="desc-item"><strong>예측 완료 상태:</strong> 선택한 선택지 컬러 유지 / 나머지 선택지 회색 처리 / "✓ 선택지명 · NNNp" 뱃지 노출</div>
+          <div class="desc-item"><strong>마감 마켓:</strong> 리스트 하단 배치 + 불투명 처리 / 결과 발표 전 "집계 중", 이후 정답 선택지 표시 / 배당률 미노출(—)</div>
+        </div>
+      </div>
+
+      <div class="sub-h3">BEHAVIOR</div>
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">BEHAVIOR</span><span class="desc-card-name">동작 정의</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item">마켓 카드 클릭 → PZ-02 마켓 상세 진입</div>
+          <div class="desc-item">비로그인 상태에서 마켓 카드 클릭 → 로그인 유도 바텀시트</div>
+          <div class="desc-item">당겨서 새로고침: 마켓 리스트 및 포인트 잔액 갱신</div>
+          <div class="desc-item">포인트 잔액: 실시간 반영 (배팅 완료 즉시 차감)</div>
+          <div class="desc-item">마감 마켓 비노출 기간: 마감 후 7일 이내 유지, 이후 비노출 <span class="tag-undef">기간 미확정</span></div>
+        </div>
+      </div>
+
+      <div class="sub-h3">SPEC</div>
+      <div class="desc-wrap">
+        <table class="spec-table spec-2col">
+          <tr><td>최소 포인트</td><td class="confirmed">10p</td></tr>
+          <tr><td>카드 노출 순서</td><td>오픈 마켓 우선 / 마감 마켓 하단 / 동일 카테고리 내 어드민 순서 <span class="tag-undef">미확정</span></td></tr>
+          <tr><td>카테고리 구분</td><td class="confirmed">섹션 타이틀 (탭 없음) · 축구 / 농구(KBL) / E스포츠 / 기타</td></tr>
+          <tr><td>배당률 표시</td><td class="confirmed">예상 배당률 (rake 10% 적용, 소수점 2자리)</td></tr>
+          <tr><td>참여자 수 갱신</td><td class="undef">실시간 vs 주기 갱신 개발 협의 필요</td></tr>
+        </table>
+      </div>
+
+      <div class="sub-h3">UXW</div>
+      <table class="uxw-table">
+        <thead><tr><th>위치</th><th>문구</th></tr></thead>
+        <tbody>
+          <tr><td>탭명</td><td><span class="uxw-quote">포인트예측</span> <span class="tag-undef">최종 미확정</span></td></tr>
+          <tr><td>잔액 레이블</td><td><span class="uxw-quote">내 포인트</span></td></tr>
+          <tr><td>잔액 값</td><td><span class="uxw-quote">N,NNNp</span></td></tr>
+          <tr><td>내역 링크</td><td><span class="uxw-quote">내역 보기 →</span></td></tr>
+          <tr><td>비로그인 안내</td><td><span class="uxw-quote">로그인하고 예측을 시작해 보세요.</span></td></tr>
+          <tr><td>비로그인 CTA</td><td><span class="uxw-quote">로그인하기</span></td></tr>
+          <tr><td>마감 뱃지</td><td><span class="uxw-quote">마감</span></td></tr>
+          <tr><td>집계 중 뱃지</td><td><span class="uxw-quote">집계 중</span></td></tr>
+          <tr><td>마감 카운트</td><td><span class="uxw-quote">NH NN분 후 마감</span></td></tr>
+          <tr><td>더보기 버튼</td><td><span class="uxw-quote">＋ N개 선택지 더보기</span></td></tr>
+          <tr><td>빈 상태</td><td><span class="uxw-quote">곧 새로운 마켓이 열려요.</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- PZ-02 마켓 상세                         -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="pz02">
+    <div class="section-header">
+      <span class="section-num">PZ-02</span>
+      <span class="section-title">마켓 상세 <span class="badge badge-new">NEW</span></span>
+    </div>
+
+    <div class="sub">
+      <div class="sub-header">
+        <span class="screen-id">PZ-02</span>
+        <span class="screen-name">마켓 상세</span>
+        <span class="screen-desc">마켓 정보 + 포인트 예측 입력 (바텀시트 포함)</span>
+      </div>
+
+      <div class="sub-h3">OVERVIEW</div>
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">OVERVIEW</span><span class="desc-card-name">화면 개요</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item">PZ-01 마켓 카드 클릭 시 진입</div>
+          <div class="desc-item">마켓 정보 확인 + 선택지별 투입 포인트/예상 배당률 확인 + 예측 입력</div>
+          <div class="desc-item">마감 전까지 동일 선택지에 한해 추가 예측 가능</div>
+          <div class="desc-item">최초 선택 외 다른 선택지 예측 불가 (선택 후 타 선택지 영구 비활성)</div>
+        </div>
+      </div>
+
+      <div class="sub-h3">COMPONENT</div>
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">COMPONENT</span><span class="desc-card-name">헤더</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item"><strong>좌:</strong> ← 뒤로가기 → PZ-01</div>
+          <div class="desc-item"><strong>중앙:</strong> 카테고리명 (예: ⚽ 축구)</div>
+          <div class="desc-item"><strong>우:</strong> 공유 아이콘 <span class="tag-undef">공유 기능 포함 여부 미확정</span></div>
+        </div>
+      </div>
+
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">COMPONENT</span><span class="desc-card-name">마켓 정보 영역</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item">카테고리 · 리그명 (예: ⚽ 축구 · K리그)</div>
+          <div class="desc-item">마켓 타이틀 (경기 승부예측: 팀명 스코어보드 형태 / 이벤트: 질문 텍스트)</div>
+          <div class="desc-item">마감까지 남은 시간 카운트다운</div>
+          <div class="desc-item">총 참여 포인트 (예: 💰 총 84,200p)</div>
+          <div class="desc-item">참여자 수 (예: 👥 347명)</div>
+        </div>
+      </div>
+
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">COMPONENT</span><span class="desc-card-name">선택지 카드 (레이아웃 유형별)</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item"><strong>2지선다:</strong> 좌우 카드 2개 나란히 배치</div>
+          <div class="desc-item"><strong>3지선다 (축구 경기):</strong> 좌우 카드 3개 나란히 배치 (홈승/무승부/원정승)</div>
+          <div class="desc-item"><strong>다지선다 (4개+):</strong> 세로 리스트형 · 순위(1~N) + 선택지명 + 투입 포인트 바 + 예상 배당률</div>
+          <div class="desc-item"><strong>선택지 공통 표시 요소:</strong> 선택지명 / 투입 포인트량 / 점유율 바 / 전체 대비 % / 예상 배당률</div>
+          <div class="desc-item"><strong>예측 전:</strong> 모든 선택지 활성</div>
+          <div class="desc-item"><strong>예측 후:</strong> 선택 선택지 컬러 유지 / 나머지 회색 영구 비활성</div>
+          <div class="desc-item"><strong>내 예측 현황 박스:</strong> "내 예측: 선택지명 · NNNp 투입 → 적중 시 예상 N,NNNp" (예측 완료 후 노출)</div>
+        </div>
+      </div>
+
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">COMPONENT</span><span class="desc-card-name">배당률 안내 박스</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item">"⚡ 예상 배당률은 현재 참여 포인트 기준이며 마감 전까지 변동될 수 있어요. Rake 10% 적용 후 산출됩니다."</div>
+          <div class="desc-item">마감 후 비노출</div>
+        </div>
+      </div>
+
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">COMPONENT</span><span class="desc-card-name">하단 고정 CTA</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item"><strong>예측 전:</strong> "예측하기" (비활성) → 선택지 클릭 후 활성화 아님, 바텀시트로 직접 진입</div>
+          <div class="desc-item"><strong>예측 후 마감 전:</strong> "추가 예측하기" + 힌트 "보유 N,NNNp · 최대 N,NNNp 예측 가능"</div>
+          <div class="desc-item"><strong>포인트 부족:</strong> "최소 10p부터 예측할 수 있어요." + 버튼 비활성</div>
+          <div class="desc-item"><strong>마감 후:</strong> "마감된 마켓이에요." + 버튼 비활성</div>
+        </div>
+      </div>
+
+      <div class="sub-h3">포인트 입력 바텀시트</div>
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">COMPONENT</span><span class="desc-card-name">바텀시트 구성</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item">선택지 클릭 시 하단에서 올라오는 시트</div>
+          <div class="desc-item"><strong>헤더:</strong> 선택 선택지명 + 현재 예상 배당률 태그</div>
+          <div class="desc-item"><strong>서브:</strong> 현재 투입 포인트량 + "추가 예측 시 배당률이 변동될 수 있어요." 안내</div>
+          <div class="desc-item"><strong>잔액 표시:</strong> "보유 N,NNNp · 최대 N,NNNp" (구간별 상한 적용)</div>
+          <div class="desc-item"><strong>포인트 숫자 디스플레이:</strong> 현재 입력량 (기본값 0p)</div>
+          <div class="desc-item"><strong>예상 수령 표시:</strong> "예상 수령 N,NNNp (N.NN배)" — 입력량 변경 시 실시간 갱신</div>
+          <div class="desc-item"><strong>빠른 입력 버튼:</strong> +10 / +100 / +1,000 / MAX</div>
+          <div class="desc-item depth2">MAX: 구간별 상한까지 자동 입력</div>
+          <div class="desc-item depth2">상한 도달 시 추가 버튼 전체 비활성</div>
+          <div class="desc-item"><strong>포인트 직접 입력:</strong> <span class="tag-undef">허용 여부 미확정</span></div>
+          <div class="desc-item"><strong>CTA:</strong> "예측 확정하기" (0p 입력 시 비활성)</div>
+        </div>
+      </div>
+
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">COMPONENT</span><span class="desc-card-name">확정 모달</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item"><strong>타이틀:</strong> "[선택지명]에 N,NNNp를 예측할까요?"</div>
+          <div class="desc-item"><strong>서브:</strong> "한 번 확정하면 취소할 수 없어요."</div>
+          <div class="desc-item"><strong>배당률 안내:</strong> "적중 시 예상 수령: N,NNNp (N.NN배)"</div>
+          <div class="desc-item"><strong>버튼:</strong> "다시 볼게요" (취소) / "확정하기" (확정)</div>
+        </div>
+      </div>
+
+      <div class="sub-h3">BEHAVIOR</div>
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">BEHAVIOR</span><span class="desc-card-name">동작 정의</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item">선택지 클릭 → 바텀시트 호출</div>
+          <div class="desc-item">이미 예측한 마켓 재진입: 선택 선택지만 클릭 가능 → 바텀시트(추가 예측)</div>
+          <div class="desc-item">타 선택지: 최초 예측 완료 후 영구 비활성 (클릭 불가)</div>
+          <div class="desc-item">바텀시트 외부 클릭 또는 스와이프 다운 → 시트 닫힘</div>
+          <div class="desc-item">확정 후 토스트 노출 + 잔액 즉시 차감 + 내 예측 현황 박스 갱신</div>
+          <div class="desc-item">마감 시간 도달 시 실시간으로 입력 불가 전환</div>
+          <div class="desc-item"><strong>결과 발표 후:</strong> 정답 선택지 강조 표시 + 내 예측 결과(적중/미적중) 표시</div>
+        </div>
+      </div>
+
+      <div class="sub-h3">SPEC</div>
+      <table class="spec-table spec-2col">
+        <tr><td>최소 예측 포인트</td><td class="confirmed">10p</td></tr>
+        <tr><td>배팅 상한</td><td class="confirmed">보유량 구간별 정책 적용 (01. 포인트 정책 참고)</td></tr>
+        <tr><td>추가 예측</td><td class="confirmed">동일 선택지 한해 마감 전까지 허용</td></tr>
+        <tr><td>타 선택지 추가 예측</td><td class="confirmed">불가 · 최초 선택 후 영구 비활성</td></tr>
+        <tr><td>예측 취소</td><td class="confirmed">불가</td></tr>
+        <tr><td>포인트 직접 입력</td><td class="undef">허용 여부 미확정</td></tr>
+        <tr><td>결과 화면</td><td class="confirmed">별도 결과 화면 없음 · 마켓 상세에서 확인</td></tr>
+      </table>
+
+      <div class="sub-h3">UXW</div>
+      <table class="uxw-table">
+        <thead><tr><th>위치</th><th>문구</th></tr></thead>
+        <tbody>
+          <tr><td>총 참여 포인트</td><td><span class="uxw-quote">총 N,NNNp 참여 중</span></td></tr>
+          <tr><td>내 예측 현황</td><td><span class="uxw-quote">내 예측: [선택지명] · NNNp 투입 → 적중 시 예상 N,NNNp</span></td></tr>
+          <tr><td>배당률 안내</td><td><span class="uxw-quote">⚡ 예상 배당률은 현재 참여 포인트 기준이며 마감 전까지 변동될 수 있어요. Rake 10% 적용 후 산출됩니다.</span></td></tr>
+          <tr><td>추가 예측 CTA</td><td><span class="uxw-quote">추가 예측하기</span></td></tr>
+          <tr><td>CTA 힌트</td><td><span class="uxw-quote">보유 N,NNNp · 최대 N,NNNp 예측 가능</span></td></tr>
+          <tr><td>포인트 부족</td><td><span class="uxw-quote">최소 10p부터 예측할 수 있어요.</span></td></tr>
+          <tr><td>상한 도달</td><td><span class="uxw-quote">최대 예측 포인트에 도달했어요.</span></td></tr>
+          <tr><td>확정 모달 타이틀</td><td><span class="uxw-quote">[선택지명]에 N,NNNp를 예측할까요?</span></td></tr>
+          <tr><td>확정 모달 서브</td><td><span class="uxw-quote">한 번 확정하면 취소할 수 없어요.</span></td></tr>
+          <tr><td>확정 CTA</td><td><span class="uxw-quote">확정하기</span></td></tr>
+          <tr><td>취소 CTA</td><td><span class="uxw-quote">다시 볼게요</span></td></tr>
+          <tr><td>완료 토스트</td><td><span class="uxw-quote">예측 완료! N,NNNp가 차감됐어요.</span></td></tr>
+          <tr><td>마감 상태</td><td><span class="uxw-quote">마감된 마켓이에요.</span></td></tr>
+          <tr><td>적중 결과</td><td><span class="uxw-quote">예측 성공! N,NNNp를 받았어요.</span></td></tr>
+          <tr><td>미적중 결과</td><td><span class="uxw-quote">이번엔 비껴갔네요.</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- PZ-03 랭킹                             -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="pz03">
+    <div class="section-header">
+      <span class="section-num">PZ-03</span>
+      <span class="section-title">랭킹 <span class="badge badge-new">NEW</span></span>
+    </div>
+
+    <div class="sub">
+      <div class="sub-header">
+        <span class="screen-id">PZ-03</span>
+        <span class="screen-name">랭킹</span>
+        <span class="screen-desc">KBO 예측 적중률 랭킹 + 포인트 보유량 랭킹</span>
+      </div>
+
+      <div class="sub-h3">OVERVIEW</div>
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">OVERVIEW</span><span class="desc-card-name">화면 개요</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item">PZ-01 상단 랭킹 아이콘 클릭 시 진입</div>
+          <div class="desc-item">[KBO 적중률] / [포인트 보유량] 2탭 구성</div>
+          <div class="desc-item">내 순위는 하단 고정 노출 (탭 전환에 따라 전환)</div>
+        </div>
+      </div>
+
+      <div class="sub-h3">COMPONENT</div>
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">COMPONENT</span><span class="desc-card-name">KBO 적중률 탭</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item">집계 기준 안내: "100회 이상 예측한 유저 기준 · 이번 시즌 KBO"</div>
+          <div class="desc-item">순위 리스트: 순위 / 닉네임 / 응원팀 아이콘 / 총 예측 횟수 / 적중률%</div>
+          <div class="desc-item">1~3위: 🥇🥈🥉 별도 뱃지</div>
+          <div class="desc-item">최소 조건: <strong>100회 이상 예측 유저만 진입</strong></div>
+          <div class="desc-item">시즌 리셋: KBO 시즌 종료 시 초기화</div>
+          <div class="desc-item">동률 처리 기준 <span class="tag-undef">미확정</span></div>
+        </div>
+      </div>
+
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">COMPONENT</span><span class="desc-card-name">포인트 보유량 탭</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item">집계 기준 안내: "현재 보유 포인트 기준"</div>
+          <div class="desc-item">순위 리스트: 순위 / 닉네임 / 응원팀 아이콘 (포인트 수치 미노출)</div>
+          <div class="desc-item">포인트 수치 비노출: "얼마나 가졌는지"가 아닌 "누가 상위권인지"만 표시</div>
+        </div>
+      </div>
+
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">COMPONENT</span><span class="desc-card-name">내 순위 (하단 고정)</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item">탭 전환에 따라 내 적중률 순위 / 내 포인트 순위 전환</div>
+          <div class="desc-item">스크롤 내려도 하단 고정 유지</div>
+          <div class="desc-item"><strong>비로그인:</strong> "로그인하면 내 순위를 확인할 수 있어요."</div>
+          <div class="desc-item"><strong>조건 미달 (KBO 탭):</strong> "아직 예측이 부족해요. (N/100회)"</div>
+          <div class="desc-item"><strong>순위권 외:</strong> "100위 이하" <span class="tag-undef">노출 상한 인원 미확정</span></div>
+        </div>
+      </div>
+
+      <div class="sub-h3">SPEC</div>
+      <table class="spec-table spec-2col">
+        <tr><td>KBO 적중률 최소 조건</td><td class="confirmed">100회 이상 예측</td></tr>
+        <tr><td>포인트 수치 노출</td><td class="confirmed">미노출 (순위 + 닉네임만)</td></tr>
+        <tr><td>노출 인원 상한</td><td class="undef">미확정 (100위 가안)</td></tr>
+        <tr><td>동률 처리</td><td class="undef">미확정</td></tr>
+        <tr><td>집계 갱신 주기</td><td class="undef">개발 협의 필요</td></tr>
+        <tr><td>KBO 랭킹 시즌 리셋</td><td class="confirmed">KBO 정규시즌 종료 시</td></tr>
+      </table>
+
+      <div class="sub-h3">UXW</div>
+      <table class="uxw-table">
+        <thead><tr><th>위치</th><th>문구</th></tr></thead>
+        <tbody>
+          <tr><td>탭 1</td><td><span class="uxw-quote">KBO 적중률</span></td></tr>
+          <tr><td>탭 2</td><td><span class="uxw-quote">포인트 보유량</span></td></tr>
+          <tr><td>KBO 기준 안내</td><td><span class="uxw-quote">100회 이상 예측한 유저 기준 · 이번 시즌 KBO</span></td></tr>
+          <tr><td>포인트 기준 안내</td><td><span class="uxw-quote">현재 보유 포인트 기준</span></td></tr>
+          <tr><td>내 순위 레이블</td><td><span class="uxw-quote">내 순위</span></td></tr>
+          <tr><td>조건 미달</td><td><span class="uxw-quote">아직 예측이 부족해요. (N/100회)</span></td></tr>
+          <tr><td>순위권 외</td><td><span class="uxw-quote">100위 이하</span></td></tr>
+          <tr><td>비로그인</td><td><span class="uxw-quote">로그인하면 내 순위를 확인할 수 있어요.</span></td></tr>
+          <tr><td>빈 상태</td><td><span class="uxw-quote">아직 집계된 순위가 없어요.</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- PK-13 예측 히스토리 (확장)              -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="pk13">
+    <div class="section-header">
+      <span class="section-num">PK-13</span>
+      <span class="section-title">예측 히스토리 (확장) <span class="badge badge-ext">EXT</span></span>
+    </div>
+
+    <div class="sub">
+      <div class="sub-header">
+        <span class="screen-id">PK-13</span>
+        <span class="screen-name">예측 히스토리 확장</span>
+        <span class="screen-desc">기존 단일 리스트 → [KBO 예측] / [포인트 예측] 2탭 구조로 변경</span>
+      </div>
+
+      <div class="sub-h3">변경 내용</div>
+      <div class="info-box-blue">기존 PK-13은 KBO 예측 단일 리스트. <strong>[KBO 예측] [포인트 예측] 2탭으로 확장</strong>합니다. 기존 KBO 탭은 변경 없음.</div>
+
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">신규</span><span class="desc-card-name">[포인트 예측] 탭</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item">항목별 구성: 카테고리 아이콘 + 마켓 타이틀 + 선택 선택지명 + 투입 포인트 + 상태 뱃지 + 결과 포인트</div>
+          <div class="desc-item"><strong>동일 마켓 추가 예측:</strong> 항목 1개로 합산 표시 (투입 포인트 누적)</div>
+          <div class="desc-item"><strong>건별 상세 내역:</strong> MY-08 포인트 내역에서 예측 시점별 별도 행 표시</div>
+          <div class="desc-item"><strong>항목 클릭:</strong> PZ-02 마켓 상세 딥링크</div>
+          <div class="desc-item"><strong>정렬:</strong> 최신 예측 순 기본 / 진행 중 상단 배치</div>
+          <div class="desc-item">내역 보존 기간 <span class="tag-undef">미확정</span></div>
+        </div>
+      </div>
+
+      <div class="sub-h3">상태 뱃지</div>
+      <table class="spec-table">
+        <thead><tr><th>상태</th><th>표시</th><th>조건</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge badge-open">진행 중</span></td><td>파란색</td><td>마켓 마감 전</td></tr>
+          <tr><td><span class="badge badge-settled">집계 중</span></td><td>노란색</td><td>마감 후 ~ 정산 전</td></tr>
+          <tr><td><span class="badge" style="background:#DCFCE7;color:#166534;border:1px solid #86EFAC">적중</span></td><td>초록색</td><td>정산 완료 + 적중</td></tr>
+          <tr><td><span class="badge" style="background:#FEF2F2;color:#DC2626;border:1px solid #FECACA">미적중</span></td><td>빨간색</td><td>정산 완료 + 미적중</td></tr>
+        </tbody>
+      </table>
+
+      <div class="sub-h3">UXW</div>
+      <table class="uxw-table">
+        <thead><tr><th>위치</th><th>문구</th></tr></thead>
+        <tbody>
+          <tr><td>탭 1 (기존)</td><td><span class="uxw-quote">KBO 예측</span></td></tr>
+          <tr><td>탭 2 (신규)</td><td><span class="uxw-quote">포인트 예측</span></td></tr>
+          <tr><td>투입 포인트</td><td><span class="uxw-quote">N,NNNp 투입</span></td></tr>
+          <tr><td>적중 수령</td><td><span class="uxw-quote">+N,NNNp</span></td></tr>
+          <tr><td>미적중</td><td><span class="uxw-quote">-N,NNNp</span></td></tr>
+          <tr><td>빈 상태</td><td><span class="uxw-quote">아직 예측한 마켓이 없어요. 지금 참여해 볼까요?</span></td></tr>
+          <tr><td>빈 상태 CTA</td><td><span class="uxw-quote">마켓 보러 가기</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- MY-01 마이 메인 (확장)                  -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="my01">
+    <div class="section-header">
+      <span class="section-num">MY-01</span>
+      <span class="section-title">마이 메인 (확장) <span class="badge badge-ext">EXT</span></span>
+    </div>
+
+    <div class="sub">
+      <div class="sub-header">
+        <span class="screen-id">MY-01</span>
+        <span class="screen-name">마이 메인 확장</span>
+        <span class="screen-desc">내 지갑 + 내 활동 영역에 포인트 관련 항목 추가</span>
+      </div>
+
+      <div class="info-box-blue">기존 MY-01 스펙은 유지합니다. 아래는 포인트예측 추가에 따른 <strong>변경/추가 영역만</strong> 정의합니다.</div>
+
+      <div class="sub-h3">변경 영역 1 — 내 지갑</div>
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">변경</span><span class="desc-card-name">내 지갑 포인트 카드 추가</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item">기존: 당첨 티켓 / 응모권</div>
+          <div class="desc-item"><strong>변경:</strong> 당첨 티켓 / 응모권 / <strong>포인트</strong> (3칸 그리드)</div>
+          <div class="desc-item">포인트 카드: 💎 아이콘 + "포인트" 레이블 + 현재 잔액 (N,NNNp)</div>
+          <div class="desc-item">포인트 카드 클릭 → MY-08 포인트 내역 진입</div>
+          <div class="desc-item">포인트 잔액: 실시간 반영</div>
+        </div>
+      </div>
+
+      <div class="sub-h3">변경 영역 2 — 내 활동</div>
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">추가</span><span class="desc-card-name">포인트 예측 항목 추가</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item">기존: 응모 현황 / 방문 현황 / 커뮤니티 현황 / 문의 내역</div>
+          <div class="desc-item"><strong>추가:</strong> "포인트 예측" 항목 (응모 현황 ~ 커뮤니티 현황 사이 배치)</div>
+          <div class="desc-item">표시값: "N회 · 적중률 NN%" (정산 완료 마켓 기준, 횟수 제한 없음)</div>
+          <div class="desc-item">항목 클릭 → PK-13 포인트 예측 탭 딥링크</div>
+        </div>
+      </div>
+
+      <div class="sub-h3">UXW (추가분)</div>
+      <table class="uxw-table">
+        <thead><tr><th>위치</th><th>문구</th></tr></thead>
+        <tbody>
+          <tr><td>내 지갑 포인트 레이블</td><td><span class="uxw-quote">포인트</span></td></tr>
+          <tr><td>내 지갑 포인트 값</td><td><span class="uxw-quote">N,NNNp</span></td></tr>
+          <tr><td>내 활동 레이블</td><td><span class="uxw-quote">포인트 예측</span></td></tr>
+          <tr><td>내 활동 표시값</td><td><span class="uxw-quote">N회 · 적중률 NN%</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- MY-08 포인트 내역                       -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="my08">
+    <div class="section-header">
+      <span class="section-num">MY-08</span>
+      <span class="section-title">포인트 내역 <span class="badge badge-new">NEW</span></span>
+    </div>
+
+    <div class="sub">
+      <div class="sub-header">
+        <span class="screen-id">MY-08</span>
+        <span class="screen-name">포인트 내역</span>
+        <span class="screen-desc">포인트 획득/사용 전체 건별 내역 · MY-05 응모권 내역과 동일 레벨 신규 화면</span>
+      </div>
+
+      <div class="sub-h3">OVERVIEW</div>
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">OVERVIEW</span><span class="desc-card-name">화면 개요</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item">MY-01 내 지갑 포인트 카드 클릭 시 진입</div>
+          <div class="desc-item">포인트 획득/사용/정산 전체 내역을 <strong>건별</strong>로 표시</div>
+          <div class="desc-item">MY-05 응모권 내역과 동일 구조 (단, 포인트 전용 화면으로 분리)</div>
+        </div>
+      </div>
+
+      <div class="sub-h3">COMPONENT</div>
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">COMPONENT</span><span class="desc-card-name">상단 요약</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item">현재 보유 포인트: "N,NNNp 보유"</div>
+          <div class="desc-item">총 획득 / 총 사용 요약 수치 (3칸 카드)</div>
+        </div>
+      </div>
+
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">COMPONENT</span><span class="desc-card-name">탭 필터</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item">[전체] [획득] [사용] 3탭</div>
+        </div>
+      </div>
+
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">COMPONENT</span><span class="desc-card-name">내역 리스트 (건별)</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item"><strong>신규 지급:</strong> 🎁 "첫 예측 보너스" · 날짜 · +5,000p</div>
+          <div class="desc-item"><strong>KBO 예측 보상:</strong> ⚾ "KBO 예측 보상" · 날짜 · +Np</div>
+          <div class="desc-item"><strong>출석 보상:</strong> 🌅 "출석 보상" · 날짜 · +Np</div>
+          <div class="desc-item"><strong>광고 보상:</strong> 📺 "광고 시청 보상" · 날짜 · +Np</div>
+          <div class="desc-item"><strong>예측 투입:</strong> [카테고리 아이콘] "[마켓명]" · 날짜시간 · -NNNp</div>
+          <div class="desc-item"><strong>추가 예측 투입:</strong> "[마켓명] 추가 예측" · 날짜시간 · -NNNp</div>
+          <div class="desc-item"><strong>정산 적중:</strong> 🏆 "[마켓명] 적중" · 날짜 · +N,NNNp</div>
+          <div class="desc-item"><strong>정산 미적중:</strong> 별도 행 없음 (투입 시 차감 처리 완료)</div>
+          <div class="desc-item"><strong>rake 소각:</strong> 유저 미노출 (서버 처리)</div>
+          <div class="desc-item">예측 투입/정산 항목 클릭 → PZ-02 마켓 상세 딥링크</div>
+          <div class="desc-item">그 외 항목 클릭: 비활성</div>
+        </div>
+      </div>
+
+      <div class="sub-h3">SPEC</div>
+      <table class="spec-table spec-2col">
+        <tr><td>내역 보존 기간</td><td class="undef">MY-05와 동일 (가안 1년, 개발 협의 확정)</td></tr>
+        <tr><td>rake 소각 노출</td><td class="confirmed">미노출 (서버 처리)</td></tr>
+        <tr><td>미적중 별도 행</td><td class="confirmed">없음 (투입 시 차감 완료)</td></tr>
+        <tr><td>정산 적중 포인트</td><td class="confirmed">rake 차감 후 실수령 기준</td></tr>
+        <tr><td>정렬</td><td class="confirmed">최신순 기본</td></tr>
+        <tr><td>페이지네이션</td><td class="undef">무한 스크롤 vs 페이지네이션 개발 협의</td></tr>
+      </table>
+
+      <div class="sub-h3">UXW</div>
+      <table class="uxw-table">
+        <thead><tr><th>위치</th><th>문구</th></tr></thead>
+        <tbody>
+          <tr><td>헤더</td><td><span class="uxw-quote">포인트 내역</span></td></tr>
+          <tr><td>상단 보유</td><td><span class="uxw-quote">N,NNNp 보유</span></td></tr>
+          <tr><td>총 획득 레이블</td><td><span class="uxw-quote">총 획득</span></td></tr>
+          <tr><td>총 사용 레이블</td><td><span class="uxw-quote">총 사용</span></td></tr>
+          <tr><td>신규 지급</td><td><span class="uxw-quote">첫 예측 보너스</span></td></tr>
+          <tr><td>KBO 예측 보상</td><td><span class="uxw-quote">KBO 예측 보상</span></td></tr>
+          <tr><td>출석 보상</td><td><span class="uxw-quote">출석 보상</span></td></tr>
+          <tr><td>광고 보상</td><td><span class="uxw-quote">광고 시청 보상</span></td></tr>
+          <tr><td>추가 예측 투입</td><td><span class="uxw-quote">[마켓명] 추가 예측</span></td></tr>
+          <tr><td>정산 적중</td><td><span class="uxw-quote">[마켓명] 적중</span></td></tr>
+          <tr><td>빈 상태</td><td><span class="uxw-quote">아직 포인트 내역이 없어요.</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- ADM-06 포인트존 마켓 등록/관리          -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="adm06">
+    <div class="section-header">
+      <span class="section-num">ADM-06</span>
+      <span class="section-title">포인트예측 마켓 등록/관리 <span class="badge badge-adm">ADM</span></span>
+    </div>
+
+    <div class="sub">
+      <div class="sub-header">
+        <span class="screen-id">ADM-06</span>
+        <span class="screen-name">포인트예측 마켓 어드민</span>
+        <span class="screen-desc">기존 ADM-02(이벤트 마켓)와 별도 운영 · 파리뮤추얼 정산 구조 전용</span>
+      </div>
+
+      <div class="info-box">ADM-02와 정산 로직이 다릅니다. 기존 ADM-02를 확장하지 않고 <strong>별도 어드민으로 신규 개발</strong>합니다.</div>
+
+      <div class="sub-h3">탭 구조</div>
+      <div class="flow">
+        <div class="flow-step">마켓 목록</div>
+        <div class="flow-arrow">|</div>
+        <div class="flow-step">마켓 등록</div>
+        <div class="flow-arrow">|</div>
+        <div class="flow-step">정산 관리</div>
+        <div class="flow-arrow">|</div>
+        <div class="flow-step">카테고리 관리</div>
+      </div>
+
+      <div class="sub-h3">마켓 목록 탭</div>
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">ADM</span><span class="desc-card-name">목록 필터 및 상태</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item"><strong>상태 필터:</strong> 전체 / DRAFT / OPEN / CLOSED / SETTLED / CANCELED</div>
+          <div class="desc-item"><strong>카테고리 필터:</strong> 전체 / 축구 / E스포츠 / 농구 / 국제·사회 / 기타</div>
+          <div class="desc-item"><strong>등록 방식 필터:</strong> 전체 / 수기 / 자동</div>
+          <div class="desc-item"><strong>카드 항목:</strong> 마켓 타이틀 / 카테고리 / 상태 뱃지 / 마감 일시 / 총 참여 포인트 / 참여자 수 / 등록 방식</div>
+          <div class="desc-item"><strong>액션 버튼:</strong> [상세보기] [정산] [취소]</div>
+        </div>
+      </div>
+
+      <div class="sub-h3">마켓 등록 탭 (수기)</div>
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">ADM</span><span class="desc-card-name">등록 폼</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item"><strong>기본 정보:</strong> 카테고리 선택 / 마켓 타이틀 / 마켓 설명 (선택) / 오픈·마감 일시 / 초기 상태 (DRAFT/OPEN)</div>
+          <div class="desc-item"><strong>선택지 설정:</strong> 최소 2개 / 최대 수 <span class="tag-undef">미확정</span> / 선택지명 입력 / 추가·삭제</div>
+          <div class="desc-item"><strong>배팅 설정:</strong> rake 비율 (기본 10%) / 마켓별 수정 가능 여부 <span class="tag-undef">미확정</span> / 최소 참여 포인트 (기본 10p)</div>
+          <div class="desc-item"><strong>자동화 연동:</strong> 자동 생성 가능 종목은 개발팀 확인 후 정의 <span class="tag-undef">미확정</span></div>
+        </div>
+      </div>
+
+      <div class="sub-h3">정산 관리 탭</div>
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">ADM</span><span class="desc-card-name">정산 프로세스</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item">마감 → CLOSED 자동 전환</div>
+          <div class="desc-item">관리자 정답 선택지 지정</div>
+          <div class="desc-item">[정산 실행] 클릭 → 확인 모달</div>
+          <div class="desc-item"><strong>확인 모달 표시:</strong> 총 배팅 풀 / rake 소각량 / 분배 풀 / 정답자 수 / 인당 예상 지급량</div>
+          <div class="desc-item">[확정] → SETTLED 전환 + 포인트 지급</div>
+          <div class="desc-item">정산 완료 알림 발송 <span class="tag-undef">미확정</span></div>
+          <div class="desc-item"><strong>취소 처리:</strong> 취소 사유 입력 필수 → CANCELED 전환 → 투입 포인트 전액 즉시 환불</div>
+          <div class="desc-item"><strong>자동 정산:</strong> 경기 결과 연동 가능 종목 <span class="tag-undef">개발팀 확인 필요</span></div>
+        </div>
+      </div>
+
+      <div class="sub-h3">카테고리 관리 탭</div>
+      <div class="desc-card">
+        <div class="desc-card-header"><span class="desc-card-tag">ADM</span><span class="desc-card-name">카테고리 등록/관리</span></div>
+        <div class="desc-card-body">
+          <div class="desc-item">카테고리명 + 이모지 아이콘 등록</div>
+          <div class="desc-item">노출 순서 설정 (드래그 정렬)</div>
+          <div class="desc-item">사용 중 마켓 있는 카테고리 삭제 불가</div>
+          <div class="desc-item">수정 즉시 앱 반영</div>
+        </div>
+      </div>
+
+      <div class="sub-h3">SPEC</div>
+      <table class="spec-table spec-2col">
+        <tr><td>기본 rake</td><td class="confirmed">10%</td></tr>
+        <tr><td>마켓별 rake 수정</td><td class="undef">미확정</td></tr>
+        <tr><td>선택지 최대 수</td><td class="undef">미확정</td></tr>
+        <tr><td>자동화 종목</td><td class="undef">개발팀 확인 필요</td></tr>
+        <tr><td>취소 시 환불</td><td class="confirmed">투입 포인트 전액 즉시 환불</td></tr>
+        <tr><td>정산 완료 알림</td><td class="undef">미확정</td></tr>
+        <tr><td>최소 참여 포인트</td><td class="confirmed">기본 10p (마켓별 설정 가능)</td></tr>
+      </table>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- ⚠ 미확정 항목 전체                     -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="undef">
+    <div class="section-header">
+      <span class="section-num">⚠</span>
+      <span class="section-title">미확정 항목 전체</span>
+    </div>
+
+    <div class="info-box">아래 항목은 기획서 작성 시점 기준 미확정 사항입니다. 개발 착수 전 확정이 필요합니다.</div>
+
+    <div class="sub-h3">정책 레벨</div>
+    <table class="spec-table">
+      <thead><tr><th>항목</th><th>내용</th><th>담당</th></tr></thead>
+      <tbody>
+        <tr><td>탭명 최종 확정</td><td>"포인트예측" 가안 · 브랜딩 검토 필요</td><td>기획/디자인</td></tr>
+        <tr><td>포인트 단가</td><td>KBO 예측 보상 / 출석 / 광고 각 단가</td><td>기획</td></tr>
+        <tr><td>rake 마켓별 수정</td><td>기본 10% 고정인지, 마켓별 조정 가능인지</td><td>기획</td></tr>
+        <tr><td>선택지 최대 수</td><td>마켓당 선택지 상한</td><td>기획/개발</td></tr>
+        <tr><td>자동화 가능 종목</td><td>경기 결과 API 연동 가능 종목 확인</td><td>개발</td></tr>
+        <tr><td>정산 완료 알림</td><td>참여 유저 푸시 발송 여부</td><td>기획</td></tr>
+        <tr><td>내역 보존 기간</td><td>MY-05와 동일 가안 1년, 개발 협의 필요</td><td>개발</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sub-h3">화면 레벨</div>
+    <table class="spec-table">
+      <thead><tr><th>화면</th><th>항목</th></tr></thead>
+      <tbody>
+        <tr><td>PZ-01</td><td>마감 마켓 비노출 기간 (7일 가안) / 카테고리 노출 순서 / 참여자 수 갱신 주기</td></tr>
+        <tr><td>PZ-02</td><td>공유 기능 포함 여부 / 포인트 직접 입력 가능 여부</td></tr>
+        <tr><td>PZ-03</td><td>노출 인원 상한 (100위 가안) / 동률 처리 기준 / 집계 갱신 주기</td></tr>
+        <tr><td>PK-13</td><td>포인트 예측 내역 보존 기간</td></tr>
+        <tr><td>MY-08</td><td>페이지네이션 방식 / 내역 보존 기간 (MY-05 동일)</td></tr>
+        <tr><td>ADM-06</td><td>rake 마켓별 수정 가능 여부 / 선택지 최대 수 / 자동화 종목</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div><!-- /content-wrap -->
+</main>
+</div><!-- /layout -->
+
+<script>
+  document.querySelectorAll('.sidebar-item').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const target = this.getAttribute('onclick');
+      if (!target) return;
+      const id = target.match(/'([^']+)'/)?.[1];
+      if (id) {
+        const el = document.getElementById(id);
+        if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+      }
+      document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  function scrollTo(id) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+</script>
+</body>
+</html>

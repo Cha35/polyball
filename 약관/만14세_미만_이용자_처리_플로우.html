@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>만 14세 미만 이용자 처리 플로우</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1F30E9;
+      --primary-light: #EEF0FD;
+      --navy: #00143F;
+      --bg: #F8FAFC;
+      --bg2: #F1F5F9;
+      --border: #E2E8F0;
+      --text1: #0F172A;
+      --text2: #1E293B;
+      --text3: #475569;
+      --text4: #64748B;
+      --text5: #94A3B8;
+      --green: #059669;
+      --green-bg: #ECFDF5;
+      --orange: #D97706;
+      --orange-bg: #FFFBEB;
+      --red: #DC2626;
+      --red-bg: #FEF2F2;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Pretendard', -apple-system, sans-serif; background: var(--bg); color: var(--text1); font-size: 14px; line-height: 1.6; }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
+
+    /* 커버 */
+    .cover { background: var(--navy); border-radius: 16px; padding: 36px 32px 32px; margin-bottom: 32px; color: white; }
+    .cover-tag { font-size: 11px; font-weight: 700; letter-spacing: 2px; opacity: .7; margin-bottom: 10px; text-transform: uppercase; }
+    .cover h1 { font-size: 24px; font-weight: 800; margin-bottom: 6px; }
+    .cover-sub { font-size: 13px; opacity: .75; margin-bottom: 20px; }
+    .cover-meta { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 12px; opacity: .85; border-top: 1px solid rgba(255,255,255,.2); padding-top: 16px; }
+    .cover-meta strong { opacity: .65; margin-right: 4px; }
+
+    /* 섹션 */
+    .section { background: white; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 24px; overflow: hidden; }
+    .section-header { padding: 16px 24px; display: flex; align-items: center; gap: 14px; color: white; }
+    .section-header.blue { background: var(--primary); }
+    .section-header.navy { background: var(--navy); }
+    .section-header.green { background: var(--green); }
+    .section-header.orange { background: var(--orange); }
+    .section-num { width: 32px; height: 32px; background: rgba(255,255,255,.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; flex-shrink: 0; }
+    .section-title { font-size: 16px; font-weight: 700; }
+    .section-subtitle { font-size: 12px; opacity: .75; margin-top: 2px; }
+    .section-body { padding: 24px; }
+    .sub-title { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid var(--primary-light); }
+    .sub-section { margin-bottom: 24px; }
+    .sub-section:last-child { margin-bottom: 0; }
+
+    /* 테이블 */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { background: var(--bg2); color: var(--text3); font-size: 11px; font-weight: 700; padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+
+    /* 태그 · 콜아웃 */
+    .tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+    .tag-blue { background: var(--primary-light); color: var(--primary); }
+    .tag-green { background: var(--green-bg); color: var(--green); }
+    .tag-orange { background: var(--orange-bg); color: var(--orange); }
+    .tag-red { background: var(--red-bg); color: var(--red); }
+    .tag-gray { background: var(--bg2); color: var(--text3); }
+    .callout { border-radius: 8px; padding: 12px 16px; margin: 12px 0; font-size: 13px; }
+    .callout-info { background: var(--primary-light); border-left: 3px solid var(--primary); }
+    .callout-warn { background: var(--orange-bg); border-left: 3px solid var(--orange); }
+    .callout-green { background: var(--green-bg); border-left: 3px solid var(--green); }
+    .callout-danger { background: var(--red-bg); border-left: 3px solid var(--red); }
+
+    footer { text-align: center; font-size: 11px; color: var(--text5); margin-top: 40px; }
+
+    /* ====== 플로우 다이어그램 ====== */
+    .flow-diagram { padding: 20px 0; }
+    .flow-path { margin-bottom: 32px; }
+    .flow-path:last-child { margin-bottom: 0; }
+    .flow-path-label { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; margin-bottom: 14px; padding: 6px 14px; border-radius: 8px; color: white; }
+    .flow-path-label.path-a { background: var(--primary); }
+    .flow-path-label.path-b { background: var(--orange); }
+    .flow-path-label.path-c { background: var(--green); }
+    .flow-path-desc { font-size: 12px; color: var(--text4); margin-bottom: 14px; padding-left: 4px; }
+
+    /* 플로우 스텝 */
+    .flow-steps { display: flex; align-items: stretch; gap: 0; flex-wrap: wrap; }
+    .flow-step { display: flex; flex-direction: column; align-items: center; text-align: center; min-width: 100px; max-width: 140px; flex-shrink: 0; }
+    .flow-step-box { width: 100%; padding: 10px 8px; border-radius: 10px; border: 2px solid var(--border); background: white; font-size: 12px; font-weight: 600; color: var(--text1); line-height: 1.4; min-height: 52px; display: flex; align-items: center; justify-content: center; }
+    .flow-step-box.highlight { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+    .flow-step-box.action { border-color: var(--green); background: var(--green-bg); color: var(--green); }
+    .flow-step-box.warning { border-color: var(--orange); background: var(--orange-bg); color: var(--orange); }
+    .flow-step-box.danger { border-color: var(--red); background: var(--red-bg); color: var(--red); }
+    .flow-step-box.dark { border-color: var(--navy); background: var(--navy); color: white; }
+    .flow-step-sub { font-size: 10px; color: var(--text5); margin-top: 4px; line-height: 1.4; max-width: 130px; }
+    .flow-arrow { display: flex; align-items: center; justify-content: center; width: 40px; flex-shrink: 0; font-size: 16px; color: var(--text5); }
+    .flow-arrow-label { font-size: 9px; color: var(--text4); text-align: center; margin-top: -2px; }
+    .flow-branch { display: flex; align-items: center; justify-content: center; width: 40px; flex-shrink: 0; }
+    .flow-branch-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); }
+
+    /* 동의서 카드 */
+    .consent-card { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 16px; }
+    .consent-card:last-child { margin-bottom: 0; }
+    .consent-card-header { background: var(--bg2); padding: 12px 16px; display: flex; align-items: center; gap: 10px; }
+    .consent-card-title { font-size: 14px; font-weight: 700; color: var(--text1); }
+    .consent-card-body { padding: 16px; }
+    .consent-intro { font-size: 12px; color: var(--text3); line-height: 1.8; margin-bottom: 14px; }
+    .consent-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 14px; }
+    .consent-table th { background: #E8EDFF; color: var(--text2); font-size: 10px; font-weight: 700; padding: 8px 10px; border: 1px solid #D0D8F0; text-align: center; }
+    .consent-table td { padding: 8px 10px; border: 1px solid var(--border); color: var(--text2); line-height: 1.6; vertical-align: top; }
+    .consent-note { font-size: 11px; color: var(--text3); line-height: 1.7; }
+
+    /* 요약 카드 */
+    .summary-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 16px 0; }
+    .summary-card { background: var(--bg2); border-radius: 10px; padding: 14px 16px; text-align: center; }
+    .summary-card-label { font-size: 11px; font-weight: 600; color: var(--text4); margin-bottom: 6px; }
+    .summary-card-value { font-size: 13px; font-weight: 700; color: var(--text1); line-height: 1.5; }
+    @media (max-width: 640px) { .summary-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 커버 -->
+  <div class="cover">
+    <div class="cover-tag">Reference Flow Document</div>
+    <h1>만 14세 미만 이용자 처리 플로우</h1>
+    <div class="cover-sub">본인인증 · 법정대리인 인증 · 연령 분기 전체 경로</div>
+    <div class="cover-meta">
+      <div><strong>문서 유형</strong> 참고용 플로우</div>
+      <div><strong>작성일</strong> 2026-05-15</div>
+      <div><strong>관련 법령</strong> 개보법 §22④ (만 14세 미만 법정대리인 동의)</div>
+      <div><strong>관련 기능</strong> 회원가입 · MY-07 본인인증 · PM 동의 관리</div>
+    </div>
+  </div>
+
+
+  <!-- 0. 핵심 로직 요약 -->
+  <div class="section">
+    <div class="section-header blue">
+      <div class="section-num">0</div>
+      <div><div class="section-title">핵심 로직</div></div>
+    </div>
+    <div class="section-body">
+      <div class="callout callout-info">
+        <strong>만 14세 확인은 "본인인증" 시점에서만 실제 검증 가능하며, 본인인증은 선택이다.</strong><br>
+        회원가입 시 "만 14세 이상/미만" 선택은 자기 선언이고, 실제 연령 검증은 본인인증(선택) 진행 시 수행된다. 본인인증 결과 만 14세 미만으로 판명되면 법정대리인 인증이 필수로 진행된다.
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="summary-card-label">경로 A</div>
+          <div class="summary-card-value">신규 가입<br>"14세 이상" 선택</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-card-label">경로 B</div>
+          <div class="summary-card-value">신규 가입<br>"14세 미만" 선택</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-card-label">경로 C</div>
+          <div class="summary-card-value">기가입자<br>본인인증 진행</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- AG-03 신규 가입자 동의 플로우 -->
+  <div class="section">
+    <div class="section-header blue">
+      <div class="section-num" style="font-size:11px;">AG-03</div>
+      <div><div class="section-title">신규 가입자 동의 플로우 (D-Day~)</div><div class="section-subtitle">회원가입 동의 바텀시트 · 만 14세 이상/미만 분기 포함</div></div>
+    </div>
+    <div class="section-body">
+      <div class="sub-section">
+        <div class="sub-title">동의 바텀시트 UI 구조</div>
+        <div style="background:#f8f9fb; border:1px solid var(--border); border-radius:12px; padding:20px; max-width:340px;">
+          <div style="width:36px;height:4px;background:#ddd;border-radius:2px;margin:0 auto 14px;"></div>
+          <div style="font-size:15px;font-weight:700;color:var(--text1);margin-bottom:4px;">환영합니다!</div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:14px;">폴리볼 시작을 위해 약관에 동의해 주세요.</div>
+
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--border);">
+            <div style="width:18px;height:18px;border:2px solid #ccc;border-radius:4px;flex-shrink:0;"></div>
+            <div style="font-size:13px;font-weight:700;">전체 동의하기</div>
+          </div>
+          <div style="font-size:10px;color:var(--text5);padding:4px 0 8px 26px;">선택 항목에 대한 동의가 포함되어 있습니다.</div>
+
+          <div style="padding:6px 0 6px 26px;font-size:12px;color:var(--text2);">(필수) 폴리볼 서비스 이용약관 <span style="color:var(--primary);font-size:11px;">전문보기 ›</span></div>
+          <div style="padding:6px 0 2px 26px;font-size:12px;color:var(--text2);">(필수) 개인정보 수집 및 이용 동의 <span style="color:var(--primary);font-size:11px;">전문보기 ›</span></div>
+          <div style="padding:0 0 8px 26px;font-size:10px;color:var(--text5);">회원가입 및 서비스 운영, 승부 예측, 응모, 보상 지급, 당첨 안내, 부정 이용 방지, 본인인증</div>
+
+          <div style="height:1px;background:var(--border);margin:4px 0;"></div>
+
+          <div style="background:var(--primary-light);border:1px solid var(--primary);border-radius:8px;padding:10px 12px;margin:10px 0;">
+            <div style="font-size:12px;font-weight:700;color:var(--primary);margin-bottom:6px;">연령 확인</div>
+            <div style="display:flex;gap:8px;">
+              <div style="flex:1;padding:8px;border-radius:8px;border:2px solid var(--primary);background:white;text-align:center;font-size:11px;font-weight:600;color:var(--primary);">만 14세 이상입니다</div>
+              <div style="flex:1;padding:8px;border-radius:8px;border:2px solid var(--border);background:white;text-align:center;font-size:11px;font-weight:600;color:var(--text3);">만 14세 미만입니다</div>
+            </div>
+            <div style="font-size:10px;color:var(--text4);margin-top:6px;">만 14세 미만 선택 시 본인인증 및 법정대리인 인증이 필요합니다.</div>
+          </div>
+
+          <div style="height:1px;background:var(--border);margin:4px 0;"></div>
+
+          <div style="padding:6px 0 6px 26px;font-size:12px;color:var(--text2);">(선택) 부가 서비스 제공을 위한 개인정보 수집·이용 동의 <span style="color:var(--primary);font-size:11px;">전문보기 ›</span></div>
+          <div style="padding:0 0 8px 26px;font-size:10px;color:var(--text5);">보상형 광고 참여, 친구 초대, 팀 응원전, 커뮤니티</div>
+          <div style="padding:6px 0 6px 26px;font-size:12px;color:var(--text2);">(선택) 마케팅 정보 수신 동의 <span style="color:var(--primary);font-size:11px;">전문보기 ›</span></div>
+          <div style="padding:6px 0 6px 26px;font-size:12px;color:var(--text2);">(선택) 마케팅 목적의 개인정보 수집·이용 동의 <span style="color:var(--primary);font-size:11px;">전문보기 ›</span></div>
+
+          <div style="margin-top:12px;padding:12px;background:#E2E8F0;border-radius:10px;text-align:center;font-size:13px;font-weight:600;color:var(--text5);">동의하고 시작하기</div>
+        </div>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">연령 선택 분기</div>
+        <table>
+          <thead><tr><th style="width:160px;">선택</th><th>동작</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tag tag-blue">만 14세 이상</span></td><td>본인인증 없이 가입 진행. 약관 동의 완료 → 팀 선택 → 가입 완료. 추후 본인인증 시 연령 재검증.</td></tr>
+            <tr><td><span class="tag tag-orange">만 14세 미만</span></td><td>즉시 본인인증 진행 → 법정대리인 인증(MN-02) → 둘 다 완료 시 가입 완료.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- AG-04 기존 가입자 재동의 -->
+  <div class="section">
+    <div class="section-header green">
+      <div class="section-num" style="font-size:11px;">AG-04</div>
+      <div><div class="section-title">기존 가입자 재동의 플로우 (D-Day~)</div><div class="section-subtitle">재동의 바텀시트 → 본인인증 시 14세 미만 판명 → MN-02</div></div>
+    </div>
+    <div class="section-body">
+      <div class="sub-section">
+        <div class="sub-title">재동의 바텀시트 UI</div>
+        <div style="background:#f8f9fb; border:1px solid var(--border); border-radius:12px; padding:20px; max-width:340px;">
+          <div style="width:36px;height:4px;background:#ddd;border-radius:2px;margin:0 auto 14px;"></div>
+          <div style="font-size:15px;font-weight:700;color:var(--text1);margin-bottom:4px;">개인정보 처리방침이 변경되었어요.</div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:14px;">서비스 이용을 위해 변경된 필수 약관에 동의해 주세요.</div>
+          <div style="height:1px;background:var(--border);margin:4px 0;"></div>
+          <div style="padding:8px 0 2px 26px;font-size:12px;color:var(--text2);">(필수) 개인정보 수집 및 이용 동의 <span style="color:var(--primary);font-size:11px;">전문보기 ›</span></div>
+          <div style="padding:0 0 10px 26px;font-size:10px;color:var(--text5);">회원가입 및 서비스 운영, 승부 예측, 응모, 보상 지급, 당첨 안내, 부정 이용 방지, 본인인증</div>
+          <div style="margin-top:8px;padding:12px;background:#E2E8F0;border-radius:10px;text-align:center;font-size:13px;font-weight:600;color:var(--text5);">동의하고 계속하기</div>
+          <div style="text-align:center;margin-top:8px;font-size:11px;color:var(--text5);">동의하지 않습니다</div>
+        </div>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">재동의 후 본인인증 시 14세 미만 분기</div>
+        <div class="callout callout-info">
+          기존 가입자는 재동의 완료 후 본인인증(DI 수집)을 진행합니다. 이 과정에서 만 14세 미만으로 확인되면 <strong>MN-02 법정대리인 동의 프로세스</strong>가 자동으로 트리거됩니다. 재동의 바텀시트 자체에는 연령 선택 UI가 없으며, 본인인증 결과로만 분기합니다.
+        </div>
+        <table>
+          <thead><tr><th>시점</th><th>동작</th></tr></thead>
+          <tbody>
+            <tr><td>재동의 완료</td><td>메인 진입 + 본인인증 유도 팝업 노출</td></tr>
+            <tr><td>본인인증 → 14세 이상</td><td>인증 완료 (정상)</td></tr>
+            <tr><td>본인인증 → 14세 미만</td><td>MN-02 법정대리인 동의 안내 팝업 자동 노출</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- MN-02 법정대리인 동의 프로세스 -->
+  <div class="section">
+    <div class="section-header orange">
+      <div class="section-num" style="font-size:11px;">MN-02</div>
+      <div><div class="section-title">법정대리인 동의 프로세스</div><div class="section-subtitle">14세 미만 판별 시 자동 트리거 · 법정대리인 본인인증(2차)</div></div>
+    </div>
+    <div class="section-body">
+      <div class="sub-section">
+        <div class="sub-title">법정대리인 동의 안내 팝업</div>
+        <div style="background:#f8f9fb; border:1px solid var(--border); border-radius:12px; padding:20px; max-width:300px; text-align:center;">
+          <div style="font-size:32px;margin-bottom:12px;">👨‍👩‍👧</div>
+          <div style="font-size:16px;font-weight:700;color:var(--text1);margin-bottom:10px;">법정대리인 동의가 필요해요</div>
+          <div style="font-size:12px;color:var(--text3);line-height:1.7;margin-bottom:16px;">
+            만 14세 미만 이용자는 관련 법령에 따라<br>
+            <strong>법정대리인(보호자)의 본인인증</strong>이 필요합니다.<br>
+            보호자의 휴대전화로 인증을 진행해 주세요.
+          </div>
+          <div style="padding:12px;border-radius:10px;background:var(--primary);font-size:13px;font-weight:600;color:white;text-align:center;">보호자 인증하기</div>
+          <div style="font-size:10px;color:var(--red);text-align:center;margin-top:10px;line-height:1.5;">법정대리인 인증 완료 전까지 서비스 이용이 제한됩니다.</div>
+        </div>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">분기 상세</div>
+        <table>
+          <thead><tr><th style="width:160px;">분기</th><th>처리</th><th style="width:180px;">유저 상태</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>[보호자 인증하기]</strong></td>
+              <td>KCB/NICE 본인인증 모듈 재실행 (법정대리인 명의). 인증 완료 시 법정대리인 동의 처리 → 서비스 이용 가능.</td>
+              <td>is_verified = true<br>is_under_14 = true<br>guardian_verified = true</td>
+            </tr>
+            <tr>
+              <td><strong>인증 실패 / 취소</strong></td>
+              <td>인증 실패 안내 → 재시도 가능. 인증 미완료 시 <strong>서비스 이용 차단</strong> 유지.<br>경로 B: 가입 불가 / 경로 A-3·C: 앱 메인 진입 차단, 재접속 시 MN-02 팝업 재노출.</td>
+              <td>is_verified = false<br>서비스 이용 불가</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">트리거 조건 정리</div>
+        <table>
+          <thead><tr><th>경로</th><th>MN-02 트리거 시점</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tag tag-blue">AG-03</span> 신규 가입 "14세 미만" 선택</td><td>가입 중 본인인증 완료 직후 자동 노출</td></tr>
+            <tr><td><span class="tag tag-green">AG-04</span> 기존 가입자 본인인증</td><td>재동의 후 본인인증에서 14세 미만 판명 시 자동 노출</td></tr>
+            <tr><td><span class="tag tag-blue">경로 A-3</span> 추후 본인인증</td><td>자기선언 "14세 이상" 후 본인인증에서 14세 미만 판명 시 자동 노출</td></tr>
+          </tbody>
+        </table>
+        <div class="callout callout-danger">⚠ 법정대리인 동의는 개보법 §22④에 따른 법적 필수 요건입니다. 만 14세 미만임을 자기 선언했거나 본인인증으로 확인된 시점부터, 법정대리인 동의 없이 개인정보를 처리하면 위법입니다. 따라서 법정대리인 인증 완료 전까지 서비스 이용을 차단하며, "다음에 하기" 옵션은 제공하지 않습니다.</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 경로 A -->
+  <div class="section">
+    <div class="section-header blue">
+      <div class="section-num">A</div>
+      <div><div class="section-title">경로 A — 신규 가입 "만 14세 이상" 선택</div><div class="section-subtitle">본인인증 없이 가입 완료 · 추후 본인인증 시 연령 분기</div></div>
+    </div>
+    <div class="section-body">
+      <div class="flow-diagram">
+        <div class="flow-path">
+          <div class="flow-path-label path-a">A-1 기본 가입 플로우</div>
+          <div class="flow-path-desc">본인인증 없이 서비스 이용 시작. 당첨 시에만 본인인증 필요.</div>
+          <div class="flow-steps">
+            <div class="flow-step">
+              <div class="flow-step-box dark">회원가입 화면</div>
+              <div class="flow-step-sub">소셜 로그인</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="flow-step-box highlight">"만 14세 이상"<br>선택</div>
+              <div class="flow-step-sub">자기 선언</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="flow-step-box">약관 동의</div>
+              <div class="flow-step-sub">필수 + 선택</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="flow-step-box">팀 선택</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="flow-step-box action">가입 완료</div>
+              <div class="flow-step-sub">본인인증 미진행</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flow-path">
+          <div class="flow-path-label path-a">A-2 추후 본인인증 → 14세 이상 확인</div>
+          <div class="flow-path-desc">정상 케이스. 자기 선언과 실제 연령 일치.</div>
+          <div class="flow-steps">
+            <div class="flow-step">
+              <div class="flow-step-box">마이 > 설정<br>본인인증</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="flow-step-box highlight">본인인증<br>동의</div>
+              <div class="flow-step-sub">개인정보 수집 동의</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="flow-step-box">본인인증<br>진행</div>
+              <div class="flow-step-sub">통신사 인증 등</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="flow-step-box action">✓ 14세 이상<br>확인</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="flow-step-box action">본인인증<br>완료</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flow-path">
+          <div class="flow-path-label path-a">A-3 추후 본인인증 → 14세 미만 판명</div>
+          <div class="flow-path-desc">자기 선언과 불일치. 법정대리인 인증 필수 진행.</div>
+          <div class="flow-steps">
+            <div class="flow-step">
+              <div class="flow-step-box">마이 > 설정<br>본인인증</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="flow-step-box highlight">본인인증<br>동의</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="flow-step-box">본인인증<br>진행</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="flow-step-box warning">⚠ 14세 미만<br>판명</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="flow-step-box highlight">법정대리인<br>동의</div>
+              <div class="flow-step-sub">개인정보 수집 동의</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="flow-step-box">법정대리인<br>인증 진행</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="flow-step-box action">본인인증<br>완료</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 2. 경로 B -->
+  <div class="section">
+    <div class="section-header orange">
+      <div class="section-num">B</div>
+      <div><div class="section-title">경로 B — 신규 가입 "만 14세 미만" 선택</div><div class="section-subtitle">즉시 본인인증 + 법정대리인 인증 → 가입 완료</div></div>
+    </div>
+    <div class="section-body">
+      <div class="flow-diagram">
+        <div class="flow-path">
+          <div class="flow-path-label path-b">B 가입 시 즉시 인증</div>
+          <div class="flow-path-desc">만 14세 미만 자진 선택 시. 법정대리인 동의 없이 개인정보 수집 불가(개보법 §22④).</div>
+          <div class="flow-steps">
+            <div class="flow-step">
+              <div class="flow-step-box dark">회원가입 화면</div>
+              <div class="flow-step-sub">소셜 로그인</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="flow-step-box warning">"만 14세 미만"<br>선택</div>
+              <div class="flow-step-sub">자기 선언</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="flow-step-box highlight">본인인증<br>동의</div>
+              <div class="flow-step-sub">개인정보 수집 동의</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="flow-step-box">본인인증<br>진행</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="flow-step-box highlight">법정대리인<br>동의</div>
+              <div class="flow-step-sub">개인정보 수집 동의</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="flow-step-box">법정대리인<br>인증 진행</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="flow-step-box">약관 동의<br>+ 팀 선택</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="flow-step-box action">가입 완료</div>
+              <div class="flow-step-sub">본인인증 완료</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>경로 B 이탈 케이스:</strong> 본인인증 또는 법정대리인 인증 중 이탈(거부/실패) 시 가입 불가. 이전 화면으로 복귀하며 수집된 정보 즉시 파기.
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 3. 경로 C -->
+  <div class="section">
+    <div class="section-header green">
+      <div class="section-num">C</div>
+      <div><div class="section-title">경로 C — 기가입자 본인인증 시 14세 미만 판명</div><div class="section-subtitle">DI 수집을 위한 재동의 과정에서 연령 확인</div></div>
+    </div>
+    <div class="section-body">
+      <div class="flow-diagram">
+        <div class="flow-path">
+          <div class="flow-path-label path-c">C 기가입자 본인인증</div>
+          <div class="flow-path-desc">이미 가입한 유저가 당첨 확인 등 목적으로 본인인증 진행. A-3와 동일한 분기.</div>
+          <div class="flow-steps">
+            <div class="flow-step">
+              <div class="flow-step-box">마이 > 설정<br>본인인증</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="flow-step-box highlight">본인인증<br>동의</div>
+              <div class="flow-step-sub">개인정보 수집 동의</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="flow-step-box">본인인증<br>진행</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="flow-step-box warning">⚠ 14세 미만<br>판명</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="flow-step-box highlight">법정대리인<br>동의</div>
+              <div class="flow-step-sub">개인정보 수집 동의</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="flow-step-box">법정대리인<br>인증 진행</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="flow-step-box action">본인인증<br>완료</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <strong>PM-01 동의 관리 연동:</strong> 법정대리인 인증 완료 후, PM-01 개인정보 동의 관리 목록에 "법정대리인 본인인증" 항목이 동적으로 추가됩니다 (만 14세 미만 유저에게만 조건부 노출).
+      </div>
+      <div class="callout callout-danger">
+        <strong>경로 A-3·C 서비스 차단:</strong> 기가입자라도 본인인증에서 14세 미만 판명 시, 법정대리인 인증 완료 전까지 앱 메인 진입이 차단됩니다. 재접속 시 MN-02 팝업이 재노출됩니다.
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 4. 분기 조건 정리 -->
+  <div class="section">
+    <div class="section-header navy">
+      <div class="section-num">★</div>
+      <div><div class="section-title">분기 조건 정리</div></div>
+    </div>
+    <div class="section-body">
+      <table>
+        <thead><tr><th>시점</th><th>조건</th><th>분기</th></tr></thead>
+        <tbody>
+          <tr><td>회원가입</td><td>"만 14세 이상" 선택</td><td><span class="tag tag-blue">경로 A</span> 본인인증 없이 가입 완료</td></tr>
+          <tr><td>회원가입</td><td>"만 14세 미만" 선택</td><td><span class="tag tag-orange">경로 B</span> 즉시 본인인증 + 법정대리인 필수</td></tr>
+          <tr><td>본인인증 결과</td><td>만 14세 이상 확인</td><td>정상 완료</td></tr>
+          <tr><td>본인인증 결과</td><td>만 14세 미만 판명</td><td>법정대리인 인증 필수 진행</td></tr>
+          <tr><td>법정대리인 인증</td><td>인증 완료</td><td>본인인증 완료 처리 → 서비스 이용 가능</td></tr>
+          <tr><td>법정대리인 인증</td><td>인증 미완료/실패</td><td><strong>서비스 이용 차단</strong> (경로 B: 가입 불가 / 경로 A-3·C: 앱 메인 진입 차단, 재접속 시 MN-02 재노출)</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-danger" style="margin-top: 16px;">
+        <strong>법적 근거:</strong> 개보법 §22④ — 만 14세 미만 아동의 개인정보를 수집하려면 법정대리인의 동의를 받아야 한다. 유저가 "만 14세 이상"으로 자기 선언하고 본인인증을 하지 않는 경우, 서비스 측에서 연령을 강제 검증할 수 없으나 합리적 수준의 확인 조치(자기 선언 + 본인인증 시점 검증)를 이행한 것으로 면책 가능.
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 5. 본인인증 동의서 -->
+  <div class="section">
+    <div class="section-header blue">
+      <div class="section-num">📋</div>
+      <div><div class="section-title">개인정보 수집 및 이용 동의서 — 본인인증</div><div class="section-subtitle">법무검토 완료 (2026-05-14)</div></div>
+    </div>
+    <div class="section-body">
+      <div class="consent-card">
+        <div class="consent-card-header">
+          <span class="tag tag-blue">선택</span>
+          <div class="consent-card-title">폴리볼 개인정보 수집 및 이용(본인인증)</div>
+        </div>
+        <div class="consent-card-body">
+          <div class="consent-intro">
+            (주)헥토이노베이션(이하 "회사") 「개인정보 보호법」 제15조 및 관계 법령이 정한 바에 따라, 폴리볼(PolyBall) 서비스 내 당첨자의 선정 및 당첨자 본인확인을 위해 필요 최소한의 범위에서 개인정보를 수집·이용합니다.
+          </div>
+          <table class="consent-table">
+            <thead><tr><th>구분</th><th>필수/선택</th><th>수집 · 이용 목적</th><th>수집 · 이용 항목</th><th>보유 및 이용 기간</th></tr></thead>
+            <tbody>
+              <tr>
+                <td style="text-align:center;">본인 인증</td>
+                <td style="text-align:center;">선택</td>
+                <td><strong>당첨자 선정을 위한 정보 확인, 당첨되었을 경우 당첨자 본인 확인 및 보상(티켓) 지급</strong></td>
+                <td>성명, 생년월일, 성별, 휴대전화번호, 연계정보(CI), 중복가입 확인정보(DI)</td>
+                <td><strong>회원 탈퇴 시까지</strong></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="consent-note">
+            이용자는 본 개인정보 수집 및 이용에 대한 동의를 거부할 권리가 있습니다. 단, 동의를 거부하실 경우 폴리볼 서비스 이용에는 제한이 없으나 본인확인이 필요한 당첨확인 및 보상(티켓) 지급이 취소되거나 수령이 제한될 수 있습니다.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 6. 법정대리인 동의서 -->
+  <div class="section">
+    <div class="section-header orange">
+      <div class="section-num">📋</div>
+      <div><div class="section-title">개인정보 수집 및 이용 동의서 — 법정대리인의 인증</div><div class="section-subtitle">법무검토 완료 (2026-05-14)</div></div>
+    </div>
+    <div class="section-body">
+      <div class="consent-card">
+        <div class="consent-card-header">
+          <span class="tag tag-orange">선택</span>
+          <div class="consent-card-title">폴리볼 개인정보 수집 및 이용(법정대리인의 인증)</div>
+        </div>
+        <div class="consent-card-body">
+          <div class="consent-intro">
+            (주)헥토이노베이션(이하 "회사") 「개인정보 보호법」 제15조 및 관계 법령이 정한 바에 따라, 만 14세 미만 이용자의 폴리볼(PolyBall) 서비스 가입 및 서비스 이용의 동의를 위해 필요 최소한의 범위에서 개인정보를 수집·이용합니다.
+          </div>
+          <table class="consent-table">
+            <thead><tr><th>구분</th><th>필수/선택</th><th>수집 · 이용 목적</th><th>수집 · 이용 항목</th><th>보유 및 이용 기간</th></tr></thead>
+            <tbody>
+              <tr>
+                <td style="text-align:center;">법정 대리인의 동의</td>
+                <td style="text-align:center;">선택</td>
+                <td><strong>만 14세 미만 아동의 회원가입 및 본인인증 진행 시 해당 회원의 법정 대리인 확인</strong></td>
+                <td>법정 대리인 정보(이름, 성별, 생년월일, 휴대전화번호, 중복가입 확인정보)</td>
+                <td><strong>회원 탈퇴 시까지</strong></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="consent-note">
+            이용자는 본 개인정보 수집 및 이용에 대한 동의를 거부할 권리가 있습니다. 단, 동의를 거부하실 경우 폴리볼 서비스 이용에는 제한이 없으나 본인확인이 필요한 당첨확인 및 보상(티켓) 지급이 취소되거나 수령이 제한될 수 있습니다.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 7. 미결 사항 -->
+  <div class="section">
+    <div class="section-header navy">
+      <div class="section-num">⚠</div>
+      <div><div class="section-title">미결 사항</div></div>
+    </div>
+    <div class="section-body">
+      <table>
+        <thead><tr><th style="width:200px;">항목</th><th>내용</th><th style="width:80px;">담당</th></tr></thead>
+        <tbody>
+          <tr><td>본인인증 수단</td><td>통신사 본인인증 / PASS 인증 / 기타 — 인증 수단 확정 필요</td><td>개발팀</td></tr>
+          <tr><td>법정대리인 인증 수단</td><td>법정대리인 확인 방식 (휴대전화 인증 등) 확정 필요</td><td>개발팀</td></tr>
+          <tr><td>경로 B 이탈 처리</td><td>본인인증/법정대리인 인증 실패·거부 시 UI 처리 (에러 메시지, 재시도 정책)</td><td>기획</td></tr>
+          <tr><td>기가입자 14세 미만 판명 시 서비스 제한</td><td>법정대리인 인증 미완료 시 서비스 이용 제한 범위 정의 필요</td><td>기획/법무</td></tr>
+          <tr><td>PM-01 법정대리인 항목</td><td>만 14세 미만 유저에게만 조건부 노출 — 개발 구현 방식 협의</td><td>개발팀</td></tr>
+          <tr><td>회원가입 UI</td><td>"만 14세 이상/미만" 선택 UI 형태 (라디오버튼, 토글 등) 디자인 확정</td><td>디자인팀</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>만 14세 미만 이용자 처리 플로우 · 참고용 문서 · 2026-05-15</footer>
+
+</div>
+</body>
+</html>

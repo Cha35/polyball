@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PolyBall 시장 분석 — 보상형 예측·투표 플랫폼 v1.0</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --primary: #2563EB;
+    --primary-light: #EFF6FF;
+    --primary-mid: #BFDBFE;
+    --dark: #0F172A;
+    --mid: #475569;
+    --muted: #94A3B8;
+    --border: #E2E8F0;
+    --bg: #F1F5F9;
+    --white: #FFFFFF;
+    --orange: #EA580C;
+    --row-alt: #F8FAFC;
+    --row-head: #EFF6FF;
+    --red-bg: #FEF2F2;
+    --red-text: #B91C1C;
+    --red-border: #FECACA;
+    --green-bg: #F0FDF4;
+    --green-text: #166534;
+    --green-border: #86EFAC;
+    --sidebar-w: 240px;
+    --topbar-h: 48px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--dark); font-size: 13px; line-height: 1.6; }
+  .layout { display: flex; min-height: 100vh; padding-top: var(--topbar-h); }
+
+  /* 상단바 */
+  .topbar { position: fixed; top: 0; left: 0; right: 0; height: var(--topbar-h); background: var(--dark); display: flex; align-items: center; padding: 0 24px; gap: 16px; z-index: 200; }
+  .topbar-brand { font-size: 13px; font-weight: 800; color: var(--white); letter-spacing: -0.3px; }
+  .topbar-divider { width: 1px; height: 16px; background: #334155; }
+  .topbar-meta { font-size: 11px; color: #94A3B8; font-family: 'DM Mono', monospace; }
+  .topbar-badge { font-size: 10px; font-weight: 700; color: #38BDF8; background: #1E293B; border: 1px solid #334155; border-radius: 4px; padding: 2px 10px; font-family: 'DM Mono', monospace; }
+  .topbar-version { margin-left: auto; font-size: 10px; font-weight: 700; color: var(--primary); background: #1E293B; border: 1px solid #334155; border-radius: 4px; padding: 2px 10px; font-family: 'DM Mono', monospace; }
+
+  /* 사이드바 */
+  .sidebar { position: fixed; top: var(--topbar-h); left: 0; width: var(--sidebar-w); height: calc(100vh - var(--topbar-h)); background: var(--white); border-right: 1px solid var(--border); overflow-y: auto; z-index: 100; padding: 20px 0 40px; }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .sidebar-group { margin-bottom: 4px; }
+  .sidebar-group-label { font-size: 9px; font-weight: 800; letter-spacing: 1.2px; color: var(--muted); padding: 10px 16px 4px; text-transform: uppercase; font-family: 'DM Mono', monospace; }
+  .sidebar-item { display: flex; align-items: center; gap: 8px; padding: 6px 16px; font-size: 12px; font-weight: 600; color: var(--mid); text-decoration: none; border-left: 2px solid transparent; transition: all .12s; }
+  .sidebar-item:hover { background: var(--primary-light); color: var(--primary); border-left-color: var(--primary-mid); }
+  .sidebar-item.active { background: var(--primary-light); color: var(--primary); border-left-color: var(--primary); }
+  .sidebar-item-id { font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 600; color: var(--muted); background: var(--bg); border-radius: 3px; padding: 1px 5px; flex-shrink: 0; min-width: 36px; text-align: center; }
+  .sidebar-divider { height: 1px; background: var(--border); margin: 8px 16px; }
+
+  /* 메인 */
+  .main { margin-left: var(--sidebar-w); flex: 1; padding: 40px 48px 120px; max-width: calc(100% - var(--sidebar-w)); }
+  .content-wrap { max-width: 860px; }
+
+  /* 표지 */
+  .cover { padding: 8px 0 40px; border-bottom: 1px solid var(--border); margin-bottom: 40px; }
+  .cover-tag { display: inline-block; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; color: var(--primary); background: var(--primary-light); border: 1px solid var(--primary-mid); border-radius: 4px; padding: 3px 10px; margin-bottom: 12px; font-family: 'DM Mono', monospace; }
+  .cover h1 { font-size: 28px; font-weight: 900; color: var(--dark); letter-spacing: -0.8px; margin-bottom: 6px; }
+  .cover-sub { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
+  .cover-meta { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 16px; }
+  .cover-meta-item { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .cover-meta-item span { color: var(--mid); font-weight: 600; }
+  .cover-notice { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px; padding: 12px 16px; font-size: 12px; color: #92400E; line-height: 1.7; }
+  .cover-notice strong { color: #78350F; }
+
+  /* 섹션 */
+  .section { margin-bottom: 64px; scroll-margin-top: 24px; }
+  .section-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--primary); }
+  .section-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--primary); background: var(--primary-light); border-radius: 4px; padding: 2px 8px; }
+  .section-title { font-size: 20px; font-weight: 900; color: var(--dark); letter-spacing: -0.5px; }
+  .section-badge { font-size: 10px; font-weight: 700; color: var(--muted); background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; font-family: 'DM Mono', monospace; margin-left: auto; }
+
+  /* 본문 */
+  .lead { font-size: 13px; color: var(--mid); line-height: 1.75; margin-bottom: 20px; }
+  .lead strong { color: var(--dark); font-weight: 700; }
+
+  /* 카드 */
+  .card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 16px; }
+  .card-header { display: flex; align-items: flex-start; gap: 12px; padding: 14px 18px; background: var(--bg); border-bottom: 1px solid var(--border); }
+  .card-id { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 700; color: var(--primary); background: var(--primary-light); border: 1px solid var(--primary-mid); border-radius: 5px; padding: 3px 10px; white-space: nowrap; flex-shrink: 0; }
+  .card-title { font-size: 14px; font-weight: 800; color: var(--dark); margin-bottom: 2px; }
+  .card-sub { font-size: 11px; color: var(--muted); }
+  .card-body { padding: 16px 18px; }
+
+  .point { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 8px; font-size: 12px; color: var(--mid); line-height: 1.65; }
+  .point:last-child { margin-bottom: 0; }
+  .point-num { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 700; color: var(--primary); background: var(--primary-light); border-radius: 3px; padding: 1px 6px; flex-shrink: 0; margin-top: 2px; }
+  .point strong { color: var(--dark); }
+
+  /* 지표 그리드 */
+  .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 4px 0 8px; }
+  .stat-box { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+  .stat-label { font-size: 10px; font-weight: 700; color: var(--muted); font-family: 'DM Mono', monospace; letter-spacing: .5px; margin-bottom: 6px; text-transform: uppercase; }
+  .stat-value { font-size: 20px; font-weight: 900; color: var(--primary); letter-spacing: -0.5px; line-height: 1.1; }
+  .stat-value small { font-size: 12px; font-weight: 700; color: var(--mid); }
+  .stat-desc { font-size: 11px; color: var(--mid); margin-top: 5px; line-height: 1.5; }
+
+  /* 표 */
+  .spec-table { width: 100%; border-collapse: collapse; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 8px; }
+  .spec-table th { background: var(--primary); color: var(--white); font-size: 11px; font-weight: 700; padding: 9px 14px; text-align: left; }
+  .spec-table td { padding: 9px 14px; font-size: 12px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.6; }
+  .spec-table tr:last-child td { border-bottom: none; }
+  .spec-table tr:nth-child(even) td { background: var(--row-alt); }
+  .spec-table td:first-child { font-weight: 700; color: var(--primary); background: var(--row-head) !important; white-space: nowrap; font-size: 11px; }
+
+  /* 강조 박스 */
+  .apply-block { background: var(--primary-light); border: 1px solid var(--primary-mid); border-radius: 8px; padding: 12px 14px; margin-top: 14px; }
+  .apply-block-label { font-size: 9px; font-weight: 800; letter-spacing: 1px; color: var(--primary); text-transform: uppercase; font-family: 'DM Mono', monospace; margin-bottom: 8px; }
+  .apply-item { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 6px; font-size: 12px; color: #1e40af; line-height: 1.6; }
+  .apply-item:last-child { margin-bottom: 0; }
+  .apply-item::before { content: '→'; color: var(--primary); font-weight: 700; flex-shrink: 0; }
+  .apply-item strong { color: #1e3a8a; font-weight: 800; }
+
+  .info-box { background: var(--primary-light); border: 1px solid var(--primary-mid); border-radius: 8px; padding: 11px 14px; font-size: 12px; color: #1e40af; line-height: 1.65; margin-bottom: 14px; }
+  .info-box strong { color: #1e3a8a; }
+  .warn-box { background: var(--red-bg); border: 1px solid var(--red-border); border-radius: 8px; padding: 11px 14px; font-size: 12px; color: #991B1B; line-height: 1.65; margin-bottom: 14px; }
+  .warn-box strong { color: var(--red-text); }
+
+  /* 태그 */
+  .tag { display: inline-block; font-size: 10px; font-weight: 700; border-radius: 3px; padding: 1px 7px; font-family: 'DM Mono', monospace; white-space: nowrap; }
+  .tag-b2c { background: var(--green-bg); color: var(--green-text); border: 1px solid var(--green-border); }
+  .tag-b2b { background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary-mid); }
+  .tag-warn { background: #FFF7ED; color: var(--orange); border: 1px solid #FED7AA; }
+
+  .group-title { font-size: 13px; font-weight: 800; color: var(--dark); margin: 24px 0 10px; padding-bottom: 6px; border-bottom: 1px dashed var(--border); display: flex; align-items: center; gap: 8px; }
+  .group-title .gtag { font-size: 10px; font-weight: 700; color: var(--muted); background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 1px 7px; font-family: 'DM Mono', monospace; }
+
+  .footnote { font-size: 11px; color: var(--muted); margin-top: 10px; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">PolyBall</div>
+  <div class="topbar-divider"></div>
+  <div class="topbar-meta">시장 분석</div>
+  <div class="topbar-divider"></div>
+  <div class="topbar-badge">📊 MARKET REF</div>
+  <div class="topbar-version">v1.0</div>
+</div>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="sidebar-group">
+    <div class="sidebar-group-label">Overview</div>
+    <a class="sidebar-item active" href="#overview"><span class="sidebar-item-id">OVR</span>분석 개요</a>
+    <a class="sidebar-item" href="#reg"><span class="sidebar-item-id">REG</span>시장 규제 환경</a>
+  </div>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-label">Market Analysis</div>
+    <a class="sidebar-item" href="#market"><span class="sidebar-item-id">MKT</span>시장 규모·트래픽</a>
+    <a class="sidebar-item" href="#users"><span class="sidebar-item-id">USR</span>타겟 유저</a>
+    <a class="sidebar-item" href="#revenue"><span class="sidebar-item-id">REV</span>매출·비즈니스 모델</a>
+  </div>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-label">Insight</div>
+    <a class="sidebar-item" href="#summary"><span class="sidebar-item-id">SUM</span>핵심 요약</a>
+    <a class="sidebar-item" href="#implication"><span class="sidebar-item-id">IMP</span>폴리볼 시사점</a>
+  </div>
+</aside>
+
+<main class="main">
+<div class="content-wrap">
+
+  <!-- 표지 -->
+  <div class="cover" id="overview">
+    <div class="cover-tag">MARKET REFERENCE</div>
+    <h1>국내 보상형 예측·투표 플랫폼 시장 분석</h1>
+    <div class="cover-sub">'아하(Aha)' · '크라토스(CRATOS)' 중심 — 시장 규모 · 타겟 · 매출/BM</div>
+    <div class="cover-meta">
+      <div class="cover-meta-item">문서유형 <span>시장 분석 레퍼런스</span></div>
+      <div class="cover-meta-item">버전 <span>v1.0</span></div>
+      <div class="cover-meta-item">분석대상 <span>Aha, CRATOS</span></div>
+      <div class="cover-meta-item">연계 <span>하반기 사업계획(안) — 예측 마켓 확장</span></div>
+    </div>
+    <div class="cover-notice">
+      <strong>📌 분석 배경.</strong> 본 문서는 폴리볼 하반기 사업계획(안)의 <strong>'상시 예측 플랫폼으로의 확장'</strong> 방향에 대한 경쟁 레퍼런스다.
+      국내에서 동일 구조(예측·투표 + 보상)로 트래픽과 매출을 만든 선행 플랫폼을 진단해, 폴리볼의 콘텐츠 확장·BM 설계에 활용한다.
+      ※ 사업계획 초안은 참고용이며, 본 문서의 수치는 공개 자료 기반.
+    </div>
+  </div>
+
+  <!-- REG -->
+  <div class="section" id="reg">
+    <div class="section-header">
+      <span class="section-num">REG</span>
+      <span class="section-title">시장 규제 환경</span>
+      <span class="section-badge">전제 조건</span>
+    </div>
+    <div class="warn-box">
+      <strong>유저 직접 자산 베팅('폴리마켓'형) 예측 시장은 국내 불법.</strong> 사행성 규제로 진입이 불가능하다.
+    </div>
+    <p class="lead">
+      이 제약을 우회하기 위해, 국내 플랫폼은 <strong>유저의 투표·토론 참여도에 따라 무상으로 포인트를 지급하는 '보상형 투표·지식 커뮤니티(앱테크 결합형)'</strong> 구조로 시장을 주도하고 있다.
+      자산 베팅이 아니라 <strong>'리워드를 통한 트래픽 락인(Lock-in)'</strong>이 핵심 전략이다.
+    </p>
+    <div class="info-box">
+      <strong>폴리볼 정합성.</strong> 무상 포인트 지급형 = 합법 우회 모델. 폴리볼의 픽/응모(무료 적립) 구조 및 SOOP 라이브 젬 모델과 동일 맥락에 있어, 콘텐츠를 예측·투표로 확장해도 규제 프레임은 유지된다.
+    </div>
+  </div>
+
+  <!-- MKT -->
+  <div class="section" id="market">
+    <div class="section-header">
+      <span class="section-num">MKT</span>
+      <span class="section-title">시장 규모 · 트래픽</span>
+      <span class="section-badge">Market Size</span>
+    </div>
+    <p class="lead">
+      국내 보상형 투표·예측 시장은 단순 설문을 넘어, 대규모 트래픽 기반의 <strong>'실시간 여론 감지(Quick Survey)' 도구</strong>로 팽창 중이다.
+    </p>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-id">AHA</span>
+        <div>
+          <div class="card-title">아하(Aha) · 아하스파링</div>
+          <div class="card-sub">투표·토론 기반 지식 커뮤니티 — 토스 미니앱 연동</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="stat-grid">
+          <div class="stat-box">
+            <div class="stat-label">월간 웹 방문자</div>
+            <div class="stat-value">1,300만<small> 명</small></div>
+            <div class="stat-desc">MAU 돌파 · 압도적 트래픽</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">연동 인프라</div>
+            <div class="stat-value">3,000만<small> 명</small></div>
+            <div class="stat-desc">토스 누적 가입자 기반 미니앱(아하스파링) 연동</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">진입 허들</div>
+            <div class="stat-value">무설치</div>
+            <div class="stat-desc">별도 설치 없이 즉시 투표 참여</div>
+          </div>
+        </div>
+        <p class="footnote">대규모 가입자 인프라(토스)에 투표·토론 기능을 얹어, 신규 설치 부담 없이 즉각적인 참여 트래픽을 확보한 구조.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-id">CRTS</span>
+        <div>
+          <div class="card-title">크라토스(CRATOS)</div>
+          <div class="card-sub">정치·사회 이슈 특화 실시간 투표 앱</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="stat-grid">
+          <div class="stat-box">
+            <div class="stat-label">다운로드</div>
+            <div class="stat-value">10만<small>+ 회</small></div>
+            <div class="stat-desc">구글 플레이스토어 기준</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">특화 영역</div>
+            <div class="stat-value">정치·사회</div>
+            <div class="stat-desc">이슈 기반 실시간 투표</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">유저 성격</div>
+            <div class="stat-value">헤비 유저</div>
+            <div class="stat-desc">모바일 중심 소셜 토론 활성</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- USR -->
+  <div class="section" id="users">
+    <div class="section-header">
+      <span class="section-num">USR</span>
+      <span class="section-title">타겟 유저</span>
+      <span class="section-badge">2-Sided</span>
+    </div>
+    <p class="lead">
+      플랫폼 생태계는 <strong>서비스를 이용하는 일반 유저</strong>와, 이들이 생산한 데이터를 구매하는 <strong>B2B 유저</strong>로 명확히 나뉜다.
+    </p>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-id">B2C</span>
+        <div>
+          <div class="card-title">일반 참여자 <span class="tag tag-b2c">생태계 유지</span></div>
+          <div class="card-sub">앱테크 · 소통 지향 유저</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="point"><span class="point-num">01</span><span>불확실성·사회 쟁점에 관심이 많고, <strong>자신의 의견을 적극 표출</strong>하려는 성향</span></div>
+        <div class="point"><span class="point-num">02</span><span>일상 꿀팁부터 정치·경제 이슈 투표까지 <strong>가볍게 반복 참여</strong></span></div>
+        <div class="point"><span class="point-num">03</span><span>원화 연동 포인트(베리)·가상자산(CRTS) 보상을 노리는 <strong>'앱테크' 동기</strong>가 강함</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-id">B2B</span>
+        <div>
+          <div class="card-title">데이터 수요 기업 <span class="tag tag-b2b">실질 매출원</span></div>
+          <div class="card-sub">여론조사 기관 · 대형 LLM 개발사</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="point"><span class="point-num">01</span><span>방대한 <strong>투표 결과 + 성별/연령 인구통계</strong> 데이터 수요</span></div>
+        <div class="point"><span class="point-num">02</span><span>토론 과정에서 파생된 <strong>자연어 텍스트 데이터</strong> 수요</span></div>
+        <div class="point"><span class="point-num">03</span><span>이 데이터를 사는 <strong>기관/AI 개발사가 실질적 비즈니스 타겟</strong> — 일반 유저는 데이터 생산자 역할</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REV -->
+  <div class="section" id="revenue">
+    <div class="section-header">
+      <span class="section-num">REV</span>
+      <span class="section-title">매출 · 비즈니스 모델</span>
+      <span class="section-badge">Revenue</span>
+    </div>
+    <p class="lead">
+      성패는 <strong>유저 보상(토큰/포인트) 비용을 감당하면서 트래픽을 현금 매출로 전환</strong>하느냐에 달려 있다.
+      단순 광고를 넘어선 <strong>데이터 비즈니스가 핵심 수익원</strong>이다.
+    </p>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-id">AHA</span>
+        <div>
+          <div class="card-title">아하앤컴퍼니 — 고수익 데이터 비즈니스</div>
+          <div class="card-sub">2024년 기준</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="stat-grid">
+          <div class="stat-box">
+            <div class="stat-label">연매출</div>
+            <div class="stat-value">100억<small> 원</small></div>
+            <div class="stat-desc">전년비 +134%</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">영업이익</div>
+            <div class="stat-value">44억<small> 원</small></div>
+            <div class="stat-desc">고수익 구조</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">영업이익률</div>
+            <div class="stat-value">44<small>%</small></div>
+            <div class="stat-desc">높은 마진</div>
+          </div>
+        </div>
+        <div class="group-title">수익 모델 구성 <span class="gtag">3종</span></div>
+        <div class="point"><span class="point-num">메인</span><span><strong>한국어 전문 코퍼스 데이터셋</strong> — 지식 교류 데이터를 AI 강화학습(RLHF)용으로 규격화해 글로벌 IT 기업에 <strong>B2B 독점 매각</strong> (최대 수익원)</span></div>
+        <div class="point"><span class="point-num">보조</span><span>고단가 타겟팅 디지털 광고 노출</span></div>
+        <div class="point"><span class="point-num">보조</span><span>헤비 유저 대상 프리미엄 멤버십</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-id">CRTS</span>
+        <div>
+          <div class="card-title">크라토스 — 데이터 매각 + 인앱 광고</div>
+          <div class="card-sub">가상자산 리워드 중심</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="point"><span class="point-num">매출</span><span>세부 매출액 <strong>비공개</strong> <span class="tag tag-warn">N/A</span> (※ 나스닥 상장 방산기업 KTOS와는 별개)</span></div>
+        <div class="point"><span class="point-num">BM</span><span>앱 내 <strong>실시간 여론조사·인구통계 원본 데이터</strong>를 수요처에 매각</span></div>
+        <div class="point"><span class="point-num">BM</span><span>리워드 토큰 분배 트래픽을 활용한 <strong>인앱 광고 수익화</strong></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUM -->
+  <div class="section" id="summary">
+    <div class="section-header">
+      <span class="section-num">SUM</span>
+      <span class="section-title">핵심 요약</span>
+      <span class="section-badge">Takeaway</span>
+    </div>
+    <div class="info-box">
+      국내 예측·투표 플랫폼은 사행성 베팅이 불가능한 한계 속에서 <strong>'리워드를 통한 트래픽 락인'</strong> 전략을 사용한다.
+      확보한 대규모 트래픽과 집단지성 텍스트를 단순 커뮤니티 데이터로 방치하지 않고,
+      <strong>AI 학습용 데이터셋 / 정밀 여론 통계 상품으로 재가공해 B2B로 판매하는 것이 시장의 핵심 매출 수단</strong>으로 자리 잡았다.
+    </div>
+    <table class="spec-table">
+      <thead>
+        <tr><th style="width:120px;">구분</th><th>아하(Aha)</th><th>크라토스(CRATOS)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>트래픽</td><td>웹 MAU 1,300만 / 토스 3,000만 연동</td><td>10만+ 다운로드, 헤비 유저</td></tr>
+        <tr><td>특화</td><td>지식 교류·투표·토론</td><td>정치·사회 실시간 투표</td></tr>
+        <tr><td>매출(공개)</td><td>100억 원 (2024, +134%)</td><td>비공개</td></tr>
+        <tr><td>핵심 BM</td><td>B2B 코퍼스 데이터 독점 매각</td><td>여론·인구통계 데이터 매각</td></tr>
+        <tr><td>보조 BM</td><td>타겟팅 광고 · 프리미엄 멤버십</td><td>인앱 광고</td></tr>
+        <tr><td>리워드</td><td>포인트(베리)</td><td>포인트 + 가상자산(CRTS)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- IMP -->
+  <div class="section" id="implication">
+    <div class="section-header">
+      <span class="section-num">IMP</span>
+      <span class="section-title">폴리볼 시사점</span>
+      <span class="section-badge">분석자 해석 · 원문 외</span>
+    </div>
+    <p class="lead">
+      ※ 아래는 원문(시장 분석)에 대한 폴리볼 BM 관점의 해석이며, 원자료에 포함된 내용이 아니다.
+    </p>
+    <div class="apply-block">
+      <div class="apply-block-label">BM 관점 적용 포인트</div>
+      <div class="apply-item"><span><strong>광고는 보조, 데이터가 메인.</strong> 선례(아하 100억·이익률 44%)의 핵심 수익원은 광고가 아니라 B2B 데이터 매각. 폴리볼 KPI가 광고 매출이라도, 예측·토론 트래픽이 쌓이면 <strong>집단지성 데이터의 B2B 자산화</strong>를 차기 BM 후보로 검토할 가치 있음.</span></div>
+      <div class="apply-item"><span><strong>'매출 전환 미비' 문제와 직결.</strong> 사업계획 초안의 한계 신호(트래픽 대비 매출 저조)는 시장 공통 과제. 락인=리워드, 수익화=데이터/광고라는 2단 구조를 폴리볼에도 분리 적용 필요.</span></div>
+      <div class="apply-item"><span><strong>예측 마켓 확장의 정합성.</strong> 야구 외 시즈널·이슈 예측으로 콘텐츠를 넓히면 투표/토론 데이터 모수가 커짐 → 데이터 BM 잠재력과 오가닉 트래픽 동시 확보.</span></div>
+      <div class="apply-item"><span><strong>규제 프레임 유지.</strong> 무상 포인트 지급형은 합법 우회 모델로 검증됨. 확장 시에도 자산 베팅(폴리마켓형)으로 넘어가지 않는 선을 명확히 유지할 것.</span></div>
+    </div>
+    <p class="footnote">⚠️ 데이터 BM은 개인정보·동의 범위 검토가 선행 필요. 실행 검토 시 법령 레퍼런스(개인정보보호법 §15·§17·§22) 재확인 권장.</p>
+  </div>
+
+</div>
+</main>
+</div>
+
+<script>
+  const items = document.querySelectorAll('.sidebar-item');
+  const sections = document.querySelectorAll('.section, .cover');
+  function onScroll() {
+    let cur = '';
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 120) cur = s.id; });
+    items.forEach(i => {
+      i.classList.toggle('active', i.getAttribute('href') === '#' + cur);
+    });
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+</script>
+</body>
+</html>

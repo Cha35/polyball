@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>폴리볼 포인트예측 프로토타입 v3</title>
+<style>
+  :root {
+    --primary: #1F30E9;
+    --navy: #00143F;
+    --mint: #09FFEE;
+    --bg2: #F5F5F5;
+    --text1: #111111;
+    --text3: #555555;
+    --text5: #999999;
+    --danger: #E91F1F;
+    --border: #E5E7EB;
+    --success: #16A34A;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #E0E2E8; display: flex; flex-direction: column; align-items: center; min-height: 100vh; font-family: 'Apple SD Gothic Neo','Noto Sans KR',sans-serif; padding: 24px 16px 40px; }
+  .page-title { font-size: 13px; color: #666; margin-bottom: 14px; font-weight: 600; }
+  .screen-nav { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; justify-content: center; max-width: 560px; }
+  .screen-nav button { padding: 6px 12px; border-radius: 20px; border: 1.5px solid var(--border); background: white; font-size: 12px; font-weight: 600; color: var(--text3); cursor: pointer; transition: all .15s; }
+  .screen-nav button.active { background: var(--primary); color: white; border-color: var(--primary); }
+  .screen-nav button:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
+
+  .device { width: 390px; height: 844px; background: white; border-radius: 44px; box-shadow: 0 24px 60px rgba(0,0,0,.18), 0 0 0 1px rgba(0,0,0,.08); overflow: hidden; position: relative; display: flex; flex-direction: column; }
+  .statusbar { height: 44px; background: white; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .screen { display: none; flex-direction: column; flex: 1; overflow: hidden; position: relative; }
+  .screen.active { display: flex; }
+
+  /* GNB */
+  .gnb { height: 52px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; background: white; }
+  .gnb.dark { background: var(--navy); border-bottom: none; }
+  .gnb-title { font-size: 17px; font-weight: 800; color: var(--primary); }
+  .gnb-title.white { color: white; }
+  .gnb-back { display: flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 600; color: var(--text1); cursor: pointer; }
+  .gnb-back svg { width: 20px; height: 20px; }
+  .gnb-center { font-size: 16px; font-weight: 700; color: var(--text1); }
+  .gnb-icons { display: flex; gap: 12px; align-items: center; }
+  .gnb-icon { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; border-radius: 8px; }
+
+  .scroll-area { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .scroll-area::-webkit-scrollbar { display: none; }
+
+  /* 포인트 배너 */
+  .point-banner { background: linear-gradient(135deg, var(--navy) 0%, var(--primary) 100%); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; }
+  .point-banner-label { font-size: 12px; color: rgba(255,255,255,.7); margin-bottom: 2px; }
+  .point-banner-value { font-size: 22px; font-weight: 800; color: white; }
+  .point-banner-right { font-size: 12px; color: var(--mint); font-weight: 600; cursor: pointer; }
+
+  /* 섹션 타이틀 */
+  .section-title { font-size: 13px; font-weight: 700; color: var(--text3); padding: 12px 16px 8px; background: var(--bg2); border-top: 1px solid var(--border); }
+
+  /* ── 마켓 카드 공통 ── */
+  .market-card { background: white; border-bottom: 1px solid var(--border); padding: 14px 16px; cursor: pointer; transition: background .1s; }
+  .market-card:active { background: var(--bg2); }
+  .market-card.closed { opacity: .5; }
+  .mc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .mc-title { font-size: 14px; font-weight: 700; color: var(--text1); flex: 1; margin-right: 8px; line-height: 1.4; }
+  .mc-timer { font-size: 11px; color: var(--text5); white-space: nowrap; flex-shrink: 0; }
+  .mc-timer.urgent { color: var(--danger); font-weight: 700; }
+  .mc-footer { display: flex; gap: 10px; font-size: 11px; color: var(--text5); margin-top: 8px; }
+  .chosen-badge { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; font-weight: 700; background: #EFF6FF; color: var(--primary); border-radius: 4px; padding: 2px 6px; margin-top: 5px; }
+  .closed-badge { font-size: 10px; font-weight: 700; color: var(--text5); background: var(--bg2); border-radius: 4px; padding: 2px 6px; }
+
+  /* ── 2지선다: 좌우 pill ── */
+  .choices-2col { display: flex; gap: 8px; }
+  .choice-pill-2 { flex: 1; border: 1.5px solid var(--border); border-radius: 10px; padding: 9px 10px; }
+  .choice-pill-2.selected { border-color: var(--primary); background: #EFF6FF; }
+  .choice-pill-2.disabled { opacity: .45; background: var(--bg2); }
+  .cp2-name { font-size: 12px; font-weight: 700; color: var(--text1); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cp2-pts { font-size: 11px; color: var(--text5); margin-bottom: 4px; }
+  .cp2-odds { display: inline-flex; align-items: center; background: #FFF7ED; border-radius: 4px; padding: 2px 6px; font-size: 11px; font-weight: 800; color: #C2410C; }
+  .choice-pill-2.selected .cp2-odds { background: #DBEAFE; color: var(--primary); }
+  .choice-pill-2.disabled .cp2-odds { background: var(--bg2); color: var(--text5); }
+
+  /* ── 다지선다: 세로 리스트 ── */
+  .choices-multi { display: flex; flex-direction: column; gap: 6px; }
+  .choice-row-m { display: flex; align-items: center; gap: 10px; border: 1.5px solid var(--border); border-radius: 10px; padding: 9px 12px; cursor: pointer; transition: all .1s; }
+  .choice-row-m:hover { border-color: #93C5FD; }
+  .choice-row-m.selected { border-color: var(--primary); background: #EFF6FF; }
+  .choice-row-m.disabled { opacity: .4; background: var(--bg2); }
+  .crm-name { font-size: 13px; font-weight: 700; color: var(--text1); width: 80px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .crm-bar-wrap { flex: 1; }
+  .crm-bar { height: 5px; background: #E5E7EB; border-radius: 3px; overflow: hidden; margin-bottom: 3px; }
+  .crm-bar-fill { height: 100%; background: var(--primary); border-radius: 3px; }
+  .choice-row-m.disabled .crm-bar-fill { background: #ccc; }
+  .crm-pts { font-size: 10px; color: var(--text5); }
+  .crm-odds { font-size: 11px; font-weight: 800; color: #C2410C; background: #FFF7ED; border-radius: 4px; padding: 2px 7px; white-space: nowrap; flex-shrink: 0; }
+  .choice-row-m.selected .crm-odds { background: #DBEAFE; color: var(--primary); }
+  .choice-row-m.disabled .crm-odds { background: var(--bg2); color: var(--text5); }
+
+  /* ── 경기 승부예측 카드 전용 ── */
+  .match-badge {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 10px; font-weight: 700;
+    background: #EFF6FF; color: var(--primary);
+    border: 1px solid #BFDBFE; border-radius: 4px; padding: 2px 7px;
+  }
+  .match-scoreboard {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; padding: 4px 0;
+  }
+  .match-team { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 68px; }
+  .match-team.right { align-items: center; }
+  .match-team-name { font-size: 12px; font-weight: 700; color: var(--text1); text-align: center; }
+  .match-team-icon { font-size: 22px; }
+  .match-center { text-align: center; flex: 1; }
+  .match-time { font-size: 15px; font-weight: 800; color: var(--text1); }
+  .match-date { font-size: 11px; color: var(--text5); margin-top: 2px; }
+
+  /* 3지선다 pill */
+  .choices-3col { display: flex; gap: 6px; }
+  .choice-pill-3 { flex: 1; border: 1.5px solid var(--border); border-radius: 10px; padding: 8px 6px; text-align: center; }
+  .choice-pill-3.selected { border-color: var(--primary); background: #EFF6FF; }
+  .choice-pill-3.disabled { opacity: .45; background: var(--bg2); }
+  .cp3-label { font-size: 12px; font-weight: 700; color: var(--text1); margin-bottom: 3px; }
+  .cp3-pts { font-size: 10px; color: var(--text5); margin-bottom: 4px; }
+  .cp3-odds { display: inline-flex; align-items: center; justify-content: center; background: #FFF7ED; border-radius: 4px; padding: 2px 5px; font-size: 10px; font-weight: 800; color: #C2410C; width: 100%; }
+  .choice-pill-3.selected .cp3-odds { background: #DBEAFE; color: var(--primary); }
+  .choice-pill-3.disabled .cp3-odds { background: var(--bg2); color: var(--text5); }
+
+  /* 더보기 버튼 */
+  .more-choices-btn { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 7px; border: 1.5px dashed var(--border); border-radius: 10px; font-size: 12px; font-weight: 600; color: var(--text5); cursor: pointer; margin-top: 2px; }
+  .more-choices-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+  /* ── 마켓 상세 탭 (2지 / 다지) ── */
+  .market-type-tab { display: flex; gap: 6px; padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--bg2); }
+  .mtt-btn { padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--border); background: white; font-size: 12px; font-weight: 600; color: var(--text5); cursor: pointer; transition: all .15s; }
+  .mtt-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+  /* 상세 헤더 */
+  .detail-header { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+  .detail-cat { font-size: 11px; color: var(--text5); margin-bottom: 5px; }
+  .detail-title { font-size: 17px; font-weight: 800; color: var(--text1); margin-bottom: 10px; line-height: 1.4; }
+  .detail-meta { display: flex; gap: 14px; flex-wrap: wrap; }
+  .dmi { font-size: 12px; color: var(--text5); }
+  .dmi strong { color: var(--text1); font-weight: 700; }
+
+  /* 상세 선택지 — 2지선다 */
+  .detail-2col { padding: 14px 16px; display: flex; gap: 10px; }
+  .d2-card { flex: 1; border: 2px solid var(--border); border-radius: 14px; padding: 14px 12px; cursor: pointer; transition: all .15s; }
+  .d2-card:hover { border-color: var(--primary); }
+  .d2-card.selected { border-color: var(--primary); background: #EFF6FF; }
+  .d2-card.disabled-card { opacity: .4; background: var(--bg2); cursor: not-allowed; }
+  .d2-name { font-size: 14px; font-weight: 800; color: var(--text1); margin-bottom: 10px; }
+  .d2-bar { height: 6px; background: #E5E7EB; border-radius: 4px; overflow: hidden; margin-bottom: 6px; }
+  .d2-bar-fill { height: 100%; background: var(--primary); border-radius: 4px; }
+  .d2-card.disabled-card .d2-bar-fill { background: #ccc; }
+  .d2-pts { font-size: 11px; color: var(--text5); margin-bottom: 6px; }
+  .d2-odds { font-size: 14px; font-weight: 800; color: #C2410C; }
+  .d2-card.selected .d2-odds { color: var(--primary); }
+
+  /* 상세 선택지 — 다지선다 */
+  .detail-multi { padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .dm-row { display: flex; align-items: center; gap: 10px; border: 2px solid var(--border); border-radius: 12px; padding: 12px 14px; cursor: pointer; transition: all .15s; }
+  .dm-row:hover { border-color: var(--primary); }
+  .dm-row.selected { border-color: var(--primary); background: #EFF6FF; }
+  .dm-row.disabled-row { opacity: .4; background: var(--bg2); cursor: not-allowed; }
+  .dm-rank { width: 22px; font-size: 13px; font-weight: 800; color: var(--text5); flex-shrink: 0; text-align: center; }
+  .dm-info { flex: 1; }
+  .dm-name { font-size: 14px; font-weight: 700; color: var(--text1); margin-bottom: 5px; }
+  .dm-bar { height: 5px; background: #E5E7EB; border-radius: 3px; overflow: hidden; margin-bottom: 4px; }
+  .dm-bar-fill { height: 100%; background: var(--primary); border-radius: 3px; }
+  .dm-row.disabled-row .dm-bar-fill { background: #ccc; }
+  .dm-pts { font-size: 11px; color: var(--text5); }
+  .dm-odds-wrap { text-align: right; flex-shrink: 0; }
+  .dm-odds { font-size: 14px; font-weight: 800; color: #C2410C; display: block; }
+  .dm-row.selected .dm-odds { color: var(--primary); }
+  .dm-pct { font-size: 10px; color: var(--text5); }
+
+  /* 내 예측 박스 */
+  .my-pred-box { margin: 0 16px 12px; background: #F0FDF4; border: 1px solid #86EFAC; border-radius: 10px; padding: 10px 14px; font-size: 13px; color: var(--success); font-weight: 600; }
+  /* 경고 박스 */
+  .warn-box { margin: 0 16px 12px; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px; padding: 9px 12px; font-size: 11px; color: #92400E; line-height: 1.5; }
+
+  /* 하단 CTA */
+  .bottom-cta { padding: 12px 16px; border-top: 1px solid var(--border); background: white; flex-shrink: 0; }
+  .bc-btn { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; }
+  .bc-btn:disabled { background: var(--bg2); color: var(--text5); cursor: not-allowed; }
+  .bc-hint { text-align: center; font-size: 12px; color: var(--text5); margin-top: 6px; }
+
+  /* 바텀시트 */
+  .bso { position: absolute; inset: 0; background: rgba(0,0,0,.4); z-index: 100; display: none; align-items: flex-end; }
+  .bso.open { display: flex; }
+  .bs { width: 100%; background: white; border-radius: 20px 20px 0 0; padding: 16px; animation: su .25s ease; }
+  @keyframes su { from{transform:translateY(100%)} to{transform:translateY(0)} }
+  .bs-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 14px; }
+  .bs-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+  .bs-title { font-size: 15px; font-weight: 800; color: var(--text1); }
+  .bs-odds-tag { background: #DBEAFE; border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 800; color: var(--primary); }
+  .bs-sub { font-size: 12px; color: var(--text5); margin-bottom: 2px; }
+  .bs-note { font-size: 11px; color: #C2410C; margin-bottom: 10px; }
+  .bs-bal { text-align: right; font-size: 12px; color: var(--text5); margin-bottom: 6px; }
+  .bs-bal strong { color: var(--text1); }
+  .bs-amt { text-align: center; font-size: 32px; font-weight: 800; color: var(--primary); margin: 2px 0 4px; }
+  .bs-amt span { font-size: 16px; font-weight: 600; }
+  .bs-est { text-align: center; font-size: 12px; color: var(--text5); margin-bottom: 10px; }
+  .bs-est strong { color: var(--success); font-weight: 800; }
+  .qbtns { display: flex; gap: 8px; margin-bottom: 12px; }
+  .qbtn { flex: 1; padding: 8px 0; border: 1.5px solid var(--border); border-radius: 8px; font-size: 13px; font-weight: 700; color: var(--primary); background: white; cursor: pointer; text-align: center; }
+  .qbtn:hover { background: #EFF6FF; border-color: var(--primary); }
+  .qbtn.max { color: var(--navy); border-color: var(--navy); }
+  .cfm-btn { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; }
+  .cfm-btn:disabled { background: var(--bg2); color: var(--text5); cursor: not-allowed; }
+
+  /* 모달 */
+  .mdo { position: absolute; inset: 0; background: rgba(0,0,0,.5); z-index: 200; display: none; align-items: center; justify-content: center; padding: 24px; }
+  .mdo.open { display: flex; }
+  .md { background: white; border-radius: 16px; padding: 24px 20px 20px; width: 100%; text-align: center; }
+  .md-title { font-size: 16px; font-weight: 800; margin-bottom: 8px; }
+  .md-sub { font-size: 13px; color: var(--text5); margin-bottom: 4px; }
+  .md-odds { font-size: 12px; color: var(--primary); font-weight: 700; margin-bottom: 20px; }
+  .md-btns { display: flex; gap: 8px; }
+  .md-cancel { flex: 1; padding: 12px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 14px; font-weight: 700; color: var(--text3); background: white; cursor: pointer; }
+  .md-confirm { flex: 2; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 800; cursor: pointer; }
+
+  /* 토스트 */
+  .toast { position: absolute; bottom: 80px; left: 16px; right: 16px; background: var(--navy); color: white; border-radius: 10px; padding: 12px 16px; font-size: 13px; font-weight: 600; z-index: 300; display: none; animation: fio 2.2s ease forwards; }
+  @keyframes fio { 0%{opacity:0;transform:translateY(8px)} 15%{opacity:1;transform:translateY(0)} 75%{opacity:1} 100%{opacity:0} }
+
+  /* 탭 공통 */
+  .tab-bar { display: flex; border-bottom: 2px solid var(--border); background: white; flex-shrink: 0; }
+  .tab-item { flex: 1; text-align: center; padding: 12px 0; font-size: 14px; font-weight: 600; color: var(--text5); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all .15s; }
+  .tab-item.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 800; }
+  .tca { display: none; }
+  .tca.active { display: block; }
+
+  /* 랭킹 */
+  .ri { display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); gap: 12px; }
+  .ri-num { width: 28px; text-align: center; font-size: 14px; font-weight: 800; color: var(--text5); }
+  .ri-num.top { font-size: 18px; }
+  .ri-av { width: 36px; height: 36px; border-radius: 50%; background: var(--bg2); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .ri-info { flex: 1; }
+  .ri-nick { font-size: 14px; font-weight: 700; color: var(--text1); }
+  .ri-team { font-size: 11px; color: var(--text5); }
+  .ri-val { font-size: 14px; font-weight: 800; color: var(--primary); }
+  .rank-my { position: sticky; bottom: 0; background: white; border-top: 2px solid var(--primary); padding: 12px 16px; display: flex; align-items: center; gap: 12px; }
+
+  /* 히스토리 */
+  .hi { display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); gap: 12px; cursor: pointer; }
+  .hi-ico { width: 40px; height: 40px; border-radius: 10px; background: var(--bg2); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .hi-info { flex: 1; }
+  .hi-title { font-size: 14px; font-weight: 700; color: var(--text1); }
+  .hi-sub { font-size: 12px; color: var(--text5); margin-top: 2px; }
+  .hi-right { text-align: right; }
+  .hi-amt { font-size: 14px; font-weight: 800; }
+  .hi-amt.plus { color: var(--success); }
+  .hi-amt.minus { color: var(--danger); }
+  .hi-amt.neutral { color: var(--text3); }
+  .sbadge { display: inline-block; font-size: 10px; font-weight: 700; border-radius: 4px; padding: 2px 6px; margin-top: 3px; }
+  .b-on { background: #EFF6FF; color: var(--primary); }
+  .b-cnt { background: #FFF7ED; color: #C2410C; }
+  .b-hit { background: #F0FDF4; color: var(--success); }
+  .b-mis { background: #FEF2F2; color: var(--danger); }
+
+  /* 마이 */
+  .my-sec { padding: 16px; border-bottom: 1px solid var(--border); }
+  .my-sec-title { font-size: 12px; font-weight: 700; color: var(--text5); margin-bottom: 12px; text-transform: uppercase; letter-spacing: .05em; }
+  .wgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .wcard { background: var(--bg2); border-radius: 10px; padding: 12px 8px; text-align: center; cursor: pointer; }
+  .wcard-ico { font-size: 20px; margin-bottom: 4px; }
+  .wcard-lbl { font-size: 10px; color: var(--text5); margin-bottom: 2px; }
+  .wcard-val { font-size: 14px; font-weight: 800; color: var(--text1); }
+  .act-list { display: flex; flex-direction: column; }
+  .act-item { display: flex; justify-content: space-between; align-items: center; padding: 11px 0; border-bottom: 1px solid var(--border); cursor: pointer; }
+  .act-item:last-child { border-bottom: none; }
+  .act-lbl { font-size: 14px; color: var(--text1); font-weight: 600; }
+  .act-val { font-size: 13px; color: var(--text5); display: flex; align-items: center; gap: 4px; }
+  .act-val svg { width: 16px; height: 16px; }
+
+  /* 포인트 내역 */
+  .ldg-sum { background: var(--bg2); padding: 16px; display: flex; gap: 10px; border-bottom: 1px solid var(--border); }
+  .ldg-card { flex: 1; background: white; border-radius: 10px; padding: 10px; text-align: center; }
+  .ldg-lbl { font-size: 11px; color: var(--text5); margin-bottom: 3px; }
+  .ldg-val { font-size: 15px; font-weight: 800; }
+  .ldg-val.plus { color: var(--success); }
+  .ldg-val.minus { color: var(--danger); }
+  .ldg-val.hold { color: var(--primary); }
+  .ldg-item { display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); gap: 12px; }
+  .ldg-ico { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .ldg-ico.earn { background: #F0FDF4; }
+  .ldg-ico.spend { background: #FEF2F2; }
+  .ldg-info { flex: 1; }
+  .ldg-title { font-size: 13px; font-weight: 700; color: var(--text1); }
+  .ldg-date { font-size: 11px; color: var(--text5); margin-top: 2px; }
+  .ldg-amt { font-size: 14px; font-weight: 800; }
+
+  /* 바텀 네비 */
+  .bnav { height: 60px; display: flex; border-top: 1px solid var(--border); background: white; flex-shrink: 0; }
+  .ni { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer; position: relative; }
+  .ni.active .ni-ico { color: var(--primary); }
+  .ni.active .ni-lbl { color: var(--primary); font-weight: 700; }
+  .ni-ico { font-size: 20px; color: var(--text5); }
+  .ni-lbl { font-size: 10px; color: var(--text5); font-weight: 500; }
+  .ni.active::after { content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:24px; height:2px; background:var(--primary); border-radius:1px; }
+
+  /* 디테일 시장 상태 안내 */
+  .detail-type-note { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 16px 10px; font-size: 11px; color: var(--text5); }
+  .dtn-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); }
+  .dtn-dot.active { background: var(--primary); }
+</style>
+</head>
+<body>
+
+<div class="page-title">폴리볼 포인트예측 — 인터랙티브 프로토타입 v3</div>
+<div class="screen-nav">
+  <button class="active" onclick="showScreen('pz01')">PZ-01 메인</button>
+  <button onclick="showScreen('pz02a')">PZ-02A 2지선다 상세</button>
+  <button onclick="showScreen('pz02b')">PZ-02B 다지선다 상세</button>
+  <button onclick="showScreen('pz03')">PZ-03 랭킹</button>
+  <button onclick="showScreen('pk13')">PK-13 히스토리</button>
+  <button onclick="showScreen('my01')">MY-01 마이</button>
+  <button onclick="showScreen('my08')">MY-08 포인트내역</button>
+</div>
+
+<div class="device">
+<div class="statusbar" id="statusbar"><span>9:41</span><span>●●●</span></div>
+
+<!-- ═══════════ PZ-01 메인 ═══════════ -->
+<div class="screen active" id="screen-pz01">
+  <div class="gnb">
+    <div class="gnb-title">포인트예측</div>
+    <div class="gnb-icons">
+      <div class="gnb-icon" onclick="showScreen('pz03')">🏆</div>
+      <div class="gnb-icon">🔔</div>
+    </div>
+  </div>
+  <div class="scroll-area">
+    <div class="point-banner">
+      <div><div class="point-banner-label">내 포인트</div><div class="point-banner-value">12,800p</div></div>
+      <div class="point-banner-right" onclick="showScreen('my08')">내역 보기 →</div>
+    </div>
+
+    <!-- ⚽ 축구 -->
+    <div class="section-title">⚽ 축구</div>
+
+    <!-- 경기 승부예측 카드: K리그 오늘 경기 (3지선다) -->
+    <div class="market-card" onclick="showScreen('pz02a')">
+      <div class="mc-top">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
+            <span class="match-badge">⚽ 승부예측</span>
+            <span style="font-size:11px;color:var(--text5)">K리그 · 4R</span>
+          </div>
+          <div class="match-scoreboard">
+            <div class="match-team">
+              <div class="match-team-name">전북 현대</div>
+              <div class="match-team-icon">🦁</div>
+            </div>
+            <div class="match-center">
+              <div class="match-time">오후 7:00</div>
+              <div class="match-date">04.22(화)</div>
+            </div>
+            <div class="match-team right">
+              <div class="match-team-icon">🐯</div>
+              <div class="match-team-name">울산 HD</div>
+            </div>
+          </div>
+        </div>
+        <div class="mc-timer urgent">1H 32분 후 마감</div>
+      </div>
+      <!-- 3지선다 pill -->
+      <div class="choices-3col">
+        <div class="choice-pill-3 selected">
+          <div class="cp3-label">전북 승</div>
+          <div class="cp3-pts">38,400p</div>
+          <div class="cp3-odds">예상 2.11배</div>
+        </div>
+        <div class="choice-pill-3 disabled">
+          <div class="cp3-label">무승부</div>
+          <div class="cp3-pts">18,200p</div>
+          <div class="cp3-odds">예상 4.45배</div>
+        </div>
+        <div class="choice-pill-3 disabled">
+          <div class="cp3-label">울산 승</div>
+          <div class="cp3-pts">23,400p</div>
+          <div class="cp3-odds">예상 3.46배</div>
+        </div>
+      </div>
+      <div class="mc-footer"><span>👥 521명</span><span>💰 총 80,000p</span></div>
+      <div class="chosen-badge">✓ 전북 승 예측 · 200p</div>
+    </div>
+
+    <!-- 경기 승부예측 카드: K리그 내일 경기 (미참여) -->
+    <div class="market-card" onclick="showScreen('pz02a')">
+      <div class="mc-top">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
+            <span class="match-badge">⚽ 승부예측</span>
+            <span style="font-size:11px;color:var(--text5)">K리그 · 4R</span>
+          </div>
+          <div class="match-scoreboard">
+            <div class="match-team">
+              <div class="match-team-name">수원 삼성</div>
+              <div class="match-team-icon">🔵</div>
+            </div>
+            <div class="match-center">
+              <div class="match-time">오후 6:30</div>
+              <div class="match-date">04.23(수)</div>
+            </div>
+            <div class="match-team right">
+              <div class="match-team-icon">🌊</div>
+              <div class="match-team-name">포항 스틸러스</div>
+            </div>
+          </div>
+        </div>
+        <div class="mc-timer">22H 후 마감</div>
+      </div>
+      <div class="choices-3col">
+        <div class="choice-pill-3">
+          <div class="cp3-label">수원 승</div>
+          <div class="cp3-pts">12,600p</div>
+          <div class="cp3-odds">예상 3.21배</div>
+        </div>
+        <div class="choice-pill-3">
+          <div class="cp3-label">무승부</div>
+          <div class="cp3-pts">9,800p</div>
+          <div class="cp3-odds">예상 4.13배</div>
+        </div>
+        <div class="choice-pill-3">
+          <div class="cp3-label">포항 승</div>
+          <div class="cp3-pts">19,600p</div>
+          <div class="cp3-odds">예상 2.07배</div>
+        </div>
+      </div>
+      <div class="mc-footer"><span>👥 184명</span><span>💰 총 42,000p</span></div>
+    </div>
+
+    <!-- 2지선다 카드: K리그 -->
+    <div class="market-card" onclick="showScreen('pz02a')">
+      <div class="mc-top">
+        <div class="mc-title">2026 K리그 1라운드 우승팀은?</div>
+        <div class="mc-timer urgent">2H 14분 후 마감</div>
+      </div>
+      <div class="choices-2col">
+        <div class="choice-pill-2">
+          <div class="cp2-name">🦁 전북 현대</div>
+          <div class="cp2-pts">52,204p</div>
+          <div class="cp2-odds">예상 1.45배</div>
+        </div>
+        <div class="choice-pill-2">
+          <div class="cp2-name">🐯 울산 HD</div>
+          <div class="cp2-pts">31,996p</div>
+          <div class="cp2-odds">예상 2.37배</div>
+        </div>
+      </div>
+      <div class="mc-footer"><span>👥 347명</span><span>💰 총 84,200p</span></div>
+    </div>
+
+    <!-- 2지선다 카드: EPL (이미 예측) -->
+    <div class="market-card" onclick="showScreen('pz02a')">
+      <div class="mc-top">
+        <div class="mc-title">EPL 이번 시즌 득점왕은?</div>
+        <div class="mc-timer">6일 후 마감</div>
+      </div>
+      <div class="choices-2col">
+        <div class="choice-pill-2 selected">
+          <div class="cp2-name">🔴 살라</div>
+          <div class="cp2-pts">85,200p</div>
+          <div class="cp2-odds">예상 1.27배</div>
+        </div>
+        <div class="choice-pill-2 disabled">
+          <div class="cp2-name">🔵 홀란</div>
+          <div class="cp2-pts">34,800p</div>
+          <div class="cp2-odds">예상 3.10배</div>
+        </div>
+      </div>
+      <div class="mc-footer"><span>👥 1,204명</span><span>💰 총 120,000p</span></div>
+      <div class="chosen-badge">✓ 살라 예측 · 500p</div>
+    </div>
+
+    <!-- 다지선다 카드: K리그 우승팀 (여러팀) -->
+    <div class="market-card" onclick="showScreen('pz02b')">
+      <div class="mc-top">
+        <div class="mc-title">2026 K리그 시즌 우승팀은?</div>
+        <div class="mc-timer">144일 후 마감</div>
+      </div>
+      <!-- 상위 3개만 미리보기 -->
+      <div class="choices-multi">
+        <div class="choice-row-m selected">
+          <div class="crm-name">🦁 전북 현대</div>
+          <div class="crm-bar-wrap">
+            <div class="crm-bar"><div class="crm-bar-fill" style="width:38%"></div></div>
+            <div class="crm-pts">152,000p</div>
+          </div>
+          <div class="crm-odds">예상 2.13배</div>
+        </div>
+        <div class="choice-row-m disabled">
+          <div class="crm-name">🐯 울산 HD</div>
+          <div class="crm-bar-wrap">
+            <div class="crm-bar"><div class="crm-bar-fill" style="width:29%"></div></div>
+            <div class="crm-pts">116,000p</div>
+          </div>
+          <div class="crm-odds">예상 2.79배</div>
+        </div>
+        <div class="choice-row-m disabled">
+          <div class="crm-name">🔵 수원 삼성</div>
+          <div class="crm-bar-wrap">
+            <div class="crm-bar"><div class="crm-bar-fill" style="width:18%"></div></div>
+            <div class="crm-pts">72,000p</div>
+          </div>
+          <div class="crm-odds">예상 4.49배</div>
+        </div>
+      </div>
+      <div class="more-choices-btn" onclick="event.stopPropagation();showScreen('pz02b')">
+        ＋ 7개 선택지 더보기
+      </div>
+      <div class="mc-footer" style="margin-top:8px"><span>👥 2,841명</span><span>💰 총 400,000p</span></div>
+      <div class="chosen-badge">✓ 전북 현대 예측 · 1,000p</div>
+    </div>
+
+    <!-- 🏀 KBL -->
+    <div class="section-title">🏀 농구 (KBL)</div>
+
+    <!-- 경기 승부예측 카드: KBL 오늘 경기 (2지선다) -->
+    <div class="market-card" onclick="showScreen('pz02a')">
+      <div class="mc-top">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
+            <span class="match-badge" style="background:#FFF7ED;color:#C2410C;border-color:#FDE68A">🏀 승부예측</span>
+            <span style="font-size:11px;color:var(--text5)">KBL · 플레이오프 3차전</span>
+          </div>
+          <div class="match-scoreboard">
+            <div class="match-team">
+              <div class="match-team-name">서울 SK</div>
+              <div class="match-team-icon">🦅</div>
+            </div>
+            <div class="match-center">
+              <div class="match-time">오후 7:00</div>
+              <div class="match-date">04.22(화)</div>
+            </div>
+            <div class="match-team right">
+              <div class="match-team-icon">🐘</div>
+              <div class="match-team-name">원주 DB</div>
+            </div>
+          </div>
+        </div>
+        <div class="mc-timer urgent">2H 05분 후 마감</div>
+      </div>
+      <!-- KBL은 무승부 없음 → 2지선다 -->
+      <div class="choices-2col">
+        <div class="choice-pill-2">
+          <div class="cp2-name">🦅 서울 SK 승</div>
+          <div class="cp2-pts">44,100p</div>
+          <div class="cp2-odds">예상 1.84배</div>
+        </div>
+        <div class="choice-pill-2">
+          <div class="cp2-name">🐘 원주 DB 승</div>
+          <div class="cp2-pts">27,900p</div>
+          <div class="cp2-odds">예상 2.90배</div>
+        </div>
+      </div>
+      <div class="mc-footer"><span>👥 296명</span><span>💰 총 72,000p</span></div>
+    </div>
+
+    <!-- 경기 승부예측: KBL 내일 경기 -->
+    <div class="market-card" onclick="showScreen('pz02a')">
+      <div class="mc-top">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
+            <span class="match-badge" style="background:#FFF7ED;color:#C2410C;border-color:#FDE68A">🏀 승부예측</span>
+            <span style="font-size:11px;color:var(--text5)">KBL · 정규시즌</span>
+          </div>
+          <div class="match-scoreboard">
+            <div class="match-team">
+              <div class="match-team-name">전주 KCC</div>
+              <div class="match-team-icon">🔥</div>
+            </div>
+            <div class="match-center">
+              <div class="match-time">오후 6:00</div>
+              <div class="match-date">04.23(수)</div>
+            </div>
+            <div class="match-team right">
+              <div class="match-team-icon">⭐</div>
+              <div class="match-team-name">고양 소노</div>
+            </div>
+          </div>
+        </div>
+        <div class="mc-timer">23H 후 마감</div>
+      </div>
+      <div class="choices-2col">
+        <div class="choice-pill-2 selected">
+          <div class="cp2-name">🔥 전주 KCC 승</div>
+          <div class="cp2-pts">18,900p</div>
+          <div class="cp2-odds">예상 2.14배</div>
+        </div>
+        <div class="choice-pill-2 disabled">
+          <div class="cp2-name">⭐ 고양 소노 승</div>
+          <div class="cp2-pts">11,100p</div>
+          <div class="cp2-odds">예상 3.65배</div>
+        </div>
+      </div>
+      <div class="mc-footer"><span>👥 141명</span><span>💰 총 30,000p</span></div>
+      <div class="chosen-badge">✓ 전주 KCC 승 예측 · 100p</div>
+    </div>
+
+    <!-- 마켓: KBL 플레이오프 우승팀 -->
+    <div class="market-card" onclick="showScreen('pz02a')">
+      <div class="mc-top">
+        <div class="mc-title">KBL 플레이오프 2026 우승팀은?</div>
+        <div class="mc-timer">4일 후 마감</div>
+      </div>
+      <div class="choices-2col">
+        <div class="choice-pill-2">
+          <div class="cp2-name">🦅 서울 SK</div>
+          <div class="cp2-pts">38,700p</div>
+          <div class="cp2-odds">예상 1.62배</div>
+        </div>
+        <div class="choice-pill-2">
+          <div class="cp2-name">🐘 원주 DB</div>
+          <div class="cp2-pts">23,300p</div>
+          <div class="cp2-odds">예상 2.68배</div>
+        </div>
+      </div>
+      <div class="mc-footer"><span>👥 218명</span><span>💰 총 62,000p</span></div>
+    </div>
+
+    <!-- KBL 다지선다 -->
+    <div class="market-card" onclick="showScreen('pz02b')">
+      <div class="mc-top">
+        <div class="mc-title">KBL 2025-26 시즌 우승팀은?</div>
+        <div class="mc-timer">12일 후 마감</div>
+      </div>
+      <div class="choices-multi">
+        <div class="choice-row-m">
+          <div class="crm-name">🦅 서울 SK</div>
+          <div class="crm-bar-wrap">
+            <div class="crm-bar"><div class="crm-bar-fill" style="width:35%"></div></div>
+            <div class="crm-pts">52,500p</div>
+          </div>
+          <div class="crm-odds">예상 2.31배</div>
+        </div>
+        <div class="choice-row-m">
+          <div class="crm-name">🐘 원주 DB</div>
+          <div class="crm-bar-wrap">
+            <div class="crm-bar"><div class="crm-bar-fill" style="width:28%"></div></div>
+            <div class="crm-pts">42,000p</div>
+          </div>
+          <div class="crm-odds">예상 2.89배</div>
+        </div>
+        <div class="choice-row-m">
+          <div class="crm-name">🔥 전주 KCC</div>
+          <div class="crm-bar-wrap">
+            <div class="crm-bar"><div class="crm-bar-fill" style="width:22%"></div></div>
+            <div class="crm-pts">33,000p</div>
+          </div>
+          <div class="crm-odds">예상 3.68배</div>
+        </div>
+      </div>
+      <div class="more-choices-btn" onclick="event.stopPropagation();showScreen('pz02b')">＋ 7개 선택지 더보기</div>
+      <div class="mc-footer" style="margin-top:8px"><span>👥 512명</span><span>💰 총 150,000p</span></div>
+    </div>
+
+    <!-- 🎮 E스포츠 -->
+    <div class="section-title">🎮 E스포츠</div>
+    <div class="market-card" onclick="showScreen('pz02b')">
+      <div class="mc-top">
+        <div class="mc-title">LCK 스프링 2026 우승팀은?</div>
+        <div class="mc-timer">3일 후 마감</div>
+      </div>
+      <div class="choices-multi">
+        <div class="choice-row-m">
+          <div class="crm-name">⚔️ T1</div>
+          <div class="crm-bar-wrap">
+            <div class="crm-bar"><div class="crm-bar-fill" style="width:48%"></div></div>
+            <div class="crm-pts">106,400p</div>
+          </div>
+          <div class="crm-odds">예상 1.87배</div>
+        </div>
+        <div class="choice-row-m">
+          <div class="crm-name">🌸 젠지</div>
+          <div class="crm-bar-wrap">
+            <div class="crm-bar"><div class="crm-bar-fill" style="width:52%"></div></div>
+            <div class="crm-pts">114,600p</div>
+          </div>
+          <div class="crm-odds">예상 1.74배</div>
+        </div>
+      </div>
+      <div class="more-choices-btn" onclick="event.stopPropagation();showScreen('pz02b')">＋ 6개 선택지 더보기</div>
+      <div class="mc-footer" style="margin-top:8px"><span>👥 892명</span><span>💰 총 221,000p</span></div>
+    </div>
+
+    <!-- 마감 -->
+    <div class="section-title" style="color:#bbb">마감된 마켓</div>
+    <div class="market-card closed">
+      <div class="mc-top">
+        <div class="mc-title">K리그 개막전 MVP</div>
+        <div class="closed-badge">집계 중</div>
+      </div>
+      <div class="choices-2col">
+        <div class="choice-pill-2 disabled"><div class="cp2-name">이동준</div><div class="cp2-pts">27,500p</div><div class="cp2-odds" style="background:var(--bg2);color:var(--text5)">—</div></div>
+        <div class="choice-pill-2 disabled"><div class="cp2-name">엄원상</div><div class="cp2-pts">22,500p</div><div class="cp2-odds" style="background:var(--bg2);color:var(--text5)">—</div></div>
+      </div>
+      <div class="mc-footer"><span>💰 총 50,000p</span></div>
+    </div>
+
+    <div style="height:16px"></div>
+  </div>
+  <div class="bnav">
+    <div class="ni"><div class="ni-ico">⚾</div><div class="ni-lbl">승부예측</div></div>
+    <div class="ni"><div class="ni-ico">🎟</div><div class="ni-lbl">응모</div></div>
+    <div class="ni active"><div class="ni-ico">💎</div><div class="ni-lbl">포인트예측</div></div>
+    <div class="ni"><div class="ni-ico">💬</div><div class="ni-lbl">커뮤니티</div></div>
+    <div class="ni" onclick="showScreen('my01')"><div class="ni-ico">👤</div><div class="ni-lbl">마이</div></div>
+  </div>
+</div>
+
+<!-- ═══════════ PZ-02A 마켓 상세 (2지선다) ═══════════ -->
+<div class="screen" id="screen-pz02a">
+  <div class="gnb">
+    <div class="gnb-back" onclick="showScreen('pz01')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></div>
+    <div class="gnb-center">⚽ 축구</div>
+    <div class="gnb-icon">🔗</div>
+  </div>
+  <div class="market-type-tab">
+    <button class="mtt-btn active">2지선다 예시</button>
+    <button class="mtt-btn" onclick="showScreen('pz02b')">다지선다 예시 →</button>
+  </div>
+  <div class="scroll-area">
+    <div class="detail-header">
+      <div class="detail-cat">⚽ 축구 · K리그</div>
+      <div class="detail-title">2026 K리그 1라운드 우승팀은?</div>
+      <div class="detail-meta">
+        <div class="dmi">⏱ <strong>2H 14분 후 마감</strong></div>
+        <div class="dmi">👥 <strong>347명</strong></div>
+        <div class="dmi">💰 총 <strong>84,200p</strong></div>
+      </div>
+    </div>
+
+    <div class="detail-2col">
+      <!-- A: 선택됨 -->
+      <div class="d2-card selected">
+        <div class="d2-name">🦁 전북 현대</div>
+        <div class="d2-bar"><div class="d2-bar-fill" style="width:62%"></div></div>
+        <div class="d2-pts">52,204p 참여 (62%)</div>
+        <div class="d2-odds">예상 1.45배</div>
+        <div style="font-size:10px;color:var(--primary);margin-top:6px;font-weight:700">✓ 500p 투입</div>
+      </div>
+      <!-- B: 비활성 -->
+      <div class="d2-card disabled-card">
+        <div class="d2-name">🐯 울산 HD</div>
+        <div class="d2-bar"><div class="d2-bar-fill" style="width:38%;background:#ccc"></div></div>
+        <div class="d2-pts">31,996p 참여 (38%)</div>
+        <div class="d2-odds" style="color:var(--text5)">예상 2.37배</div>
+      </div>
+    </div>
+
+    <div class="my-pred-box">내 예측: 전북 현대 · 500p 투입 → 적중 시 예상 725p</div>
+    <div class="warn-box">⚡ 예상 배당률은 현재 참여 포인트 기준이며, 마감 전까지 변동될 수 있어요. Rake 10% 적용 후 산출됩니다.</div>
+  </div>
+  <div class="bottom-cta">
+    <button class="bc-btn" onclick="openSheet('a')">추가 예측하기</button>
+    <div class="bc-hint">보유 12,800p · 최대 3,000p 예측 가능</div>
+  </div>
+
+  <!-- 바텀시트 -->
+  <div class="bso" id="sheet-a" onclick="closeSheetA(event)">
+    <div class="bs">
+      <div class="bs-handle"></div>
+      <div class="bs-head">
+        <div><div class="bs-title">🦁 전북 현대 추가 예측</div></div>
+        <div class="bs-odds-tag" id="odds-tag-a">현재 1.45배</div>
+      </div>
+      <div class="bs-sub">현재 52,204p 참여 중</div>
+      <div class="bs-note">※ 추가 예측 시 배당률이 변동될 수 있어요.</div>
+      <div class="bs-bal">보유 <strong>12,800p</strong> · 최대 <strong>3,000p</strong></div>
+      <div class="bs-amt" id="amt-a">0<span>p</span></div>
+      <div class="bs-est" id="est-a">예상 수령 <strong>—</strong></div>
+      <div class="qbtns">
+        <button class="qbtn" onclick="addPt('a',10)">+10</button>
+        <button class="qbtn" onclick="addPt('a',100)">+100</button>
+        <button class="qbtn" onclick="addPt('a',1000)">+1,000</button>
+        <button class="qbtn max" onclick="setMax('a')">MAX</button>
+      </div>
+      <button class="cfm-btn" id="cfm-a" onclick="openMd('a')" disabled>예측 확정하기</button>
+    </div>
+  </div>
+  <div class="mdo" id="modal-a">
+    <div class="md">
+      <div class="md-title">전북 현대에 <span id="ma-amt">0p</span>를 예측할까요?</div>
+      <div class="md-sub">한 번 확정하면 취소할 수 없어요.</div>
+      <div class="md-odds" id="ma-odds">적중 시 예상 수령: —</div>
+      <div class="md-btns">
+        <button class="md-cancel" onclick="closeMd('a')">다시 볼게요</button>
+        <button class="md-confirm" onclick="confirmBet('a')">확정하기</button>
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast-a"></div>
+
+  <div class="bnav">
+    <div class="ni"><div class="ni-ico">⚾</div><div class="ni-lbl">승부예측</div></div>
+    <div class="ni"><div class="ni-ico">🎟</div><div class="ni-lbl">응모</div></div>
+    <div class="ni active"><div class="ni-ico">💎</div><div class="ni-lbl">포인트예측</div></div>
+    <div class="ni"><div class="ni-ico">💬</div><div class="ni-lbl">커뮤니티</div></div>
+    <div class="ni" onclick="showScreen('my01')"><div class="ni-ico">👤</div><div class="ni-lbl">마이</div></div>
+  </div>
+</div>
+
+<!-- ═══════════ PZ-02B 마켓 상세 (다지선다) ═══════════ -->
+<div class="screen" id="screen-pz02b">
+  <div class="gnb">
+    <div class="gnb-back" onclick="showScreen('pz01')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></div>
+    <div class="gnb-center">⚽ 축구</div>
+    <div class="gnb-icon">🔗</div>
+  </div>
+  <div class="market-type-tab">
+    <button class="mtt-btn" onclick="showScreen('pz02a')">← 2지선다 예시</button>
+    <button class="mtt-btn active">다지선다 예시</button>
+  </div>
+  <div class="scroll-area">
+    <div class="detail-header">
+      <div class="detail-cat">⚽ 축구 · K리그 · 시즌</div>
+      <div class="detail-title">2026 K리그 시즌 우승팀은?</div>
+      <div class="detail-meta">
+        <div class="dmi">⏱ <strong>144일 후 마감</strong></div>
+        <div class="dmi">👥 <strong>2,841명</strong></div>
+        <div class="dmi">💰 총 <strong>400,000p</strong></div>
+      </div>
+    </div>
+
+    <!-- 다지선다 선택지 전체 (선택: 전북 현대) -->
+    <div class="detail-multi">
+      <div class="dm-row selected">
+        <div class="dm-rank">1</div>
+        <div class="dm-info">
+          <div class="dm-name">🦁 전북 현대</div>
+          <div class="dm-bar"><div class="dm-bar-fill" style="width:38%"></div></div>
+          <div class="dm-pts">152,000p (38%) · ✓ 1,000p 투입</div>
+        </div>
+        <div class="dm-odds-wrap"><div class="dm-odds">2.13배</div><div class="dm-pct">예상배당</div></div>
+      </div>
+      <div class="dm-row disabled-row">
+        <div class="dm-rank">2</div>
+        <div class="dm-info">
+          <div class="dm-name">🐯 울산 HD</div>
+          <div class="dm-bar"><div class="dm-bar-fill" style="width:29%;background:#ccc"></div></div>
+          <div class="dm-pts">116,000p (29%)</div>
+        </div>
+        <div class="dm-odds-wrap"><div class="dm-odds" style="color:var(--text5)">2.79배</div><div class="dm-pct">예상배당</div></div>
+      </div>
+      <div class="dm-row disabled-row">
+        <div class="dm-rank">3</div>
+        <div class="dm-info">
+          <div class="dm-name">🔵 수원 삼성</div>
+          <div class="dm-bar"><div class="dm-bar-fill" style="width:18%;background:#ccc"></div></div>
+          <div class="dm-pts">72,000p (18%)</div>
+        </div>
+        <div class="dm-odds-wrap"><div class="dm-odds" style="color:var(--text5)">4.49배</div><div class="dm-pct">예상배당</div></div>
+      </div>
+      <div class="dm-row disabled-row">
+        <div class="dm-rank">4</div>
+        <div class="dm-info">
+          <div class="dm-name">🌊 포항 스틸러스</div>
+          <div class="dm-bar"><div class="dm-bar-fill" style="width:9%;background:#ccc"></div></div>
+          <div class="dm-pts">36,000p (9%)</div>
+        </div>
+        <div class="dm-odds-wrap"><div class="dm-odds" style="color:var(--text5)">8.97배</div><div class="dm-pct">예상배당</div></div>
+      </div>
+      <div class="dm-row disabled-row">
+        <div class="dm-rank">5</div>
+        <div class="dm-info">
+          <div class="dm-name">⚡ 인천 유나이티드</div>
+          <div class="dm-bar"><div class="dm-bar-fill" style="width:4%;background:#ccc"></div></div>
+          <div class="dm-pts">16,000p (4%)</div>
+        </div>
+        <div class="dm-odds-wrap"><div class="dm-odds" style="color:var(--text5)">20.25배</div><div class="dm-pct">예상배당</div></div>
+      </div>
+      <div class="dm-row disabled-row">
+        <div class="dm-rank">6</div>
+        <div class="dm-info">
+          <div class="dm-name">🔴 성남 FC</div>
+          <div class="dm-bar"><div class="dm-bar-fill" style="width:2%;background:#ccc"></div></div>
+          <div class="dm-pts">8,000p (2%)</div>
+        </div>
+        <div class="dm-odds-wrap"><div class="dm-odds" style="color:var(--text5)">40.50배</div><div class="dm-pct">예상배당</div></div>
+      </div>
+      <div style="background:var(--bg2);border-radius:10px;padding:10px 14px;font-size:11px;color:var(--text5);text-align:center">+ 4개 팀 더보기 (경기도 FC, 광주 FC, 대전 하나, 제주 유나이티드)</div>
+    </div>
+
+    <div class="my-pred-box">내 예측: 전북 현대 · 1,000p 투입 → 적중 시 예상 2,130p</div>
+    <div class="warn-box">⚡ 예상 배당률은 현재 참여 포인트 기준이며 실시간 변동됩니다. Rake 10% 적용 후 산출됩니다.</div>
+  </div>
+  <div class="bottom-cta">
+    <button class="bc-btn" onclick="openSheet('b')">추가 예측하기</button>
+    <div class="bc-hint">보유 12,800p · 최대 3,000p 예측 가능</div>
+  </div>
+
+  <!-- 바텀시트 B -->
+  <div class="bso" id="sheet-b" onclick="closeSheetB(event)">
+    <div class="bs">
+      <div class="bs-handle"></div>
+      <div class="bs-head">
+        <div><div class="bs-title">🦁 전북 현대 추가 예측</div></div>
+        <div class="bs-odds-tag" id="odds-tag-b">현재 2.13배</div>
+      </div>
+      <div class="bs-sub">현재 152,000p 참여 중 · 전체의 38%</div>
+      <div class="bs-note">※ 추가 예측 시 배당률이 변동될 수 있어요.</div>
+      <div class="bs-bal">보유 <strong>12,800p</strong> · 최대 <strong>3,000p</strong></div>
+      <div class="bs-amt" id="amt-b">0<span>p</span></div>
+      <div class="bs-est" id="est-b">예상 수령 <strong>—</strong></div>
+      <div class="qbtns">
+        <button class="qbtn" onclick="addPt('b',10)">+10</button>
+        <button class="qbtn" onclick="addPt('b',100)">+100</button>
+        <button class="qbtn" onclick="addPt('b',1000)">+1,000</button>
+        <button class="qbtn max" onclick="setMax('b')">MAX</button>
+      </div>
+      <button class="cfm-btn" id="cfm-b" onclick="openMd('b')" disabled>예측 확정하기</button>
+    </div>
+  </div>
+  <div class="mdo" id="modal-b">
+    <div class="md">
+      <div class="md-title">전북 현대에 <span id="mb-amt">0p</span>를 예측할까요?</div>
+      <div class="md-sub">한 번 확정하면 취소할 수 없어요.</div>
+      <div class="md-odds" id="mb-odds">적중 시 예상 수령: —</div>
+      <div class="md-btns">
+        <button class="md-cancel" onclick="closeMd('b')">다시 볼게요</button>
+        <button class="md-confirm" onclick="confirmBet('b')">확정하기</button>
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast-b"></div>
+
+  <div class="bnav">
+    <div class="ni"><div class="ni-ico">⚾</div><div class="ni-lbl">승부예측</div></div>
+    <div class="ni"><div class="ni-ico">🎟</div><div class="ni-lbl">응모</div></div>
+    <div class="ni active"><div class="ni-ico">💎</div><div class="ni-lbl">포인트예측</div></div>
+    <div class="ni"><div class="ni-ico">💬</div><div class="ni-lbl">커뮤니티</div></div>
+    <div class="ni" onclick="showScreen('my01')"><div class="ni-ico">👤</div><div class="ni-lbl">마이</div></div>
+  </div>
+</div>
+
+<!-- ═══════════ PZ-03 랭킹 ═══════════ -->
+<div class="screen" id="screen-pz03">
+  <div class="gnb"><div class="gnb-back" onclick="showScreen('pz01')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></div><div class="gnb-center">랭킹</div><div style="width:40px"></div></div>
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab('rk','kbo',this)">KBO 적중률</div>
+    <div class="tab-item" onclick="switchTab('rk','pt',this)">포인트 보유량</div>
+  </div>
+  <div class="scroll-area" style="position:relative">
+    <div class="tca active" id="rk-kbo">
+      <div style="padding:8px 16px;font-size:11px;color:var(--text5);border-bottom:1px solid var(--border)">100회 이상 예측 유저 기준 · 이번 시즌 KBO</div>
+      <div class="ri"><div class="ri-num top">🥇</div><div class="ri-av">🦁</div><div class="ri-info"><div class="ri-nick">야구왕최강자</div><div class="ri-team">두산 베어스 · 247회</div></div><div class="ri-val">78.5%</div></div>
+      <div class="ri"><div class="ri-num top">🥈</div><div class="ri-av">🐯</div><div class="ri-info"><div class="ri-nick">직관러v</div><div class="ri-team">KIA 타이거즈 · 183회</div></div><div class="ri-val">76.2%</div></div>
+      <div class="ri"><div class="ri-num top">🥉</div><div class="ri-av">⚾</div><div class="ri-info"><div class="ri-nick">predking</div><div class="ri-team">LG 트윈스 · 201회</div></div><div class="ri-val">74.8%</div></div>
+      <div class="ri"><div class="ri-num">4</div><div class="ri-av">🦅</div><div class="ri-info"><div class="ri-nick">홈런홈런</div><div class="ri-team">SSG 랜더스 · 156회</div></div><div class="ri-val">73.1%</div></div>
+      <div class="ri"><div class="ri-num">5</div><div class="ri-av">🔵</div><div class="ri-info"><div class="ri-nick">삼성맨123</div><div class="ri-team">삼성 라이온즈 · 134회</div></div><div class="ri-val">71.4%</div></div>
+      <div style="height:64px"></div>
+    </div>
+    <div class="tca" id="rk-pt">
+      <div style="padding:8px 16px;font-size:11px;color:var(--text5);border-bottom:1px solid var(--border)">현재 보유 포인트 기준</div>
+      <div class="ri"><div class="ri-num top">🥇</div><div class="ri-av">💎</div><div class="ri-info"><div class="ri-nick">포인트부자</div><div class="ri-team">롯데 자이언츠</div></div></div>
+      <div class="ri"><div class="ri-num top">🥈</div><div class="ri-av">⭐</div><div class="ri-info"><div class="ri-nick">예측고수77</div><div class="ri-team">NC 다이노스</div></div></div>
+      <div class="ri"><div class="ri-num top">🥉</div><div class="ri-av">🎯</div><div class="ri-info"><div class="ri-nick">만점예측러</div><div class="ri-team">한화 이글스</div></div></div>
+      <div style="height:64px"></div>
+    </div>
+    <div class="rank-my">
+      <div class="ri-num" style="font-size:13px;font-weight:800;color:var(--primary)">47위</div>
+      <div class="ri-av" style="background:#EFF6FF">😊</div>
+      <div class="ri-info"><div style="font-size:11px;color:var(--text5);font-weight:600">내 순위</div><div class="ri-nick" style="font-size:13px">나는야구팬</div></div>
+      <div class="ri-val" id="my-rank-val">61.2%</div>
+    </div>
+  </div>
+  <div class="bnav"><div class="ni"><div class="ni-ico">⚾</div><div class="ni-lbl">승부예측</div></div><div class="ni"><div class="ni-ico">🎟</div><div class="ni-lbl">응모</div></div><div class="ni active"><div class="ni-ico">💎</div><div class="ni-lbl">포인트예측</div></div><div class="ni"><div class="ni-ico">💬</div><div class="ni-lbl">커뮤니티</div></div><div class="ni" onclick="showScreen('my01')"><div class="ni-ico">👤</div><div class="ni-lbl">마이</div></div></div>
+</div>
+
+<!-- ═══════════ PK-13 히스토리 ═══════════ -->
+<div class="screen" id="screen-pk13">
+  <div class="gnb"><div class="gnb-back" onclick="showScreen('pz01')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></div><div class="gnb-center">예측 히스토리</div><div style="width:40px"></div></div>
+  <div class="tab-bar"><div class="tab-item active" onclick="switchTab('hs','kbo',this)">KBO 예측</div><div class="tab-item" onclick="switchTab('hs','pz',this)">포인트 예측</div></div>
+  <div class="scroll-area">
+    <div class="tca active" id="hs-kbo">
+      <div class="hi"><div class="hi-ico">⚾</div><div class="hi-info"><div class="hi-title">두산 vs LG · 승부예측</div><div class="hi-sub">두산 승리 예측 · 04.21(월)</div></div><div class="hi-right"><div class="hi-amt plus">+1🎟</div><div class="sbadge b-hit">적중</div></div></div>
+      <div class="hi"><div class="hi-ico">⚾</div><div class="hi-info"><div class="hi-title">KIA vs 삼성 · 승부예측</div><div class="hi-sub">KIA 승리 예측 · 04.20(일)</div></div><div class="hi-right"><div class="hi-amt neutral">-</div><div class="sbadge b-mis">미적중</div></div></div>
+    </div>
+    <div class="tca" id="hs-pz">
+      <div class="hi" onclick="showScreen('pz02b')"><div class="hi-ico">⚽</div><div class="hi-info"><div class="hi-title">2026 K리그 시즌 우승팀</div><div class="hi-sub">전북 현대 · 1,000p 투입</div></div><div class="hi-right"><div class="hi-amt neutral">1,000p</div><div class="sbadge b-on">진행 중</div></div></div>
+      <div class="hi" onclick="showScreen('pz02a')"><div class="hi-ico">⚽</div><div class="hi-info"><div class="hi-title">EPL 이번 시즌 득점왕</div><div class="hi-sub">살라 · 500p 투입</div></div><div class="hi-right"><div class="hi-amt neutral">500p</div><div class="sbadge b-on">진행 중</div></div></div>
+      <div class="hi"><div class="hi-ico">🏀</div><div class="hi-info"><div class="hi-title">KBL 플레이오프 2026 우승팀</div><div class="hi-sub">서울 SK · 300p 투입</div></div><div class="hi-right"><div class="hi-amt neutral">300p</div><div class="sbadge b-on">진행 중</div></div></div>
+      <div class="hi"><div class="hi-ico">🎮</div><div class="hi-info"><div class="hi-title">LCK 윈터 2025 우승팀</div><div class="hi-sub">T1 · 1,000p 투입</div></div><div class="hi-right"><div class="hi-amt plus">+1,800p</div><div class="sbadge b-hit">적중</div></div></div>
+      <div class="hi"><div class="hi-ico">⚽</div><div class="hi-info"><div class="hi-title">K리그 개막전 MVP</div><div class="hi-sub">이동준 · 300p 투입</div></div><div class="hi-right"><div class="hi-amt neutral">-</div><div class="sbadge b-cnt">집계 중</div></div></div>
+    </div>
+  </div>
+  <div class="bnav"><div class="ni active"><div class="ni-ico">⚾</div><div class="ni-lbl">승부예측</div></div><div class="ni"><div class="ni-ico">🎟</div><div class="ni-lbl">응모</div></div><div class="ni" onclick="showScreen('pz01')"><div class="ni-ico">💎</div><div class="ni-lbl">포인트예측</div></div><div class="ni"><div class="ni-ico">💬</div><div class="ni-lbl">커뮤니티</div></div><div class="ni" onclick="showScreen('my01')"><div class="ni-ico">👤</div><div class="ni-lbl">마이</div></div></div>
+</div>
+
+<!-- ═══════════ MY-01 마이 ═══════════ -->
+<div class="screen" id="screen-my01">
+  <div class="statusbar dark" style="position:absolute;top:0;left:0;right:0;z-index:10"><span style="color:white">9:41</span><span style="color:white">●●●</span></div>
+  <div class="gnb dark" style="margin-top:44px"><div class="gnb-title white">마이</div><div class="gnb-icon" style="color:white">⚙️</div></div>
+  <div class="scroll-area">
+    <div style="background:var(--navy);padding:16px 16px 20px;display:flex;align-items:center;gap:12px">
+      <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:24px">😊</div>
+      <div><div style="font-size:16px;font-weight:800;color:white">나는야구팬</div><div style="font-size:12px;color:rgba(255,255,255,.6);margin-top:2px">🦁 두산 베어스</div></div>
+      <div style="margin-left:auto;font-size:12px;color:rgba(255,255,255,.5);cursor:pointer">수정</div>
+    </div>
+    <div class="my-sec">
+      <div class="my-sec-title">내 지갑</div>
+      <div class="wgrid">
+        <div class="wcard"><div class="wcard-ico">🎫</div><div class="wcard-lbl">당첨 티켓</div><div class="wcard-val">1장</div></div>
+        <div class="wcard"><div class="wcard-ico">🎟</div><div class="wcard-lbl">응모권</div><div class="wcard-val">14장</div></div>
+        <div class="wcard" onclick="showScreen('my08')" style="border:1.5px solid var(--primary)"><div class="wcard-ico">💎</div><div class="wcard-lbl">포인트</div><div class="wcard-val" style="color:var(--primary)">12,800p</div></div>
+      </div>
+    </div>
+    <div class="my-sec">
+      <div class="my-sec-title">내 활동</div>
+      <div class="act-list">
+        <div class="act-item"><div class="act-lbl">응모 현황</div><div class="act-val">3건 진행 중 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div></div>
+        <div class="act-item"><div class="act-lbl">방문 현황</div><div class="act-val">연속 7일 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div></div>
+        <div class="act-item" onclick="showScreen('pk13')"><div class="act-lbl" style="color:var(--primary)">포인트 예측</div><div class="act-val" style="color:var(--primary)">47회 · 적중률 61% <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div></div>
+        <div class="act-item"><div class="act-lbl">커뮤니티</div><div class="act-val">게시글 2 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div></div>
+      </div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+  <div class="bnav"><div class="ni"><div class="ni-ico">⚾</div><div class="ni-lbl">승부예측</div></div><div class="ni"><div class="ni-ico">🎟</div><div class="ni-lbl">응모</div></div><div class="ni" onclick="showScreen('pz01')"><div class="ni-ico">💎</div><div class="ni-lbl">포인트예측</div></div><div class="ni"><div class="ni-ico">💬</div><div class="ni-lbl">커뮤니티</div></div><div class="ni active"><div class="ni-ico">👤</div><div class="ni-lbl">마이</div></div></div>
+</div>
+
+<!-- ═══════════ MY-08 포인트 내역 ═══════════ -->
+<div class="screen" id="screen-my08">
+  <div class="gnb"><div class="gnb-back" onclick="showScreen('my01')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></div><div class="gnb-center">포인트 내역</div><div style="width:40px"></div></div>
+  <div class="ldg-sum">
+    <div class="ldg-card"><div class="ldg-lbl">보유</div><div class="ldg-val hold">12,800p</div></div>
+    <div class="ldg-card"><div class="ldg-lbl">총 획득</div><div class="ldg-val plus">+19,300p</div></div>
+    <div class="ldg-card"><div class="ldg-lbl">총 사용</div><div class="ldg-val minus">-6,500p</div></div>
+  </div>
+  <div class="tab-bar"><div class="tab-item active" onclick="switchTab('ld','all',this)">전체</div><div class="tab-item" onclick="switchTab('ld','earn',this)">획득</div><div class="tab-item" onclick="switchTab('ld','spend',this)">사용</div></div>
+  <div class="scroll-area">
+    <div class="tca active" id="ld-all">
+      <div class="ldg-item"><div class="ldg-ico earn">🏆</div><div class="ldg-info"><div class="ldg-title">LCK 윈터 2025 우승팀 적중</div><div class="ldg-date">04.20(일) 22:14</div></div><div class="ldg-amt" style="color:var(--success)">+1,800p</div></div>
+      <div class="ldg-item"><div class="ldg-ico earn">🌅</div><div class="ldg-info"><div class="ldg-title">출석 보상</div><div class="ldg-date">04.22(화) 00:00</div></div><div class="ldg-amt" style="color:var(--success)">+100p</div></div>
+      <div class="ldg-item"><div class="ldg-ico spend">⚽</div><div class="ldg-info"><div class="ldg-title">2026 K리그 시즌 우승팀 추가 예측</div><div class="ldg-date">04.22(화) 11:30</div></div><div class="ldg-amt" style="color:var(--danger)">-300p</div></div>
+      <div class="ldg-item"><div class="ldg-ico spend">🏀</div><div class="ldg-info"><div class="ldg-title">KBL 플레이오프 2026 우승팀 예측</div><div class="ldg-date">04.21(월) 15:08</div></div><div class="ldg-amt" style="color:var(--danger)">-300p</div></div>
+      <div class="ldg-item"><div class="ldg-ico earn">📺</div><div class="ldg-info"><div class="ldg-title">광고 시청 보상</div><div class="ldg-date">04.21(월) 14:22</div></div><div class="ldg-amt" style="color:var(--success)">+50p</div></div>
+      <div class="ldg-item"><div class="ldg-ico earn">🎁</div><div class="ldg-info"><div class="ldg-title">첫 예측 보너스</div><div class="ldg-date">03.26(수) 10:00</div></div><div class="ldg-amt" style="color:var(--success)">+5,000p</div></div>
+    </div>
+    <div class="tca" id="ld-earn">
+      <div class="ldg-item"><div class="ldg-ico earn">🏆</div><div class="ldg-info"><div class="ldg-title">LCK 윈터 2025 우승팀 적중</div><div class="ldg-date">04.20(일) 22:14</div></div><div class="ldg-amt" style="color:var(--success)">+1,800p</div></div>
+      <div class="ldg-item"><div class="ldg-ico earn">🌅</div><div class="ldg-info"><div class="ldg-title">출석 보상</div><div class="ldg-date">04.22(화) 00:00</div></div><div class="ldg-amt" style="color:var(--success)">+100p</div></div>
+      <div class="ldg-item"><div class="ldg-ico earn">📺</div><div class="ldg-info"><div class="ldg-title">광고 시청 보상</div><div class="ldg-date">04.21(월) 14:22</div></div><div class="ldg-amt" style="color:var(--success)">+50p</div></div>
+      <div class="ldg-item"><div class="ldg-ico earn">🎁</div><div class="ldg-info"><div class="ldg-title">첫 예측 보너스</div><div class="ldg-date">03.26(수) 10:00</div></div><div class="ldg-amt" style="color:var(--success)">+5,000p</div></div>
+    </div>
+    <div class="tca" id="ld-spend">
+      <div class="ldg-item"><div class="ldg-ico spend">⚽</div><div class="ldg-info"><div class="ldg-title">2026 K리그 시즌 우승팀 추가 예측</div><div class="ldg-date">04.22(화) 11:30</div></div><div class="ldg-amt" style="color:var(--danger)">-300p</div></div>
+      <div class="ldg-item"><div class="ldg-ico spend">🏀</div><div class="ldg-info"><div class="ldg-title">KBL 플레이오프 2026 우승팀 예측</div><div class="ldg-date">04.21(월) 15:08</div></div><div class="ldg-amt" style="color:var(--danger)">-300p</div></div>
+    </div>
+  </div>
+  <div class="bnav"><div class="ni"><div class="ni-ico">⚾</div><div class="ni-lbl">승부예측</div></div><div class="ni"><div class="ni-ico">🎟</div><div class="ni-lbl">응모</div></div><div class="ni" onclick="showScreen('pz01')"><div class="ni-ico">💎</div><div class="ni-lbl">포인트예측</div></div><div class="ni"><div class="ni-ico">💬</div><div class="ni-lbl">커뮤니티</div></div><div class="ni active" onclick="showScreen('my01')"><div class="ni-ico">👤</div><div class="ni-lbl">마이</div></div></div>
+</div>
+
+</div><!-- /device -->
+
+<script>
+  // 마켓 데이터
+  const MARKETS = {
+    a: { total: 84200, choicePool: 52204, maxBet: 3000, rake: 0.1 },
+    b: { total: 400000, choicePool: 152000, maxBet: 3000, rake: 0.1 }
+  };
+  const amounts = { a: 0, b: 0 };
+
+  function calcOdds(market, bet) {
+    const m = MARKETS[market];
+    const newTotal = m.total + bet;
+    const newPool = m.choicePool + bet;
+    return Math.round((newTotal * (1 - m.rake) / newPool) * 100) / 100;
+  }
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + id).classList.add('active');
+    const sb = document.getElementById('statusbar');
+    sb.style.display = id === 'my01' ? 'none' : 'flex';
+    const map = { pz01:0, pz02a:1, pz02b:2, pz03:3, pk13:4, my01:5, my08:6 };
+    document.querySelectorAll('.screen-nav button').forEach((b,i) => b.classList.toggle('active', i === map[id]));
+  }
+
+  function switchTab(group, id, el) {
+    document.querySelectorAll('[id^="' + group + '-"]').forEach(t => t.classList.remove('active'));
+    const t = document.getElementById(group + '-' + id);
+    if (t) t.classList.add('active');
+    el.closest('.tab-bar').querySelectorAll('.tab-item').forEach(ti => ti.classList.remove('active'));
+    el.classList.add('active');
+    if (group === 'rk') {
+      document.getElementById('my-rank-val').textContent = id === 'kbo' ? '61.2%' : '47위';
+    }
+  }
+
+  function openSheet(m) {
+    amounts[m] = 0;
+    updateSheet(m);
+    document.getElementById('sheet-' + m).classList.add('open');
+  }
+  function closeSheetA(e) { if (e.target === document.getElementById('sheet-a')) document.getElementById('sheet-a').classList.remove('open'); }
+  function closeSheetB(e) { if (e.target === document.getElementById('sheet-b')) document.getElementById('sheet-b').classList.remove('open'); }
+
+  function addPt(m, n) { amounts[m] = Math.min(amounts[m] + n, MARKETS[m].maxBet); updateSheet(m); }
+  function setMax(m) { amounts[m] = MARKETS[m].maxBet; updateSheet(m); }
+
+  function updateSheet(m) {
+    const amt = amounts[m];
+    document.getElementById('amt-' + m).innerHTML = amt.toLocaleString() + '<span>p</span>';
+    document.getElementById('cfm-' + m).disabled = amt === 0;
+    if (amt > 0) {
+      const odds = calcOdds(m, amt);
+      const payout = Math.floor(amt * odds);
+      document.getElementById('est-' + m).innerHTML = '예상 수령 <strong>' + payout.toLocaleString() + 'p (' + odds + '배)</strong>';
+      document.getElementById('odds-tag-' + m).textContent = '예상 ' + odds + '배';
+    } else {
+      const baseOdds = m === 'a' ? '1.45' : '2.13';
+      document.getElementById('est-' + m).innerHTML = '예상 수령 <strong>—</strong>';
+      document.getElementById('odds-tag-' + m).textContent = '현재 ' + baseOdds + '배';
+    }
+  }
+
+  function openMd(m) {
+    if (amounts[m] === 0) return;
+    const odds = calcOdds(m, amounts[m]);
+    const payout = Math.floor(amounts[m] * odds);
+    document.getElementById('m' + m + '-amt').textContent = amounts[m].toLocaleString() + 'p';
+    document.getElementById('m' + m + '-odds').textContent = '적중 시 예상 수령: ' + payout.toLocaleString() + 'p (' + odds + '배)';
+    document.getElementById('modal-' + m).classList.add('open');
+  }
+  function closeMd(m) { document.getElementById('modal-' + m).classList.remove('open'); }
+  function confirmBet(m) {
+    closeMd(m);
+    document.getElementById('sheet-' + m).classList.remove('open');
+    const toast = document.getElementById('toast-' + m);
+    toast.textContent = '✅ 예측 완료! ' + amounts[m].toLocaleString() + 'p가 차감됐어요.';
+    toast.style.display = 'block';
+    setTimeout(() => { toast.style.display = 'none'; }, 2200);
+    amounts[m] = 0;
+    updateSheet(m);
+  }
+
+  showScreen('pz01');
+</script>
+</body>
+</html>

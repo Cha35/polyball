@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>폴리볼 2.0 기능 체크리스트</title>
+<style>
+  :root{
+    --blue:#1F30E9; --navy:#001432; --mint:#09FFEE;
+    --ink:#101015; --sub:#606060; --line:#E5E5E5; --bg:#F9F9F9; --card:#FFFFFF;
+    --pos:#1E5D2A; --danger:#FC0528; --hold:#888888;
+    --phone-bg:#FCFCFE;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font-family:'Pretendard','Apple SD Gothic Neo',-apple-system,sans-serif;
+    line-height:1.6; font-size:14px;}
+  .page{max-width:1140px; margin:0 auto; padding:0 24px 80px;}
+
+  /* 상단 */
+  .head{padding:26px 0 14px;}
+  .head h1{margin:0; font-size:22px; font-weight:800; letter-spacing:-.3px; color:var(--ink);}
+  .head .sub{color:var(--sub); font-size:13px; margin-top:5px;}
+  .head .ver{display:inline-block; background:var(--blue); color:#fff; font-size:11px;
+    font-weight:700; padding:2px 9px; border-radius:6px; margin-right:8px;}
+
+  .intro{background:#F2F4FE; border:1px solid #DCE0FB; border-radius:12px;
+    padding:14px 18px; font-size:13.5px; color:var(--navy); margin:10px 0 6px;}
+  .intro b{color:var(--blue);}
+
+  .legend{display:flex; gap:16px; flex-wrap:wrap; font-size:12px; color:var(--sub);
+    margin:14px 0 4px;}
+  .legend span{display:inline-flex; align-items:center; gap:6px;}
+  .tag{display:inline-block; font-size:11px; font-weight:700; padding:2px 9px; border-radius:100px;}
+  .t-up{background:#E6F0E9; color:var(--pos);}
+  .t-down{background:#FDE7EA; color:var(--danger);}
+
+  /* 섹션 헤더 (SD-8-A 양식) */
+  .sec{margin-top:34px;}
+  .sec-bar{display:flex; align-items:center; gap:10px; border-bottom:2px solid var(--blue);
+    padding-bottom:8px; margin-bottom:4px;}
+  .sec-id{background:var(--blue); color:#fff; font-size:12px; font-weight:700;
+    padding:3px 11px; border-radius:7px; letter-spacing:.3px;}
+  .sec-bar h2{margin:0; font-size:18px; font-weight:800; color:var(--ink);}
+  .sec-note{color:var(--sub); font-size:12.5px; margin:6px 0 12px;}
+
+  /* 항목 행: 좌 목업 / 우 콘텐츠 */
+  .row{display:grid; grid-template-columns:300px 1fr; gap:24px; align-items:start;
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:18px 20px; margin:14px 0;}
+  @media(max-width:820px){ .row{grid-template-columns:1fr;} }
+
+  /* 폰 목업 */
+  .phone{width:260px; margin:0 auto; background:var(--phone-bg);
+    border:1px solid #E1E4EE; border-radius:22px; padding:10px 10px 8px;
+    box-shadow:0 4px 14px rgba(20,30,80,.06);}
+  .ph-status{display:flex; justify-content:space-between; font-size:9px; color:#9AA1AF;
+    padding:2px 6px 8px;}
+  .ph-body{padding:0 4px 4px;}
+  .ph-title{font-size:14px; font-weight:800; color:var(--ink);}
+  .ph-sub{font-size:10px; color:var(--sub); margin:1px 0 8px;}
+  .mk{font-size:10px; color:var(--sub); text-align:center; margin-top:6px;}
+
+  /* 목업 내부 부품 */
+  .m-card{border:1px solid var(--line); border-radius:10px; padding:9px 11px;
+    margin:6px 0; background:#fff;}
+  .m-navy{background:var(--navy); color:#fff; border:none;}
+  .m-row{display:flex; justify-content:space-between; align-items:center;}
+  .m-bar{height:8px; border-radius:6px; background:#EDEFF5; overflow:hidden; margin:6px 0;}
+  .m-bar > i{display:block; height:100%; background:var(--blue);}
+  .m-bar.mint > i{background:var(--mint);}
+  .m-chip{display:inline-block; font-size:9px; padding:2px 8px; border-radius:100px;
+    background:#EEF0F6; color:var(--navy); margin:2px 3px 0 0;}
+  .m-chip.on{background:var(--blue); color:#fff;}
+  .m-chip.mint{background:var(--mint); color:var(--navy); font-weight:700;}
+  .m-tab{display:flex; gap:4px; font-size:9px; border-bottom:1px solid var(--line); padding-bottom:6px; margin-bottom:6px;}
+  .m-tab b{color:var(--blue); border-bottom:2px solid var(--blue); padding-bottom:4px;}
+  .m-tab span{color:#9AA1AF;}
+  .m-nav{display:flex; justify-content:space-around; font-size:8px; color:#9AA1AF;
+    border-top:1px solid var(--line); padding-top:6px; margin-top:8px;}
+  .m-nav b{color:var(--blue);}
+  .m-small{font-size:9px; color:var(--sub);}
+  .m-big{font-size:13px; font-weight:800;}
+  .badge-acc{font-size:8px; font-weight:700; color:#fff; background:var(--pos);
+    padding:1px 6px; border-radius:100px;}
+  .badge-miss{font-size:8px; font-weight:700; color:#fff; background:var(--danger);
+    padding:1px 6px; border-radius:100px;}
+
+  /* 우측 콘텐츠 */
+  .item-head{display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin-bottom:4px;}
+  .item-no{font-size:15px; font-weight:800; color:var(--blue);}
+  .item-name{font-size:15.5px; font-weight:800; color:var(--ink);}
+  .wtable{width:100%; border-collapse:collapse; margin-top:8px; font-size:13px;}
+  .wtable th{background:var(--blue); color:#fff; font-weight:700; font-size:12px;
+    text-align:left; padding:7px 11px; width:78px;}
+  .wtable td{border:1px solid var(--line); padding:8px 11px; vertical-align:top;}
+  .wtable th{border:1px solid var(--blue);}
+  .wtable tr td:first-child{display:none;}
+  .wlabel{font-weight:800; color:var(--navy); white-space:nowrap;}
+
+  /* 축소 박스 */
+  .down{background:#FFF6F7; border:1px solid #FBD9DE; border-radius:12px;
+    padding:13px 16px; margin:14px 0;}
+  .down h3{margin:0 0 7px; font-size:13.5px; color:var(--danger); font-weight:800;}
+  .down ul{margin:0; padding-left:18px;}
+  .down li{margin:4px 0; font-size:13px; color:#7A2730;}
+  .down li b{color:var(--danger);}
+
+  /* 종합 */
+  .summary{background:var(--navy); color:#fff; border-radius:14px; padding:20px 22px; margin-top:30px;}
+  .summary h2{margin:0 0 12px; font-size:17px; color:var(--mint);}
+  .summary table{width:100%; border-collapse:collapse; font-size:13px;}
+  .summary th,.summary td{padding:8px 10px; text-align:left; border-bottom:1px solid rgba(255,255,255,.15);}
+  .summary th{color:#9FB0CC; font-weight:600; font-size:12px;}
+  .summary td:first-child{font-weight:700; color:#fff; white-space:nowrap;}
+  .summary .old{color:#8492AE;}
+  .summary .new{color:var(--mint); font-weight:600;}
+  .flow{margin-top:14px; font-size:12.5px; color:#CAD4E8; line-height:1.7;
+    background:rgba(255,255,255,.06); border-radius:10px; padding:12px 14px;}
+  .flow b{color:#fff;}
+
+  .warn{border-left:4px solid #E8A100; background:#FDF8EC; border-radius:0 10px 10px 0;
+    padding:12px 16px; margin:24px 0 0; font-size:13px; color:#5A4500;}
+  .warn b{color:#8A6A00;}
+
+  .foot{margin-top:30px; padding-top:16px; border-top:1px solid var(--line);
+    color:var(--sub); font-size:12px;}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="head">
+    <h1>폴리볼 2.0 기능 체크리스트 — 확대 / 축소</h1>
+    <div class="sub"><span class="ver">v1.0</span>논의용 · 폴리컵 · 랭킹 · 트랙레코드 관점 / 방향: 예측의 ‘정보 가치’ 중심 전환</div>
+  </div>
+
+  <div class="intro">
+    <b>방향 전환</b> — “맞히고 보상받는 게임”에서 “예측이 정보가 되는 플랫폼”으로.
+    퍼블릭 리그는 <b>이벤트 단위로 열리고 닫히는 공개 예측 검증대</b>이며,
+    경쟁·검증·기록이 <b>‘적중률 기반 랭킹’ 한 축</b>으로 작동한다.
+  </div>
+
+  <div class="legend">
+    <span><span class="tag t-up">확대</span> 새 방향의 핵심 — 지금 힘줘야 함</span>
+    <span><span class="tag t-down">축소</span> 보상 중심 기능 — 비중 줄임</span>
+  </div>
+
+  <!-- ============ 1. 폴리컵 ============ -->
+  <div class="sec">
+    <div class="sec-bar"><span class="sec-id">CL-01</span><h2>폴리컵 — 정보를 생성하는 입구</h2></div>
+    <div class="sec-note">좋은 예측이 모여야 좋은 정보가 나온다. 보상 입구 → 정보 입구로 전환.</div>
+
+    <!-- 1-1 선택률 정보화 -->
+    <div class="row">
+      <div>
+        <div class="phone"><div class="ph-status"><span>13:48</span><span>100%</span></div>
+          <div class="ph-body">
+            <div class="ph-title">롯데 vs 두산</div>
+            <div class="ph-sub">오늘 경기 흐름 예측</div>
+            <div class="m-card">
+              <div class="m-row m-small"><span>롯데 35%</span><b style="color:var(--blue)">65% 두산</b></div>
+              <div class="m-bar mint"><i style="width:65%"></i></div>
+              <div class="m-chip mint">다수는 ‘두산’ 우세 전망</div>
+            </div>
+          </div>
+        </div>
+        <div class="mk">선택률 = 게이지가 아닌 ‘읽히는 정보’</div>
+      </div>
+      <div>
+        <div class="item-head"><span class="item-no">1</span><span class="item-name">선택률의 정보화</span><span class="tag t-up">확대</span></div>
+        <table class="wtable">
+          <tr><td></td><th>무엇을</th><td>선택률을 게이지가 아니라 “다수가 어떻게 전망하는가”라는 읽히는 정보로 표현</td></tr>
+          <tr><td></td><th>왜</th><td>집단 예측 분포 자체가 폴리볼의 1차 정보 자산. “참여하러”가 아니라 “여론 보러” 오게 만드는 진입 동기</td></tr>
+          <tr><td></td><th>어떻게</th><td>퍼센트+막대에 해석 레이어(“82% No → 다수는 부정적”). 정보 영역을 보상 영역보다 시각 우선 배치</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- 1-2 시간 추세 -->
+    <div class="row">
+      <div>
+        <div class="phone"><div class="ph-status"><span>13:48</span><span>100%</span></div>
+          <div class="ph-body">
+            <div class="ph-title">여론 추세</div>
+            <div class="ph-sub">마감까지 선택률 변화</div>
+            <div class="m-card">
+              <svg viewBox="0 0 200 70" width="100%" height="58">
+                <polyline points="5,40 45,38 85,30 125,18 165,12 195,9" fill="none" stroke="#1F30E9" stroke-width="2.5"/>
+                <circle cx="125" cy="18" r="3.5" fill="#FC0528"/>
+                <text x="118" y="12" font-size="8" fill="#FC0528">급변</text>
+              </svg>
+              <div class="m-small">초반 50:50 → 막판 80:20</div>
+            </div>
+          </div>
+        </div>
+        <div class="mk">‘여론이 움직인 방향’이 정보가 됨</div>
+      </div>
+      <div>
+        <div class="item-head"><span class="item-no">2</span><span class="item-name">선택률 시간 추세</span><span class="tag t-up">확대</span></div>
+        <table class="wtable">
+          <tr><td></td><th>무엇을</th><td>마감까지 선택률이 어떻게 변해왔는지의 흐름</td></tr>
+          <tr><td></td><th>왜</th><td>“여론이 움직인 방향”이 정적 분포보다 높은 정보 가치. 재방문해 추세 확인하게 만듦</td></tr>
+          <tr><td></td><th>어떻게</th><td>예측 상세에 시계열 미니 그래프, 급변 시점 마커. 마감 임박 ‘여론 급변’ 알림 연계</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- 1-3 결과 회고 -->
+    <div class="row">
+      <div>
+        <div class="phone"><div class="ph-status"><span>13:48</span><span>100%</span></div>
+          <div class="ph-body">
+            <div class="ph-title">지난 예측 결과</div>
+            <div class="ph-sub">전망 vs 실제</div>
+            <div class="m-card">
+              <div class="m-row"><span class="m-small">다수 80% No</span><span class="badge-acc">실제 YES</span></div>
+              <div class="m-small" style="margin-top:5px">내 선택: <b style="color:var(--blue)">Yes</b> · 역배 적중</div>
+            </div>
+          </div>
+        </div>
+        <div class="mk">종료 = 정보의 시작 (재방문 트리거)</div>
+      </div>
+      <div>
+        <div class="item-head"><span class="item-no">3</span><span class="item-name">결과 후 회고 (전망 vs 실제)</span><span class="tag t-up">확대</span></div>
+        <table class="wtable">
+          <tr><td></td><th>무엇을</th><td>종료 예측의 “다수 전망 vs 실제 결과”를 기록으로 열람</td></tr>
+          <tr><td></td><th>왜</th><td>종료가 정보의 끝이 아닌 시작. “다수는 틀렸다”가 학습 자료이자 재방문(=광고 노출) 트리거</td></tr>
+          <tr><td></td><th>어떻게</th><td>종료 예측에 결과 배지 + “다수 80% No였으나 실제 Yes” 요약 + 내 선택 대비. 종료 예측 아카이브 동선</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- 1-4 근거 입력 -->
+    <div class="row">
+      <div>
+        <div class="phone"><div class="ph-status"><span>13:48</span><span>100%</span></div>
+          <div class="ph-body">
+            <div class="ph-title">예측 근거 (선택)</div>
+            <div class="ph-sub">왜 그렇게 보세요?</div>
+            <div style="margin:6px 0">
+              <span class="m-chip on">데이터·통계</span><span class="m-chip">경험·전문지식</span>
+              <span class="m-chip">뉴스·정보</span><span class="m-chip">직관·감</span>
+            </div>
+            <div class="m-card m-small" style="color:#9AA1AF">한 줄 메모 (선택 입력)…</div>
+          </div>
+        </div>
+        <div class="mk">태그 1탭 + 텍스트(선택) · 토론 X</div>
+      </div>
+      <div>
+        <div class="item-head"><span class="item-no">4</span><span class="item-name">예측 근거 입력</span><span class="tag t-up">확대</span></div>
+        <table class="wtable">
+          <tr><td></td><th>무엇을</th><td>예측 시 “왜 그렇게 보는가”를 유형 태그(필수 아님, 탭 1회) + 선택 텍스트로 첨부</td></tr>
+          <tr><td></td><th>왜</th><td>근거가 붙어야 적중률이 ‘운’이 아닌 ‘신뢰할 판단’의 증거가 됨. 진지한 참여 유도, 근거 자체가 타인에게 정보</td></tr>
+          <tr><td></td><th>어떻게</th><td>유형 태그([데이터·통계]/[경험·전문지식]/[뉴스·정보]/[직관·감]) + 선택 텍스트. <b>단방향 메모로 한정</b>(대댓글·토론 차단 → 폴리픽과 분리)</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- 1-5 설득력 반응 -->
+    <div class="row">
+      <div>
+        <div class="phone"><div class="ph-status"><span>13:48</span><span>100%</span></div>
+          <div class="ph-body">
+            <div class="ph-title">예측가 근거</div>
+            <div class="m-card">
+              <div class="m-row"><span class="m-small"><b>김**</b> · KBO 적중률 <b style="color:var(--blue)">82%</b></span><span class="badge-acc">Yes</span></div>
+              <div class="m-small" style="margin:5px 0">“선발 맞대결 데이터상 두산 우위”</div>
+              <div class="m-row"><span class="m-chip mint">👍 설득력 있다 124</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="mk">‘설득력’ 한정 반응 + 신뢰도 한 세트</div>
+      </div>
+      <div>
+        <div class="item-head"><span class="item-no">5</span><span class="item-name">근거에 대한 ‘설득력’ 반응</span><span class="tag t-up">확대</span></div>
+        <table class="wtable">
+          <tr><td></td><th>무엇을</th><td>타인의 예측 근거에 “설득력 있다”는 의미로 한정된 단방향 반응</td></tr>
+          <tr><td></td><th>왜</th><td>근거 가치를 우리가 아닌 집단이 판정. 결과 신뢰도(적중률)와 별개로 ‘설득 신뢰도’ 축이 생겨 정보가 입체화</td></tr>
+          <tr><td></td><th>어떻게</th><td>좋아요가 아닌 ‘설득력’ 한정 반응. 보상은 <b>반응+적중 결합</b>으로 지급(어그로 차단). 근거는 작성자 신뢰도와 항상 한 세트, 진행 중부터 공개</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="down">
+      <h3>🔽 축소</h3>
+      <ul>
+        <li><b>보상 중심 카드 강조</b> — 보상 뱃지가 카드 주인공이 되면 ‘정보 보러 오는’ 방향과 충돌. 정보가 시각 우선이어야 함</li>
+        <li><b>참여 자체를 부추기는 장치</b> — 무분별한 다량 참여는 선택률 데이터 질을 떨어뜨려 정보 자산 훼손</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 2. 랭킹 ============ -->
+  <div class="sec">
+    <div class="sec-bar"><span class="sec-id">RK-01</span><h2>랭킹 (퍼블릭 리그) — 신뢰도 검증기</h2></div>
+    <div class="sec-note">이벤트 단위로 열리고 닫히는 공개 검증대. 순위 = 신뢰도 검증의 결과.</div>
+
+    <!-- 2-1 이벤트 단위 -->
+    <div class="row">
+      <div>
+        <div class="phone"><div class="ph-status"><span>13:48</span><span>100%</span></div>
+          <div class="ph-body">
+            <div class="ph-title">진행 중 리그</div>
+            <div class="m-tab"><b>전체</b><span>야구</span><span>e스포츠</span><span>경제</span></div>
+            <div class="m-card m-navy"><div class="m-big">2026 KBO 포스트시즌 리그</div><div class="m-small" style="color:#9FB0CC">D-12 · 참여 8,204</div></div>
+            <div class="m-card m-navy"><div class="m-big">월드컵 리그</div><div class="m-small" style="color:#9FB0CC">D-3 · 참여 12,480</div></div>
+          </div>
+        </div>
+        <div class="mk">카테고리=폴더 / 이벤트=리그 단위</div>
+      </div>
+      <div>
+        <div class="item-head"><span class="item-no">1</span><span class="item-name">리그 단위를 카테고리 → 이벤트로 전환</span><span class="tag t-up">확대</span></div>
+        <table class="wtable">
+          <tr><td></td><th>무엇을</th><td>“KBO 리그”(카테고리 상시)가 아니라 “2026 KBO 포스트시즌 리그”(이벤트 단위)로 열고 닫음</td></tr>
+          <tr><td></td><th>왜</th><td>4조건(일정·정답·트래픽·지속공급)은 카테고리가 아닌 이벤트에만 적용. 이벤트는 시작·끝이 명확해 “누가 정확했나” 검증이 깔끔히 확정</td></tr>
+          <tr><td></td><th>어떻게</th><td>이벤트 = 리그 단위(열림/닫힘). 카테고리 = 이벤트를 묶는 탐색 폴더(탭·필터). “야구 안에 KBO 포스트시즌 리그”</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- 2-2 적중률 주지표 -->
+    <div class="row">
+      <div>
+        <div class="phone"><div class="ph-status"><span>13:48</span><span>100%</span></div>
+          <div class="ph-body">
+            <div class="ph-title">랭킹 보드</div>
+            <div class="ph-sub">신뢰도 순</div>
+            <div class="m-card"><div class="m-row"><span class="m-small">🥇 이** <span class="m-chip">표본 142</span></span><b style="color:var(--blue)">적중률 89%</b></div></div>
+            <div class="m-card"><div class="m-row"><span class="m-small">🥈 박**</span><b style="color:var(--blue)">86%</b></div></div>
+            <div class="m-card" style="border-color:var(--blue)"><div class="m-row"><span class="m-small"><b>나</b> · 142위</span><b style="color:var(--blue)">71%</b></div></div>
+          </div>
+        </div>
+        <div class="mk">누적점수 아닌 ‘적중률+난이도’ 기준</div>
+      </div>
+      <div>
+        <div class="item-head"><span class="item-no">2</span><span class="item-name">적중률 주지표화 <span style="font-weight:600;color:var(--sub);font-size:12px">— 검증=경쟁 연결고리</span></span><span class="tag t-up">확대</span></div>
+        <table class="wtable">
+          <tr><td></td><th>무엇을</th><td>누적 점수(참여량)가 아니라 적중률·신뢰도를 랭킹 대표 지표로 전면화</td></tr>
+          <tr><td></td><th>왜</th><td>랭킹 기준을 적중률로 두면 “경쟁에서 이기는 것 = 신뢰도 검증받는 것”. 경쟁·검증·기록이 한 축으로 묶임</td></tr>
+          <tr><td></td><th>어떻게</th><td>적중률 + 선택률 가중(난이도) 결합한 신뢰도 점수. 순수 적중률은 ‘쉬운 것만 찍기’ 방어 가능 → 역배 가중 결합. 표본 부족 시 신뢰구간 표기</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- 2-3 상위 유저 판단 -->
+    <div class="row">
+      <div>
+        <div class="phone"><div class="ph-status"><span>13:48</span><span>100%</span></div>
+          <div class="ph-body">
+            <div class="ph-title">이 예측, 누가 어디에?</div>
+            <div class="m-card"><div class="m-small">전체 분포</div><div class="m-bar"><i style="width:35%"></i></div><div class="m-small">Yes 35% / No 65%</div></div>
+            <div class="m-card" style="border-color:var(--blue)"><div class="m-small" style="color:var(--blue)"><b>적중률 상위 예측가</b></div><div class="m-bar mint"><i style="width:72%"></i></div><div class="m-small">Yes 72% / No 28%</div></div>
+          </div>
+        </div>
+        <div class="mk">전체 여론 ≠ 고신뢰 집단 판단</div>
+      </div>
+      <div>
+        <div class="item-head"><span class="item-no">3</span><span class="item-name">상위 신뢰 유저의 판단 분리 노출</span><span class="tag t-up">확대</span></div>
+        <table class="wtable">
+          <tr><td></td><th>무엇을</th><td>“적중률 상위 유저들은 어디에 걸었나”를 전체 분포와 별도로 확인</td></tr>
+          <tr><td></td><th>왜</th><td>전체 다수 여론과 ‘검증된 고신뢰 집단 판단’은 다른 정보. 후자는 폴리볼만 만들 수 있는 고급 정보. 경쟁 상위자가 곧 정보 소스</td></tr>
+          <tr><td></td><th>어떻게</th><td>예측 상세에 “전체 분포 / 상위 예측가 분포” 두 레이어. 상위 그룹 기준은 운영 설정. 집단 분포로 노출(개별 식별 X)</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- 2-4 userTime -->
+    <div class="row">
+      <div>
+        <div class="phone"><div class="ph-status"><span>13:48</span><span>100%</span></div>
+          <div class="ph-body">
+            <div class="ph-title">예측 성향</div>
+            <div class="m-card"><div class="m-small">평균 예측 시점</div><div class="m-big" style="color:var(--blue)">마감 2.4일 전</div><div class="m-chip mint">독립 예측가</div></div>
+          </div>
+        </div>
+        <div class="mk">일찍 예측 = 군중 추종 안 함</div>
+      </div>
+      <div>
+        <div class="item-head"><span class="item-no">4</span><span class="item-name">userTime → 독립성 지표</span><span class="tag t-up">확대</span></div>
+        <table class="wtable">
+          <tr><td></td><th>무엇을</th><td>“얼마나 일찍 예측했는가”를 ‘군중 추종 안 한 독립적 판단’ 지표로 활용</td></tr>
+          <tr><td></td><th>왜</th><td>마감 직전 다수 따라가기보다 일찍 소신 예측이 정보로서 더 가치 있음</td></tr>
+          <tr><td></td><th>어떻게</th><td>트랙레코드에 평균 예측 시점 등 독립성 성향 보조 표현. 동점 처리 로직과 연계</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="down">
+      <h3>🔽 축소</h3>
+      <ul>
+        <li><b>누적 점수 기반 보상 랭킹</b> — 참여량 많은 유저 유리해 신뢰도와 무관. 보상은 리그(이벤트) 단위 성과로 이관됨</li>
+        <li><b>랭킹 보상 정산 시스템(장부·딥링크)</b> — 보상이 부수적이 된 방향에서 정교한 정산은 과대 투자. MVP 경량화</li>
+        <li><b>순위 경쟁 자체의 강조</b> — “1등 하려고”는 어그로·과참여 유발. “정확하려고”가 동기여야 함</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 3. 트랙레코드 ============ -->
+  <div class="sec">
+    <div class="sec-bar"><span class="sec-id">TR-01</span><h2>트랙레코드 — 메인 자산 (최우선 투자)</h2></div>
+    <div class="sec-note">보조 지표 → 플랫폼 메인 자산. 이벤트 리그 성적이 적립되는 검증된 이력.</div>
+
+    <!-- 3-1 전문성 증명 -->
+    <div class="row">
+      <div>
+        <div class="phone"><div class="ph-status"><span>13:48</span><span>100%</span></div>
+          <div class="ph-body">
+            <div class="ph-title">예측가 프로필</div>
+            <div class="m-card"><div class="m-row"><b class="m-big">김**</b><span class="m-chip mint">KBO 마스터</span></div><div class="m-small" style="margin-top:4px">전체 신뢰도 상위 3%</div></div>
+          </div>
+        </div>
+        <div class="mk">“이 분야에서 믿을 만한가”</div>
+      </div>
+      <div>
+        <div class="item-head"><span class="item-no">1</span><span class="item-name">카테고리별 전문성 증명</span><span class="tag t-up">확대</span></div>
+        <table class="wtable">
+          <tr><td></td><th>무엇을</th><td>“이 유저는 어느 분야에서 신뢰할 만한가”를 증명하는 신뢰도 프로필</td></tr>
+          <tr><td></td><th>왜</th><td>새 방향의 핵심 자산. 적중률·전문 분야가 “이 사람 판단을 믿어도 되는가”의 근거. 트랙레코드가 메인 콘텐츠로 격상</td></tr>
+          <tr><td></td><th>어떻게</th><td>요약 카드를 넘어 분야별 신뢰도 구조화 프로필. “KBO 마스터” 등 전문성 라벨(표본·적중률 기반 자동 부여)</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3-2 분야별 시각화 -->
+    <div class="row">
+      <div>
+        <div class="phone"><div class="ph-status"><span>13:48</span><span>100%</span></div>
+          <div class="ph-body">
+            <div class="ph-title">분야별 적중률</div>
+            <div class="m-card">
+              <div class="m-small m-row"><span>KBO</span><b style="color:var(--blue)">88% (142)</b></div><div class="m-bar"><i style="width:88%"></i></div>
+              <div class="m-small m-row"><span>e스포츠</span><b style="color:var(--blue)">72% (61)</b></div><div class="m-bar"><i style="width:72%"></i></div>
+              <div class="m-small m-row"><span>경제</span><b style="color:var(--blue)">64% (33)</b></div><div class="m-bar"><i style="width:64%"></i></div>
+            </div>
+          </div>
+        </div>
+        <div class="mk">신뢰도는 분야별로 다르다</div>
+      </div>
+      <div>
+        <div class="item-head"><span class="item-no">2</span><span class="item-name">분야별 적중률 시각화</span><span class="tag t-up">확대</span></div>
+        <table class="wtable">
+          <tr><td></td><th>무엇을</th><td>KBO 88% / 경제 64% 등 영역별 강약을 한눈에</td></tr>
+          <tr><td></td><th>왜</th><td>신뢰도는 단일 수치가 아니라 분야별로 다름. 입체적이어야 정밀한 정보가 됨</td></tr>
+          <tr><td></td><th>어떻게</th><td>분야별 적중률 차트(레이더/바) + 표본 수 병기. 강점 분야 자동 하이라이트</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3-3 회고 -->
+    <div class="row">
+      <div>
+        <div class="phone"><div class="ph-status"><span>13:48</span><span>100%</span></div>
+          <div class="ph-body">
+            <div class="ph-title">내 예측 회고</div>
+            <div class="m-card"><div class="m-small">롯데 vs 두산</div>
+              <div class="m-row m-small" style="margin-top:4px"><span>나 <b style="color:var(--blue)">Yes</b></span><span>다수 No</span><span class="badge-acc">적중</span></div>
+              <div class="m-chip mint">역배 적중 +200</div>
+            </div>
+          </div>
+        </div>
+        <div class="mk">“나는 소수였는데 맞았다”</div>
+      </div>
+      <div>
+        <div class="item-head"><span class="item-no">3</span><span class="item-name">내 판단 vs 다수 vs 결과 회고</span><span class="tag t-up">확대</span></div>
+        <table class="wtable">
+          <tr><td></td><th>무엇을</th><td>“나는 소수였는데 맞았다” 같은 개인 예측 이력 회고</td></tr>
+          <tr><td></td><th>왜</th><td>진지한 참여의 보상이 재화가 아니라 “내 판단이 옳았다는 기록”. 개인 정보 자산화가 재참여 동기</td></tr>
+          <tr><td></td><th>어떻게</th><td>종료 예측마다 “내 선택 / 다수 / 결과” 3자 비교. “역배 적중” 특별 표기로 성취감</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3-4 이벤트 적립 + 통합 명예 -->
+    <div class="row">
+      <div>
+        <div class="phone"><div class="ph-status"><span>13:48</span><span>100%</span></div>
+          <div class="ph-body">
+            <div class="ph-title">리그 이력</div>
+            <div class="m-card m-small"><div class="m-row"><span>월드컵 리그</span><b>3위</b></div></div>
+            <div class="m-card m-small"><div class="m-row"><span>KBO PS 리그</span><b style="color:var(--blue)">1위 🏆</b></div></div>
+            <div class="m-card m-navy" style="margin-top:6px"><div class="m-row"><span class="m-small" style="color:#9FB0CC">전체 명예 신뢰도</span><b style="color:var(--mint)">상위 3%</b></div></div>
+          </div>
+        </div>
+        <div class="mk">이벤트 성적 적립 + 통합 명예(경량)</div>
+      </div>
+      <div>
+        <div class="item-head"><span class="item-no">4</span><span class="item-name">이벤트 리그 성적 적립 + 통합 명예 랭킹</span><span class="tag t-up">확대</span></div>
+        <table class="wtable">
+          <tr><td></td><th>무엇을</th><td>닫힌 이벤트 리그 성적이 트랙레코드에 이력으로 쌓이고, 그 위에 전체 통합 ‘명예 신뢰도 순위’가 누적</td></tr>
+          <tr><td></td><th>왜</th><td>이벤트는 끝이 명확해 “월드컵 리그 1위” 같은 또렷한 검증 기록이 남음. 리그 공백기에도 통합 명예가 상시 참여 동기 유지</td></tr>
+          <tr><td></td><th>어떻게</th><td>이벤트별 성적 이력 리스트(“월드컵 3위 → KBO PS 1위”). 통합 명예 랭킹은 별도 대형 화면이 아니라 <b>트랙레코드 안 ‘전체 신뢰도 순위’로 경량 표현</b></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3-5 외부 표현 -->
+    <div class="row">
+      <div>
+        <div class="phone"><div class="ph-status"><span>13:48</span><span>100%</span></div>
+          <div class="ph-body">
+            <div class="ph-title">예측 카드 속 배지</div>
+            <div class="m-card"><div class="m-row m-small"><span><b>김**</b> <span class="m-chip mint">KBO 마스터</span></span><span class="badge-acc">Yes</span></div></div>
+            <div class="m-small" style="margin-top:5px">닉네임 옆 신뢰도 배지 노출</div>
+          </div>
+        </div>
+        <div class="mk">타인이 내 신뢰도를 본다</div>
+      </div>
+      <div>
+        <div class="item-head"><span class="item-no">5</span><span class="item-name">트랙레코드의 외부 표현</span><span class="tag t-up">확대</span></div>
+        <table class="wtable">
+          <tr><td></td><th>무엇을</th><td>내 신뢰도를 프로필·랭킹·예측 카드에서 타인이 보는 배지로</td></tr>
+          <tr><td></td><th>왜</th><td>정보 플랫폼은 “내 기록을 내가 보는” 것을 넘어 “타인이 내 신뢰도를 보는” 단계로 가야 완성. 신뢰도가 사회적 신호</td></tr>
+          <tr><td></td><th>어떻게</th><td>신뢰도 배지/전문 분야 라벨을 닉네임 옆 노출. 닉네임 마스킹·프라이버시 정책과 정합(노출 동의 연계)</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="down">
+      <h3>🔽 축소</h3>
+      <ul>
+        <li><b>단순 참여 횟수 카운트 강조</b> — “몇 번 참여”는 신뢰도와 무관. 적중의 질이 핵심이므로 횟수 전면 노출 부적절</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 종합 ============ -->
+  <div class="summary">
+    <h2>종합 — 무게중심 이동</h2>
+    <table>
+      <tr><th></th><th>기존 무게</th><th>새 무게</th></tr>
+      <tr><td>폴리컵</td><td class="old">보상 획득 입구</td><td class="new">정보 생성 입구 (선택률·근거·반응)</td></tr>
+      <tr><td>랭킹</td><td class="old">보상 분배기</td><td class="new">신뢰도 검증기 (이벤트 단위·적중률 기준)</td></tr>
+      <tr><td>트랙레코드</td><td class="old">보조 지표</td><td class="new">메인 자산 (이벤트 이력 적립 + 통합 명예)</td></tr>
+    </table>
+    <div class="flow">
+      <b>순환 골격</b> &nbsp;이벤트 리그에서 신중히 예측(근거 첨부) → 적중률 기준 순위 = 신뢰도 검증 →
+      근거는 신뢰도와 함께 공개되어 참고·검증 정보화 → 리그가 닫히면 성적이 트랙레코드에 적립 →
+      통합 명예 랭킹이 다음 리그 참여를 부름.
+    </div>
+  </div>
+
+  <div class="warn">
+    <b>⚠ 일관되게 안고 가는 BM 긴장</b> — 보상 비중을 줄이면 단기 픽 빈도가 떨어질 수 있음.
+    이를 정보 가치(선택률·근거·회고)로 인한 체류·재방문 증가가 상쇄해야 광고 노출 유지.
+    “결과 회고”와 “상위 유저 판단 노출”이 단순 기능이 아니라 <b>BM을 떠받치는 재방문 엔진</b>으로 작동해야 함.
+  </div>
+
+  <div class="foot">
+    논의용 체크리스트 · 좌측 목업은 설명용 개념 시안(확정 디자인 아님) ·
+    참조: 폴리컵 기능명세서(2026-06-29), 폴리컵/폴리픽 회의록(2026-06-29), 폴리볼 디자인가이드 v1
+  </div>
+
+</div>
+</body>
+</html>

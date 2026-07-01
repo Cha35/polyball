@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PolyBall 기능정의서 — 마케팅 수신 동의 v0.1</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --primary: #2563EB;
+    --primary-light: #EFF6FF;
+    --primary-mid: #BFDBFE;
+    --dark: #0F172A;
+    --mid: #475569;
+    --muted: #94A3B8;
+    --border: #E2E8F0;
+    --bg: #F1F5F9;
+    --white: #FFFFFF;
+    --orange: #EA580C;
+    --undef-bg: #FFF7ED;
+    --undef-text: #C2410C;
+    --later-bg: #F5F3FF;
+    --later-text: #7C3AED;
+    --later-border: #DDD6FE;
+    --row-head: #EFF6FF;
+    --row-alt: #F8FAFC;
+    --sidebar-w: 230px;
+    --topbar-h: 48px;
+    --green-bg: #F0FDF4;
+    --green-text: #166534;
+    --green-border: #BBF7D0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--dark); font-size: 13px; line-height: 1.6; }
+  .layout { display: flex; min-height: 100vh; padding-top: var(--topbar-h); }
+
+  /* 상단바 */
+  .topbar { position: fixed; top: 0; left: 0; right: 0; height: var(--topbar-h); background: var(--dark); display: flex; align-items: center; padding: 0 24px; gap: 16px; z-index: 200; }
+  .topbar-brand { font-size: 13px; font-weight: 800; color: var(--white); letter-spacing: -0.3px; }
+  .topbar-divider { width: 1px; height: 16px; background: #334155; }
+  .topbar-meta { font-size: 11px; color: #64748B; font-family: 'DM Mono', monospace; }
+  .topbar-version { margin-left: auto; font-size: 10px; font-weight: 700; color: var(--primary); background: #1E293B; border: 1px solid #334155; border-radius: 4px; padding: 2px 10px; font-family: 'DM Mono', monospace; }
+  .topbar-draft { font-size: 10px; font-weight: 700; color: #F59E0B; background: #1E293B; border: 1px solid #92400E; border-radius: 4px; padding: 2px 10px; font-family: 'DM Mono', monospace; margin-left: 8px; }
+
+  /* 사이드바 */
+  .sidebar { position: fixed; top: var(--topbar-h); left: 0; width: var(--sidebar-w); height: calc(100vh - var(--topbar-h)); background: var(--white); border-right: 1px solid var(--border); overflow-y: auto; z-index: 100; padding: 20px 0 40px; }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .sidebar-group { margin-bottom: 4px; }
+  .sidebar-group-label { font-size: 9px; font-weight: 800; letter-spacing: 1.2px; color: var(--muted); padding: 10px 16px 4px; text-transform: uppercase; font-family: 'DM Mono', monospace; }
+  .sidebar-item { display: flex; align-items: center; gap: 8px; padding: 6px 16px; font-size: 12px; font-weight: 600; color: var(--mid); text-decoration: none; border-left: 2px solid transparent; background: none; border-top: none; border-right: none; border-bottom: none; width: 100%; text-align: left; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; transition: all .12s; }
+  .sidebar-item:hover { background: var(--primary-light); color: var(--primary); border-left-color: var(--primary-mid); }
+  .sidebar-item.active { background: var(--primary-light); color: var(--primary); border-left-color: var(--primary); }
+  .sidebar-item-id { font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 600; color: var(--muted); background: var(--bg); border-radius: 3px; padding: 1px 5px; flex-shrink: 0; }
+  .sidebar-divider { height: 1px; background: var(--border); margin: 8px 16px; }
+  .filter-block.hidden { display: none; }
+
+  /* 메인 */
+  .main { margin-left: var(--sidebar-w); flex: 1; padding: 40px 48px 120px; max-width: calc(100% - var(--sidebar-w)); }
+  .content-wrap { max-width: 840px; }
+
+  /* 표지 */
+  .cover { padding: 8px 0 40px; border-bottom: 1px solid var(--border); margin-bottom: 40px; }
+  .cover-tag { display: inline-block; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; color: var(--primary); background: var(--primary-light); border: 1px solid var(--primary-mid); border-radius: 4px; padding: 3px 10px; margin-bottom: 12px; font-family: 'DM Mono', monospace; }
+  .cover h1 { font-size: 28px; font-weight: 900; color: var(--dark); letter-spacing: -0.8px; margin-bottom: 6px; }
+  .cover-sub { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
+  .cover-meta { display: flex; gap: 20px; flex-wrap: wrap; }
+  .cover-meta-item { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .cover-meta-item span { color: var(--mid); font-weight: 600; }
+
+  /* 범례 */
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; margin-bottom: 40px; font-size: 11px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; color: var(--mid); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  /* 섹션 */
+  .section { margin-bottom: 56px; scroll-margin-top: 24px; }
+  .section-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--primary); }
+  .section-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--primary); background: var(--primary-light); border-radius: 4px; padding: 2px 8px; }
+  .section-title { font-size: 20px; font-weight: 900; color: var(--dark); letter-spacing: -0.5px; }
+
+  /* 서브섹션 */
+  .sub { margin-bottom: 40px; scroll-margin-top: 24px; }
+  .sub-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .screen-id { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 600; color: var(--primary); background: var(--primary-light); border: 1px solid var(--primary-mid); border-radius: 4px; padding: 2px 8px; white-space: nowrap; }
+  .screen-name { font-size: 16px; font-weight: 800; color: var(--dark); }
+  .screen-desc { font-size: 11px; color: var(--muted); }
+  .sub-h3 { font-size: 10px; font-weight: 800; color: var(--muted); letter-spacing: 0.8px; margin: 20px 0 8px; text-transform: uppercase; font-family: 'DM Mono', monospace; }
+
+  /* desc-card */
+  .desc-wrap { margin-bottom: 12px; }
+  .desc-wrap-label { font-size: 9px; font-weight: 800; letter-spacing: 1.2px; color: var(--muted); margin-bottom: 8px; font-family: 'DM Mono', monospace; text-transform: uppercase; }
+  .desc-card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 12px; }
+  .desc-card-header { display: flex; align-items: center; gap: 8px; padding: 9px 16px; background: var(--bg); border-bottom: 1px solid var(--border); }
+  .desc-card-tag { font-size: 9px; font-weight: 800; color: var(--muted); background: var(--white); border: 1px solid var(--border); border-radius: 3px; padding: 1px 6px; font-family: 'DM Mono', monospace; letter-spacing: 0.5px; }
+  .desc-card-name { font-size: 12px; font-weight: 700; color: var(--dark); }
+  .desc-card-body { padding: 14px 16px; }
+  .desc-item { font-size: 12px; color: var(--mid); padding-left: 14px; position: relative; margin-bottom: 5px; line-height: 1.65; }
+  .desc-item::before { content: '·'; position: absolute; left: 4px; color: var(--muted); }
+  .desc-item:last-child { margin-bottom: 0; }
+  .desc-item.depth2 { padding-left: 26px; font-size: 11.5px; color: var(--muted); margin-bottom: 3px; }
+  .desc-item.depth2::before { content: '–'; left: 14px; font-size: 10px; }
+  .desc-item strong { color: var(--dark); font-weight: 700; }
+  .tag-undef { font-style: italic; color: var(--undef-text); background: var(--undef-bg); font-size: 10px; font-weight: 600; border-radius: 3px; padding: 1px 5px; font-family: 'DM Mono', monospace; }
+  .tag-later { font-style: italic; color: var(--later-text); background: var(--later-bg); font-size: 10px; font-weight: 600; border-radius: 3px; padding: 1px 5px; font-family: 'DM Mono', monospace; border: 1px solid var(--later-border); }
+
+  /* spec-table */
+  .spec-wrap { margin-bottom: 0; }
+  .spec-wrap-label { font-size: 9px; font-weight: 800; letter-spacing: 1.2px; color: var(--muted); margin-bottom: 8px; font-family: 'DM Mono', monospace; text-transform: uppercase; }
+  .spec-table { width: 100%; border-collapse: collapse; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 8px; }
+  .spec-table th { background: var(--primary); color: var(--white); font-size: 11px; font-weight: 700; padding: 9px 14px; text-align: left; }
+  .spec-table td { padding: 8px 14px; font-size: 12px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.6; }
+  .spec-table tr:last-child td { border-bottom: none; }
+  .spec-table tr:nth-child(even) td { background: var(--row-alt); }
+  .spec-2col td:first-child { width: 180px; font-weight: 700; color: var(--primary); background: var(--row-head) !important; white-space: nowrap; font-size: 11px; }
+  td.confirmed { background: #F0FDF4 !important; color: #166534; }
+  td.confirmed::before { content: '✓ '; }
+  td.undef { background: var(--undef-bg) !important; color: var(--undef-text); font-style: italic; }
+  td.undef::before { content: '⚠ '; font-style: normal; }
+  td.later { background: var(--later-bg) !important; color: var(--later-text); font-style: italic; }
+  td.later::before { content: '🕐 '; font-style: normal; }
+
+  /* 플로우 */
+  .flow { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; margin-bottom: 8px; }
+  .flow-step { background: var(--primary-light); border: 1px solid var(--primary-mid); border-radius: 6px; padding: 4px 12px; font-size: 11px; font-weight: 700; color: var(--primary); line-height: 1.4; }
+  .flow-step small { display: block; font-size: 10px; font-weight: 500; color: var(--muted); }
+  .flow-arrow { font-size: 12px; color: var(--muted); }
+  .flow-step.flow-ad { background: #FEF2F2; border-color: #FECACA; color: #DC2626; }
+  .flow-step.flow-new { background: #FEF9C3; border-color: #FDE047; color: #A16207; }
+
+  /* 태그 */
+  .tag { display: inline-block; font-size: 10px; font-weight: 700; border-radius: 3px; padding: 1px 6px; margin-right: 3px; vertical-align: middle; font-family: 'DM Mono', monospace; }
+  .tag-green  { background: #DCFCE7; color: #166534; }
+  .tag-gray   { background: #F1F5F9; color: #475569; }
+  .tag-blue   { background: var(--primary-light); color: var(--primary); }
+  .tag-orange { background: var(--undef-bg); color: var(--orange); }
+  .tag-purple { background: #F5F3FF; color: #6D28D9; }
+  .tag-yellow { background: #FEF9C3; color: #A16207; }
+
+  /* info-box */
+  .info-box { background: var(--primary-light); border: 1px solid var(--primary-mid); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #1e40af; line-height: 1.65; margin-bottom: 8px; }
+  .info-box-warn { background: var(--undef-bg); border: 1px solid #FED7AA; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: var(--orange); line-height: 1.65; margin-bottom: 8px; }
+  .info-box-legal { background: #FDF2F8; border: 1px solid #FBCFE8; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #9D174D; line-height: 1.65; margin-bottom: 8px; }
+
+  /* 미정의 요약 */
+  .undef-wrap { background: var(--white); border: 1px solid #FED7AA; border-radius: 10px; overflow: hidden; }
+  .undef-wrap-header { background: var(--undef-bg); padding: 9px 16px; font-size: 11px; font-weight: 800; color: var(--orange); letter-spacing: 0.5px; border-bottom: 1px solid #FED7AA; }
+  .undef-list { list-style: none; }
+  .undef-list li { display: flex; gap: 10px; align-items: flex-start; padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .undef-list li:last-child { border-bottom: none; }
+  .u-id { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--primary); background: var(--primary-light); border-radius: 3px; padding: 2px 6px; white-space: nowrap; margin-top: 2px; }
+  .u-desc { color: var(--mid); }
+
+  /* 와이어프레임 */
+  .wire-grid { display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; margin: 20px 0; }
+  .wire-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .wire-label { font-size: 12px; font-weight: 700; color: var(--dark); text-align: center; }
+  .wire-sublabel { font-size: 11px; color: var(--muted); text-align: center; max-width: 280px; line-height: 1.5; margin-top: -6px; }
+
+  .phone { width: 280px; background: #fff; border-radius: 28px; border: 6px solid #1a1a1a; box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 16px 32px rgba(0,0,0,0.12); overflow: hidden; display: flex; flex-direction: column; }
+  .phone-notch { height: 22px; background: #1a1a1a; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .phone-notch-bar { width: 72px; height: 14px; background: #000; border-radius: 0 0 8px 8px; }
+  .phone-screen { display: flex; flex-direction: column; }
+
+  /* 와이어 내부 공통 */
+  .w-header { height: 44px; display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid #eee; flex-shrink: 0; font-size: 14px; font-weight: 700; }
+  .w-header .w-back { font-size: 16px; margin-right: 8px; color: #999; }
+  .w-header .w-title { flex: 1; text-align: center; margin-right: 24px; }
+  .w-header .w-action { font-size: 12px; font-weight: 600; color: var(--primary); cursor: pointer; }
+
+  .w-toggle-row { display: flex; align-items: center; padding: 14px 16px; border-bottom: 1px solid #f0f0f0; }
+  .w-toggle-row .w-toggle-text { flex: 1; }
+  .w-toggle-row .w-toggle-title { font-size: 13px; font-weight: 700; color: #111; }
+  .w-toggle-row .w-toggle-desc { font-size: 10.5px; color: #999; margin-top: 2px; }
+  .w-toggle { width: 42px; height: 24px; border-radius: 12px; position: relative; flex-shrink: 0; }
+  .w-toggle-on { background: #111; }
+  .w-toggle-off { background: #ddd; }
+  .w-toggle::after { content: ''; position: absolute; width: 18px; height: 18px; border-radius: 50%; background: #fff; top: 3px; }
+  .w-toggle-on::after { right: 3px; }
+  .w-toggle-off::after { left: 3px; }
+
+  .w-divider { height: 8px; background: #f5f5f5; }
+  .w-divider-thin { height: 1px; background: #f0f0f0; margin: 0 16px; }
+
+  .w-section-label { font-size: 10px; font-weight: 700; color: #aaa; padding: 12px 16px 4px; letter-spacing: 0.5px; }
+
+  .w-cta-card { margin: 12px 16px; border: 1.5px solid var(--primary); border-radius: 12px; padding: 14px; background: var(--primary-light); }
+  .w-cta-card .w-cta-title { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
+  .w-cta-card .w-cta-desc { font-size: 10.5px; color: #666; margin-bottom: 10px; line-height: 1.5; }
+  .w-cta-btn { display: inline-block; background: var(--primary); color: #fff; font-size: 11px; font-weight: 700; padding: 6px 16px; border-radius: 6px; }
+
+  .w-checkbox-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; }
+  .w-checkbox { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 4px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; }
+  .w-checkbox.checked { background: var(--primary); border-color: var(--primary); }
+  .w-checkbox.checked::after { content: '✓'; color: #fff; font-size: 10px; font-weight: 700; }
+  .w-checkbox-text { font-size: 12px; color: #333; line-height: 1.5; }
+  .w-checkbox-text .required { color: #DC2626; font-weight: 600; }
+  .w-checkbox-text .optional { color: var(--muted); font-weight: 600; }
+
+  .w-modal-overlay { background: rgba(0,0,0,0.35); padding: 40px 20px; display: flex; align-items: center; justify-content: center; }
+  .w-modal { background: #fff; border-radius: 16px; padding: 24px 20px 16px; width: 100%; }
+  .w-modal .w-modal-title { font-size: 15px; font-weight: 800; color: #111; text-align: center; margin-bottom: 12px; }
+  .w-modal .w-modal-body { margin-bottom: 16px; }
+  .w-modal-btns { display: flex; gap: 8px; }
+  .w-modal-btn { flex: 1; padding: 10px; border-radius: 8px; text-align: center; font-size: 13px; font-weight: 700; }
+  .w-modal-btn-cancel { background: #f0f0f0; color: #666; }
+  .w-modal-btn-confirm { background: var(--primary); color: #fff; }
+
+  .w-toast { margin: 12px 16px; background: #111; color: #fff; font-size: 12px; font-weight: 600; padding: 10px 14px; border-radius: 8px; text-align: center; }
+
+  .w-inline-prompt { margin: 12px 16px; padding: 14px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; }
+  .w-inline-prompt .w-ip-icon { font-size: 20px; margin-bottom: 6px; }
+  .w-inline-prompt .w-ip-text { font-size: 12px; color: #333; font-weight: 600; margin-bottom: 8px; line-height: 1.5; }
+  .w-inline-prompt .w-ip-btns { display: flex; gap: 8px; }
+  .w-inline-prompt .w-ip-btn { padding: 6px 14px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+  .w-ip-btn-primary { background: var(--primary); color: #fff; }
+  .w-ip-btn-secondary { background: #f0f0f0; color: #666; }
+
+  /* annotation arrow */
+  .anno { position: relative; margin: 8px 16px; padding: 8px 12px; background: #FEF9C3; border: 1px solid #FDE047; border-radius: 8px; font-size: 10px; color: #92400E; font-weight: 600; line-height: 1.5; }
+
+  /* decision summary */
+  .decision-table { width: 100%; border-collapse: collapse; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 16px; }
+  .decision-table th { background: var(--dark); color: var(--white); font-size: 11px; font-weight: 700; padding: 9px 14px; text-align: left; }
+  .decision-table td { padding: 8px 14px; font-size: 12px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.6; }
+  .decision-table tr:last-child td { border-bottom: none; }
+  .status-adopt { display: inline-block; background: #DCFCE7; color: #166534; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 3px; }
+  .status-hold { display: inline-block; background: #FEF9C3; color: #A16207; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 3px; }
+  .status-drop { display: inline-block; background: #F1F5F9; color: #64748B; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">PolyBall</div>
+  <div class="topbar-divider"></div>
+  <div class="topbar-meta">기능정의서 · 마케팅 수신 동의</div>
+  <div class="topbar-version">v0.1</div>
+  <div class="topbar-draft">DRAFT</div>
+</div>
+
+<aside class="sidebar">
+  <div class="sidebar-group">
+    <div class="sidebar-group-label">전체 보기</div>
+    <button class="sidebar-item active" data-filter="all"><span class="sidebar-item-id">ALL</span>전체</button>
+  </div>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-label">개요</div>
+    <button class="sidebar-item" data-filter="policy"><span class="sidebar-item-id">POL</span>정책 요약</button>
+    <button class="sidebar-item" data-filter="flow"><span class="sidebar-item-id">Flow</span>플로우 개요</button>
+    <button class="sidebar-item" data-filter="decision"><span class="sidebar-item-id">DEC</span>터치포인트 결정</button>
+  </div>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-label">화면 정의</div>
+    <button class="sidebar-item" data-filter="mk01"><span class="sidebar-item-id">MK-01</span>알림 설정 토글</button>
+    <button class="sidebar-item" data-filter="mk02"><span class="sidebar-item-id">MK-02</span>CAL-03 모달</button>
+    <button class="sidebar-item" data-filter="mk03"><span class="sidebar-item-id">MK-03</span>응원팀 맞춤 알림</button>
+    <button class="sidebar-item" data-filter="mk04"><span class="sidebar-item-id">MK-04</span>이벤트 마켓 동의</button>
+    <button class="sidebar-item" data-filter="mk05"><span class="sidebar-item-id">MK-05</span>마이 설정 동기화</button>
+  </div>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-label">참고</div>
+    <button class="sidebar-item" data-filter="legal"><span class="sidebar-item-id">LAW</span>법령 요건</button>
+    <button class="sidebar-item" data-filter="deferred"><span class="sidebar-item-id">DEF</span>보류 항목</button>
+    <button class="sidebar-item" data-filter="undef"><span class="sidebar-item-id">⚠</span>미정의 요약</button>
+  </div>
+</aside>
+
+<div class="layout">
+<main class="main">
+<div class="content-wrap">
+
+  <!-- 표지 -->
+  <div class="cover">
+    <div class="cover-tag">SPEC · v0.1 DRAFT</div>
+    <h1>마케팅 수신 동의 기능정의서</h1>
+    <div class="cover-sub">광고성 정보 수신 동의 획득 터치포인트 정의 · 알림 설정 · 동의 상태 관리</div>
+    <div class="cover-meta">
+      <div class="cover-meta-item">최초 작성 <span>2026-05-18</span></div>
+      <div class="cover-meta-item">버전 <span>v0.1 — 초안</span></div>
+      <div class="cover-meta-item">작성자 <span>기획</span></div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#DCFCE7;border:1px solid #86EFAC;"></div>확정</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#FFF7ED;border:1px solid #FED7AA;"></div>⚠ 미정의</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#F5F3FF;border:1px solid #DDD6FE;"></div>🕐 추후 결정</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#FEF9C3;border:1px solid #FDE047;"></div>신규 제안</div>
+  </div>
+
+
+  <!-- ══ 01. 정책 요약 ══ -->
+  <div class="section filter-block" data-filter="policy" id="policy">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">정책 요약</span>
+    </div>
+
+    <div class="sub-h3">동의 항목 구조</div>
+    <table class="spec-table spec-2col">
+      <tr><td>동의 항목</td><td class="confirmed">광고성 정보 수신 동의 — 단일 항목으로 통합 운영</td></tr>
+      <tr><td>항목 성격</td><td class="confirmed">정통망법 §50 기반 광고성 정보 전송 사전 동의</td></tr>
+      <tr><td>기본값</td><td class="confirmed">OFF (Opt-in 원칙)</td></tr>
+      <tr><td>관련 항목과의 관계</td><td class="confirmed">"마케팅 목적 개인정보 수집 및 이용"(개보법 §15)과 독립. 본 항목은 알림 수신 동의에 한정</td></tr>
+      <tr><td>징구 경로</td><td class="confirmed">회원가입 약관 동의 (기존) + MK-01~04 (신규)</td></tr>
+    </table>
+
+    <div class="sub-h3">동의 상태 관리 원칙</div>
+    <table class="spec-table spec-2col">
+      <tr><td>상태값</td><td class="confirmed">ON / OFF 이진값</td></tr>
+      <tr><td>서버 동기화</td><td class="confirmed">모든 경로(MK-01~05)에서 동일한 서버 상태를 읽고 씀. 한 곳에서 변경 시 전체 즉시 반영</td></tr>
+      <tr><td>동의 기록</td><td class="confirmed">동의/철회 시 일시, 경로(화면 ID), 변경 전/후 상태를 서버에 로깅</td></tr>
+      <tr><td>ON → OFF 전환</td><td class="confirmed">즉시 발송 목록에서 제외 + 처리 결과 통보 (정통망법 §50의5)</td></tr>
+      <tr><td>OFF → ON 전환</td><td class="confirmed">토글/체크박스 라벨에 "광고성 정보" 표현 포함 필수. 유저의 능동적 행위(토글 전환, 체크박스 체크)로 동의 성립</td></tr>
+    </table>
+
+    <div class="info-box-legal">
+      <strong>법적 근거:</strong> 정통망법 §50(광고성 정보 전송 사전 동의), §50의5(수신거부 즉시 처리 + 결과 통보), 개보법 §15(목적별 동의 분리). 모든 마케팅 알림 라벨에 "광고성 정보" 문구 필수.
+    </div>
+  </div>
+
+
+  <!-- ══ 02. 플로우 개요 ══ -->
+  <div class="section filter-block" data-filter="flow" id="flow">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">플로우 개요</span>
+    </div>
+
+    <div class="sub-h3">동의 획득 플로우</div>
+    <div class="flow">
+      <div class="flow-step">미동의 유저<small>광고성 정보 수신 OFF</small></div>
+      <div class="flow-arrow">→ 터치포인트 진입</div>
+      <div class="flow-step flow-new">MK-01~04<small>동의 유도 UI 노출</small></div>
+      <div class="flow-arrow">→ 동의 액션</div>
+      <div class="flow-step">서버 상태 ON<small>동의 일시·경로 로깅</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">마케팅 푸시 발송<small>광고성 정보 수신 시작</small></div>
+    </div>
+
+    <div class="sub-h3">동의 철회 플로우</div>
+    <div class="flow">
+      <div class="flow-step">동의 유저<small>광고성 정보 수신 ON</small></div>
+      <div class="flow-arrow">→ 설정 진입</div>
+      <div class="flow-step flow-new">MK-01 or MK-05<small>토글 OFF 전환</small></div>
+      <div class="flow-arrow">→ 즉시</div>
+      <div class="flow-step">발송 목록 제외<small>서버 상태 OFF</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">처리 결과 통보<small>토스트 메시지</small></div>
+    </div>
+
+    <div class="sub-h3">터치포인트 맵</div>
+    <div class="flow">
+      <div class="flow-step">MK-01<small>알림 설정 토글</small></div>
+      <div class="flow-step">MK-02<small>CAL-03 모달 체크</small></div>
+      <div class="flow-step">MK-03<small>응원팀 맞춤 알림</small></div>
+      <div class="flow-step">MK-04<small>이벤트 마켓 동의</small></div>
+      <div class="flow-step" style="background:#F1F5F9; border-color:#CBD5E1; color:#475569;">MK-05<small>마이 설정 (기존)</small></div>
+    </div>
+    <div class="info-box">MK-01~04는 동의 획득 경로, MK-05는 동의 확인·변경·철회 경로입니다. 모두 동일한 서버 상태(광고성 정보 수신 동의 ON/OFF)를 공유합니다.</div>
+  </div>
+
+
+  <!-- ══ 03. 터치포인트 결정 요약 ══ -->
+  <div class="section filter-block" data-filter="decision" id="decision">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">터치포인트 결정 요약</span>
+    </div>
+
+    <table class="decision-table">
+      <thead>
+        <tr><th style="width:32px;">#</th><th style="width:200px;">터치포인트</th><th style="width:70px;">결정</th><th>비고</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>알림 설정 페이지 토글</td><td><span class="status-adopt">채택</span></td><td>알림함 → 설정 → 마케팅 토글 추가 → <strong>MK-01</strong></td></tr>
+        <tr><td>2</td><td>알림함 빈 상태 (NF-02)</td><td><span class="status-drop">제외</span></td><td>미동의여도 서비스 알림은 쌓임. 빈 상태 ≠ 미동의</td></tr>
+        <tr><td>3</td><td>CAL-03 푸시 동의 모달</td><td><span class="status-adopt">채택</span></td><td>별도 체크박스로 마케팅 동의 추가 → <strong>MK-02</strong></td></tr>
+        <tr><td>4</td><td>예측 결과 확인 후</td><td><span class="status-hold">보류</span></td><td>화면 정리 후 위치·형태 결정</td></tr>
+        <tr><td>5</td><td>응원팀 맞춤 알림 (신규)</td><td><span class="status-adopt">채택</span></td><td>응모 메인 + 응원전 참여 시 노출 → <strong>MK-03</strong></td></tr>
+        <tr><td>6</td><td>마이 → 설정 스펙 문서화</td><td><span class="status-adopt">채택</span></td><td>기존 구현 문서화 + 동기화 정의 → <strong>MK-05</strong></td></tr>
+        <tr><td>7</td><td>커뮤니티 동의 바텀시트</td><td><span class="status-drop">제외</span></td><td>커뮤니티 동의 단순성 유지 우선</td></tr>
+        <tr><td>8</td><td>팀 응원전 최초 참여</td><td><span class="status-adopt">채택</span></td><td>MK-03의 노출 위치로 통합</td></tr>
+        <tr><td>9</td><td>이벤트 마켓 참여 시</td><td><span class="status-adopt">채택</span></td><td>참여 완료 후 동의 유도 → <strong>MK-04</strong></td></tr>
+        <tr><td>10</td><td>시스템 팝업</td><td><span class="status-hold">보류</span></td><td>1~9 적용 후 전환율 데이터 보고 판단</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <!-- ══ 04. MK-01 알림 설정 토글 ══ -->
+  <div class="section filter-block" data-filter="mk01" id="mk01">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">화면 정의</span>
+    </div>
+
+    <div class="sub" id="mk01-screen">
+      <div class="sub-header">
+        <span class="screen-id">MK-01</span>
+        <span class="screen-name">알림 설정 — 마케팅 토글 추가</span>
+        <span class="screen-desc">알림함 → 우상단 "설정" → 알림 설정 페이지</span>
+      </div>
+
+      <div class="desc-wrap">
+        <div class="desc-wrap-label">Description</div>
+        <div class="desc-card">
+          <div class="desc-card-header"><span class="desc-card-tag">OVERVIEW</span><span class="desc-card-name">화면 개요</span></div>
+          <div class="desc-card-body">
+            <div class="desc-item">기존 알림 설정 페이지(예측 알림 / 응모 알림 토글)에 <strong>마케팅 알림 토글</strong>을 신규 추가</div>
+            <div class="desc-item">서비스 알림(예측/응모)과 마케팅 알림을 구분선으로 분리하여 영역 구분</div>
+            <div class="desc-item">이 페이지는 현재 기능정의서에 미포함 상태이므로, 기존 토글 포함 전체 페이지 스펙을 정의</div>
+          </div>
+        </div>
+
+        <div class="desc-card">
+          <div class="desc-card-header"><span class="desc-card-tag">COMPONENT</span><span class="desc-card-name">UI 구성</span></div>
+          <div class="desc-card-body">
+            <div class="desc-item"><strong>헤더:</strong> ← 뒤로가기 + "알림 설정" 타이틀</div>
+            <div class="desc-item"><strong>서비스 알림 영역:</strong></div>
+            <div class="desc-item depth2">예측 알림 토글 — "내 예측 결과와 새로운 예측 소식"</div>
+            <div class="desc-item depth2">응모 알림 토글 — "신규 경기 응모 소식, 당첨 안내 등"</div>
+            <div class="desc-item"><strong>구분선:</strong> 굵은 구분선 (다른 섹션 구분, 디자인 가이드 §6)</div>
+            <div class="desc-item"><strong>마케팅 알림 영역:</strong></div>
+            <div class="desc-item depth2">이벤트·혜택 알림 토글 — "이벤트, 프로모션 등 광고성 정보 수신"</div>
+            <div class="desc-item depth2">기본값: OFF</div>
+            <div class="desc-item depth2">토글 라벨에 <strong>"광고성 정보"</strong> 표현 포함 필수 (정통망법 §50)</div>
+          </div>
+        </div>
+
+        <div class="desc-card">
+          <div class="desc-card-header"><span class="desc-card-tag">BEHAVIOR</span><span class="desc-card-name">동작 정의</span></div>
+          <div class="desc-card-body">
+            <div class="desc-item"><strong>OFF → ON 전환:</strong> 토글 즉시 전환 + 서버 동의 상태 ON 저장 + 동의 일시·경로(MK-01) 로깅</div>
+            <div class="desc-item"><strong>ON → OFF 전환:</strong> 토글 즉시 전환 + 서버 동의 상태 OFF 저장 + 발송 목록 즉시 제외 + 토스트 "이벤트·혜택 알림이 해제되었어요" 노출 (정통망법 §50의5 처리 결과 통보)</div>
+            <div class="desc-item"><strong>앱 푸시 권한 미허용 상태에서 ON 전환 시:</strong> OS 시스템 설정으로 이동 유도 팝업 → 허용 후 복귀 시 동의 상태 ON 저장 <span class="tag-later">추후 결정</span></div>
+            <div class="desc-item"><strong>MK-05(마이 → 설정)와 동기화:</strong> 한 쪽에서 ON/OFF 변경 시 다른 쪽 즉시 반영</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="spec-wrap">
+        <div class="spec-wrap-label">Spec</div>
+        <table class="spec-table spec-2col">
+          <tr><td>진입 경로</td><td class="confirmed">알림함(NF-01) → 우상단 "설정" 클릭</td></tr>
+          <tr><td>페이지 타이틀</td><td class="confirmed">알림 설정</td></tr>
+          <tr><td>기존 토글</td><td class="confirmed">예측 알림 (ON/OFF) · 응모 알림 (ON/OFF)</td></tr>
+          <tr><td>신규 토글</td><td class="confirmed">이벤트·혜택 알림 (ON/OFF) — 마케팅 동의 연동</td></tr>
+          <tr><td>신규 토글 설명</td><td class="confirmed">"이벤트, 프로모션 등 광고성 정보 수신"</td></tr>
+          <tr><td>신규 토글 기본값</td><td class="confirmed">OFF</td></tr>
+          <tr><td>영역 구분</td><td class="confirmed">서비스 알림 / 마케팅 알림 구분선으로 분리</td></tr>
+          <tr><td>OFF 전환 시 통보</td><td class="confirmed">토스트 메시지 노출</td></tr>
+          <tr><td>서버 동기화 대상</td><td class="confirmed">MK-05 (마이 → 설정 → 광고성 정보 수신 동의)</td></tr>
+        </table>
+      </div>
+
+      <!-- 와이어프레임 -->
+      <div class="sub-h3">wireframe</div>
+      <div class="wire-grid">
+        <div class="wire-wrap">
+          <div class="wire-label">알림 설정 — 미동의 상태</div>
+          <div class="phone">
+            <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+            <div class="phone-screen">
+              <div class="w-header">
+                <span class="w-back">←</span>
+                <span class="w-title">알림 설정</span>
+              </div>
+              <div style="padding-top:4px;">
+                <div class="w-toggle-row">
+                  <div class="w-toggle-text">
+                    <div class="w-toggle-title">예측 알림</div>
+                    <div class="w-toggle-desc">내 예측 결과와 새로운 예측 소식</div>
+                  </div>
+                  <div class="w-toggle w-toggle-on"></div>
+                </div>
+                <div class="w-toggle-row">
+                  <div class="w-toggle-text">
+                    <div class="w-toggle-title">응모 알림</div>
+                    <div class="w-toggle-desc">신규 경기 응모 소식, 당첨 안내 등</div>
+                  </div>
+                  <div class="w-toggle w-toggle-on"></div>
+                </div>
+              </div>
+              <div class="w-divider"></div>
+              <div class="w-section-label">마케팅</div>
+              <div class="w-toggle-row" style="border-bottom:none;">
+                <div class="w-toggle-text">
+                  <div class="w-toggle-title">이벤트·혜택 알림</div>
+                  <div class="w-toggle-desc">이벤트, 프로모션 등 광고성 정보 수신</div>
+                </div>
+                <div class="w-toggle w-toggle-off"></div>
+              </div>
+              <div class="anno">✦ 신규 추가 영역 — 기본값 OFF</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="wire-wrap">
+          <div class="wire-label">알림 설정 — 동의 완료 상태</div>
+          <div class="phone">
+            <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+            <div class="phone-screen">
+              <div class="w-header">
+                <span class="w-back">←</span>
+                <span class="w-title">알림 설정</span>
+              </div>
+              <div style="padding-top:4px;">
+                <div class="w-toggle-row">
+                  <div class="w-toggle-text">
+                    <div class="w-toggle-title">예측 알림</div>
+                    <div class="w-toggle-desc">내 예측 결과와 새로운 예측 소식</div>
+                  </div>
+                  <div class="w-toggle w-toggle-on"></div>
+                </div>
+                <div class="w-toggle-row">
+                  <div class="w-toggle-text">
+                    <div class="w-toggle-title">응모 알림</div>
+                    <div class="w-toggle-desc">신규 경기 응모 소식, 당첨 안내 등</div>
+                  </div>
+                  <div class="w-toggle w-toggle-on"></div>
+                </div>
+              </div>
+              <div class="w-divider"></div>
+              <div class="w-section-label">마케팅</div>
+              <div class="w-toggle-row" style="border-bottom:none;">
+                <div class="w-toggle-text">
+                  <div class="w-toggle-title">이벤트·혜택 알림</div>
+                  <div class="w-toggle-desc">이벤트, 프로모션 등 광고성 정보 수신</div>
+                </div>
+                <div class="w-toggle w-toggle-on"></div>
+              </div>
+              <div class="w-toast">이벤트·혜택 알림이 켜졌어요</div>
+            </div>
+          </div>
+          <div class="wire-sublabel">OFF → ON 전환 시 토스트 노출</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ══ 05. MK-02 CAL-03 모달 ══ -->
+  <div class="section filter-block" data-filter="mk02" id="mk02">
+    <div class="sub" id="mk02-screen">
+      <div class="sub-header">
+        <span class="screen-id">MK-02</span>
+        <span class="screen-name">CAL-03 푸시 동의 모달 — 마케팅 체크박스 추가</span>
+        <span class="screen-desc">응모 캘린더 → 응모 예정 상세 → "오픈 알림받기" 탭 시 노출</span>
+      </div>
+
+      <div class="desc-wrap">
+        <div class="desc-wrap-label">Description</div>
+        <div class="desc-card">
+          <div class="desc-card-header"><span class="desc-card-tag">OVERVIEW</span><span class="desc-card-name">화면 개요</span></div>
+          <div class="desc-card-body">
+            <div class="desc-item">CAL-03 "오픈 알림받기" 버튼 탭 시 노출되는 푸시 동의 모달에 <strong>마케팅 동의 체크박스</strong>를 선택 항목으로 추가</div>
+            <div class="desc-item">유저가 "이 경기 오픈 알림을 받겠다"는 의사를 표현한 시점이므로, "이벤트 알림도 받을래?"로 자연스럽게 확장</div>
+            <div class="desc-item">서비스 알림(오픈 알림)과 마케팅 알림은 별도 체크박스로 분리 (개보법 §15)</div>
+          </div>
+        </div>
+
+        <div class="desc-card">
+          <div class="desc-card-header"><span class="desc-card-tag">COMPONENT</span><span class="desc-card-name">모달 구성</span></div>
+          <div class="desc-card-body">
+            <div class="desc-item"><strong>모달 타이틀:</strong> "알림을 받으시겠어요?"</div>
+            <div class="desc-item"><strong>체크박스 1 (필수/사전 체크):</strong> "응모 오픈 알림받기" — 서비스 알림</div>
+            <div class="desc-item"><strong>체크박스 2 (선택/미체크):</strong> "이벤트·프로모션 등 광고성 정보도 함께 받기" — 마케팅 동의</div>
+            <div class="desc-item depth2">이미 마케팅 동의 ON 상태인 유저에게는 체크박스 2 미노출 또는 체크 상태로 노출</div>
+            <div class="desc-item"><strong>버튼:</strong> 취소 / 확인</div>
+          </div>
+        </div>
+
+        <div class="desc-card">
+          <div class="desc-card-header"><span class="desc-card-tag">BEHAVIOR</span><span class="desc-card-name">동작 정의</span></div>
+          <div class="desc-card-body">
+            <div class="desc-item"><strong>"확인" 탭 시:</strong></div>
+            <div class="desc-item depth2">체크박스 1 체크 → ENTRY_OPEN 알림 등록 (기존 CAL-03 동작)</div>
+            <div class="desc-item depth2">체크박스 2 체크 → 광고성 정보 수신 동의 ON + 동의 경로(MK-02) 로깅</div>
+            <div class="desc-item depth2">체크박스 2 미체크 → 마케팅 동의 상태 변경 없음. 오픈 알림은 정상 등록</div>
+            <div class="desc-item"><strong>"취소" 탭 시:</strong> 모달 닫힘, 알림 등록 안 됨</div>
+            <div class="desc-item"><strong>앱 푸시 미허용 시:</strong> OS 시스템 설정 유도 팝업 선행 → 허용 후 본 모달 노출</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="spec-wrap">
+        <div class="spec-wrap-label">Spec</div>
+        <table class="spec-table spec-2col">
+          <tr><td>트리거</td><td class="confirmed">CAL-03 "오픈 알림받기" 버튼 탭</td></tr>
+          <tr><td>노출 조건</td><td class="confirmed">마케팅 미동의 유저에게 체크박스 2 노출. 기동의 유저는 체크박스 2 미노출 또는 체크 상태</td></tr>
+          <tr><td>체크박스 1</td><td class="confirmed">응모 오픈 알림받기 — 사전 체크, 필수</td></tr>
+          <tr><td>체크박스 2</td><td class="confirmed">이벤트·프로모션 등 광고성 정보도 함께 받기 — 미체크, 선택</td></tr>
+          <tr><td>체크2 미동의 시</td><td class="confirmed">오픈 알림 정상 등록. 마케팅 동의 변경 없음</td></tr>
+          <tr><td>기존 CAL-03 참조</td><td class="confirmed">polyball-feature-spec-v1.1 · CAL-03 응모 예정 상세</td></tr>
+        </table>
+      </div>
+
+      <!-- 와이어프레임 -->
+      <div class="sub-h3">wireframe</div>
+      <div class="wire-grid">
+        <div class="wire-wrap">
+          <div class="wire-label">푸시 동의 모달 — 미동의 유저</div>
+          <div class="phone">
+            <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+            <div class="phone-screen">
+              <div class="w-header" style="background:#f9f9f9;">
+                <span class="w-back">←</span>
+                <span class="w-title" style="font-size:13px;">응모 예정 상세</span>
+              </div>
+              <div style="padding:16px; background:#f9f9f9; flex:1; opacity:0.4;">
+                <div style="background:#e0e0e0; border-radius:8px; height:60px; margin-bottom:12px;"></div>
+                <div style="background:#e0e0e0; border-radius:8px; height:40px; margin-bottom:12px;"></div>
+              </div>
+              <div class="w-modal-overlay">
+                <div class="w-modal">
+                  <div class="w-modal-title">알림을 받으시겠어요?</div>
+                  <div class="w-modal-body">
+                    <div class="w-checkbox-row">
+                      <div class="w-checkbox checked"></div>
+                      <div class="w-checkbox-text">응모 오픈 알림받기</div>
+                    </div>
+                    <div class="w-checkbox-row" style="padding-top:6px;">
+                      <div class="w-checkbox"></div>
+                      <div class="w-checkbox-text">이벤트·프로모션 등 광고성 정보도 함께 받기 <span class="optional">(선택)</span></div>
+                    </div>
+                  </div>
+                  <div class="w-modal-btns">
+                    <div class="w-modal-btn w-modal-btn-cancel">취소</div>
+                    <div class="w-modal-btn w-modal-btn-confirm">확인</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ══ 06. MK-03 응원팀 맞춤 알림 ══ -->
+  <div class="section filter-block" data-filter="mk03" id="mk03">
+    <div class="sub" id="mk03-screen">
+      <div class="sub-header">
+        <span class="screen-id">MK-03</span>
+        <span class="screen-name">응원팀 맞춤 알림 동의 유도</span>
+        <span class="screen-desc">응모 메인 · 팀 응원전 참여 시점에서 노출</span>
+      </div>
+
+      <div class="desc-wrap">
+        <div class="desc-wrap-label">Description</div>
+        <div class="desc-card">
+          <div class="desc-card-header"><span class="desc-card-tag">OVERVIEW</span><span class="desc-card-name">개요</span></div>
+          <div class="desc-card-body">
+            <div class="desc-item">"응원팀과 관련된 다양한 소식을 알림으로 받아볼래요?" 형태의 마케팅 동의 유도</div>
+            <div class="desc-item">응원팀 맥락이 강한 화면에서 인라인 프롬프트로 노출</div>
+            <div class="desc-item">기존 "광고성 정보 수신 동의"와 동일한 서버 상태를 ON으로 전환</div>
+          </div>
+        </div>
+
+        <div class="desc-card">
+          <div class="desc-card-header"><span class="desc-card-tag">TOUCHPOINT</span><span class="desc-card-name">노출 위치</span></div>
+          <div class="desc-card-body">
+            <div class="desc-item"><strong>위치 A — 응모 메인:</strong> 주간 경기 갱신(월요일) 후 미동의 유저가 응모 메인 진입 시 인라인 카드 노출</div>
+            <div class="desc-item depth2">경기 카드 리스트 상단에 배치</div>
+            <div class="desc-item depth2">응원팀 경기가 포함된 주에만 노출 <span class="tag-later">추후 결정</span></div>
+            <div class="desc-item"><strong>위치 B — 팀 응원전 최초 참여:</strong> TB-03 응원하기 첫 참여 완료 후 인라인 프롬프트 노출</div>
+            <div class="desc-item depth2">응원전 런칭 블로커 #02(순위 변동 알림 분류) 확정 후 구체 설계</div>
+          </div>
+        </div>
+
+        <div class="desc-card">
+          <div class="desc-card-header"><span class="desc-card-tag">BEHAVIOR</span><span class="desc-card-name">동작 정의</span></div>
+          <div class="desc-card-body">
+            <div class="desc-item"><strong>"알림 받기" 탭 시:</strong> 광고성 정보 수신 동의 ON + 동의 경로(MK-03) 로깅 + 프롬프트 사라짐 + 토스트 "알림이 켜졌어요"</div>
+            <div class="desc-item"><strong>"다음에" 탭 시:</strong> 프롬프트 사라짐, 동의 상태 변경 없음</div>
+            <div class="desc-item"><strong>재노출 정책:</strong> "다음에" 탭 후 7일 쿨다운. 7일 경과 시 동일 위치에서 재노출 <span class="tag-later">추후 결정</span></div>
+          </div>
+        </div>
+
+        <div class="desc-card">
+          <div class="desc-card-header"><span class="desc-card-tag">IDEATION</span><span class="desc-card-name">아이디에이션 — 응원팀 알림 콘텐츠</span></div>
+          <div class="desc-card-body">
+            <div class="desc-item">동의 이후 발송 가능한 마케팅 알림 콘텐츠 후보:</div>
+            <div class="desc-item depth2"><strong>응원팀 응모 가능 경기 오픈:</strong> "OO팀 응모 가능 경기가 열렸어요!" — 매주 월요일 09시경</div>
+            <div class="desc-item depth2"><strong>응원팀 경기 예측 오픈:</strong> "오늘 OO팀 경기 예측이 열렸어요. 지금 참여하세요!" — 경기 당일</div>
+            <div class="desc-item depth2"><strong>응원전 순위 변동:</strong> "OO팀 주간 순위가 2위로 올랐어요!" — 순위 변동 시 (런칭 블로커 #02 확정 후)</div>
+            <div class="desc-item depth2"><strong>응원팀 관련 이벤트:</strong> "OO팀 팬을 위한 특별 이벤트가 열렸어요!" — 이벤트 마켓 오픈 시</div>
+            <div class="desc-item">위 콘텐츠는 모두 "광고성 정보 수신 동의" ON 유저에게만 발송</div>
+            <div class="desc-item">신규 알림 이벤트 ID 및 발송 정책은 알림함 기능정의서(NF) 업데이트 시 정의</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="spec-wrap">
+        <div class="spec-wrap-label">Spec</div>
+        <table class="spec-table spec-2col">
+          <tr><td>노출 대상</td><td class="confirmed">마케팅 수신 미동의 + 로그인 + 응원팀 설정 완료 유저</td></tr>
+          <tr><td>노출 위치 A</td><td class="confirmed">응모 메인 — 경기 카드 리스트 상단</td></tr>
+          <tr><td>노출 위치 B</td><td class="later">팀 응원전 참여 시 — 런칭 블로커 #02 확정 후</td></tr>
+          <tr><td>UI 형태</td><td class="confirmed">인라인 프롬프트 카드</td></tr>
+          <tr><td>CTA</td><td class="confirmed">"알림 받기" (Primary) + "다음에" (Secondary)</td></tr>
+          <tr><td>동의 시 동작</td><td class="confirmed">서버 동의 ON + 경로 로깅 + 프롬프트 제거 + 토스트</td></tr>
+          <tr><td>"다음에" 시 동작</td><td class="confirmed">프롬프트 제거, 상태 변경 없음</td></tr>
+          <tr><td>재노출 쿨다운</td><td class="later">"다음에" 후 7일 제안, 추후 확정</td></tr>
+        </table>
+      </div>
+
+      <!-- 와이어프레임 -->
+      <div class="sub-h3">wireframe</div>
+      <div class="wire-grid">
+        <div class="wire-wrap">
+          <div class="wire-label">응모 메인 — 인라인 프롬프트</div>
+          <div class="phone">
+            <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+            <div class="phone-screen">
+              <div class="w-header" style="border-bottom: none;">
+                <span style="flex:1; font-size:11px; color:#999;">응모</span>
+                <span style="font-size:14px;">🔔</span>
+              </div>
+              <!-- 인라인 프롬프트 -->
+              <div class="w-inline-prompt">
+                <div class="w-ip-icon">⚾</div>
+                <div class="w-ip-text">응원팀과 관련된 소식을<br>알림으로 받아볼래요?</div>
+                <div style="font-size:10px; color:#999; margin-bottom:10px;">응모 가능 경기, 이벤트 등 광고성 정보 수신</div>
+                <div class="w-ip-btns">
+                  <div class="w-ip-btn w-ip-btn-primary">알림 받기</div>
+                  <div class="w-ip-btn w-ip-btn-secondary">다음에</div>
+                </div>
+              </div>
+              <!-- 경기 카드 placeholder -->
+              <div style="padding:12px 16px;">
+                <div style="background:#f5f5f5; border-radius:12px; height:72px; margin-bottom:8px; display:flex; align-items:center; padding:0 14px;">
+                  <span style="font-size:11px; color:#aaa;">🏟️ 경기 카드 영역</span>
+                </div>
+                <div style="background:#f5f5f5; border-radius:12px; height:72px; margin-bottom:8px; display:flex; align-items:center; padding:0 14px;">
+                  <span style="font-size:11px; color:#aaa;">🏟️ 경기 카드 영역</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="wire-wrap">
+          <div class="wire-label">팀 응원전 — 참여 후 프롬프트</div>
+          <div class="wire-sublabel">런칭 블로커 #02 확정 후 구체화</div>
+          <div class="phone">
+            <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+            <div class="phone-screen">
+              <div class="w-header">
+                <span class="w-back">←</span>
+                <span class="w-title" style="font-size:13px;">팀 응원전</span>
+              </div>
+              <div style="padding:20px 16px; text-align:center;">
+                <div style="font-size:32px; margin-bottom:8px;">🎉</div>
+                <div style="font-size:14px; font-weight:700; color:#111; margin-bottom:4px;">응원 완료!</div>
+                <div style="font-size:11px; color:#999; margin-bottom:16px;">OO팀에 포인트가 적립되었어요</div>
+              </div>
+              <div class="w-inline-prompt">
+                <div class="w-ip-text">응원팀 순위 변동, 이벤트 소식을<br>알림으로 받아볼까요?</div>
+                <div style="font-size:10px; color:#999; margin-bottom:10px;">이벤트, 프로모션 등 광고성 정보 수신</div>
+                <div class="w-ip-btns">
+                  <div class="w-ip-btn w-ip-btn-primary">알림 받기</div>
+                  <div class="w-ip-btn w-ip-btn-secondary">다음에</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ══ 07. MK-04 이벤트 마켓 동의 ══ -->
+  <div class="section filter-block" data-filter="mk04" id="mk04">
+    <div class="sub" id="mk04-screen">
+      <div class="sub-header">
+        <span class="screen-id">MK-04</span>
+        <span class="screen-name">이벤트 마켓 참여 후 동의 유도</span>
+        <span class="screen-desc">이벤트 마켓 최초 참여 완료 시점</span>
+      </div>
+
+      <div class="desc-wrap">
+        <div class="desc-wrap-label">Description</div>
+        <div class="desc-card">
+          <div class="desc-card-header"><span class="desc-card-tag">OVERVIEW</span><span class="desc-card-name">개요</span></div>
+          <div class="desc-card-body">
+            <div class="desc-item">이벤트 마켓(퀴즈/예측/참여형) 최초 참여 완료 후, "새로운 이벤트 마켓이 나왔을 때 알림을 드릴까요?" 형태로 동의 유도</div>
+            <div class="desc-item">이벤트 마켓에 참여한 유저는 해당 콘텐츠에 관심이 높으므로, "다음에도 알려줄까?"가 자연스러운 맥락</div>
+            <div class="desc-item">EVENT_MARKET_OPEN 알림은 마케팅 성격이므로, 사전 동의 필요</div>
+          </div>
+        </div>
+
+        <div class="desc-card">
+          <div class="desc-card-header"><span class="desc-card-tag">COMPONENT</span><span class="desc-card-name">UI 구성</span></div>
+          <div class="desc-card-body">
+            <div class="desc-item"><strong>노출 시점:</strong> 이벤트 마켓 참여 완료 직후 (퀴즈형: 정답 확인 후 / 예측형·참여형: 참여 완료 후)</div>
+            <div class="desc-item"><strong>UI 형태:</strong> 인라인 프롬프트 (MK-03과 동일 패턴)</div>
+            <div class="desc-item"><strong>메시지:</strong> "새로운 이벤트 마켓이 나왔을 때 알림을 드릴까요?"</div>
+            <div class="desc-item"><strong>부가 설명:</strong> "이벤트, 프로모션 등 광고성 정보 수신"</div>
+            <div class="desc-item"><strong>CTA:</strong> "알림 받기" (Primary) + "다음에" (Secondary)</div>
+          </div>
+        </div>
+
+        <div class="desc-card">
+          <div class="desc-card-header"><span class="desc-card-tag">BEHAVIOR</span><span class="desc-card-name">동작 정의</span></div>
+          <div class="desc-card-body">
+            <div class="desc-item"><strong>"알림 받기" 탭 시:</strong> 광고성 정보 수신 동의 ON + 동의 경로(MK-04) 로깅 + 프롬프트 사라짐 + 토스트</div>
+            <div class="desc-item"><strong>"다음에" 탭 시:</strong> 프롬프트 사라짐, 동의 상태 변경 없음</div>
+            <div class="desc-item"><strong>노출 횟수:</strong> 최초 1회만 노출. "다음에" 이후 재노출 없음. 이벤트 마켓은 참여 빈도가 낮아 반복 노출 시 피로도 리스크 높음</div>
+            <div class="desc-item"><strong>이미 동의 ON 유저:</strong> 프롬프트 미노출</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="spec-wrap">
+        <div class="spec-wrap-label">Spec</div>
+        <table class="spec-table spec-2col">
+          <tr><td>노출 대상</td><td class="confirmed">마케팅 수신 미동의 + 이벤트 마켓 최초 참여 완료 유저</td></tr>
+          <tr><td>노출 시점</td><td class="confirmed">참여 완료 직후 (퀴즈: 정답 확인 후 / 예측·참여: 완료 후)</td></tr>
+          <tr><td>UI 형태</td><td class="confirmed">인라인 프롬프트 (MK-03 동일 패턴)</td></tr>
+          <tr><td>CTA</td><td class="confirmed">"알림 받기" + "다음에"</td></tr>
+          <tr><td>노출 횟수</td><td class="confirmed">최초 1회만</td></tr>
+          <tr><td>관련 알림 이벤트</td><td class="confirmed">EVENT_MARKET_OPEN (알림함 기능정의서 참조)</td></tr>
+        </table>
+      </div>
+
+      <!-- 와이어프레임 -->
+      <div class="sub-h3">wireframe</div>
+      <div class="wire-grid">
+        <div class="wire-wrap">
+          <div class="wire-label">이벤트 마켓 참여 완료 후</div>
+          <div class="phone">
+            <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+            <div class="phone-screen">
+              <div class="w-header">
+                <span class="w-back">←</span>
+                <span class="w-title" style="font-size:13px;">이벤트 마켓</span>
+              </div>
+              <div style="padding:24px 16px; text-align:center;">
+                <div style="font-size:32px; margin-bottom:8px;">🎯</div>
+                <div style="font-size:14px; font-weight:700; color:#111; margin-bottom:4px;">참여 완료!</div>
+                <div style="font-size:11px; color:#999; margin-bottom:4px;">응모권 2장이 지급되었어요</div>
+              </div>
+              <div class="w-inline-prompt">
+                <div class="w-ip-text">새로운 이벤트 마켓이 나왔을 때<br>알림을 드릴까요?</div>
+                <div style="font-size:10px; color:#999; margin-bottom:10px;">이벤트, 프로모션 등 광고성 정보 수신</div>
+                <div class="w-ip-btns">
+                  <div class="w-ip-btn w-ip-btn-primary">알림 받기</div>
+                  <div class="w-ip-btn w-ip-btn-secondary">다음에</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ══ 08. MK-05 마이 설정 동기화 ══ -->
+  <div class="section filter-block" data-filter="mk05" id="mk05">
+    <div class="sub" id="mk05-screen">
+      <div class="sub-header">
+        <span class="screen-id">MK-05</span>
+        <span class="screen-name">마이 → 설정 — 광고성 정보 수신 동의</span>
+        <span class="screen-desc">기존 구현 스펙 문서화 + MK-01~04와 상태 동기화</span>
+      </div>
+
+      <div class="desc-wrap">
+        <div class="desc-wrap-label">Description</div>
+        <div class="desc-card">
+          <div class="desc-card-header"><span class="desc-card-tag">OVERVIEW</span><span class="desc-card-name">개요</span></div>
+          <div class="desc-card-body">
+            <div class="desc-item">마이 → 설정 → 약관 및 개인정보 섹션의 <strong>"광고성 정보 수신 동의"</strong> 항목은 이미 앱에 구현되어 있으나 기능정의서 상세 없음</div>
+            <div class="desc-item">마케팅 동의의 최종 확인·변경·철회 경로로서, MK-01~04에서 변경된 상태가 이 화면에도 동기화되어야 함</div>
+            <div class="desc-item">정통망법 §50의5 수신거부 처리 의무를 충족하는 공식 경로</div>
+          </div>
+        </div>
+
+        <div class="desc-card">
+          <div class="desc-card-header"><span class="desc-card-tag">SPEC-TBD</span><span class="desc-card-name">확인 필요 사항</span></div>
+          <div class="desc-card-body">
+            <div class="desc-item"><strong>chevron 탭 시 동작:</strong> 약관 전문 보기 화면인지, 동의 상태 ON/OFF 토글 화면인지 확인 필요 <span class="tag-undef">미확인</span></div>
+            <div class="desc-item"><strong>동의 상태 변경 가능 여부:</strong> 이 화면에서 직접 ON/OFF 전환 가능한지 확인 필요 <span class="tag-undef">미확인</span></div>
+            <div class="desc-item"><strong>OFF 전환 시 처리 결과 통보:</strong> 토스트 또는 인라인 텍스트로 "수신 거부 처리 완료" 안내 구현 여부 <span class="tag-undef">미확인</span></div>
+            <div class="desc-item"><strong>동기화:</strong> MK-01(알림 설정 토글)에서 ON 변경 시 이 화면에 즉시 반영 확인 필요 <span class="tag-undef">미확인</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="spec-wrap">
+        <div class="spec-wrap-label">Spec</div>
+        <table class="spec-table spec-2col">
+          <tr><td>진입 경로</td><td class="confirmed">마이 → 설정 → 약관 및 개인정보 → "광고성 정보 수신 동의"</td></tr>
+          <tr><td>현재 UI</td><td class="confirmed">chevron(›) 링크 형태</td></tr>
+          <tr><td>탭 시 동작</td><td class="undef">약관 전문 보기 or 토글 화면 — 현재 앱 동작 확인 후 기재</td></tr>
+          <tr><td>동의 상태 변경</td><td class="undef">이 화면에서 직접 ON/OFF 가능 여부 — 확인 필요</td></tr>
+          <tr><td>동기화 대상</td><td class="confirmed">MK-01 (알림 설정 토글)과 양방향 동기화</td></tr>
+          <tr><td>법적 요건</td><td class="confirmed">정통망법 §50의5 — OFF 전환 시 즉시 발송 중단 + 처리 결과 통보</td></tr>
+        </table>
+      </div>
+
+      <div class="info-box-warn">MK-05는 기존 구현의 문서화 항목입니다. 현재 앱에서 "광고성 정보 수신 동의" chevron 탭 시 실제 동작을 확인한 후 이 섹션을 업데이트해야 합니다.</div>
+    </div>
+  </div>
+
+
+  <!-- ══ 09. 법령 요건 ══ -->
+  <div class="section filter-block" data-filter="legal" id="legal">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">법령 요건 체크리스트</span>
+    </div>
+
+    <table class="spec-table">
+      <thead>
+        <tr><th style="width:160px;">법령</th><th style="width:180px;">요건</th><th>적용 항목</th><th style="width:80px;">충족</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>정통망법 §50</td>
+          <td>광고성 정보 전송 사전 동의</td>
+          <td>모든 토글/체크박스 라벨에 "광고성 정보" 문구 포함. 기본값 OFF(Opt-in)</td>
+          <td class="confirmed">설계 반영</td>
+        </tr>
+        <tr>
+          <td>정통망법 §50</td>
+          <td>전송자 명칭 표기</td>
+          <td>마케팅 푸시 발송 시 "폴리볼" 명칭 포함 <span class="tag-later">발송 템플릿에서 정의</span></td>
+          <td class="later">추후</td>
+        </tr>
+        <tr>
+          <td>정통망법 §50의5</td>
+          <td>수신거부 즉시 처리</td>
+          <td>MK-01, MK-05에서 토글 OFF 시 즉시 발송 목록 제외</td>
+          <td class="confirmed">설계 반영</td>
+        </tr>
+        <tr>
+          <td>정통망법 §50의5</td>
+          <td>처리 결과 통보</td>
+          <td>토글 OFF 시 토스트 "이벤트·혜택 알림이 해제되었어요"</td>
+          <td class="confirmed">설계 반영</td>
+        </tr>
+        <tr>
+          <td>개보법 §15</td>
+          <td>목적별 동의 분리</td>
+          <td>MK-02 — 서비스 알림과 마케팅 알림 체크박스 분리</td>
+          <td class="confirmed">설계 반영</td>
+        </tr>
+        <tr>
+          <td>정통망법 §50</td>
+          <td>야간 광고 전송 제한 (21~08시)</td>
+          <td>마케팅 푸시 발송 시간대 08:00~21:00 제한 <span class="tag-later">발송 정책에서 정의</span></td>
+          <td class="later">추후</td>
+        </tr>
+        <tr>
+          <td>정통망법 §50</td>
+          <td>수신거부 방법 안내</td>
+          <td>마케팅 푸시 메시지에 "설정에서 알림 끄기" 문구 포함 필수 <span class="tag-later">발송 템플릿에서 정의</span></td>
+          <td class="later">추후</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="info-box-legal">
+      <strong>위반 시 제재:</strong> 수신 동의 없이 광고성 정보 전송 → 3천만원 이하 과태료 (§76①). 야간 광고 전송 → 1천만원 이하 과태료 (§76②). 수신거부 처리 의무 위반 → 3천만원 이하 과태료 (§76①).
+    </div>
+  </div>
+
+
+  <!-- ══ 10. 보류 항목 ══ -->
+  <div class="section filter-block" data-filter="deferred" id="deferred">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <span class="section-title">보류 항목</span>
+    </div>
+
+    <div class="desc-card">
+      <div class="desc-card-header"><span class="desc-card-tag" style="background:#FEF9C3; border-color:#FDE047; color:#92400E;">HOLD</span><span class="desc-card-name">#4 예측 결과 확인 후 동의 유도</span></div>
+      <div class="desc-card-body">
+        <div class="desc-item">예측 결과 확인 시점에서 마케팅 동의를 유도하는 방안</div>
+        <div class="desc-item">PK-13 예측 히스토리 화면 구조 정리 후 위치·형태 결정</div>
+        <div class="desc-item"><strong>선결 조건:</strong> 화면 레이아웃 확정</div>
+      </div>
+    </div>
+
+    <div class="desc-card" style="margin-top:12px;">
+      <div class="desc-card-header"><span class="desc-card-tag" style="background:#FEF9C3; border-color:#FDE047; color:#92400E;">HOLD</span><span class="desc-card-name">#10 시스템 팝업 (N번째 방문 트리거)</span></div>
+      <div class="desc-card-body">
+        <div class="desc-item">MK-01~04 적용 후 동의 전환율이 목표에 미달할 경우 최후 수단으로 검토</div>
+        <div class="desc-item">디자인 가이드에 "마케팅 정보 수신 동의 알림 — 취소+확인" 시스템 팝업 케이스 정의됨</div>
+        <div class="desc-item"><strong>선결 조건:</strong> MK-01~04 적용 후 전환율 데이터 수집</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══ 11. 미정의 요약 ══ -->
+  <div class="section filter-block" data-filter="undef" id="undef">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <span class="section-title">미정의 요약</span>
+    </div>
+
+    <div class="undef-wrap">
+      <div class="undef-wrap-header">⚠ 확정 필요 항목</div>
+      <ul class="undef-list">
+        <li><span class="u-id">MK-01</span><span class="u-desc">앱 푸시 권한 미허용 상태에서 마케팅 토글 ON 시 처리 플로우</span></li>
+        <li><span class="u-id">MK-03</span><span class="u-desc">응모 메인 인라인 프롬프트 — 응원팀 경기 포함 주에만 노출할지 여부</span></li>
+        <li><span class="u-id">MK-03</span><span class="u-desc">"다음에" 탭 후 재노출 쿨다운 기간 (제안: 7일)</span></li>
+        <li><span class="u-id">MK-03</span><span class="u-desc">팀 응원전 노출(위치 B) — 런칭 블로커 #02 (순위 변동 알림 분류) 확정 필요</span></li>
+        <li><span class="u-id">MK-03</span><span class="u-desc">응원팀 맞춤 알림 신규 이벤트 ID 및 발송 정책 정의</span></li>
+        <li><span class="u-id">MK-05</span><span class="u-desc">마이 → 설정 → "광고성 정보 수신 동의" chevron 탭 시 실제 앱 동작 확인</span></li>
+        <li><span class="u-id">MK-05</span><span class="u-desc">동의 상태 변경 가능 여부 및 처리 결과 통보 UX 확인</span></li>
+        <li><span class="u-id">공통</span><span class="u-desc">마케팅 푸시 발송 시간대 (제안: 08:00~21:00) 정책 확정</span></li>
+        <li><span class="u-id">공통</span><span class="u-desc">마케팅 푸시 메시지 내 수신거부 안내 문구 형식</span></li>
+      </ul>
+    </div>
+  </div>
+
+
+</div><!-- content-wrap -->
+</main>
+</div><!-- layout -->
+
+<script>
+  // 사이드바 필터링
+  const items = document.querySelectorAll('.sidebar-item');
+  items.forEach(item => {
+    item.addEventListener('click', () => {
+      items.forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+      const filter = item.getAttribute('data-filter');
+      document.querySelectorAll('.filter-block').forEach(block => {
+        if (filter === 'all') {
+          block.classList.remove('hidden');
+        } else {
+          block.classList.toggle('hidden', block.getAttribute('data-filter') !== filter);
+        }
+      });
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>응모 내역 상태값 정책서 v1.0</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif; font-size: 14px; color: #1a1a1a; background: #f5f5f5; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 40px 20px 80px; }
+
+  /* 헤더 */
+  .doc-header { background: #1F30E9; color: #fff; border-radius: 12px; padding: 32px 36px; margin-bottom: 32px; }
+  .doc-header .label { font-size: 12px; font-weight: 600; opacity: 0.7; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
+  .doc-header h1 { font-size: 26px; font-weight: 800; margin-bottom: 8px; }
+  .doc-header .meta-row { display: flex; gap: 20px; flex-wrap: wrap; font-size: 13px; opacity: 0.8; margin-top: 10px; }
+  .doc-header .meta-row span::before { content: "· "; }
+  .doc-header .meta-row span:first-child::before { content: ""; }
+
+  /* 섹션 */
+  h2 { font-size: 17px; font-weight: 800; color: #1F30E9; border-bottom: 2px solid #1F30E9; padding-bottom: 8px; margin: 40px 0 16px; }
+  h3 { font-size: 15px; font-weight: 700; color: #222; margin: 28px 0 10px; }
+  h4 { font-size: 13px; font-weight: 700; color: #555; margin: 18px 0 8px; }
+  p  { line-height: 1.75; color: #444; margin-bottom: 10px; }
+
+  .card { background: #fff; border-radius: 10px; padding: 24px 28px; margin-bottom: 20px; box-shadow: 0 1px 6px rgba(0,0,0,0.07); }
+  .card + .card { margin-top: 0; }
+
+  /* 테이블 */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin: 14px 0 20px; }
+  th { background: #1F30E9; color: #fff; padding: 10px 14px; border: 1px solid #1a29cc; font-weight: 700; text-align: left; }
+  td { padding: 9px 14px; border: 1px solid #e9ecef; vertical-align: top; line-height: 1.65; }
+  tr:hover td { background: #f8f9ff; }
+
+  /* 뱃지 */
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+  .b-blue   { background: #e7f5ff; color: #1971c2; border: 1px solid #a5d8ff; }
+  .b-orange { background: #fff4e6; color: #e67700; border: 1px solid #ffd8a8; }
+  .b-green  { background: #ebfbee; color: #2f9e44; border: 1px solid #b2f2bb; }
+  .b-purple { background: #f3f0ff; color: #7048e8; border: 1px solid #d0bfff; }
+  .b-gray   { background: #f1f3f5; color: #868e96; border: 1px solid #dee2e6; }
+  .b-red    { background: #fff0f0; color: #e03131; border: 1px solid #ffc9c9; }
+
+  /* 상태 전이 다이어그램 */
+  .flow-wrap { display: flex; align-items: flex-start; gap: 0; margin: 20px 0; overflow-x: auto; padding-bottom: 8px; }
+  .flow-col  { display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 100px; }
+  .flow-node { background: #fff; border: 2px solid #1F30E9; border-radius: 8px; padding: 10px 14px; font-size: 12px; font-weight: 700; color: #1F30E9; text-align: center; width: 100%; }
+  .flow-node.orange { border-color: #e67700; color: #e67700; }
+  .flow-node.green  { border-color: #2f9e44; color: #2f9e44; }
+  .flow-node.purple { border-color: #7048e8; color: #7048e8; }
+  .flow-node.gray   { border-color: #868e96; color: #868e96; }
+  .flow-node.red    { border-color: #e03131; color: #e03131; background: #fff8f8; }
+  .flow-node.dim    { border-style: dashed; opacity: 0.55; }
+  .flow-arrow { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 48px; padding-top: 10px; }
+  .flow-arrow .arr { font-size: 18px; color: #aaa; }
+  .flow-arrow .lbl { font-size: 10px; color: #999; text-align: center; max-width: 56px; margin-top: 2px; line-height: 1.4; }
+
+  /* 타임라인 */
+  .timeline { position: relative; padding-left: 28px; margin: 16px 0; }
+  .timeline::before { content: ''; position: absolute; left: 8px; top: 6px; bottom: 6px; width: 2px; background: #dee2e6; border-radius: 2px; }
+  .tl-item { position: relative; margin-bottom: 20px; }
+  .tl-item::before { content: ''; position: absolute; left: -24px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: #1F30E9; border: 2px solid #fff; box-shadow: 0 0 0 2px #1F30E9; }
+  .tl-item:last-child { margin-bottom: 0; }
+  .tl-week { font-size: 12px; font-weight: 800; color: #1F30E9; margin-bottom: 4px; }
+  .tl-body { font-size: 13px; color: #444; line-height: 1.65; }
+  .tl-body strong { color: #222; }
+
+  /* 콜아웃 */
+  .callout      { border-radius: 8px; padding: 12px 16px; margin: 12px 0; font-size: 13px; line-height: 1.65; }
+  .c-blue  { background: #edf2ff; border-left: 4px solid #1F30E9; }
+  .c-warn  { background: #fff4e6; border-left: 4px solid #f76707; }
+  .c-gray  { background: #f8f9fa; border-left: 4px solid #adb5bd; }
+
+  /* 탭 미리보기 */
+  .tab-preview { display: flex; gap: 4px; flex-wrap: wrap; margin: 12px 0; }
+  .tab-item { padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1.5px solid #dee2e6; color: #868e96; }
+  .tab-item.on { background: #1F30E9; color: #fff; border-color: #1F30E9; }
+
+  /* 구분선 */
+  hr { border: none; border-top: 1px solid #e9ecef; margin: 32px 0; }
+
+  /* TODO */
+  .todo { background: #fffbe6; border-left: 4px solid #f59f00; padding: 10px 14px; margin: 8px 0; font-size: 13px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 문서 헤더 -->
+  <div class="doc-header">
+    <div class="label">Policy Document</div>
+    <h1>응모 내역 상태값 정책서</h1>
+    <div class="meta-row">
+      <span>v1.0</span>
+      <span>2026-04-20</span>
+      <span>참조 기능정의서: 마이_기능정의서_v1.1</span>
+      <span>적용 화면: 마이 &gt; 내 응모 &gt; 응모 내역</span>
+    </div>
+  </div>
+
+
+  <!-- ─── 1. 개요 ─── -->
+  <h2>1. 개요</h2>
+  <div class="card">
+    <p>본 문서는 <strong>마이 &gt; 내 응모 &gt; 응모 내역</strong> 화면에서 유저에게 노출되는 상태값의 정의, 전환 조건, 처리 방식을 규정합니다.</p>
+
+    <div class="callout c-blue">
+      📌 본 문서의 상태값은 <strong>응모 내역 화면 전용</strong>입니다. 응모 메인의 경기 카드 상태(응모 진행 중 / 치열⚡ / 응모 마감)와는 별개입니다.
+    </div>
+
+    <h3>적용 화면 및 탭 구조</h3>
+    <div class="tab-preview">
+      <div class="tab-item on">전체</div>
+      <div class="tab-item">응모 진행 중</div>
+      <div class="tab-item">발표 대기</div>
+      <div class="tab-item">당첨</div>
+      <div class="tab-item">미당첨</div>
+    </div>
+    <p style="font-size:12px;color:#888;margin-top:4px;">각 탭은 해당 상태의 응모 건만 필터링하여 노출합니다.</p>
+  </div>
+
+
+  <!-- ─── 2. 상태값 목록 ─── -->
+  <h2>2. 상태값 목록</h2>
+  <div class="card">
+    <table>
+      <tr>
+        <th style="width:130px;">상태값</th>
+        <th style="width:110px;">뱃지</th>
+        <th>정의</th>
+        <th style="width:80px;">종단 여부</th>
+      </tr>
+      <tr>
+        <td><strong>응모 진행 중</strong></td>
+        <td><span class="badge b-blue">응모 진행 중</span></td>
+        <td>유저가 응모에 참여했고, 해당 응모 기간이 아직 마감되지 않은 상태</td>
+        <td style="text-align:center;">—</td>
+      </tr>
+      <tr>
+        <td><strong>발표 대기</strong></td>
+        <td><span class="badge b-orange">발표 대기</span></td>
+        <td>응모가 마감되었으나 유저가 아직 결과를 직접 확인하지 않은 상태</td>
+        <td style="text-align:center;">—</td>
+      </tr>
+      <tr>
+        <td><strong>당첨</strong></td>
+        <td><span class="badge b-green">응모 당첨</span></td>
+        <td>해당 응모에 최초 당첨자로 선정된 상태</td>
+        <td style="text-align:center;">✅ 종단</td>
+      </tr>
+      <tr>
+        <td><strong>예비당첨</strong></td>
+        <td><span class="badge b-purple">예비당첨</span></td>
+        <td>최초 당첨자 미선정, 예비 순번으로 선정된 상태. 최종 결과 대기 중</td>
+        <td style="text-align:center;">—</td>
+      </tr>
+      <tr>
+        <td><strong>예비&gt;당첨</strong></td>
+        <td><span class="badge b-green">예비&gt;당첨</span></td>
+        <td>예비당첨 상태에서 최초 당첨자 포기/무응답으로 최종 당첨 전환된 상태</td>
+        <td style="text-align:center;">✅ 종단</td>
+      </tr>
+      <tr>
+        <td><strong>예비&gt;미당첨</strong></td>
+        <td><span class="badge b-gray">예비&gt;미당첨</span></td>
+        <td>예비당첨 상태에서 최종 당첨 명단에 포함되지 못한 상태</td>
+        <td style="text-align:center;">✅ 종단</td>
+      </tr>
+      <tr>
+        <td><strong>미당첨</strong></td>
+        <td><span class="badge b-gray">미당첨</span></td>
+        <td>당첨·예비당첨 외 전원에게 적용되는 최종 미선정 상태</td>
+        <td style="text-align:center;">✅ 종단</td>
+      </tr>
+      <tr>
+        <td><strong>취소</strong></td>
+        <td><span class="badge b-red">취소</span></td>
+        <td>당첨 후 포기 선언 또는 무응답자에 대한 취소 처리 상태</td>
+        <td style="text-align:center;">추후 정의</td>
+      </tr>
+    </table>
+    <div class="callout c-warn">
+      ⚠️ <strong>취소</strong> 상태값은 현재 미정의 상태입니다. 해당 케이스는 임시로 <strong>미당첨</strong>으로 처리됩니다.
+    </div>
+  </div>
+
+
+  <!-- ─── 3. 상태 전이 규칙 ─── -->
+  <h2>3. 상태 전이 규칙</h2>
+
+  <div class="card">
+    <h3>3-1. 기준 주차(W) 정의</h3>
+    <table>
+      <tr><th>기호</th><th>의미</th></tr>
+      <tr><td><strong>W</strong></td><td>유저가 응모에 참여한 주차 (월~일)</td></tr>
+      <tr><td><strong>W+1</strong></td><td>응모 마감 및 당첨자 발표 주차 (월요일 기준)</td></tr>
+      <tr><td><strong>W+2</strong></td><td>예비당첨 최종 처리 및 강제 전환 기준 주차</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>3-2. 주차별 타임라인</h3>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-week">W 월 ~ W 일</div>
+        <div class="tl-body">
+          유저가 응모에 참여하면 내역에 <span class="badge b-blue" style="font-size:11px;">응모 진행 중</span> 상태로 노출됩니다.
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-week">W+1 월요일 00시</div>
+        <div class="tl-body">
+          자동 배치 처리 — <span class="badge b-blue" style="font-size:11px;">응모 진행 중</span> → <span class="badge b-orange" style="font-size:11px;">발표 대기</span> 전환.<br>
+          당첨 결과 데이터가 생성되며, 유저는 앱 진입 후 직접 확인해야 합니다.
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-week">W+1 월 ~ W+1 일 (발표 대기 기간)</div>
+        <div class="tl-body">
+          유저가 응모 내역 상세에서 <strong>결과 확인하기 CTA를 클릭</strong>하면 즉시 결과 상태(<span class="badge b-green" style="font-size:11px;">당첨</span> / <span class="badge b-purple" style="font-size:11px;">예비당첨</span> / <span class="badge b-gray" style="font-size:11px;">미당첨</span>)로 전환됩니다.<br>
+          이 기간 동안 확인하지 않아도 W+2 월요일 00시에 강제 전환됩니다.
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-week">W+2 월요일 00시</div>
+        <div class="tl-body">
+          자동 배치 처리 — <span class="badge b-orange" style="font-size:11px;">발표 대기</span> 상태 중 미확인 건 전체를 당첨 결과(당첨/예비당첨/미당첨)로 강제 전환합니다.<br>
+          동시에, <span class="badge b-purple" style="font-size:11px;">예비당첨</span> 건에 대해 최종 당첨자 명단 업데이트를 진행하여 <span class="badge b-green" style="font-size:11px;">예비&gt;당첨</span> 또는 <span class="badge b-gray" style="font-size:11px;">예비&gt;미당첨</span>으로 최종 확정합니다.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>3-3. 상태 전이 테이블</h3>
+    <table>
+      <tr>
+        <th>현재 상태</th>
+        <th>전환 트리거</th>
+        <th>전환 후 상태</th>
+        <th>처리 방식</th>
+      </tr>
+      <tr>
+        <td><span class="badge b-blue">응모 진행 중</span></td>
+        <td>W+1 월요일 00시</td>
+        <td><span class="badge b-orange">발표 대기</span></td>
+        <td>자동 배치</td>
+      </tr>
+      <tr>
+        <td rowspan="2"><span class="badge b-orange">발표 대기</span></td>
+        <td>유저가 결과 확인하기 CTA 클릭</td>
+        <td><span class="badge b-green">당첨</span> / <span class="badge b-purple">예비당첨</span> / <span class="badge b-gray">미당첨</span></td>
+        <td>유저 액션</td>
+      </tr>
+      <tr>
+        <td>W+2 월요일 00시 (미확인 시)</td>
+        <td><span class="badge b-green">당첨</span> / <span class="badge b-purple">예비당첨</span> / <span class="badge b-gray">미당첨</span></td>
+        <td>자동 배치 (강제)</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-purple">예비당첨</span></td>
+        <td>W+2 월요일 최종 당첨자 명단 확정</td>
+        <td><span class="badge b-green">예비&gt;당첨</span> / <span class="badge b-gray">예비&gt;미당첨</span></td>
+        <td>자동 배치</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-green">당첨</span> / <span class="badge b-green">예비&gt;당첨</span> / <span class="badge b-gray">예비&gt;미당첨</span> / <span class="badge b-gray">미당첨</span></td>
+        <td>—</td>
+        <td>종단 (변경 없음)</td>
+        <td>—</td>
+      </tr>
+    </table>
+  </div>
+
+
+  <!-- ─── 4. 예비당첨 처리 정책 ─── -->
+  <h2>4. 예비당첨 처리 정책</h2>
+
+  <div class="card">
+    <h3>4-1. 예비당첨 개요</h3>
+    <table>
+      <tr><th>항목</th><th>내용</th></tr>
+      <tr><td>예비 인원 기준</td><td>최초 당첨 인원의 <strong>1배수</strong> 선정 (추후 2배수로 변경 예정)</td></tr>
+      <tr><td>예비 결과 확정 기준 시점</td><td>W+2 월요일 최종 당첨자 명단 업데이트 시</td></tr>
+      <tr><td>유저에게 노출되는 안내 문구</td><td>"기존 당첨자가 취소하면 예비 순번에 따라 개별 연락을 드려요."</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>4-2. 케이스 A — 예비 → 당첨 전환</h3>
+    <table>
+      <tr><th>항목</th><th>내용</th></tr>
+      <tr><td>발생 조건</td><td>최초 당첨자 중 <strong>포기 선언 또는 무응답자</strong> 발생 → 해당 티켓을 예비 순번 유저에게 인계 → 예비 유저의 당첨 수락 응답 완료</td></tr>
+      <tr><td>상태 전환 시점</td><td>W+2 월요일 최종 당첨자 명단 확정 업데이트 시</td></tr>
+      <tr><td>응모 내역 상태 변경</td><td><span class="badge b-purple">예비당첨</span> → <span class="badge b-green">예비&gt;당첨</span></td></tr>
+      <tr><td>티켓 노출</td><td>상태 전환 완료 후 마이 탭 티켓 목록에 해당 티켓 노출 (준비 완료 상태)</td></tr>
+      <tr><td>유저 알림</td><td>미정의 (추후 정의 필요)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>4-3. 케이스 B — 예비 → 미당첨 전환</h3>
+    <table>
+      <tr><th>항목</th><th>내용</th></tr>
+      <tr><td>발생 조건 ①</td><td>최초 당첨자 전원 당첨 확정 완료</td></tr>
+      <tr><td>발생 조건 ②</td><td>앞 순번의 예비자가 당첨을 먼저 확정하여 해당 유저에게 차례가 돌아오지 않은 경우</td></tr>
+      <tr><td>상태 전환 시점</td><td>W+2 월요일 최종 당첨자 명단 확정 업데이트 시</td></tr>
+      <tr><td>응모 내역 상태 변경</td><td><span class="badge b-purple">예비당첨</span> → <span class="badge b-gray">예비&gt;미당첨</span></td></tr>
+    </table>
+    <div class="callout c-warn">
+      ⚠️ 최초 당첨자 중 포기/무응답 유저의 취소 처리는 추후 <span class="badge b-red">취소</span> 상태값으로 별도 반영 예정이며, 현재는 <span class="badge b-gray">미당첨</span>으로 임시 처리합니다.
+    </div>
+  </div>
+
+
+  <!-- ─── 5. 결과 확인 화면 정의 ─── -->
+  <h2>5. 결과 확인 화면</h2>
+  <div class="card">
+    <p>발표 대기 상태의 응모 내역 카드에서 <strong>결과 확인하기 CTA</strong> 클릭 시 진입하는 화면입니다.</p>
+    <table>
+      <tr>
+        <th>결과</th>
+        <th>화면 타이틀</th>
+        <th>본문 안내 문구</th>
+        <th>CTA 버튼</th>
+        <th>이동 화면</th>
+      </tr>
+      <tr>
+        <td><span class="badge b-green">당첨</span></td>
+        <td>당첨 축하 화면</td>
+        <td>당첨 축하 메시지</td>
+        <td>티켓 확인하기</td>
+        <td>해당 티켓 상세</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-purple">예비당첨</span></td>
+        <td>예비 당첨, 순서를 기다리고 있어요</td>
+        <td>"기존 당첨자가 취소하면<br>예비 순번에 따라 개별 연락을 드려요."</td>
+        <td>① 다른 경기 둘러보기 (Primary)<br>② 목록으로 가기 (텍스트)</td>
+        <td>① 응모 메인<br>② 내 응모 목록</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-gray">미당첨</span></td>
+        <td>미당첨 안내 화면</td>
+        <td>아쉬움 안내 + 재도전 유도</td>
+        <td>다른 경기 둘러보기</td>
+        <td>응모 메인</td>
+      </tr>
+    </table>
+    <div class="callout c-gray">
+      예비당첨 / 미당첨 결과 화면 하단에는 <strong>{내 응모}로 이동</strong> 텍스트 링크를 공통 제공합니다.
+    </div>
+  </div>
+
+
+  <!-- ─── 6. 미결 사항 ─── -->
+  <h2>6. 미결 사항 (TODO)</h2>
+  <div class="card">
+    <div class="todo">🔲 취소 상태값 정의 — 당첨 후 포기/무응답 유저 처리 플로우 (현재 미당첨 임시 처리)</div>
+    <div class="todo">🔲 예비당첨 → 당첨 전환 시 유저 알림 정책 정의 (푸시 발송 여부 및 연락 수단)</div>
+    <div class="todo">🔲 W+2 강제 전환 배치 처리 개발 스펙 확인 (정확한 처리 시점 및 방식)</div>
+    <div class="todo">🔲 예비 인원 2배수 전환 시점 및 정책 확정 (현재 1배수 운영)</div>
+    <div class="todo">🔲 발표 대기 상태 카드 내 "결과 확인하기" 버튼 노출 조건 Figma 확인</div>
+  </div>
+
+</div>
+</body>
+</html>

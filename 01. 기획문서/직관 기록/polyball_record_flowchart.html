@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>폴리볼 직관/집관 기록 — 유저 플로우</title>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Pretendard', -apple-system, sans-serif;
+    background: #F7F7F5;
+    padding: 40px 24px 80px;
+  }
+  .header {
+    max-width: 1100px;
+    margin: 0 auto 32px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #1A1A18;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .header h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; color: #1A1A18; }
+  .header span { font-size: 12px; color: #9B9B93; }
+  .chart-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    background: #fff;
+    border: 1px solid #E0E0DA;
+    border-radius: 12px;
+    overflow: hidden;
+    padding: 32px 16px;
+  }
+  svg { display: block; width: 100%; }
+  .legend {
+    max-width: 1100px;
+    margin: 24px auto 0;
+    background: #fff;
+    border: 1px solid #E0E0DA;
+    border-radius: 10px;
+    padding: 20px 24px;
+  }
+  .legend-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #9B9B93; margin-bottom: 14px; }
+  .legend-row { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #5C5C56; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>폴리볼 직관/집관 기록 — 유저 플로우</h1>
+  <span>v0.1 · 2026.04</span>
+</div>
+
+<div class="chart-wrap">
+<!--
+  컬럼 X 정의
+  왼쪽(직관 경로):   cx=200
+  중앙(공통/분기):   cx=540
+  오른쪽(집관 경로): cx=880
+
+  viewBox: 0 0 1080 2400
+-->
+<svg viewBox="0 0 1080 2440" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <!-- 일반 화살표 (회색) -->
+  <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M1 1L9 5L1 9" fill="none" stroke="#888780" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <!-- 직관 경로 화살표 (파란) -->
+  <marker id="arr-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M1 1L9 5L1 9" fill="none" stroke="#378ADD" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <!-- 집관 경로 화살표 (보라) -->
+  <marker id="arr-p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M1 1L9 5L1 9" fill="none" stroke="#7C3AED" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <!-- 고도화 경로 화살표 (주황) -->
+  <marker id="arr-u" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M1 1L9 5L1 9" fill="none" stroke="#D97706" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <!-- 성공 화살표 (초록) -->
+  <marker id="arr-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M1 1L9 5L1 9" fill="none" stroke="#16A34A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+
+<!-- ══════════════════════════════════════════════════
+     컬럼 구분선 & 라벨 (상단 고정)
+     ══════════════════════════════════════════════════ -->
+<line x1="370" y1="260" x2="370" y2="2400" stroke="#E8E8E4" stroke-width="0.5" stroke-dasharray="4 3"/>
+<line x1="710" y1="260" x2="710" y2="2400" stroke="#E8E8E4" stroke-width="0.5" stroke-dasharray="4 3"/>
+<line x1="40" y1="260" x2="1040" y2="260" stroke="#E8E8E4" stroke-width="0.5" stroke-dasharray="4 3"/>
+
+<text x="200" y="248" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="12" fill="#888780" font-weight="600">직관 경로</text>
+<text x="540" y="248" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="12" fill="#888780" font-weight="600">공통 플로우</text>
+<text x="880" y="248" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="12" fill="#888780" font-weight="600">집관 경로</text>
+
+
+<!-- ══════════════════════════════════════════════════
+     1. START — 경기 종료
+     ══════════════════════════════════════════════════ -->
+<ellipse cx="540" cy="52" rx="140" ry="28" fill="#F1EFE8" stroke="#888780" stroke-width="1"/>
+<text x="540" y="52" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="15" font-weight="600" fill="#444441">경기 종료</text>
+
+<line x1="540" y1="80" x2="540" y2="112" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+
+
+<!-- ══════════════════════════════════════════════════
+     2. 진입 경로 분기 다이아몬드
+     cx=540, cy=152
+     꼭짓점: top(540,112) right(640,152) bottom(540,192) left(440,152)
+     ══════════════════════════════════════════════════ -->
+<polygon points="540,112 645,152 540,192 435,152" fill="#F1EFE8" stroke="#888780" stroke-width="1"/>
+<text x="540" y="146" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#444441">진입</text>
+<text x="540" y="162" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#444441">경로?</text>
+
+<!-- 푸시 기반 → 왼쪽 위 (직관 브랜치 방향) -->
+<line x1="435" y1="152" x2="200" y2="152" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="316" y="143" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="11" fill="#888780">푸시 탭</text>
+
+<!-- 수동 진입 → 오른쪽 -->
+<line x1="645" y1="152" x2="880" y2="152" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="764" y="143" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="11" fill="#888780">수동 진입</text>
+
+
+<!-- ══════════════════════════════════════════════════
+     3L. [직관 경로] 푸시 알림 수신
+     cx=200
+     ══════════════════════════════════════════════════ -->
+<!-- 푸시 알림 박스 (말풍선형) -->
+<rect x="80" y="128" width="180" height="48" rx="8" fill="#F1EFE8" stroke="#888780" stroke-width="1"/>
+<polygon points="260,138 274,152 260,166" fill="#F1EFE8" stroke="#888780" stroke-width="1"/>
+<line x1="260" y1="138" x2="260" y2="166" stroke="#F1EFE8" stroke-width="2"/>
+<text x="170" y="148" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="12" font-weight="600" fill="#444441">푸시 알림 수신</text>
+<text x="170" y="166" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#6B6B63">경기 종료 알림</text>
+
+<line x1="200" y1="176" x2="200" y2="208" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+
+
+<!-- ══════════════════════════════════════════════════
+     3R. [집관 경로] 수동 진입
+     cx=880
+     ══════════════════════════════════════════════════ -->
+<rect x="780" y="128" width="200" height="48" rx="8" fill="#fff" stroke="#D0D0C8" stroke-width="1"/>
+<text x="880" y="148" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#1A1A18">기록 탭 / 내 지갑</text>
+<text x="880" y="166" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#6B6B63">"+ 기록 남기기" 탭</text>
+
+<line x1="880" y1="176" x2="880" y2="208" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+
+
+<!-- ══════════════════════════════════════════════════
+     4L. [직관] 직관/집관 선택 화면 (푸시 진입)
+     ══════════════════════════════════════════════════ -->
+<rect x="80" y="208" width="240" height="52" rx="8" fill="#EFF4FF" stroke="#378ADD" stroke-width="1"/>
+<text x="200" y="228" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#0C447C">직관/집관 선택</text>
+<text x="200" y="248" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#185FA5">경기 정보 자동 완성 노출</text>
+
+<line x1="200" y1="260" x2="200" y2="292" stroke="#378ADD" stroke-width="1.2" marker-end="url(#arr-b)"/>
+
+
+<!-- ══════════════════════════════════════════════════
+     4R. [집관] 날짜/경기 선택 화면
+     ══════════════════════════════════════════════════ -->
+<rect x="770" y="208" width="220" height="52" rx="8" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1"/>
+<text x="880" y="228" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#4C1D95">날짜 선택</text>
+<text x="880" y="248" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#5B21B6">날짜 탭 → 경기 목록 자동 노출</text>
+
+<line x1="880" y1="260" x2="880" y2="292" stroke="#7C3AED" stroke-width="1.2" marker-end="url(#arr-p)"/>
+
+
+<!-- ══════════════════════════════════════════════════
+     5L. [직관] 분기 다이아몬드 — 직관/집관 선택
+     cx=200, cy=328
+     꼭짓점: top(200,292) right(290,328) bottom(200,364) left(110,328)
+     ══════════════════════════════════════════════════ -->
+<polygon points="200,292 295,328 200,364 105,328" fill="#F1EFE8" stroke="#888780" stroke-width="1"/>
+<text x="200" y="322" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="12" font-weight="600" fill="#444441">직관 /</text>
+<text x="200" y="338" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="12" font-weight="600" fill="#444441">집관?</text>
+
+<!-- 직관 → 아래 계속 -->
+<line x1="200" y1="364" x2="200" y2="396" stroke="#378ADD" stroke-width="1.2" marker-end="url(#arr-b)"/>
+<text x="218" y="382" text-anchor="start" font-family="Pretendard,sans-serif" font-size="11" fill="#378ADD">직관</text>
+
+<!-- 집관 → 오른쪽으로 합류 -->
+<line x1="295" y1="328" x2="540" y2="328" stroke="#7C3AED" stroke-width="1.2"/>
+<line x1="540" y1="328" x2="880" y2="328" stroke="#7C3AED" stroke-width="1.2"/>
+<line x1="880" y1="328" x2="880" y2="292" stroke="#7C3AED" stroke-width="1.2" marker-end="url(#arr-p)"/>
+<text x="430" y="320" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="11" fill="#7C3AED">집관 → 우측 경로 합류</text>
+
+
+<!-- ══════════════════════════════════════════════════
+     5R. [집관] 경기 선택 화면
+     cx=880
+     ══════════════════════════════════════════════════ -->
+<rect x="770" y="292" width="220" height="52" rx="8" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1"/>
+<text x="880" y="312" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#4C1D95">경기 선택</text>
+<text x="880" y="332" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#5B21B6">해당 날짜 경기 목록에서 선택</text>
+
+<line x1="880" y1="344" x2="880" y2="376" stroke="#7C3AED" stroke-width="1.2" marker-end="url(#arr-p)"/>
+
+
+<!-- ══════════════════════════════════════════════════
+     6L. [직관] 직관 기록 작성 화면
+     cx=200
+     ══════════════════════════════════════════════════ -->
+<rect x="80" y="396" width="240" height="52" rx="8" fill="#EFF4FF" stroke="#378ADD" stroke-width="1"/>
+<text x="200" y="416" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#0C447C">직관 기록 작성 화면</text>
+<text x="200" y="436" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#185FA5">자동 완성 + 선택 입력</text>
+
+<line x1="200" y1="448" x2="200" y2="480" stroke="#378ADD" stroke-width="1.2" marker-end="url(#arr-b)"/>
+
+
+<!-- ══════════════════════════════════════════════════
+     6R. [집관] 집관 기록 작성 화면
+     cx=880
+     ══════════════════════════════════════════════════ -->
+<rect x="770" y="376" width="220" height="52" rx="8" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1"/>
+<text x="880" y="396" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#4C1D95">집관 기록 작성 화면</text>
+<text x="880" y="416" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#5B21B6">자동 완성 + 간소화된 입력</text>
+
+<line x1="880" y1="428" x2="880" y2="460" stroke="#7C3AED" stroke-width="1.2" marker-end="url(#arr-p)"/>
+
+
+<!-- ══════════════════════════════════════════════════
+     7L. [직관] 응모 당첨 여부 분기
+     cx=200, cy=520
+     꼭짓점: top(200,480) right(295,520) bottom(200,560) left(105,520)
+     ══════════════════════════════════════════════════ -->
+<polygon points="200,480 300,520 200,560 100,520" fill="#F1EFE8" stroke="#888780" stroke-width="1"/>
+<text x="200" y="514" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="12" font-weight="600" fill="#444441">응모 당첨</text>
+<text x="200" y="530" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="12" font-weight="600" fill="#444441">직관?</text>
+
+<!-- Yes → 왼쪽으로 → 당첨 특별 레이어 -->
+<line x1="100" y1="520" x2="40" y2="520" stroke="#888780" stroke-width="1.2"/>
+<line x1="40" y1="520" x2="40" y2="600" stroke="#888780" stroke-width="1.2"/>
+<line x1="40" y1="600" x2="80" y2="600" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="68" y="512" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="11" fill="#888780">Yes</text>
+
+<!-- No → 아래로 계속 -->
+<line x1="200" y1="560" x2="200" y2="592" stroke="#378ADD" stroke-width="1.2" marker-end="url(#arr-b)"/>
+<text x="218" y="578" text-anchor="start" font-family="Pretendard,sans-serif" font-size="11" fill="#888780">No</text>
+
+
+<!-- ══════════════════════════════════════════════════
+     7L-특별. [직관] 응모 당첨 특별 레이어
+     ══════════════════════════════════════════════════ -->
+<rect x="40" y="576" width="200" height="52" rx="8" fill="#FAEEDA" stroke="#D97706" stroke-width="1"/>
+<text x="140" y="596" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="12" font-weight="600" fill="#633806">★ 당첨 직관 특별 카드</text>
+<text x="140" y="614" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#854F0B">이벤트명 · 도전 횟수 자동 표기</text>
+
+<!-- 당첨 레이어 → 오른쪽으로 일반 기록 저장과 합류 -->
+<line x1="240" y1="602" x2="200" y2="602" stroke="#D97706" stroke-width="1.2" stroke-dasharray="0"/>
+<line x1="200" y1="602" x2="200" y2="644" stroke="#D97706" stroke-width="1.2" marker-end="url(#arr-u)"/>
+
+
+<!-- ══════════════════════════════════════════════════
+     8L. [직관] 선택 입력 영역 (사진·소감·기분)
+     cx=200
+     ══════════════════════════════════════════════════ -->
+<rect x="80" y="592" width="240" height="52" rx="8" fill="#fff" stroke="#D0D0C8" stroke-width="1"/>
+<text x="200" y="612" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#1A1A18">선택 입력</text>
+<text x="200" y="632" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#6B6B63">사진 · 소감 · 동행인 · 날씨 · 기분</text>
+
+<line x1="200" y1="644" x2="200" y2="676" stroke="#378ADD" stroke-width="1.2" marker-end="url(#arr-b)"/>
+
+
+<!-- ══════════════════════════════════════════════════
+     8R. [집관] 선택 입력 영역 (소감·기분)
+     cx=880
+     ══════════════════════════════════════════════════ -->
+<rect x="770" y="460" width="220" height="52" rx="8" fill="#fff" stroke="#D0D0C8" stroke-width="1"/>
+<text x="880" y="480" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#1A1A18">선택 입력</text>
+<text x="880" y="500" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#6B6B63">소감 · 기분 (간소화)</text>
+
+<line x1="880" y1="512" x2="880" y2="544" stroke="#7C3AED" stroke-width="1.2" marker-end="url(#arr-p)"/>
+
+
+<!-- ══════════════════════════════════════════════════
+     9L. [직관] 기록 저장 버튼 탭
+     ══════════════════════════════════════════════════ -->
+<rect x="80" y="676" width="240" height="52" rx="8" fill="#EFF4FF" stroke="#378ADD" stroke-width="1"/>
+<text x="200" y="696" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#0C447C">기록 저장하기 탭</text>
+<text x="200" y="716" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#185FA5">Primary CTA 버튼</text>
+
+<line x1="200" y1="728" x2="200" y2="760" stroke="#378ADD" stroke-width="1.2" marker-end="url(#arr-b)"/>
+
+
+<!-- ══════════════════════════════════════════════════
+     9R. [집관] 예측 참여 이력 확인 분기
+     cx=880, cy=584
+     꼭짓점: top(880,544) right(970,584) bottom(880,624) left(790,584)
+     ══════════════════════════════════════════════════ -->
+<polygon points="880,544 975,584 880,624 785,584" fill="#F1EFE8" stroke="#888780" stroke-width="1"/>
+<text x="880" y="578" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="12" font-weight="600" fill="#444441">예측 참여</text>
+<text x="880" y="594" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="12" font-weight="600" fill="#444441">이력?</text>
+
+<!-- Yes → 아래 → 예측 연동 표기 -->
+<line x1="880" y1="624" x2="880" y2="656" stroke="#7C3AED" stroke-width="1.2" marker-end="url(#arr-p)"/>
+<text x="898" y="642" text-anchor="start" font-family="Pretendard,sans-serif" font-size="11" fill="#7C3AED">있음</text>
+
+<!-- No → 오른쪽 → 우회해서 합류 -->
+<line x1="975" y1="584" x2="1030" y2="584" stroke="#888780" stroke-width="1.2"/>
+<line x1="1030" y1="584" x2="1030" y2="740" stroke="#888780" stroke-width="1.2"/>
+<line x1="1030" y1="740" x2="960" y2="740" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="1008" y="576" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="11" fill="#888780">없음</text>
+
+
+<!-- ══════════════════════════════════════════════════
+     10R. [집관] 예측 성공 여부 자동 표기 (있는 경우)
+     ══════════════════════════════════════════════════ -->
+<rect x="770" y="656" width="220" height="52" rx="8" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1"/>
+<text x="880" y="676" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#4C1D95">✅ 예측 참여 자동 표기</text>
+<text x="880" y="696" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#5B21B6">카드에 예측 결과 연동</text>
+
+<line x1="880" y1="708" x2="880" y2="740" stroke="#7C3AED" stroke-width="1.2" marker-end="url(#arr-p)"/>
+
+
+<!-- ══════════════════════════════════════════════════
+     11R. [집관] 기록 저장하기
+     ══════════════════════════════════════════════════ -->
+<rect x="770" y="740" width="220" height="52" rx="8" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1"/>
+<text x="880" y="760" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#4C1D95">기록 저장하기 탭</text>
+<text x="880" y="780" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#5B21B6">Primary CTA 버튼</text>
+
+<!-- 집관 저장 → 중앙 합류 화살표 -->
+<line x1="880" y1="792" x2="880" y2="820" stroke="#7C3AED" stroke-width="1.2"/>
+<line x1="880" y1="820" x2="712" y2="820" stroke="#7C3AED" stroke-width="1.2" marker-end="url(#arr-p)"/>
+
+
+<!-- ══════════════════════════════════════════════════
+     10L. [직관] 기록 카드 생성
+     cx=200
+     ══════════════════════════════════════════════════ -->
+<rect x="80" y="760" width="240" height="52" rx="8" fill="#EFF4FF" stroke="#378ADD" stroke-width="1"/>
+<text x="200" y="780" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#0C447C">기록 카드 생성</text>
+<text x="200" y="800" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#185FA5">고유 번호 발행 (#XXXXX)</text>
+
+<!-- 직관 카드 생성 → 중앙 합류 -->
+<line x1="200" y1="812" x2="200" y2="840" stroke="#378ADD" stroke-width="1.2"/>
+<line x1="200" y1="840" x2="368" y2="840" stroke="#378ADD" stroke-width="1.2" marker-end="url(#arr-b)"/>
+
+
+<!-- ══════════════════════════════════════════════════
+     [공통] 기록 카드 완성 화면 (합류 지점)
+     cx=540, cy=860
+     ══════════════════════════════════════════════════ -->
+<rect x="400" y="840" width="280" height="52" rx="8" fill="#EDFAF3" stroke="#16A34A" stroke-width="1.5"/>
+<text x="540" y="860" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="14" font-weight="700" fill="#085041">기록 카드 완성 화면</text>
+<text x="540" y="880" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#0F6E56">카드 미리보기 · 공유 · 지갑 이동</text>
+
+<line x1="540" y1="892" x2="540" y2="924" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+
+
+<!-- ══════════════════════════════════════════════════
+     [공통] 공유 여부 분기
+     cx=540, cy=960
+     꼭짓점: top(540,924) right(625,960) bottom(540,996) left(455,960)
+     ══════════════════════════════════════════════════ -->
+<polygon points="540,924 630,960 540,996 450,960" fill="#F1EFE8" stroke="#888780" stroke-width="1"/>
+<text x="540" y="954" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="12" font-weight="600" fill="#444441">SNS</text>
+<text x="540" y="970" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="12" font-weight="600" fill="#444441">공유?</text>
+
+<!-- Yes → 오른쪽 -->
+<line x1="630" y1="960" x2="730" y2="960" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="682" y="951" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="11" fill="#888780">Yes</text>
+
+<!-- No → 아래 -->
+<line x1="540" y1="996" x2="540" y2="1028" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="558" y="1014" text-anchor="start" font-family="Pretendard,sans-serif" font-size="11" fill="#888780">No</text>
+
+
+<!-- ══════════════════════════════════════════════════
+     [공통] SNS 공유 화면 (오른쪽)
+     ══════════════════════════════════════════════════ -->
+<rect x="730" y="936" width="220" height="52" rx="8" fill="#fff" stroke="#D0D0C8" stroke-width="1"/>
+<text x="840" y="956" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#1A1A18">SNS 공유 / 이미지 저장</text>
+<text x="840" y="976" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#6B6B63">카드 이미지 · URL 공유</text>
+
+<!-- SNS → 아래 합류 -->
+<line x1="840" y1="988" x2="840" y2="1044" stroke="#888780" stroke-width="1.2"/>
+<line x1="840" y1="1044" x2="712" y2="1044" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+
+
+<!-- ══════════════════════════════════════════════════
+     [공통] 내 지갑 이동
+     cx=540
+     ══════════════════════════════════════════════════ -->
+<rect x="400" y="1028" width="280" height="52" rx="8" fill="#EDFAF3" stroke="#16A34A" stroke-width="1.5"/>
+<text x="540" y="1048" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="14" font-weight="700" fill="#085041">내 지갑 메인 화면</text>
+<text x="540" y="1068" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#0F6E56">타임라인에 카드 추가됨</text>
+
+<line x1="540" y1="1080" x2="540" y2="1112" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+
+
+<!-- ══════════════════════════════════════════════════
+     [공통] 카드 탭 여부 분기
+     cx=540, cy=1148
+     꼭짓점: top(540,1112) right(625,1148) bottom(540,1184) left(455,1148)
+     ══════════════════════════════════════════════════ -->
+<polygon points="540,1112 630,1148 540,1184 450,1148" fill="#F1EFE8" stroke="#888780" stroke-width="1"/>
+<text x="540" y="1142" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="12" font-weight="600" fill="#444441">카드</text>
+<text x="540" y="1158" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="12" font-weight="600" fill="#444441">탭?</text>
+
+<!-- Yes → 오른쪽 -->
+<line x1="630" y1="1148" x2="730" y2="1148" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="682" y="1139" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="11" fill="#888780">탭</text>
+
+<!-- No (계속 탐색) → 왼쪽 → 루프 -->
+<line x1="450" y1="1148" x2="360" y2="1148" stroke="#888780" stroke-width="1.2"/>
+<line x1="360" y1="1148" x2="360" y2="1044" stroke="#888780" stroke-width="1.2"/>
+<line x1="360" y1="1044" x2="400" y2="1044" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="350" y="1098" text-anchor="end" font-family="Pretendard,sans-serif" font-size="11" fill="#888780">탐색</text>
+
+
+<!-- ══════════════════════════════════════════════════
+     [공통] 카드 상세 화면
+     cx=880
+     ══════════════════════════════════════════════════ -->
+<rect x="730" y="1124" width="220" height="52" rx="8" fill="#fff" stroke="#D0D0C8" stroke-width="1"/>
+<text x="840" y="1144" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#1A1A18">기록 카드 상세 화면</text>
+<text x="840" y="1164" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#6B6B63">전체 정보 확인 · 공유</text>
+
+<line x1="840" y1="1176" x2="840" y2="1208" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+
+<!-- 카드 상세 → 다시 지갑으로 (루프) -->
+<line x1="840" y1="1208" x2="840" y2="1260" stroke="#888780" stroke-width="1.2"/>
+<line x1="840" y1="1260" x2="712" y2="1260" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="800" y="1240" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="11" fill="#888780">뒤로</text>
+
+
+<!-- ══════════════════════════════════════════════════
+     [공통] 승률 통계 확인 분기
+     cx=540, cy=1220
+     꼭짓점: top(540,1184) right(625,1220) bottom(540,1256) left(455,1220)
+     ══════════════════════════════════════════════════ -->
+<polygon points="540,1184 630,1220 540,1256 450,1220" fill="#F1EFE8" stroke="#888780" stroke-width="1"/>
+<text x="540" y="1214" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="12" font-weight="600" fill="#444441">기록</text>
+<text x="540" y="1230" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="12" font-weight="600" fill="#444441">5개↑?</text>
+
+<!-- 5개 미만 → 왼쪽 → 잠금 상태 -->
+<line x1="450" y1="1220" x2="340" y2="1220" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="393" y="1211" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="11" fill="#888780">미만</text>
+
+<!-- 5개 이상 → 아래 -->
+<line x1="540" y1="1256" x2="540" y2="1288" stroke="#16A34A" stroke-width="1.2" marker-end="url(#arr-g)"/>
+<text x="558" y="1274" text-anchor="start" font-family="Pretendard,sans-serif" font-size="11" fill="#16A34A">5개↑</text>
+
+
+<!-- ══════════════════════════════════════════════════
+     [공통] 승률 잠금 상태 (5개 미만)
+     ══════════════════════════════════════════════════ -->
+<rect x="200" y="1196" width="200" height="52" rx="8" fill="#fff" stroke="#D0D0C8" stroke-width="1"/>
+<text x="300" y="1216" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="12" font-weight="600" fill="#1A1A18">승률 잠금 상태</text>
+<text x="300" y="1236" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#6B6B63">프로그레스 넛지 노출</text>
+
+<!-- 잠금 → 기록 남기러 가기 안내 후 루프 -->
+<line x1="300" y1="1248" x2="300" y2="1300" stroke="#888780" stroke-width="1.2"/>
+<line x1="300" y1="1300" x2="400" y2="1300" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="344" y="1293" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="11" fill="#888780">기록 추가 유도</text>
+
+
+<!-- ══════════════════════════════════════════════════
+     [공통] 승률 통계 화면 오픈 (5개 이상)
+     cx=540
+     ══════════════════════════════════════════════════ -->
+<rect x="400" y="1288" width="280" height="52" rx="8" fill="#EDFAF3" stroke="#16A34A" stroke-width="1.5"/>
+<text x="540" y="1308" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="14" font-weight="700" fill="#085041">직관/집관 승률 통계 오픈</text>
+<text x="540" y="1328" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#0F6E56">직관 승률 · 집관 승률 · 구장 통계</text>
+
+<!-- 통계 → 루프 (지갑으로 돌아가거나 종료) -->
+<line x1="540" y1="1340" x2="540" y2="1372" stroke="#888780" stroke-width="1.2" marker-end="url(#arr)"/>
+
+
+<!-- ══════════════════════════════════════════════════
+     [공통] END
+     ══════════════════════════════════════════════════ -->
+<ellipse cx="540" cy="1404" rx="130" ry="28" fill="#EAF3DE" stroke="#639922" stroke-width="1"/>
+<text x="540" y="1404" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="15" font-weight="600" fill="#27500A">기록 완료</text>
+
+
+<!-- ══════════════════════════════════════════════════
+     구분선: 고도화 영역 시작
+     ══════════════════════════════════════════════════ -->
+<line x1="40" y1="1480" x2="1040" y2="1480" stroke="#D97706" stroke-width="1" stroke-dasharray="6 4"/>
+<rect x="380" y="1464" width="320" height="28" rx="6" fill="#FFFBEB"/>
+<text x="540" y="1478" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="12" font-weight="700" fill="#D97706" letter-spacing="0.04em">⬇ 고도화 (v2 이후) 플로우</text>
+
+
+<!-- ══════════════════════════════════════════════════
+     고도화 1. GPS 기반 직관 인증 (v2)
+     cx=200
+     ══════════════════════════════════════════════════ -->
+<text x="200" y="1530" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="11" fill="#D97706" font-weight="600">직관 경로 고도화</text>
+
+<ellipse cx="200" cy="1564" rx="130" ry="24" fill="#FFFBEB" stroke="#D97706" stroke-width="1" stroke-dasharray="5 3"/>
+<text x="200" y="1564" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#633806">경기 당일 구장 방문</text>
+
+<line x1="200" y1="1588" x2="200" y2="1616" stroke="#D97706" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#arr-u)"/>
+
+<rect x="80" y="1616" width="240" height="52" rx="8" fill="#FFFBEB" stroke="#D97706" stroke-width="1" stroke-dasharray="5 3"/>
+<text x="200" y="1636" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#633806">GPS 자동 감지</text>
+<text x="200" y="1656" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#854F0B">구장 반경 내 위치 확인</text>
+
+<line x1="200" y1="1668" x2="200" y2="1700" stroke="#D97706" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#arr-u)"/>
+
+<!-- GPS 인증 분기 다이아몬드 -->
+<polygon points="200,1700 295,1740 200,1780 105,1740" fill="#FFFBEB" stroke="#D97706" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="200" y="1734" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="12" font-weight="600" fill="#633806">GPS</text>
+<text x="200" y="1750" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="12" font-weight="600" fill="#633806">인증?</text>
+
+<!-- 성공 → 아래 -->
+<line x1="200" y1="1780" x2="200" y2="1812" stroke="#D97706" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#arr-u)"/>
+<text x="218" y="1798" text-anchor="start" font-family="Pretendard,sans-serif" font-size="11" fill="#D97706">성공</text>
+
+<!-- 실패 → 왼쪽 → 재시도 -->
+<line x1="105" y1="1740" x2="50" y2="1740" stroke="#D97706" stroke-width="1.2" stroke-dasharray="5 3"/>
+<line x1="50" y1="1740" x2="50" y2="1820" stroke="#D97706" stroke-width="1.2" stroke-dasharray="5 3"/>
+<line x1="50" y1="1820" x2="80" y2="1820" stroke="#D97706" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#arr-u)"/>
+<text x="40" y="1782" text-anchor="end" font-family="Pretendard,sans-serif" font-size="11" fill="#D97706">실패/재시도</text>
+
+<rect x="80" y="1812" width="240" height="52" rx="8" fill="#FFFBEB" stroke="#D97706" stroke-width="1" stroke-dasharray="5 3"/>
+<text x="200" y="1832" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#633806">원터치 직관 인증 완료</text>
+<text x="200" y="1852" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#854F0B">기록 자동 시작 / 경기 정보 완성</text>
+
+
+<!-- ══════════════════════════════════════════════════
+     고도화 2. 집관 실시간 퀴즈 인증 (v2)
+     cx=880
+     ══════════════════════════════════════════════════ -->
+<text x="880" y="1530" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="11" fill="#D97706" font-weight="600">집관 경로 고도화</text>
+
+<ellipse cx="880" cy="1564" rx="130" ry="24" fill="#FFFBEB" stroke="#D97706" stroke-width="1" stroke-dasharray="5 3"/>
+<text x="880" y="1564" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#633806">경기 시청 중</text>
+
+<line x1="880" y1="1588" x2="880" y2="1616" stroke="#D97706" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#arr-u)"/>
+
+<!-- 실시간 퀴즈 팝업 (말풍선) -->
+<rect x="760" y="1616" width="240" height="52" rx="8" fill="#FFFBEB" stroke="#D97706" stroke-width="1" stroke-dasharray="5 3"/>
+<text x="880" y="1636" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#633806">실시간 퀴즈 팝업</text>
+<text x="880" y="1656" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#854F0B">이닝 종료 시 자동 트리거</text>
+
+<line x1="880" y1="1668" x2="880" y2="1700" stroke="#D97706" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#arr-u)"/>
+
+<!-- 퀴즈 정답 분기 -->
+<polygon points="880,1700 975,1740 880,1780 785,1740" fill="#FFFBEB" stroke="#D97706" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="880" y="1734" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="12" font-weight="600" fill="#633806">스코어</text>
+<text x="880" y="1750" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="12" font-weight="600" fill="#633806">정답?</text>
+
+<!-- 정답 → 아래 -->
+<line x1="880" y1="1780" x2="880" y2="1812" stroke="#D97706" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#arr-u)"/>
+<text x="898" y="1798" text-anchor="start" font-family="Pretendard,sans-serif" font-size="11" fill="#D97706">정답</text>
+
+<!-- 오답 → 오른쪽 (인증 미적용) -->
+<line x1="975" y1="1740" x2="1040" y2="1740" stroke="#D97706" stroke-width="1.2" stroke-dasharray="5 3"/>
+<line x1="1040" y1="1740" x2="1040" y2="1880" stroke="#D97706" stroke-width="1.2" stroke-dasharray="5 3"/>
+<line x1="1040" y1="1880" x2="960" y2="1880" stroke="#D97706" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#arr-u)"/>
+<text x="1060" y="1810" text-anchor="start" font-family="Pretendard,sans-serif" font-size="11" fill="#D97706">오답</text>
+
+<rect x="760" y="1812" width="240" height="52" rx="8" fill="#FFFBEB" stroke="#D97706" stroke-width="1" stroke-dasharray="5 3"/>
+<text x="880" y="1832" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#633806">집관 인증 강도 상향</text>
+<text x="880" y="1852" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#854F0B">보상 연동 시 신뢰도 근거</text>
+
+
+<!-- ══════════════════════════════════════════════════
+     고도화 3. 시즌 Wrapped (v2)
+     cx=540 (중앙)
+     ══════════════════════════════════════════════════ -->
+<text x="540" y="1530" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="11" fill="#D97706" font-weight="600">공통 고도화</text>
+
+<ellipse cx="540" cy="1564" rx="140" ry="24" fill="#FFFBEB" stroke="#D97706" stroke-width="1" stroke-dasharray="5 3"/>
+<text x="540" y="1564" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#633806">시즌 종료</text>
+
+<line x1="540" y1="1588" x2="540" y2="1616" stroke="#D97706" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#arr-u)"/>
+
+<rect x="400" y="1616" width="280" height="52" rx="8" fill="#FFFBEB" stroke="#D97706" stroke-width="1" stroke-dasharray="5 3"/>
+<text x="540" y="1636" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#633806">시즌 Wrapped 자동 생성</text>
+<text x="540" y="1656" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#854F0B">예측 이력만 있어도 생성 가능</text>
+
+<line x1="540" y1="1668" x2="540" y2="1700" stroke="#D97706" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#arr-u)"/>
+
+<rect x="400" y="1700" width="280" height="52" rx="8" fill="#FFFBEB" stroke="#D97706" stroke-width="1" stroke-dasharray="5 3"/>
+<text x="540" y="1720" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#633806">풀스크린 슬라이드 공유</text>
+<text x="540" y="1740" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#854F0B">팀 컬러 개인화 · SNS 바이럴</text>
+
+<line x1="540" y1="1752" x2="540" y2="1784" stroke="#D97706" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#arr-u)"/>
+
+<ellipse cx="540" cy="1812" rx="140" ry="24" fill="#FFFBEB" stroke="#D97706" stroke-width="1" stroke-dasharray="5 3"/>
+<text x="540" y="1812" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="13" font-weight="600" fill="#633806">시즌 Wrapped 공유 완료</text>
+
+
+<!-- ══════════════════════════════════════════════════
+     컬럼 라벨 (고도화 영역)
+     ══════════════════════════════════════════════════ -->
+<line x1="40" y1="1508" x2="1040" y2="1508" stroke="#F5E6C8" stroke-width="0.5" stroke-dasharray="4 3"/>
+<text x="200" y="1520" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="11" fill="#D97706" font-weight="500">GPS 직관 인증</text>
+<text x="540" y="1520" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="11" fill="#D97706" font-weight="500">시즌 Wrapped</text>
+<text x="880" y="1520" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="11" fill="#D97706" font-weight="500">집관 퀴즈 인증</text>
+
+</svg>
+</div>
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-title">범례</div>
+  <div class="legend-row">
+
+    <div class="legend-item">
+      <svg width="90" height="28">
+        <ellipse cx="45" cy="14" rx="43" ry="13" fill="#F1EFE8" stroke="#888780" stroke-width="1"/>
+        <text x="45" y="14" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#444441">시작 / 종료</text>
+      </svg>
+      <span>시작점 · 종료점</span>
+    </div>
+
+    <div class="legend-item">
+      <svg width="90" height="28">
+        <rect x="1" y="1" width="88" height="26" rx="6" fill="#fff" stroke="#D0D0C8" stroke-width="1"/>
+        <text x="45" y="14" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#1A1A18">화면 / 액션</text>
+      </svg>
+      <span>화면 또는 액션 단계</span>
+    </div>
+
+    <div class="legend-item">
+      <svg width="52" height="28">
+        <polygon points="26,1 51,14 26,27 1,14" fill="#F1EFE8" stroke="#888780" stroke-width="1"/>
+        <text x="26" y="14" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="10" fill="#444441">분기</text>
+      </svg>
+      <span>조건 분기</span>
+    </div>
+
+    <div class="legend-item">
+      <svg width="90" height="28">
+        <rect x="1" y="1" width="72" height="26" rx="6" fill="#F1EFE8" stroke="#888780" stroke-width="1"/>
+        <polygon points="73,9 83,14 73,19" fill="#F1EFE8" stroke="#888780" stroke-width="1"/>
+        <line x1="73" y1="9" x2="73" y2="19" stroke="#F1EFE8" stroke-width="2"/>
+        <text x="37" y="14" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#444441">시스템 팝업</text>
+      </svg>
+      <span>시스템 팝업</span>
+    </div>
+
+    <div class="legend-item">
+      <svg width="90" height="28" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="leg-arr-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M1 1L9 5L1 9" fill="none" stroke="#378ADD" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+        <line x1="4" y1="14" x2="80" y2="14" stroke="#378ADD" stroke-width="1.5" marker-end="url(#leg-arr-b)"/>
+      </svg>
+      <span>직관 경로</span>
+    </div>
+
+    <div class="legend-item">
+      <svg width="90" height="28" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="leg-arr-p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M1 1L9 5L1 9" fill="none" stroke="#7C3AED" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+        <line x1="4" y1="14" x2="80" y2="14" stroke="#7C3AED" stroke-width="1.5" marker-end="url(#leg-arr-p)"/>
+      </svg>
+      <span>집관 경로</span>
+    </div>
+
+    <div class="legend-item">
+      <svg width="90" height="28" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="leg-arr-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M1 1L9 5L1 9" fill="none" stroke="#16A34A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+        <line x1="4" y1="14" x2="80" y2="14" stroke="#16A34A" stroke-width="1.5" marker-end="url(#leg-arr-g)"/>
+      </svg>
+      <span>완료 경로</span>
+    </div>
+
+    <div class="legend-item">
+      <svg width="90" height="28" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="leg-arr-u" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M1 1L9 5L1 9" fill="none" stroke="#D97706" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+        <line x1="4" y1="14" x2="80" y2="14" stroke="#D97706" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#leg-arr-u)"/>
+      </svg>
+      <span>고도화 경로 (점선)</span>
+    </div>
+
+    <div class="legend-item">
+      <svg width="90" height="28">
+        <rect x="1" y="1" width="88" height="26" rx="6" fill="#EDFAF3" stroke="#16A34A" stroke-width="1.5"/>
+        <text x="45" y="14" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#085041">공통 화면</text>
+      </svg>
+      <span>직관/집관 공통 화면</span>
+    </div>
+
+    <div class="legend-item">
+      <svg width="90" height="28">
+        <rect x="1" y="1" width="88" height="26" rx="6" fill="#FFFBEB" stroke="#D97706" stroke-width="1" stroke-dasharray="5 3"/>
+        <text x="45" y="14" text-anchor="middle" dominant-baseline="central" font-family="Pretendard,sans-serif" font-size="11" fill="#633806">고도화 단계</text>
+      </svg>
+      <span>v2 이후 고도화 항목</span>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

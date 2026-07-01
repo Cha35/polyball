@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>기능정의서 — 폴리볼 응모 캘린더</title>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F7F5;
+    --surface: #FFFFFF;
+    --border: #E8E8E4;
+    --border-strong: #D0D0C8;
+    --text-primary: #1A1A18;
+    --text-secondary: #5C5C56;
+    --text-muted: #9B9B93;
+    --accent: #2563EB;
+    --accent-light: #EFF4FF;
+    --accent-muted: #BFCFFC;
+    --green: #16A34A;
+    --green-light: #EDFAF3;
+    --red: #DC2626;
+    --red-light: #FEF2F2;
+    --orange: #D97706;
+    --orange-light: #FFFBEB;
+    --tag-bg: #F0F0EC;
+    --code-bg: #F3F3EF;
+    --p0-bg: #FEF2F2; --p0-text: #991B1B; --p0-border: #FECACA;
+    --p1-bg: #FFFBEB; --p1-text: #92400E; --p1-border: #FDE68A;
+    --p2-bg: #F0F0EC; --p2-text: #5C5C56; --p2-border: #D0D0C8;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Pretendard', -apple-system, sans-serif; background: var(--bg); color: var(--text-primary); font-size: 14px; line-height: 1.7; -webkit-font-smoothing: antialiased; }
+  .wrapper { max-width: 960px; margin: 0 auto; padding: 60px 40px 120px; }
+
+  /* Header */
+  .doc-header { margin-bottom: 48px; padding-bottom: 32px; border-bottom: 2px solid var(--text-primary); }
+  .doc-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); background: var(--accent-light); border: 1px solid var(--accent-muted); padding: 4px 10px; border-radius: 4px; margin-bottom: 16px; }
+  .doc-title { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
+  .doc-subtitle { font-size: 15px; color: var(--text-secondary); margin-bottom: 24px; }
+  .doc-meta { display: flex; flex-wrap: wrap; gap: 24px; }
+  .meta-item { display: flex; flex-direction: column; gap: 2px; }
+  .meta-label { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+  .meta-value { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+  .status-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--orange); background: var(--orange-light); border: 1px solid #FDE68A; padding: 2px 8px; border-radius: 20px; }
+
+  /* TOC */
+  .toc { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin-bottom: 48px; }
+  .toc-title { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; }
+  .toc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 32px; }
+  .toc-grid a { font-size: 13px; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 3px 0; }
+  .toc-grid a:hover { text-decoration: underline; }
+  .toc-num { font-size: 11px; color: var(--text-muted); min-width: 36px; font-weight: 600; }
+
+  /* Section */
+  .section { margin-bottom: 56px; }
+  .section-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  .section-num { font-size: 12px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.05em; }
+  .section-title { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+  p { color: var(--text-secondary); margin-bottom: 12px; font-size: 14px; line-height: 1.75; }
+
+  /* Feature Block */
+  .feature-block { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+  .feature-header { padding: 14px 20px; background: var(--tag-bg); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .feature-id { font-size: 11px; font-weight: 700; color: var(--text-muted); background: var(--border); padding: 2px 8px; border-radius: 3px; letter-spacing: 0.04em; font-family: 'SF Mono', monospace; }
+  .feature-name { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+  .feature-screen { font-size: 11px; color: var(--text-muted); margin-left: auto; }
+  .priority { display: inline-flex; align-items: center; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px; border: 1px solid; }
+  .p0 { background: var(--p0-bg); color: var(--p0-text); border-color: var(--p0-border); }
+  .p1 { background: var(--p1-bg); color: var(--p1-text); border-color: var(--p1-border); }
+  .p2 { background: var(--p2-bg); color: var(--p2-text); border-color: var(--p2-border); }
+  .feature-desc { padding: 4px 20px 0; font-size: 13px; color: var(--text-secondary); border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-top: 12px; }
+  .feature-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 20px; }
+
+  /* Sub-section inside feature */
+  .sub-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .sub-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* Tables */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { background: var(--tag-bg); }
+  th { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); padding: 9px 14px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { font-size: 13px; color: var(--text-secondary); padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.6; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--bg); }
+  td:first-child { font-weight: 600; color: var(--text-primary); white-space: nowrap; }
+
+  /* Note */
+  .note { display: flex; gap: 10px; align-items: flex-start; border-radius: 8px; padding: 11px 14px; font-size: 13px; line-height: 1.6; }
+  .note-blue { background: var(--accent-light); border: 1px solid var(--accent-muted); color: var(--accent); }
+  .note-orange { background: var(--orange-light); border: 1px solid #FDE68A; color: var(--orange); }
+  .note-green { background: var(--green-light); border: 1px solid #BBF7D0; color: var(--green); }
+  .note-red { background: var(--red-light); border: 1px solid #FECACA; color: var(--red); }
+
+  /* Status badge in table */
+  .badge { display: inline-flex; align-items: center; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+  .badge-blue { background: var(--accent-light); color: var(--accent); border: 1px solid var(--accent-muted); }
+  .badge-green { background: var(--green-light); color: var(--green); border: 1px solid #BBF7D0; }
+  .badge-gray { background: var(--tag-bg); color: var(--text-muted); border: 1px solid var(--border); }
+  .badge-orange { background: var(--orange-light); color: var(--orange); border: 1px solid #FDE68A; }
+  .badge-red { background: var(--red-light); color: var(--red); border: 1px solid #FECACA); }
+
+  /* Event log table */
+  .event-code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; color: var(--accent); background: var(--accent-light); padding: 2px 6px; border-radius: 4px; }
+
+  /* Changelog */
+  .changelog { display: flex; flex-direction: column; }
+  .changelog-item { display: flex; gap: 20px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .changelog-item:last-child { border-bottom: none; }
+  .changelog-ver { font-size: 12px; font-weight: 700; color: var(--accent); background: var(--accent-light); padding: 3px 8px; border-radius: 4px; white-space: nowrap; height: fit-content; }
+  .changelog-meta { flex: 1; }
+  .changelog-date { font-size: 11px; color: var(--text-muted); margin-bottom: 3px; }
+  .changelog-desc { font-size: 13px; color: var(--text-secondary); }
+
+  /* Out of scope */
+  .out-row td:first-child { color: var(--text-muted); text-decoration: line-through; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- Header -->
+  <div class="doc-header">
+    <div class="doc-tag">⚙️ Feature Specification</div>
+    <div class="doc-title">기능정의서 — 폴리볼 응모 캘린더</div>
+    <div class="doc-subtitle">Polyball Entry Calendar · Feature Specification v1.0</div>
+    <div class="doc-meta">
+      <div class="meta-item"><span class="meta-label">버전</span><span class="meta-value">v1.0</span></div>
+      <div class="meta-item"><span class="meta-label">작성일</span><span class="meta-value">2026.04.08</span></div>
+      <div class="meta-item"><span class="meta-label">작성자</span><span class="meta-value">PM</span></div>
+      <div class="meta-item"><span class="meta-label">참조</span><span class="meta-value">PRD v1.2</span></div>
+      <div class="meta-item"><span class="meta-label">상태</span><span class="status-badge">초안</span></div>
+    </div>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">목차</div>
+    <div class="toc-grid">
+      <a href="#s1"><span class="toc-num">01</span>문서 개요</a>
+      <a href="#f07"><span class="toc-num">F-07</span>응원팀 필터</a>
+      <a href="#s2"><span class="toc-num">02</span>기능 목록</a>
+      <a href="#f08"><span class="toc-num">F-08</span>날짜 피커</a>
+      <a href="#f01"><span class="toc-num">F-01</span>캘린더 진입 버튼</a>
+      <a href="#f09"><span class="toc-num">F-09</span>스크롤 위치 복원</a>
+      <a href="#f02"><span class="toc-num">F-02</span>주간 캘린더 뷰</a>
+      <a href="#f10"><span class="toc-num">F-10</span>경기 탭 — 상태별 분기</a>
+      <a href="#f03"><span class="toc-num">F-03</span>월간 캘린더 뷰</a>
+      <a href="#f11"><span class="toc-num">F-11</span>응모 예정 상세 화면</a>
+      <a href="#f04"><span class="toc-num">F-04</span>날짜 셀 — 경기 상태</a>
+      <a href="#f12"><span class="toc-num">F-12</span>알림받기 — 푸시 허용</a>
+      <a href="#f05"><span class="toc-num">F-05</span>날짜 셀 — 참여 아이콘</a>
+      <a href="#f13"><span class="toc-num">F-13</span>최초 진입 범례</a>
+      <a href="#f06"><span class="toc-num">F-06</span>하단 경기 목록</a>
+      <a href="#s4">공통 조건</a>
+    </div>
+  </div>
+
+  <!-- Section 1 -->
+  <div class="section" id="s1">
+    <div class="section-header"><span class="section-num">01</span><span class="section-title">문서 개요</span></div>
+    <p>본 문서는 폴리볼 응모 캘린더 기능의 상세 기능 정의서로, PRD v1.2를 기준으로 각 화면 및 기능 단위의 동작 방식, 조건, 예외 처리를 정의한다. 우선순위는 P0(필수) · P1(권장) · P2(선택)으로 구분한다.</p>
+  </div>
+
+  <!-- Section 2: 기능 목록 -->
+  <div class="section" id="s2">
+    <div class="section-header"><span class="section-num">02</span><span class="section-title">기능 목록</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>기능 ID</th><th>기능명</th><th>화면</th><th>우선순위</th></tr></thead>
+        <tbody>
+          <tr><td>F-01</td><td>캘린더 진입 버튼</td><td>응모 메인</td><td><span class="badge badge-red">P0</span></td></tr>
+          <tr><td>F-02</td><td>주간 캘린더 뷰</td><td>응모 캘린더</td><td><span class="badge badge-red">P0</span></td></tr>
+          <tr><td>F-03</td><td>월간 캘린더 뷰</td><td>응모 캘린더</td><td><span class="badge badge-red">P0</span></td></tr>
+          <tr><td>F-04</td><td>날짜 셀 — 경기 상태 표시</td><td>응모 캘린더</td><td><span class="badge badge-red">P0</span></td></tr>
+          <tr><td>F-05</td><td>날짜 셀 — 참여 아이콘</td><td>응모 캘린더</td><td><span class="badge badge-orange">P1</span></td></tr>
+          <tr><td>F-06</td><td>하단 경기 목록</td><td>응모 캘린더</td><td><span class="badge badge-red">P0</span></td></tr>
+          <tr><td>F-07</td><td>응원팀 필터</td><td>응모 캘린더</td><td><span class="badge badge-orange">P1</span></td></tr>
+          <tr><td>F-08</td><td>날짜 피커</td><td>응모 캘린더</td><td><span class="badge badge-orange">P1</span></td></tr>
+          <tr><td>F-09</td><td>스크롤 위치 복원</td><td>응모 캘린더</td><td><span class="badge badge-orange">P1</span></td></tr>
+          <tr><td>F-10</td><td>경기 탭 — 상태별 분기</td><td>응모 캘린더</td><td><span class="badge badge-red">P0</span></td></tr>
+          <tr><td>F-11</td><td>응모 예정 상세 화면</td><td>응모 예정 상세</td><td><span class="badge badge-red">P0</span></td></tr>
+          <tr><td>F-12</td><td>알림받기 — 푸시 허용 유도</td><td>응모 예정 상세</td><td><span class="badge badge-orange">P1</span></td></tr>
+          <tr><td>F-13</td><td>최초 진입 범례</td><td>응모 캘린더</td><td><span class="badge badge-gray">P2</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Section 3: 기능 상세 -->
+  <div class="section" id="s3">
+    <div class="section-header"><span class="section-num">03</span><span class="section-title">기능 상세 정의</span></div>
+
+    <!-- F-01 -->
+    <div class="feature-block" id="f01">
+      <div class="feature-header">
+        <span class="feature-id">F-01</span>
+        <span class="feature-name">캘린더 진입 버튼</span>
+        <span class="priority p0">P0</span>
+        <span class="feature-screen">응모 메인</span>
+      </div>
+      <div class="feature-desc">응모 메인 페이지에서 캘린더 전용 페이지로 진입하는 배너형 버튼</div>
+      <div class="feature-body">
+        <div>
+          <div class="sub-title">UI 스펙</div>
+          <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+            <tr><td>위치</td><td>응모 메인 상단 — 당첨 결과 배너 하단, 응모 목록 상단</td></tr>
+            <tr><td>형태</td><td>가로 전체 너비 배너형 버튼</td></tr>
+            <tr><td>텍스트</td><td>📅 전체 응모 일정 보기 ›</td></tr>
+            <tr><td>노출 조건</td><td>항상 노출 (로그인 유저 기준, 조건 없음)</td></tr>
+          </tbody></table></div>
+        </div>
+        <div>
+          <div class="sub-title">동작</div>
+          <div class="table-wrap"><table><thead><tr><th>트리거</th><th>동작</th></tr></thead><tbody>
+            <tr><td>버튼 탭</td><td>응모 캘린더 페이지로 이동 (Push Navigation)</td></tr>
+          </tbody></table></div>
+        </div>
+        <div class="note note-blue">📌 KPI 연결 — 이벤트: <code>calendar_banner_click</code> / 퍼널 1단계 캘린더 진입률 측정 기준</div>
+      </div>
+    </div>
+
+    <!-- F-02 -->
+    <div class="feature-block" id="f02">
+      <div class="feature-header">
+        <span class="feature-id">F-02</span>
+        <span class="feature-name">주간 캘린더 뷰</span>
+        <span class="priority p0">P0</span>
+        <span class="feature-screen">응모 캘린더</span>
+      </div>
+      <div class="feature-desc">캘린더 진입 시 기본으로 노출되는 주간 단위 뷰</div>
+      <div class="feature-body">
+        <div>
+          <div class="sub-title">UI 스펙</div>
+          <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+            <tr><td>기본 뷰</td><td>주간 (캘린더 진입 시 default)</td></tr>
+            <tr><td>표시 단위</td><td>화~월 (응모 대상 경기 기준 요일)</td></tr>
+            <tr><td>날짜 표시</td><td>요일 + 날짜 숫자</td></tr>
+            <tr><td>오늘 날짜</td><td>원형 강조 표시</td></tr>
+            <tr><td>이동 방식</td><td>좌우 스와이프 또는 화살표 버튼</td></tr>
+          </tbody></table></div>
+        </div>
+        <div>
+          <div class="sub-title">동작</div>
+          <div class="table-wrap"><table><thead><tr><th>트리거</th><th>동작</th></tr></thead><tbody>
+            <tr><td>좌 스와이프 / 다음 버튼</td><td>다음 주로 이동</td></tr>
+            <tr><td>우 스와이프 / 이전 버튼</td><td>이전 주로 이동</td></tr>
+            <tr><td>날짜 탭</td><td>해당 일자 하단 경기 목록 업데이트 (→ F-06)</td></tr>
+            <tr><td>월간 탭</td><td>월간 뷰로 전환 (→ F-03)</td></tr>
+          </tbody></table></div>
+        </div>
+        <div>
+          <div class="sub-title">데이터 조건</div>
+          <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+            <tr><td>표시 범위</td><td>2026 KBO 시즌 전체</td></tr>
+            <tr><td>노출 경기</td><td>LG, KT, SSG, NC, KIA, 롯데, 키움 홈경기 (7개 구단)</td></tr>
+            <tr><td>미노출 경기</td><td>두산, 한화, 삼성 홈경기 — 셀에 표시하지 않음</td></tr>
+            <tr><td>경기 없는 날</td><td>셀 비워둠 (별도 표시 없음)</td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- F-03 -->
+    <div class="feature-block" id="f03">
+      <div class="feature-header">
+        <span class="feature-id">F-03</span>
+        <span class="feature-name">월간 캘린더 뷰</span>
+        <span class="priority p0">P0</span>
+        <span class="feature-screen">응모 캘린더</span>
+      </div>
+      <div class="feature-desc">월 단위 7열 그리드 형태의 캘린더 뷰</div>
+      <div class="feature-body">
+        <div>
+          <div class="sub-title">UI 스펙</div>
+          <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+            <tr><td>표시 단위</td><td>월 단위 7열 그리드</td></tr>
+            <tr><td>날짜 셀</td><td>날짜 숫자 + 팀명 + 상태 뱃지 (→ F-04)</td></tr>
+            <tr><td>이동 방식</td><td>좌우 스와이프 또는 화살표 버튼</td></tr>
+          </tbody></table></div>
+        </div>
+        <div>
+          <div class="sub-title">동작</div>
+          <div class="table-wrap"><table><thead><tr><th>트리거</th><th>동작</th></tr></thead><tbody>
+            <tr><td>날짜 탭</td><td>해당 일자 하단 경기 목록 업데이트 (→ F-06)</td></tr>
+            <tr><td>이전/다음 버튼</td><td>전월/다음달로 이동</td></tr>
+            <tr><td>주간 탭</td><td>주간 뷰로 전환 (→ F-02)</td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- F-04 -->
+    <div class="feature-block" id="f04">
+      <div class="feature-header">
+        <span class="feature-id">F-04</span>
+        <span class="feature-name">날짜 셀 — 경기 상태 표시</span>
+        <span class="priority p0">P0</span>
+        <span class="feature-screen">응모 캘린더 (주간/월간 공통)</span>
+      </div>
+      <div class="feature-desc">날짜 셀 내 경기 정보 및 응모 상태를 팀명 + 상태 뱃지로 표현</div>
+      <div class="feature-body">
+        <div>
+          <div class="sub-title">상태 정의</div>
+          <div class="table-wrap"><table><thead><tr><th>상태</th><th>조건</th><th>표현 방식</th></tr></thead><tbody>
+            <tr><td><span class="badge badge-blue">응모중</span></td><td>현재 응모 기간 내, 응모 열림</td><td>팀명 + [응모중] 뱃지 (컬러 강조)</td></tr>
+            <tr><td><span class="badge badge-gray">마감</span></td><td>응모 기간 종료, 발표 전</td><td>팀명 + [마감] 뱃지 (흐리게)</td></tr>
+            <tr><td><span class="badge badge-blue">결과</span></td><td>당첨 결과 확인 가능</td><td>팀명 + [결과] 뱃지 (흐리게)</td></tr>
+            <tr><td><span class="badge badge-orange">예정</span></td><td>응모 미오픈 미래 경기</td><td>팀명 + [예정] 뱃지 (흐리게)</td></tr>
+          </tbody></table></div>
+        </div>
+        <div>
+          <div class="sub-title">표시 규칙</div>
+          <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+            <tr><td>셀 내 최대 경기 수</td><td>디자인 시안 확정 후 결정 (TBD)</td></tr>
+            <tr><td>상태 강조 우선순위</td><td>응모중 > 예정 > 마감 > 결과</td></tr>
+            <tr><td>최초 진입 시</td><td>범례 팝업 노출 후 자동 숨김 (→ F-13)</td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- F-05 -->
+    <div class="feature-block" id="f05">
+      <div class="feature-header">
+        <span class="feature-id">F-05</span>
+        <span class="feature-name">날짜 셀 — 참여 아이콘</span>
+        <span class="priority p1">P1</span>
+        <span class="feature-screen">응모 캘린더 (주간/월간 공통)</span>
+      </div>
+      <div class="feature-desc">유저가 응모한 경기에 참여 여부를 셀 내 아이콘으로 표시</div>
+      <div class="feature-body">
+        <div>
+          <div class="sub-title">아이콘 정의</div>
+          <div class="table-wrap"><table><thead><tr><th>참여 상태</th><th>아이콘</th><th>노출 조건</th></tr></thead><tbody>
+            <tr><td>당첨</td><td>🎉</td><td>응모 완료 + 당첨 결과 확정</td></tr>
+            <tr><td>미당첨 (응모함)</td><td>✓</td><td>응모 완료 + 미당첨 결과 확정</td></tr>
+            <tr><td>응모함 (결과 전)</td><td>✓ (흐리게)</td><td>응모 완료 + 결과 미발표</td></tr>
+            <tr><td>미응모</td><td>없음</td><td>—</td></tr>
+          </tbody></table></div>
+        </div>
+        <div>
+          <div class="sub-title">데이터 조건</div>
+          <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+            <tr><td>데이터 로드</td><td>로그인 유저의 응모 이력 API 호출 (캘린더 진입 시 1회)</td></tr>
+            <tr><td>실시간 업데이트</td><td>응모 완료 직후 해당 셀 아이콘 즉시 업데이트</td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- F-06 -->
+    <div class="feature-block" id="f06">
+      <div class="feature-header">
+        <span class="feature-id">F-06</span>
+        <span class="feature-name">하단 경기 목록</span>
+        <span class="priority p0">P0</span>
+        <span class="feature-screen">응모 캘린더</span>
+      </div>
+      <div class="feature-desc">날짜 탭 시 해당 일자의 경기 목록을 캘린더 하단에 노출. 기존 응모 메인 카드 컴포넌트 재사용</div>
+      <div class="feature-body">
+        <div>
+          <div class="sub-title">카드 노출 정보</div>
+          <div class="table-wrap"><table><thead><tr><th>정보</th><th>내용</th></tr></thead><tbody>
+            <tr><td>경기 정보</td><td>홈팀 vs 원정팀</td></tr>
+            <tr><td>일시</td><td>날짜 · 시간 · 구장명</td></tr>
+            <tr><td>응모 상태</td><td>상태 뱃지 (응모중 / 마감 / 결과 / 예정)</td></tr>
+            <tr><td>총 응모 수량</td><td>현재까지 응모된 총 수량</td></tr>
+            <tr><td>내 사용 수량</td><td>내가 해당 경기에 사용한 응모권 수</td></tr>
+            <tr><td>액션 버튼</td><td>상태별 분기 (→ F-10)</td></tr>
+          </tbody></table></div>
+        </div>
+        <div>
+          <div class="sub-title">동작</div>
+          <div class="table-wrap"><table><thead><tr><th>트리거</th><th>동작</th></tr></thead><tbody>
+            <tr><td>캘린더 진입 시</td><td>오늘 날짜 기준 경기 목록 자동 노출</td></tr>
+            <tr><td>날짜 탭</td><td>해당 일자 경기 목록으로 업데이트</td></tr>
+            <tr><td>경기 없는 날 탭</td><td>"이 날은 응모 가능한 경기가 없어요" 빈 상태 표시</td></tr>
+            <tr><td>카드 탭</td><td>상태별 분기 화면으로 이동 (→ F-10)</td></tr>
+          </tbody></table></div>
+        </div>
+        <div>
+          <div class="sub-title">API 조건</div>
+          <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+            <tr><td>요청 파라미터</td><td>날짜 (YYYY-MM-DD)</td></tr>
+            <tr><td>응답 데이터</td><td>해당 일자 응모 가능 구단 경기 목록</td></tr>
+            <tr><td>기존 API 재사용</td><td>응모 목록 API에 날짜 파라미터 추가</td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- F-07 -->
+    <div class="feature-block" id="f07">
+      <div class="feature-header">
+        <span class="feature-id">F-07</span>
+        <span class="feature-name">응원팀 필터</span>
+        <span class="priority p1">P1</span>
+        <span class="feature-screen">응모 캘린더</span>
+      </div>
+      <div class="feature-desc">특정 구단의 경기만 필터링하여 캘린더 셀 및 하단 목록에 표시</div>
+      <div class="feature-body">
+        <div>
+          <div class="sub-title">UI 스펙</div>
+          <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+            <tr><td>위치</td><td>캘린더 상단 (뷰 전환 탭 하단)</td></tr>
+            <tr><td>형태</td><td>칩(Chip) 형태 필터 버튼</td></tr>
+            <tr><td>선택지</td><td>전체 + 응모 가능 7개 구단</td></tr>
+            <tr><td>기본값</td><td>전체</td></tr>
+          </tbody></table></div>
+        </div>
+        <div>
+          <div class="sub-title">동작</div>
+          <div class="table-wrap"><table><thead><tr><th>트리거</th><th>동작</th></tr></thead><tbody>
+            <tr><td>구단 칩 탭</td><td>해당 구단 경기만 캘린더 셀 및 하단 목록에 표시</td></tr>
+            <tr><td>전체 탭</td><td>필터 초기화, 전체 경기 표시</td></tr>
+            <tr><td>필터 적용 중 날짜 이동</td><td>필터 상태 유지하며 주/월 이동</td></tr>
+          </tbody></table></div>
+        </div>
+        <div>
+          <div class="sub-title">예외 처리</div>
+          <div class="table-wrap"><table><thead><tr><th>상황</th><th>처리</th></tr></thead><tbody>
+            <tr><td>선택 구단의 해당 주/월 경기 없음</td><td>"이 기간에는 [구단명] 경기가 없어요" 빈 상태 표시</td></tr>
+            <tr><td>응모 불가 구단</td><td>필터 선택지에 노출하지 않음</td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- F-08 -->
+    <div class="feature-block" id="f08">
+      <div class="feature-header">
+        <span class="feature-id">F-08</span>
+        <span class="feature-name">날짜 피커</span>
+        <span class="priority p1">P1</span>
+        <span class="feature-screen">응모 캘린더</span>
+      </div>
+      <div class="feature-desc">특정 날짜로 빠르게 이동할 수 있는 날짜 선택 UI</div>
+      <div class="feature-body">
+        <div>
+          <div class="sub-title">동작</div>
+          <div class="table-wrap"><table><thead><tr><th>트리거</th><th>동작</th></tr></thead><tbody>
+            <tr><td>헤더 연/월 텍스트 탭</td><td>날짜 피커 팝업 노출</td></tr>
+            <tr><td>날짜 선택 (주간 뷰)</td><td>해당 날짜가 포함된 주로 이동</td></tr>
+            <tr><td>날짜 선택 (월간 뷰)</td><td>해당 월로 이동</td></tr>
+            <tr><td>피커 외부 탭 / 닫기</td><td>피커 닫힘, 현재 뷰 유지</td></tr>
+          </tbody></table></div>
+        </div>
+        <div>
+          <div class="sub-title">범위 제한</div>
+          <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+            <tr><td>선택 가능 범위</td><td>2026 KBO 시즌 기간 내</td></tr>
+            <tr><td>범위 외 날짜</td><td>선택 불가 (비활성 처리)</td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- F-09 -->
+    <div class="feature-block" id="f09">
+      <div class="feature-header">
+        <span class="feature-id">F-09</span>
+        <span class="feature-name">스크롤 위치 복원</span>
+        <span class="priority p1">P1</span>
+        <span class="feature-screen">응모 캘린더</span>
+      </div>
+      <div class="feature-desc">경기 상세 페이지 진입 후 캘린더로 복귀 시 이전 스크롤 위치 복원</div>
+      <div class="feature-body">
+        <div>
+          <div class="sub-title">동작</div>
+          <div class="table-wrap"><table><thead><tr><th>상황</th><th>처리</th></tr></thead><tbody>
+            <tr><td>상세 페이지 진입 전</td><td>현재 캘린더 스크롤 위치 세션 저장</td></tr>
+            <tr><td>상세 페이지에서 뒤로가기</td><td>저장된 스크롤 위치로 복원</td></tr>
+            <tr><td>앱 재실행 또는 탭 재진입</td><td>스크롤 위치 초기화 (오늘 날짜 기준)</td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- F-10 -->
+    <div class="feature-block" id="f10">
+      <div class="feature-header">
+        <span class="feature-id">F-10</span>
+        <span class="feature-name">경기 탭 — 상태별 분기</span>
+        <span class="priority p0">P0</span>
+        <span class="feature-screen">응모 캘린더 (하단 경기 목록)</span>
+      </div>
+      <div class="feature-desc">경기 카드 탭 시 경기 상태에 따라 다른 화면으로 분기</div>
+      <div class="feature-body">
+        <div>
+          <div class="sub-title">분기 정의</div>
+          <div class="table-wrap"><table><thead><tr><th>경기 상태</th><th>탭 시 이동 화면</th><th>비고</th></tr></thead><tbody>
+            <tr><td><span class="badge badge-blue">응모중</span></td><td>기존 응모 상세 페이지</td><td>현행 유지, 변경 없음</td></tr>
+            <tr><td><span class="badge badge-gray">마감</span></td><td>기존 응모 상세 페이지</td><td>결과 미발표 상태로 노출</td></tr>
+            <tr><td><span class="badge badge-blue">결과</span></td><td>기존 응모 상세 페이지</td><td>당첨/미당첨 결과 노출</td></tr>
+            <tr><td><span class="badge badge-orange">예정</span></td><td>응모 예정 상세 화면 (→ F-11)</td><td>신규 개발</td></tr>
+          </tbody></table></div>
+        </div>
+        <div>
+          <div class="sub-title">이벤트 로깅</div>
+          <div class="table-wrap"><table><thead><tr><th>이벤트</th><th>파라미터</th></tr></thead><tbody>
+            <tr><td><code class="event-code">calendar_game_tap</code></td><td>game_id, game_status, date</td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- F-11 -->
+    <div class="feature-block" id="f11">
+      <div class="feature-header">
+        <span class="feature-id">F-11</span>
+        <span class="feature-name">응모 예정 상세 화면</span>
+        <span class="priority p0">P0</span>
+        <span class="feature-screen">응모 예정 상세</span>
+      </div>
+      <div class="feature-desc">응모가 아직 열리지 않은 경기의 상세 정보 및 알림받기 CTA 제공. 기존 응모 상세 구조를 기반으로 일부 영역을 교체</div>
+      <div class="feature-body">
+        <div>
+          <div class="sub-title">UI 스펙</div>
+          <div class="table-wrap"><table><thead><tr><th>영역</th><th>내용</th><th>비고</th></tr></thead><tbody>
+            <tr><td>경기 정보</td><td>홈팀 vs 원정팀 / 날짜·시간·구장</td><td>기존 상세와 동일</td></tr>
+            <tr><td>당첨 정보</td><td>당첨 좌석 / 당첨 인원 / 총 응모 수량</td><td>기존 상세와 동일</td></tr>
+            <tr><td>오픈 예정 안내</td><td>"응모가 곧 열려요! / 응모 오픈 예정: MM월 DD일(요일) 오전 10시"</td><td>스탭퍼 영역 대체</td></tr>
+            <tr><td>유의사항</td><td>기존 응모 상세 유의사항 목록</td><td>기존과 동일</td></tr>
+            <tr><td>하단 CTA</td><td>🔔 응모 오픈 알림받기</td><td>응모하기 버튼 대체</td></tr>
+          </tbody></table></div>
+        </div>
+        <div>
+          <div class="sub-title">동작</div>
+          <div class="table-wrap"><table><thead><tr><th>트리거</th><th>동작</th></tr></thead><tbody>
+            <tr><td>알림받기 버튼 탭</td><td>푸시 허용 분기 처리 (→ F-12)</td></tr>
+            <tr><td>뒤로가기</td><td>캘린더로 복귀 + 스크롤 위치 복원 (→ F-09)</td></tr>
+          </tbody></table></div>
+        </div>
+        <div>
+          <div class="sub-title">데이터 조건</div>
+          <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+            <tr><td>응모 오픈 예정일 계산</td><td>경기일 기준 -2주 해당 월요일</td></tr>
+            <tr><td>오픈 시각</td><td>오전 10시 고정</td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- F-12 -->
+    <div class="feature-block" id="f12">
+      <div class="feature-header">
+        <span class="feature-id">F-12</span>
+        <span class="feature-name">알림받기 — 푸시 허용 유도</span>
+        <span class="priority p1">P1</span>
+        <span class="feature-screen">응모 예정 상세</span>
+      </div>
+      <div class="feature-desc">알림받기 버튼 탭 시 앱 푸시 허용 여부를 확인하고, 미허용 시 허용을 자연스럽게 유도</div>
+      <div class="feature-body">
+        <div>
+          <div class="sub-title">분기 처리</div>
+          <div class="table-wrap"><table><thead><tr><th>상태</th><th>처리</th></tr></thead><tbody>
+            <tr><td>푸시 허용</td><td>알림 구독 API 호출 → "알림이 설정되었어요" 토스트</td></tr>
+            <tr><td>푸시 미허용</td><td>OS 시스템 푸시 허용 팝업 노출 → 허용 시 알림 구독 → 토스트</td></tr>
+            <tr><td>시스템 팝업 거부</td><td>"설정 &gt; 알림에서 허용할 수 있어요" 안내 토스트</td></tr>
+          </tbody></table></div>
+        </div>
+        <div>
+          <div class="sub-title">알림 발송 조건</div>
+          <div class="table-wrap"><table><thead><tr><th>알림 유형</th><th>발송 시점</th><th>대상</th></tr></thead><tbody>
+            <tr><td>응모 오픈 알림</td><td>응모 오픈 당일 오전 10시</td><td>해당 경기 알림받기 설정 유저</td></tr>
+            <tr><td>응모 마감 임박 알림</td><td>응모 마감 하루 전</td><td>해당 경기 응모 완료 유저</td></tr>
+            <tr><td>당첨 결과 알림</td><td>결과 확정 즉시</td><td>해당 경기 응모 완료 유저</td></tr>
+          </tbody></table></div>
+        </div>
+        <div class="note note-orange">💡 알림 발송 시점 상세 명세는 별도 알림 기획 문서로 분리 (TBD)</div>
+      </div>
+    </div>
+
+    <!-- F-13 -->
+    <div class="feature-block" id="f13">
+      <div class="feature-header">
+        <span class="feature-id">F-13</span>
+        <span class="feature-name">최초 진입 범례</span>
+        <span class="priority p2">P2</span>
+        <span class="feature-screen">응모 캘린더</span>
+      </div>
+      <div class="feature-desc">캘린더 최초 진입 시 상태 뱃지 의미를 안내하는 범례 팝업</div>
+      <div class="feature-body">
+        <div>
+          <div class="sub-title">동작</div>
+          <div class="table-wrap"><table><thead><tr><th>트리거</th><th>동작</th></tr></thead><tbody>
+            <tr><td>캘린더 최초 진입</td><td>범례 팝업 자동 노출</td></tr>
+            <tr><td>확인 버튼 탭</td><td>팝업 닫힘 + 로컬 플래그 저장 (다시 노출 안 함)</td></tr>
+            <tr><td>2회 이상 진입</td><td>범례 미노출</td></tr>
+          </tbody></table></div>
+        </div>
+        <div>
+          <div class="sub-title">범례 항목</div>
+          <div class="table-wrap"><table><thead><tr><th>상태</th><th>설명</th></tr></thead><tbody>
+            <tr><td>🟢 응모중</td><td>지금 응모할 수 있어요</td></tr>
+            <tr><td>🔵 예정</td><td>곧 응모가 열려요</td></tr>
+            <tr><td>⚫ 마감</td><td>응모가 끝났어요</td></tr>
+            <tr><td>✓ 결과</td><td>당첨 결과를 확인할 수 있어요</td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 4: 공통 조건 -->
+  <div class="section" id="s4">
+    <div class="section-header"><span class="section-num">04</span><span class="section-title">공통 조건</span></div>
+
+    <div style="display:flex;flex-direction:column;gap:20px;">
+      <div>
+        <div style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:10px;">접근 권한</div>
+        <div class="table-wrap"><table><thead><tr><th>상태</th><th>처리</th></tr></thead><tbody>
+          <tr><td>로그인 유저</td><td>전체 기능 이용 가능</td></tr>
+          <tr><td>비로그인 유저</td><td>캘린더 페이지 접근 불가 — 로그인 화면으로 리디렉션</td></tr>
+        </tbody></table></div>
+      </div>
+      <div>
+        <div style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:10px;">에러 처리</div>
+        <div class="table-wrap"><table><thead><tr><th>상황</th><th>처리</th></tr></thead><tbody>
+          <tr><td>경기 데이터 로딩 실패</td><td>"데이터를 불러오지 못했어요. 다시 시도해 주세요" + 재시도 버튼</td></tr>
+          <tr><td>알림 구독 API 실패</td><td>"알림 설정에 실패했어요. 다시 시도해 주세요" 토스트</td></tr>
+          <tr><td>네트워크 없음</td><td>오프라인 안내 토스트 노출</td></tr>
+        </tbody></table></div>
+      </div>
+      <div>
+        <div style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:10px;">성능 기준</div>
+        <div class="table-wrap"><table><thead><tr><th>항목</th><th>기준</th></tr></thead><tbody>
+          <tr><td>캘린더 초기 로딩</td><td>2초 이내</td></tr>
+          <tr><td>날짜 탭 후 목록 업데이트</td><td>1초 이내</td></tr>
+          <tr><td>뷰 전환 (주간 ↔ 월간)</td><td>즉시 (애니메이션 포함 300ms 이내)</td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 5: KPI 이벤트 로깅 -->
+  <div class="section" id="s5">
+    <div class="section-header"><span class="section-num">05</span><span class="section-title">KPI 연결 이벤트 로깅</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>이벤트명</th><th>트리거 시점</th><th>파라미터</th><th>퍼널 단계</th></tr></thead>
+        <tbody>
+          <tr><td><code class="event-code">calendar_banner_click</code></td><td>응모 메인 배너 버튼 탭</td><td>—</td><td>1단계 — 진입률</td></tr>
+          <tr><td><code class="event-code">calendar_view_enter</code></td><td>캘린더 페이지 진입</td><td>view_type</td><td>1단계</td></tr>
+          <tr><td><code class="event-code">calendar_date_tap</code></td><td>날짜 셀 탭</td><td>date</td><td>2단계 — 탭률</td></tr>
+          <tr><td><code class="event-code">calendar_game_tap</code></td><td>경기 카드 탭</td><td>game_id, game_status</td><td>2단계</td></tr>
+          <tr><td><code class="event-code">calendar_filter_apply</code></td><td>응원팀 필터 적용</td><td>team_id</td><td>진단 지표</td></tr>
+          <tr><td><code class="event-code">calendar_notify_tap</code></td><td>알림받기 버튼 탭</td><td>game_id</td><td>3단계 — 액션 전환</td></tr>
+          <tr><td><code class="event-code">calendar_notify_complete</code></td><td>알림 설정 완료</td><td>game_id</td><td>4단계 — 알림 설정 완료율</td></tr>
+          <tr><td><code class="event-code">calendar_entry_complete</code></td><td>응모 완료 (캘린더 경유)</td><td>game_id</td><td>4단계 — 응모 완료율</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Section 6: 범위 외 -->
+  <div class="section" id="s6">
+    <div class="section-header"><span class="section-num">06</span><span class="section-title">이번 범위 외 항목</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>항목</th><th>사유</th></tr></thead>
+        <tbody class="out-row">
+          <tr><td>응모 상세 화면 (응모중/마감/결과)</td><td>기존 화면 그대로 활용, 변경 없음</td></tr>
+          <tr><td>응모 불가 구단 안내 화면</td><td>캘린더 및 필터에서 미노출 처리로 대체</td></tr>
+          <tr><td>응모권 미보유 유도 화면</td><td>이번 범위 외, 향후 별도 기획</td></tr>
+          <tr><td>비로그인 뷰</td><td>이번 범위 외, SEO 고려 시 별도 기획</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Section 7: 변경 이력 -->
+  <div class="section" id="s7">
+    <div class="section-header"><span class="section-num">07</span><span class="section-title">변경 이력</span></div>
+    <div class="changelog">
+      <div class="changelog-item">
+        <span class="changelog-ver">v1.0</span>
+        <div class="changelog-meta">
+          <div class="changelog-date">2026.04.08</div>
+          <div class="changelog-desc">최초 작성 — PRD v1.2 기반, F-01~F-13 기능 상세 정의, 공통 조건, KPI 이벤트 로깅 정의</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

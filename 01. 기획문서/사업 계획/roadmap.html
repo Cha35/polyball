@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>폴리볼 — 내부 실행 로드맵 v1.0 (6월~Q4)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#1F30E9; --navy:#00143F; --mint:#09FFEE;
+  --bg:#FFFFFF; --bg2:#F8FAFC; --bg3:#F1F5F9;
+  --line:#E2E8F0;
+  --t1:#0F172A; --t3:#334155; --t4:#475569; --t5:#64748B; --t6:#94A3B8;
+  --red:#DC2626; --red-bg:#FEF2F2; --red-line:#FECACA;
+  --green:#059669; --green-bg:#F0FDF4; --green-line:#86EFAC;
+  --amber:#B45309; --amber-bg:#FFFBEB; --amber-line:#FDE68A;
+  --blue-bg:#EFF6FF; --blue-line:#BFDBFE;
+  --purple:#7C3AED; --purple-bg:#F5F3FF; --purple-line:#DDD6FE;
+  --coral:#E11D48; --coral-bg:#FFF1F2;
+  --sb-w:248px; --tb-h:56px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--tb-h) + 16px);}
+body{font-family:'Noto Sans KR',-apple-system,sans-serif;background:var(--bg);color:var(--t1);font-size:14px;line-height:1.7;}
+.mono{font-family:'DM Mono',monospace;}
+
+/* 탑바 */
+.topbar{position:fixed;top:0;left:0;right:0;height:var(--tb-h);background:var(--navy);display:flex;align-items:center;gap:14px;padding:0 20px;z-index:100;}
+.tb-toggle{width:36px;height:36px;border:none;background:transparent;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.tb-toggle:hover{background:rgba(255,255,255,0.1);}
+.tb-toggle svg{width:20px;height:20px;stroke:#fff;stroke-width:2;fill:none;stroke-linecap:round;}
+.tb-logo{font-weight:900;font-size:16px;color:var(--blue);background:#fff;padding:2px 10px;border-radius:6px;flex-shrink:0;}
+.tb-title{color:#fff;font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tb-meta{margin-left:auto;display:flex;gap:8px;align-items:center;flex-shrink:0;}
+.tb-meta span{font-family:'DM Mono',monospace;font-size:11px;color:#8FA3C8;}
+.tb-ver{background:var(--blue);color:#fff !important;padding:1px 8px;border-radius:4px;font-weight:500;}
+
+/* 사이드바 */
+.sidebar{position:fixed;top:var(--tb-h);left:0;bottom:0;width:var(--sb-w);background:var(--bg2);border-right:1px solid var(--line);padding:20px 12px;overflow-y:auto;z-index:90;transition:transform .25s ease;}
+.sb-label{font-size:10px;font-weight:700;color:var(--t6);letter-spacing:0.08em;padding:0 10px;margin:14px 0 6px;font-family:'DM Mono',monospace;}
+.sb-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;color:var(--t4);font-size:13px;text-decoration:none;margin-bottom:2px;font-weight:500;}
+.sb-item:hover{background:var(--bg3);color:var(--t1);}
+.sb-item.active{background:var(--blue);color:#fff;}
+.sb-num{font-family:'DM Mono',monospace;font-size:11px;width:20px;flex-shrink:0;opacity:0.7;}
+.sb-dim{position:fixed;inset:var(--tb-h) 0 0 0;background:rgba(0,20,63,0.45);z-index:85;opacity:0;pointer-events:none;transition:opacity .25s;}
+
+/* 본문 */
+.main{margin-left:var(--sb-w);padding:32px 36px 80px;transition:margin-left .25s ease;max-width:calc(var(--sb-w) + 1080px);}
+body.sb-closed .sidebar{transform:translateX(-100%);}
+body.sb-closed .main{margin-left:0;max-width:1080px;}
+
+/* 문서 헤더 */
+.doc-head{background:linear-gradient(135deg,var(--navy) 0%,#0A2468 60%,var(--blue) 100%);border-radius:16px;padding:30px 34px;color:#fff;margin-bottom:28px;}
+.doc-head .eyebrow{font-family:'DM Mono',monospace;font-size:11px;color:var(--mint);letter-spacing:0.1em;margin-bottom:10px;}
+.doc-head h1{font-size:25px;font-weight:900;line-height:1.35;}
+.doc-head .sub{font-size:14px;color:#B9C6E2;margin-top:8px;}
+.doc-head .meta-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;}
+.doc-head .meta-chip{font-family:'DM Mono',monospace;font-size:11px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);padding:3px 10px;border-radius:20px;color:#DCE4F5;}
+
+/* 섹션 */
+.section{margin-bottom:44px;scroll-margin-top:calc(var(--tb-h) + 20px);}
+.sec-head{display:flex;align-items:center;gap:12px;border-bottom:2px solid var(--blue);padding-bottom:10px;margin-bottom:18px;flex-wrap:wrap;}
+.sec-num{font-family:'DM Mono',monospace;font-size:12px;background:var(--blue);color:#fff;padding:3px 10px;border-radius:6px;flex-shrink:0;}
+.sec-title{font-size:19px;font-weight:700;}
+.sec-tag{margin-left:auto;font-size:11px;color:var(--t6);font-family:'DM Mono',monospace;}
+h3.sub-h{font-size:15px;font-weight:700;margin:22px 0 10px;display:flex;align-items:center;gap:8px;}
+h3.sub-h::before{content:"";width:4px;height:16px;background:var(--blue);border-radius:2px;}
+p.body-p{color:var(--t3);margin-bottom:12px;}
+
+/* 뱃지 */
+.badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;font-family:'DM Mono',monospace;vertical-align:middle;white-space:nowrap;}
+.b-blue{background:var(--blue-bg);color:#1D4ED8;border:1px solid var(--blue-line);}
+.b-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-line);}
+.b-green{background:var(--green-bg);color:#065F46;border:1px solid var(--green-line);}
+.b-amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-line);}
+.b-purple{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-line);}
+.b-navy{background:var(--navy);color:#fff;border:1px solid var(--navy);}
+
+/* 핵심 박스 */
+.key-box{background:var(--navy);border-radius:14px;padding:20px 24px;color:#fff;margin:16px 0;}
+.key-box .kb-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--mint);letter-spacing:0.12em;margin-bottom:8px;}
+.key-box .kb-text{font-size:15.5px;font-weight:700;line-height:1.7;}
+.key-box .kb-text em{font-style:normal;color:var(--mint);}
+
+/* 인포 */
+.info{border-radius:10px;padding:13px 16px;font-size:13px;margin:12px 0;line-height:1.7;}
+.info-blue{background:var(--blue-bg);border:1px solid var(--blue-line);color:#1E3A8A;}
+.info-amber{background:var(--amber-bg);border:1px solid var(--amber-line);color:#78350F;}
+.info-green{background:var(--green-bg);border:1px solid var(--green-line);color:#14532D;}
+
+/* 테이블 */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;margin:12px 0;}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:720px;}
+th{background:var(--bg2);color:var(--t4);font-weight:700;font-size:12px;text-align:left;padding:10px 13px;border-bottom:1px solid var(--line);white-space:nowrap;}
+td{padding:11px 13px;border-bottom:1px solid var(--line);color:var(--t3);vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+td.cell-key{font-weight:700;color:var(--t1);white-space:nowrap;}
+td .small{font-size:11.5px;color:var(--t5);display:block;margin-top:3px;line-height:1.55;}
+.tbl-wrap.fit table{min-width:0;}
+
+/* 테마 헤더 */
+.theme-head{display:flex;align-items:flex-start;gap:12px;background:var(--bg2);border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:0 12px 12px 0;padding:14px 18px;margin:6px 0 14px;}
+.theme-head .th-no{font-family:'DM Mono',monospace;font-size:11px;color:var(--blue);font-weight:500;flex-shrink:0;padding-top:2px;}
+.theme-head .th-goal{font-size:13.5px;color:var(--t3);}
+.theme-head .th-goal strong{display:block;color:var(--t1);font-size:14.5px;margin-bottom:2px;}
+
+/* KPI 박스 */
+.kpi-box{background:var(--navy);border-radius:10px;padding:13px 17px;margin:10px 0 4px;color:#DCE4F5;font-size:12.5px;line-height:1.8;}
+.kpi-box .kp-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--mint);letter-spacing:0.12em;display:block;margin-bottom:3px;}
+.kpi-box b{color:#fff;font-weight:700;}
+.kpi-box .num{font-family:'DM Mono',monospace;color:var(--mint);}
+
+/* 스윔레인 */
+.lane-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px;margin:14px 0;}
+.lane{position:relative;min-width:840px;}
+.lane-grid{display:grid;grid-template-columns:150px repeat(7,1fr);}
+.lg-cell{padding:8px 6px;border-bottom:1px solid var(--line);border-right:1px solid var(--bg3);min-height:40px;}
+.lg-month{background:var(--navy);color:#fff;font-weight:700;font-size:12px;text-align:center;padding:9px 4px;font-family:'DM Mono',monospace;border-right:1px solid rgba(255,255,255,0.12);border-bottom:none;}
+.lg-month.dd{color:var(--mint);}
+.lg-theme{background:var(--bg2);font-weight:700;font-size:12.5px;color:var(--t1);display:flex;align-items:center;padding-left:14px;line-height:1.4;}
+.lane-row{display:grid;grid-template-columns:150px repeat(7,1fr);}
+.lane-cells{grid-column:2/9;display:grid;grid-template-columns:repeat(7,1fr);gap:5px;padding:7px 6px;border-bottom:1px solid var(--line);align-content:start;}
+.bar{border-radius:6px;font-size:11px;font-weight:700;padding:4px 8px;line-height:1.35;color:#fff;background:var(--blue);min-height:26px;display:flex;align-items:center;}
+.bar.t2{background:#0D9488;}
+.bar.t3{background:#7C3AED;}
+.bar.t4{background:#64748B;}
+.bar.ghost{background:var(--bg3);color:var(--t4);border:1px dashed var(--t6);}
+.dday{position:absolute;top:0;bottom:0;width:0;border-left:2px dashed var(--red);left:calc(150px + (100% - 150px) * 3 / 7);z-index:5;}
+.dday span{position:absolute;top:4px;left:5px;background:var(--red);color:#fff;font-size:9.5px;font-weight:700;font-family:'DM Mono',monospace;padding:1px 6px;border-radius:4px;white-space:nowrap;}
+.lane-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--t5);margin-top:8px;}
+.lane-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;}
+
+/* 연결 다이어그램 */
+.chain{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;margin:14px 0;}
+.chain .node{flex:1;min-width:150px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:13px 15px;font-size:12.5px;line-height:1.6;}
+.chain .node b{display:block;color:var(--t1);font-size:13px;margin-bottom:3px;}
+.chain .arrow{display:flex;align-items:center;padding:0 8px;color:var(--blue);font-weight:900;font-size:17px;flex-shrink:0;}
+
+/* 리스크 */
+.risk{border-left:4px solid var(--red);background:var(--red-bg);border-radius:0 10px 10px 0;padding:12px 16px;margin:10px 0;font-size:13px;}
+.risk .r-title{font-weight:700;color:var(--red);margin-bottom:3px;}
+.risk .r-body{color:#7F1D1D;line-height:1.7;}
+.risk.warn{border-left-color:#D97706;background:var(--amber-bg);}
+.risk.warn .r-title{color:var(--amber);}
+.risk.warn .r-body{color:#78350F;}
+
+.footnote{font-size:11px;color:var(--t6);margin-top:6px;}
+.doc-footer{padding:24px 0;text-align:center;font-size:11px;color:var(--t6);border-top:1px solid var(--line);margin-top:48px;font-family:'DM Mono',monospace;}
+
+/* 반응형 */
+@media (max-width:900px){
+  .main{margin-left:0;padding:20px 16px 60px;}
+  .sidebar{transform:translateX(-100%);box-shadow:4px 0 24px rgba(0,20,63,0.18);}
+  body.sb-open .sidebar{transform:translateX(0);}
+  body.sb-open .sb-dim{opacity:1;pointer-events:auto;}
+  .doc-head{padding:22px 18px;}
+  .doc-head h1{font-size:20px;}
+  .tb-title{display:none;}
+  .chain{flex-direction:column;}
+  .chain .arrow{transform:rotate(90deg);justify-content:center;padding:2px 0;}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <button class="tb-toggle" id="sbToggle" aria-label="사이드바 열기/닫기" aria-expanded="true">
+    <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+  </button>
+  <span class="tb-logo">PolyBall.</span>
+  <span class="tb-title">내부 실행 로드맵 — 6월~Q4 (팀 공유용)</span>
+  <div class="tb-meta">
+    <span class="tb-ver">v1.0</span>
+    <span>2026.06.10</span>
+  </div>
+</header>
+
+<div class="sb-dim" id="sbDim"></div>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sb-label">OVERVIEW</div>
+  <a class="sb-item" href="#s1"><span class="sb-num">01</span>전체 흐름</a>
+  <a class="sb-item" href="#s2"><span class="sb-num">02</span>타임라인 (테마 × 월)</a>
+  <div class="sb-label">THEMES</div>
+  <a class="sb-item" href="#s3"><span class="sb-num">03</span>테마 1 · 콘텐츠 전환</a>
+  <a class="sb-item" href="#s4"><span class="sb-num">04</span>테마 2 · 보상 전환</a>
+  <a class="sb-item" href="#s5"><span class="sb-num">05</span>테마 3 · 광고 수익화</a>
+  <a class="sb-item" href="#s6"><span class="sb-num">06</span>테마 4 · 리텐션</a>
+  <div class="sb-label">METRICS & RISK</div>
+  <a class="sb-item" href="#s7"><span class="sb-num">07</span>KPI 체계</a>
+  <a class="sb-item" href="#s8"><span class="sb-num">08</span>테마 간 연결 · 리스크</a>
+</nav>
+
+<main class="main">
+
+  <div class="doc-head">
+    <div class="eyebrow">POLYBALL · INTERNAL EXECUTION ROADMAP</div>
+    <h1>내부 실행 로드맵 — 6월~Q4</h1>
+    <div class="sub">KBO 시즌 종료(9/6)를 전환점으로, 4개 테마의 업무 순서·정의·KPI를 정리한 팀 공유 문서</div>
+    <div class="meta-row">
+      <span class="meta-chip">작성 2026.06.10</span>
+      <span class="meta-chip">기준: Q3·Q4 로드맵 + KPI 1차 수치</span>
+      <span class="meta-chip">담당: 기획 (실무 적용 계획)</span>
+      <span class="meta-chip">수치 최신화 시 갱신</span>
+    </div>
+  </div>
+
+  <!-- 01 전체 흐름 -->
+  <section class="section" id="s1">
+    <div class="sec-head">
+      <span class="sec-num">01</span>
+      <span class="sec-title">전체 흐름</span>
+      <span class="sec-tag">Overview</span>
+    </div>
+
+    <div class="key-box">
+      <div class="kb-label">한 줄 요약</div>
+      <div class="kb-text"><em>6월</em> 수기 운영으로 테스트 즉시 개시 (개발 병렬) → <em>7~8월</em> 데이터 기반 제작 (개편·SEO·광고 지면) → <em>9월</em> 전환 (비야구 메인 · 기프티콘 보상) → <em>Q4</em> 안착 (ver 2.0 · 광고 패키지 · UGC)</div>
+    </div>
+
+    <p class="body-p">9월에 KBO 시즌이 끝나면 <strong>맞힐 거리(야구 경기)와 받을 상품(직관 티켓)이 같이 사라짐.</strong> 시즌이 살아있는 지금, 둘의 대체재가 통하는지를 작게 검증하고 시즌 종료 시점에 메인을 전환하는 것이 이번 분기의 핵심임.</p>
+
+    <h3 class="sub-h">진행 원칙 4개</h3>
+    <ul style="list-style:none;margin:8px 0;">
+      <li style="padding:8px 0;border-bottom:1px solid var(--line);"><span class="badge b-blue">원칙 1</span>&nbsp; 개발 없이 시작할 수 있는 건 제일 앞 — <strong>수기 생성·운영으로 먼저 개시하고, UI·개발은 병렬 진행</strong></li>
+      <li style="padding:8px 0;border-bottom:1px solid var(--line);"><span class="badge b-blue">원칙 2</span>&nbsp; 9월 전환에 필요한 개발은 9/6에서 역산 배치</li>
+      <li style="padding:8px 0;border-bottom:1px solid var(--line);"><span class="badge b-blue">원칙 3</span>&nbsp; 데이터가 있어야 잘 만들 수 있는 기획(홈 개편 등)은 테스트 데이터 이후</li>
+      <li style="padding:8px 0;"><span class="badge b-blue">원칙 4</span>&nbsp; 9월 이후로 미뤄도 되는 건 전부 뒤로 (랭킹·배지는 백로그)</li>
+    </ul>
+  </section>
+
+  <!-- 02 타임라인 -->
+  <section class="section" id="s2">
+    <div class="sec-head">
+      <span class="sec-num">02</span>
+      <span class="sec-title">타임라인 — 테마 × 월</span>
+      <span class="sec-tag">Swimlane · D-Day 9/6</span>
+    </div>
+    <p class="body-p">세로는 테마, 가로는 월. 빨간 점선이 KBO 시즌 종료(9/6) — 그 왼쪽은 검증·제작, 오른쪽은 전환·안착 구간임.</p>
+
+    <div class="lane-scroll">
+      <div class="lane">
+        <div class="dday"><span>9/6 시즌 종료</span></div>
+        <div class="lane-grid">
+          <div class="lg-cell lg-month" style="background:var(--navy);border-radius:0;">테마 \ 월</div>
+          <div class="lg-cell lg-month">6월</div>
+          <div class="lg-cell lg-month">7월</div>
+          <div class="lg-cell lg-month">8월</div>
+          <div class="lg-cell lg-month dd">9월</div>
+          <div class="lg-cell lg-month">10월</div>
+          <div class="lg-cell lg-month">11월</div>
+          <div class="lg-cell lg-month">12월</div>
+        </div>
+
+        <div class="lane-row">
+          <div class="lg-cell lg-theme">1. 콘텐츠 전환</div>
+          <div class="lane-cells">
+            <div class="bar" style="grid-column:1/4;">마켓 확장 운영 (테스트 A) — 수기 운영 + 개발 병렬</div>
+            <div class="bar" style="grid-column:1/2;">카테고리</div>
+            <div class="bar" style="grid-column:2/3;">홈 개편</div>
+            <div class="bar" style="grid-column:2/3;">비로그인</div>
+            <div class="bar" style="grid-column:3/4;">SEO 오픈</div>
+            <div class="bar" style="grid-column:4/5;">비야구 메인 전환</div>
+            <div class="bar" style="grid-column:5/6;">ver 2.0 · KBL 검토</div>
+          </div>
+        </div>
+
+        <div class="lane-row">
+          <div class="lg-cell lg-theme">2. 보상 전환</div>
+          <div class="lane-cells">
+            <div class="bar t2" style="grid-column:1/4;">기프티콘 응모 테스트 (테스트 B)</div>
+            <div class="bar t2" style="grid-column:2/3;">난수번호 발송</div>
+            <div class="bar t2" style="grid-column:4/5;">보상 체계 개편 (재화 포함)</div>
+            <div class="bar t2" style="grid-column:4/5;">광고주 보상 적용</div>
+          </div>
+        </div>
+
+        <div class="lane-row">
+          <div class="lg-cell lg-theme">3. 광고 수익화</div>
+          <div class="lane-cells">
+            <div class="bar t3" style="grid-column:1/2;">RV 응모권 광고</div>
+            <div class="bar t3" style="grid-column:1/2;">마켓 생성 구분 협의</div>
+            <div class="bar t3" style="grid-column:2/3;">네트워크 DA</div>
+            <div class="bar t3" style="grid-column:3/4;">광고주 페이지</div>
+            <div class="bar t3" style="grid-column:5/8;">콘텐츠형 광고 패키지</div>
+          </div>
+        </div>
+
+        <div class="lane-row">
+          <div class="lg-cell lg-theme">4. 리텐션</div>
+          <div class="lane-cells">
+            <div class="bar t4" style="grid-column:3/4;">커뮤니티 개편</div>
+            <div class="bar t4" style="grid-column:6/7;">유저 생산화 (UGC)</div>
+            <div class="bar ghost" style="grid-column:1/2;">랭킹 데이터 적재 요청 (메일 1건)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="lane-legend">
+      <span><i style="background:var(--blue);"></i>테마 1 콘텐츠</span>
+      <span><i style="background:#0D9488;"></i>테마 2 보상</span>
+      <span><i style="background:#7C3AED;"></i>테마 3 광고</span>
+      <span><i style="background:#64748B;"></i>테마 4 리텐션</span>
+      <span><i style="background:var(--bg3);border:1px dashed var(--t6);"></i>백로그·사전 요청</span>
+    </div>
+  </section>
+
+  <!-- 03 테마 1 -->
+  <section class="section" id="s3">
+    <div class="sec-head">
+      <span class="sec-num">03</span>
+      <span class="sec-title">테마 1 · KBO 시즌 종료 대응 — 비야구 콘텐츠 검증 및 전환</span>
+    </div>
+    <div class="theme-head">
+      <span class="th-no">GOAL</span>
+      <div class="th-goal"><strong>시즌 중 비야구 마켓 운영으로 참여 수요 검증, 시즌 종료 시점에 메인 콘텐츠 전환</strong>야구에 한정된 플랫폼이 아니라 다양한 예측/투표형 콘텐츠를 제공하는 플랫폼으로 가기 위한 줄기</div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th style="width:60px;">시점</th><th style="width:54px;">우선<br>순위</th><th style="width:170px;">업무</th><th>무슨 일인지</th><th style="width:180px;">나오는 것</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="cell-key">6월~</td><td><span class="badge b-red">P0</span></td>
+            <td class="cell-key">예측/투표 마켓<br>확장 운영 (테스트 A)</td>
+            <td>야구뿐 아닌 다양한 예측/투표형 마켓의 확장 운영. 다양한 콘텐츠를 제공하는 플랫폼으로 전환하기 위한 테스트. <strong>수기 생성·운영으로 즉시 개시하고, 추가 개발·UI 개편은 병렬 진행</strong></td>
+            <td>확장 운영 기획안, 개발·UI 개편 요건, 측정 기준</td>
+          </tr>
+          <tr>
+            <td class="cell-key">6월</td><td><span class="badge b-red">P0</span></td>
+            <td class="cell-key">카테고리</td>
+            <td>마켓이 노출되는 페이지에서 예측/투표의 주제(카테고리) 기준 분류 체계를 마련해 유저에게 제공</td>
+            <td>카테고리 분류 체계, 노출 화면 정의</td>
+          </tr>
+          <tr>
+            <td class="cell-key">7월</td><td><span class="badge b-amber">P1</span></td>
+            <td class="cell-key">홈 개편</td>
+            <td>홈 화면을 야구 경기 일정 중심에서 주제(카테고리) 중심 구조로 개편. 비야구 마켓 노출 영역 확보 + SEO 대비 URL 체계 정리 포함. 테스트 A 데이터를 반영해 설계</td>
+            <td>홈 개편 기능정의서 (URL 체계 포함)</td>
+          </tr>
+          <tr>
+            <td class="cell-key">7월</td><td><span class="badge b-amber">P1</span></td>
+            <td class="cell-key">비로그인 적용</td>
+            <td>SEO를 고려하여, 로그인하지 않고도 앱/웹에 진입해 제공되는 콘텐츠를 확인 가능하도록 변경</td>
+            <td>비로그인 공개 범위 정책</td>
+          </tr>
+          <tr>
+            <td class="cell-key">8월</td><td><span class="badge b-amber">P1</span></td>
+            <td class="cell-key">SEO 오픈</td>
+            <td>폴리볼 서비스의 노출 빈도 확장을 위한 작업 — 검색 엔진에 콘텐츠가 잡히게 하여 광고비 없는 신규 유입 통로 확보</td>
+            <td>검색 노출 요건 정의</td>
+          </tr>
+          <tr>
+            <td class="cell-key">10월</td><td><span class="badge b-blue">P2</span></td>
+            <td class="cell-key">폴리볼 ver 2.0<br>+ KBL 검토</td>
+            <td>상시 예측 플랫폼으로의 전환에 맞춘 UI·슬로건 리브랜딩. 동시에 KBL 등 차기 스포츠 콘텐츠 도입 검토</td>
+            <td>리브랜딩 방향안, KBL 검토안</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="kpi-box">
+      <span class="kp-label">THEME KPI</span>
+      비야구 마켓 참여율 <b>야구 서브마켓 대비 <span class="num">70%↑</span></b> (잠정 — 1주차 베이스라인 후 확정) · DAU 월 목표 <span class="num">7월 6,879 → 8월 9,674 → 9월 11,319 → 12월 24,069</span> · DAU/MAU <span class="num">25%</span> 유지
+    </div>
+  </section>
+
+  <!-- 04 테마 2 -->
+  <section class="section" id="s4">
+    <div class="sec-head">
+      <span class="sec-num">04</span>
+      <span class="sec-title">테마 2 · 보상 전환 — 기프티콘 테스트 및 메인 보상 전환</span>
+    </div>
+    <div class="theme-head">
+      <span class="th-no">GOAL</span>
+      <div class="th-goal"><strong>소액 기프티콘 응모 테스트로 수요 검증 후, 티켓 종료에 맞춰 메인 보상 전환</strong>DAU 정의 자체가 "매일 응모권 1매 이상 획득 유저"라서, 보상의 매력도가 DAU 목표를 직접 좌우하는 줄기</div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th style="width:60px;">시점</th><th style="width:54px;">우선<br>순위</th><th style="width:170px;">업무</th><th>무슨 일인지</th><th style="width:180px;">나오는 것</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="cell-key">6월~</td><td><span class="badge b-red">P0</span></td>
+            <td class="cell-key">기프티콘 응모 테스트<br>(테스트 B)</td>
+            <td>폴리볼의 보상 = 야구 직관 티켓이 아닌 <strong>'소액 기프티콘'부터 시작하여 보상을 변경하는 것에 대한 테스트.</strong> 주간 응모에 기프티콘 상품(500~5,000원)을 티켓과 병행 노출</td>
+            <td>테스트 스펙, 측정 기준, 상품 소싱<span class="small">서버 개발 범위 확인 + 법령 검토 1회 포함</span></td>
+          </tr>
+          <tr>
+            <td class="cell-key">7월</td><td><span class="badge b-amber">P1</span></td>
+            <td class="cell-key">난수번호 발송</td>
+            <td>응모 당첨자에게 티켓 수령용 난수번호를 발송하는 당첨 처리 프로세스 구축 — 당첨부터 수령까지의 운영 자동화</td>
+            <td>당첨 처리 프로세스 정의</td>
+          </tr>
+          <tr>
+            <td class="cell-key">9월</td><td><span class="badge b-red">P0</span></td>
+            <td class="cell-key">보상 체계 개편</td>
+            <td>시즌 종료로 티켓 보상이 끝나는 것에 맞춰 기프티콘 중심으로 보상 구성을 개편. <strong>응모권 등 재화의 획득·사용 체계 재정의 포함</strong> (시즌 마감에 따른 재화 이슈 흡수)</td>
+            <td>보상 체계 개편 기획서, 재화 정책</td>
+          </tr>
+          <tr>
+            <td class="cell-key">9월</td><td><span class="badge b-amber">P1</span></td>
+            <td class="cell-key">광고주 보상 적용</td>
+            <td>광고주가 제공하는 쿠폰·상품을 보상 카탈로그에 추가 — 보상 원가를 광고주 재원으로 충당하는 구조의 시작 (테마 3과 연결 지점)</td>
+            <td>광고주 보상 운영 정책</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="kpi-box">
+      <span class="kp-label">THEME KPI</span>
+      기프티콘 응모 전환율 · 전체 응모권 중 기프티콘向 배분 비중 (티켓 대비 선호) · 9월 전환 후 <b>주간 응모 완료 유저 방어</b> — 1주차 베이스라인 측정 후 기준치 확정
+    </div>
+  </section>
+
+  <!-- 05 테마 3 -->
+  <section class="section" id="s5">
+    <div class="sec-head">
+      <span class="sec-num">05</span>
+      <span class="sec-title">테마 3 · 광고 수익화 — 지면 확대·직광고 상품화·재원 연동</span>
+    </div>
+    <div class="theme-head">
+      <span class="th-no">GOAL</span>
+      <div class="th-goal"><strong>광고 지면과 직광고 상품을 늘려 매출을 키우고, 그 수익을 보상 재원으로 연동</strong>광고주용 마켓 상품 기획·세일즈 지원, 직광고 수익의 리워드 재원 연동 구조 수립</div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th style="width:60px;">시점</th><th style="width:54px;">우선<br>순위</th><th style="width:170px;">업무</th><th>무슨 일인지</th><th style="width:180px;">나오는 것</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="cell-key">6월</td><td><span class="badge b-red">P0</span></td>
+            <td class="cell-key">응모권 획득 광고(RV)</td>
+            <td>광고를 보면 응모권을 받는 지면 추가 — 광고 노출과 응모권 공급을 동시에 늘리는 장치 (DAU 정의가 응모권 획득 기준이라 DAU 레버 겸함)</td>
+            <td>지면 위치·횟수 정책</td>
+          </tr>
+          <tr>
+            <td class="cell-key">6월</td><td><span class="badge b-red">P0</span></td>
+            <td class="cell-key">마켓 생성 구분 협의</td>
+            <td>마켓 데이터에 '누가 만든 마켓인지(운영/광고주 등)' 구분을 미리 넣어두는 서버 협의 — 8월 광고주 페이지의 사전 작업으로, 지금 안 하면 그때 재작업 발생</td>
+            <td>서버 협의 결론</td>
+          </tr>
+          <tr>
+            <td class="cell-key">7월</td><td><span class="badge b-amber">P1</span></td>
+            <td class="cell-key">네트워크 DA 추가</td>
+            <td>배너형(DA) 광고 지면을 추가해 인당 광고 노출 횟수를 늘리는 작업 — KPI상 인당 시청 6.1회 → 8회 가정의 실행 수단</td>
+            <td>DA 지면 정의</td>
+          </tr>
+          <tr>
+            <td class="cell-key">8월</td><td><span class="badge b-amber">P1</span></td>
+            <td class="cell-key">광고주 페이지 개발</td>
+            <td>광고주 전용 노출 영역(쿠폰 등) 개발 — 광고주에게 판매할 직광고 상품의 실체. 직광고 월 500만 → 1,000만 점프의 기반</td>
+            <td>광고주 페이지 기능정의서, 영업용 상품 규격</td>
+          </tr>
+          <tr>
+            <td class="cell-key">10~12월</td><td><span class="badge b-amber">P1</span></td>
+            <td class="cell-key">콘텐츠형 광고 패키지</td>
+            <td>광고주 브랜드를 주제로 한 예측/투표 마켓 + 광고주 쿠폰 보상을 묶어 파는 광고 상품 — 직광고 1,000만 → 2,000만 구간의 주력 상품</td>
+            <td>패키지 상품 구성안</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="kpi-box">
+      <span class="kp-label">THEME KPI</span>
+      네트워크 광고 월 <span class="num">198만(6월) → 963만(12월)</span> · 직광고 월 <span class="num">300만 → 500만(8월) → 1,000만(10월) → 2,000만(12월)</span> · 인당 광고 시청 <span class="num">6.1 → 8회</span> · 광고 시청률 <span class="num">21 → 25%</span><br>※ 광고 단가 지수는 <b>350 → 200 하락 가정</b> — 매출 성장은 DAU·시청 횟수가 전부 견인하므로 시청 경험 마찰 관리 필요
+    </div>
+  </section>
+
+  <!-- 06 테마 4 -->
+  <section class="section" id="s6">
+    <div class="sec-head">
+      <span class="sec-num">06</span>
+      <span class="sec-title">테마 4 · 리텐션 — 커뮤니티 및 유저 생산화</span>
+    </div>
+    <div class="theme-head">
+      <span class="th-no">GOAL</span>
+      <div class="th-goal"><strong>커뮤니티와 유저 제작 콘텐츠로 보상 외 재방문 동기 확보</strong>전환이 자리잡은 뒤 "왜 계속 오는가"를 채우는 줄기 — 1차 로드맵에선 최소 투입</div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th style="width:60px;">시점</th><th style="width:54px;">우선<br>순위</th><th style="width:170px;">업무</th><th>무슨 일인지</th><th style="width:180px;">나오는 것</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="cell-key">8월</td><td><span class="badge b-blue">P2</span></td>
+            <td class="cell-key">커뮤니티 개편</td>
+            <td>기존 커뮤니티(게시글·응원전)의 구조·동선 개편 — 마켓 참여와 커뮤니티 활동이 서로 끌어주는 구조로</td>
+            <td>커뮤니티 개편 기획서</td>
+          </tr>
+          <tr>
+            <td class="cell-key">11월</td><td><span class="badge b-blue">P2</span></td>
+            <td class="cell-key">참여형 콘텐츠<br>유저 생산화 (UGC)</td>
+            <td>유저가 직접 예측/투표 마켓을 만들어보는 기능 테스트 — Q4 이후 콘텐츠 공급원 확보 (6월 마켓 생성 구분 협의가 돼 있으면 큰 개발 없음)</td>
+            <td>UGC 테스트 기획안</td>
+          </tr>
+          <tr>
+            <td class="cell-key">백로그</td><td><span class="badge b-blue">P2</span></td>
+            <td class="cell-key">랭킹·배지 시스템</td>
+            <td>1차 로드맵 제외. 단, 적중률·랭킹용 데이터(픽 단위 적중 기록)는 소급이 안 되므로 <strong>적재 시작 요청만 6월에 서버 전달</strong> (메일 1건 분량)</td>
+            <td>데이터 적재 요청 (6월)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="kpi-box">
+      <span class="kp-label">THEME KPI</span>
+      DAU/MAU <span class="num">25%</span> 유지 (리텐션 대표 지표) · 커뮤니티 참여 지표는 개편 기획 시 정의
+    </div>
+  </section>
+
+  <!-- 07 KPI -->
+  <section class="section" id="s7">
+    <div class="sec-head">
+      <span class="sec-num">07</span>
+      <span class="sec-title">KPI 체계</span>
+      <span class="sec-tag">1차 수치 기준 · 최신화 시 갱신</span>
+    </div>
+
+    <p class="body-p">모든 테마 KPI는 <strong>참여 → 광고 노출 → 매출</strong> 퍼널 위에 있음. 상위 지표는 아래 3개로 통합 관리함.</p>
+
+    <h3 class="sub-h">공통 상위 지표</h3>
+    <div class="tbl-wrap fit">
+      <table>
+        <thead><tr><th>지표</th><th>정의</th><th>6월</th><th>9월</th><th>12월</th></tr></thead>
+        <tbody>
+          <tr><td class="cell-key">DAU</td><td>매일 응모권 1매 이상 획득 유저 (월 평균)</td><td class="mono">4,548</td><td class="mono">11,319</td><td class="mono">24,069</td></tr>
+          <tr><td class="cell-key">DAU/MAU</td><td>월 활성 대비 일 활성 비율 (리텐션)</td><td class="mono">53%</td><td class="mono">25%</td><td class="mono">25%</td></tr>
+          <tr><td class="cell-key">월 광고 매출</td><td>네트워크 + 직광고</td><td class="mono">498만</td><td class="mono">956만</td><td class="mono">2,963만</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="sub-h">월별 매출 구성 (1차 수치)</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>구분</th><th>6월</th><th>7월</th><th>8월</th><th>9월</th><th>10월</th><th>11월</th><th>12월</th></tr></thead>
+        <tbody>
+          <tr><td class="cell-key">네트워크 광고</td><td class="mono">198만</td><td class="mono">299만</td><td class="mono">406만</td><td class="mono">456만</td><td class="mono">663만</td><td class="mono">822만</td><td class="mono">963만</td></tr>
+          <tr><td class="cell-key">직광고</td><td class="mono">300만</td><td class="mono">300만</td><td class="mono">500만</td><td class="mono">500만</td><td class="mono">1,000만</td><td class="mono">1,500만</td><td class="mono">2,000만</td></tr>
+          <tr><td class="cell-key">합계</td><td class="mono">498만</td><td class="mono">599만</td><td class="mono">906만</td><td class="mono">956만</td><td class="mono">1,663만</td><td class="mono">2,322만</td><td class="mono">2,963만</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="footnote">※ 네트워크 매출의 내부 가정: 광고 시청률 21→25%, 인당 시청 횟수 6.1→8회, 광고 단가 지수 350→200(하락). 신규 BM(보험 등)은 미정 항목으로 제외.</div>
+
+    <h3 class="sub-h">기준치 확정 절차</h3>
+    <div class="info info-blue">
+      테스트 A·B의 go/no-go 기준치(예: 비야구 참여율 70%)는 현재 <strong>잠정값</strong>임. 테스트 개시 1주차 데이터로 베이스라인을 측정한 뒤 <strong>팀 합의로 기준치를 확정</strong>하고, 이후 변경하지 않음. 기준을 미리 못 박지 않으면 9월에 판정 자체가 논쟁이 되기 때문.
+    </div>
+  </section>
+
+  <!-- 08 연결·리스크 -->
+  <section class="section" id="s8">
+    <div class="sec-head">
+      <span class="sec-num">08</span>
+      <span class="sec-title">테마 간 연결 · 리스크</span>
+    </div>
+
+    <h3 class="sub-h">테마 간 연결 — 순서의 근거</h3>
+    <div class="chain">
+      <div class="node"><b>테마 1 콘텐츠</b>비야구 마켓이 늘어나면 광고를 붙일 지면이 늘어남</div>
+      <div class="arrow">→</div>
+      <div class="node"><b>테마 3 광고</b>지면에 광고를 팔아 수익 확보 (네트워크 + 직광고)</div>
+      <div class="arrow">→</div>
+      <div class="node"><b>테마 2 보상</b>광고 수익이 기프티콘 보상 예산이 됨 (광고주 보상 포함)</div>
+      <div class="arrow">→</div>
+      <div class="node"><b>테마 4 리텐션</b>순환이 돈 뒤, 커뮤니티·UGC로 재방문을 증폭</div>
+    </div>
+    <p class="body-p">그래서 6~8월은 테마 1·2가 주력, 테마 3은 병행 준비, 테마 4는 최소 투입 — 이 배분이 리소스 계획의 골격임.</p>
+
+    <h3 class="sub-h">리스크 플래그</h3>
+    <div class="risk">
+      <div class="r-title">R-01 · 9월 DAU는 방어가 아니라 성장 목표 (8월 9,674 → 9월 11,319, +17%)</div>
+      <div class="r-body">시즌 종료 월에 성장이 깔려 있음 — 비야구 전환이 "버티기"가 아니라 "성장 견인"을 전제함. 테스트 A의 go 판정 기준이 그만큼 중요하며, 미달 시 9월 목표의 현실화 논의 필요.</div>
+    </div>
+    <div class="risk warn">
+      <div class="r-title">R-02 · 광고 단가 하락 가정 (지수 350 → 200)</div>
+      <div class="r-body">매출 성장이 단가가 아닌 DAU·시청 횟수에 전적으로 의존하는 구조. 인당 시청 8회를 만들려면 광고 지면 확대(RV·DA)가 일정대로 가야 하고, 시청 경험의 마찰(이탈) 관리가 병행돼야 함.</div>
+    </div>
+    <div class="risk warn">
+      <div class="r-title">R-03 · 보상 원가의 광고 수익 연동</div>
+      <div class="r-body">기프티콘이 메인 보상이 되면 보상 원가가 광고 수익에 연동됨. 직광고 미달 시 지급 규모를 조정하는 룰을 9월 전환 전에 합의해둘 것 (광고주 보상 적용이 원가 부담을 낮추는 보완 장치).</div>
+    </div>
+    <div class="risk warn">
+      <div class="r-title">R-04 · 법령 검토 1회</div>
+      <div class="r-body">기프티콘 보상·추첨 구조는 무료 획득 원칙 유지가 전제. 테스트 B 기획 확정 시점에 법령 검토 1회 진행.</div>
+    </div>
+  </section>
+
+  <div class="doc-footer">PolyBall · 내부 실행 로드맵 v1.0 · 2026.06.10 · For Internal Use</div>
+</main>
+
+<script>
+(function(){
+  var body=document.body, toggle=document.getElementById('sbToggle'), dim=document.getElementById('sbDim');
+  var mq=window.matchMedia('(max-width:900px)');
+  function isMobile(){return mq.matches;}
+  toggle.addEventListener('click',function(){
+    if(isMobile()){ body.classList.toggle('sb-open'); }
+    else{ body.classList.toggle('sb-closed'); }
+    toggle.setAttribute('aria-expanded', isMobile()? body.classList.contains('sb-open') : !body.classList.contains('sb-closed'));
+  });
+  dim.addEventListener('click',function(){ body.classList.remove('sb-open'); });
+  document.querySelectorAll('.sb-item').forEach(function(a){
+    a.addEventListener('click',function(){ if(isMobile()) body.classList.remove('sb-open'); });
+  });
+  var sections=document.querySelectorAll('.section[id]');
+  var items=document.querySelectorAll('.sb-item');
+  function syncActive(){
+    var cur='';
+    sections.forEach(function(s){ if(window.scrollY >= s.offsetTop-100) cur=s.id; });
+    items.forEach(function(i){ i.classList.toggle('active', i.getAttribute('href')==='#'+cur); });
+  }
+  window.addEventListener('scroll',syncActive,{passive:true});
+  syncActive();
+})();
+</script>
+</body>
+</html>

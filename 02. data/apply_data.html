@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>폴리볼 서버 데이터 요청서 v2</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue:#1F30E9;
+    --navy:#00143F;
+    --mint:#09FFEE;
+    --bg:#f9f9f9;
+    --line:#e5e5e5;
+    --text-03:#101015;
+    --text-04:#454545;
+    --text-05:#888888;
+    --green:#1e7d3a;
+    --green-bg:#e6f4ea;
+    --orange:#c2620a;
+    --orange-bg:#fdeede;
+    --purple:#5b3ee8;
+    --purple-bg:#ece8fe;
+    --red:#d42a3a;
+    --red-bg:#fdebed;
+    --blue-bg:#e9ebfe;
+    --mint-bg:#d6fffb;
+    --sidebar-w:280px;
+    --mono:'DM Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Pretendard',-apple-system,sans-serif;
+    color:var(--text-03);
+    background:var(--bg);
+    line-height:1.5;
+    letter-spacing:-0.01em;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ===== Sidebar ===== */
+  .sidebar{
+    position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;
+    background:#fff;border-right:1px solid var(--line);
+    overflow-y:auto;padding:0;z-index:10;
+  }
+  .sidebar-brand{
+    background:var(--navy);color:#fff;padding:22px 24px 20px;
+  }
+  .sidebar-brand .logo{font-size:20px;font-weight:800;letter-spacing:-0.04em;}
+  .sidebar-brand .logo span{color:var(--mint);}
+  .sidebar-brand .tag{font-size:11px;color:rgba(255,255,255,.55);margin-top:4px;letter-spacing:0;}
+  .nav-group{padding:14px 0 8px;}
+  .nav-label{
+    font-size:11px;font-weight:700;color:var(--text-05);
+    padding:6px 24px;letter-spacing:0.04em;text-transform:uppercase;
+  }
+  .sidebar a{
+    display:flex;align-items:center;gap:9px;
+    padding:8px 24px;font-size:13.5px;color:var(--text-04);
+    text-decoration:none;font-weight:500;border-left:3px solid transparent;
+    transition:all .12s;
+  }
+  .sidebar a:hover{background:var(--bg);color:var(--blue);}
+  .sidebar a.active{color:var(--blue);border-left-color:var(--blue);background:var(--blue-bg);font-weight:600;}
+  .nav-num{
+    font-family:var(--mono);font-size:11px;color:var(--text-05);
+    min-width:20px;font-weight:500;
+  }
+  .sidebar a.active .nav-num{color:var(--blue);}
+
+  /* ===== Main ===== */
+  .main{margin-left:var(--sidebar-w);}
+  .topbar{
+    background:var(--blue);color:#fff;padding:32px 48px;
+  }
+  .topbar h1{font-size:26px;font-weight:800;letter-spacing:-0.03em;}
+  .topbar .meta{display:flex;gap:24px;margin-top:14px;flex-wrap:wrap;}
+  .topbar .meta div{font-size:13px;color:rgba(255,255,255,.85);}
+  .topbar .meta b{color:#fff;font-weight:600;}
+  .topbar .purpose{
+    margin-top:18px;font-size:14px;color:#fff;background:rgba(255,255,255,.12);
+    padding:12px 16px;border-radius:10px;border-left:3px solid var(--mint);
+  }
+
+  .content{padding:40px 48px 80px;max-width:980px;}
+
+  section{scroll-margin-top:20px;margin-bottom:48px;}
+  .sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:8px;}
+  .sec-num{
+    font-family:var(--mono);font-size:15px;font-weight:500;color:var(--blue);
+    background:var(--blue-bg);padding:3px 10px;border-radius:6px;
+  }
+  h2{font-size:21px;font-weight:800;letter-spacing:-0.03em;}
+  h3{font-size:15px;font-weight:700;margin:24px 0 10px;color:var(--text-03);
+     display:flex;align-items:center;gap:8px;}
+  h3::before{content:"";width:4px;height:15px;background:var(--blue);border-radius:2px;}
+  .purpose-line{
+    font-size:14px;color:var(--text-04);background:#fff;border:1px solid var(--line);
+    border-left:3px solid var(--blue);padding:11px 16px;border-radius:0 8px 8px 0;margin-bottom:8px;
+  }
+  p{font-size:14px;color:var(--text-04);margin:8px 0;}
+
+  .card{
+    background:#fff;border:1px solid var(--line);border-radius:14px;
+    padding:24px 26px;margin-bottom:18px;
+    box-shadow:0 1px 2px rgba(0,20,63,.03);
+  }
+
+  /* ===== Tables ===== */
+  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px;}
+  th{
+    background:var(--bg);text-align:left;padding:10px 14px;
+    font-weight:700;color:var(--text-04);font-size:12px;border-bottom:2px solid var(--line);
+    letter-spacing:0.01em;
+  }
+  td{padding:10px 14px;border-bottom:1px solid var(--line);color:var(--text-04);vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  td.mono,th.mono{font-family:var(--mono);}
+  .metric{
+    font-family:var(--mono);font-size:12.5px;color:var(--blue);font-weight:500;
+    white-space:nowrap;
+  }
+  .note-cell{color:var(--text-05);font-size:12px;}
+
+  /* ===== Badges ===== */
+  .badge{
+    display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;
+    border-radius:6px;letter-spacing:0.01em;white-space:nowrap;
+  }
+  .b-typea{background:var(--blue-bg);color:var(--blue);}
+  .b-typeb{background:var(--navy);color:var(--mint);}
+  .b-issue{background:var(--green-bg);color:var(--green);}
+  .b-use{background:var(--orange-bg);color:var(--orange);}
+  .b-balance{background:var(--purple-bg);color:var(--purple);}
+  .b-key{background:var(--red-bg);color:var(--red);}
+
+  /* ===== Code / Output blocks ===== */
+  .codeblock{
+    background:var(--navy);color:#dfe6ff;font-family:var(--mono);
+    font-size:12.5px;line-height:1.8;padding:16px 18px;border-radius:10px;
+    margin:10px 0;overflow-x:auto;white-space:pre-wrap;word-break:break-all;
+  }
+  .codeblock .ck{color:var(--mint);}
+  .out-label{
+    font-size:11px;font-weight:700;color:var(--text-05);text-transform:uppercase;
+    letter-spacing:0.05em;margin:18px 0 4px;
+  }
+
+  /* ===== Callouts ===== */
+  .callout{
+    display:flex;gap:11px;padding:13px 16px;border-radius:10px;font-size:13px;
+    margin:12px 0;line-height:1.55;
+  }
+  .callout .ic{font-size:15px;line-height:1.4;flex-shrink:0;}
+  .callout.key{background:var(--red-bg);color:#8a1c28;border:1px solid #f6cdd2;}
+  .callout.info{background:var(--blue-bg);color:#1a2280;border:1px solid #cdd3fb;}
+  .callout.warn{background:var(--orange-bg);color:#7a3f06;border:1px solid #f3d6b3;}
+  .callout b{font-weight:700;}
+  .callout code{font-family:var(--mono);font-size:12px;background:rgba(0,0,0,.06);padding:1px 5px;border-radius:4px;}
+
+  .period{
+    display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--text-04);
+    background:var(--bg);border:1px solid var(--line);padding:8px 14px;border-radius:8px;margin-top:6px;
+  }
+  .period b{font-family:var(--mono);color:var(--text-03);font-weight:500;}
+
+  .cohort-box{
+    background:var(--bg);border:1px dashed var(--blue);border-radius:12px;
+    padding:18px 20px;margin-top:14px;
+  }
+  .cohort-box .ct-title{font-size:14px;font-weight:700;color:var(--blue);margin-bottom:10px;display:flex;align-items:center;gap:7px;}
+  .cohort-box dl{display:grid;grid-template-columns:88px 1fr;gap:7px 14px;font-size:13px;}
+  .cohort-box dt{font-weight:700;color:var(--text-04);}
+  .cohort-box dd{color:var(--text-04);}
+  .cohort-box dd code{font-family:var(--mono);font-size:12px;color:var(--text-03);}
+
+  code.inl{font-family:var(--mono);font-size:12.5px;background:#eef0fb;color:var(--blue);padding:1px 6px;border-radius:5px;}
+
+  .footer{
+    margin-left:var(--sidebar-w);padding:24px 48px;border-top:1px solid var(--line);
+    font-size:12px;color:var(--text-05);background:#fff;
+  }
+
+  @media (max-width:880px){
+    .sidebar{display:none;}
+    .main,.footer{margin-left:0;}
+    .topbar,.content{padding-left:24px;padding-right:24px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Sidebar ===== -->
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo">Poly<span>Ball.</span></div>
+    <div class="tag">서버 데이터 요청서 v2</div>
+  </div>
+  <div class="nav-group">
+    <div class="nav-label">기준 정의</div>
+    <a href="#logic"><span class="nav-num">§0</span>서비스 로직 정의</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-label">데이터 요청</div>
+    <a href="#req1"><span class="nav-num">1</span>응모권 발급·소진·잔고</a>
+    <a href="#req2"><span class="nav-num">2</span>광고 응모(타입 B) 현황</a>
+    <a href="#req3"><span class="nav-num">3</span>당첨/미당첨 후 행동</a>
+    <a href="#req4"><span class="nav-num">4</span>앱 설치 × 응모 비교</a>
+    <a href="#req5"><span class="nav-num">5</span>발급 사유별 행동 비교</a>
+    <a href="#req6"><span class="nav-num">6</span>가입 코호트별 리텐션</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-label">공통</div>
+    <a href="#common"><span class="nav-num">§</span>공통 요청 사항</a>
+  </div>
+</nav>
+
+<!-- ===== Main ===== -->
+<div class="main">
+  <header class="topbar">
+    <h1>폴리볼 서버 데이터 요청서 v2</h1>
+    <div class="meta">
+      <div>작성일 <b>2026-06-08</b></div>
+      <div>요청자 <b>PM</b></div>
+      <div>대상 <b>서버 개발팀</b></div>
+      <div>조사 대상 기간 <b>2026-03-26 ~ 2026-06-07</b></div>
+    </div>
+    <div class="purpose">
+      <b>목적 ·</b> 5월 이후 응모 참여 및 광고 매출 감소 원인 규명
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- ===== 0. 서비스 로직 정의 ===== -->
+    <section id="logic">
+      <div class="sec-head">
+        <span class="sec-num">§0</span>
+        <h2>서비스 로직 정의 <span style="font-size:13px;font-weight:500;color:var(--text-05);">— 요청 작성 기준</span></h2>
+      </div>
+      <p>아래 정의는 모든 요청의 집계 기준입니다. 지표 산출 전 먼저 확인 부탁드립니다.</p>
+
+      <div class="card">
+        <h3>응모 방식 — 두 가지 타입</h3>
+        <table>
+          <thead>
+            <tr><th style="width:42px;">타입</th><th>명칭</th><th>조건</th><th>응모권 차감</th><th>광고 발생</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge b-typea">A</span></td>
+              <td><b>응모권 응모</b></td>
+              <td>응모권 보유 한도 내</td>
+              <td>차감 O (<b>1회당 1~n장 자유 사용</b>)</td>
+              <td>없음</td>
+            </tr>
+            <tr>
+              <td><span class="badge b-typeb">B</span></td>
+              <td><b>광고 응모</b></td>
+              <td>응모 완료 후 <b>광고 시청 (1일 최대 5회)</b></td>
+              <td>차감 없음 (무료 처리)</td>
+              <td><b style="color:var(--green);">발생 O</b></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="callout info">
+          <span class="ic">ℹ️</span>
+          <div><b>타입 B 흐름</b> · 응모 완료 → 광고 시청 → 응모권 1장 추가 적립 → 무료 추가 응모. 경기·시점과 무관하게 <b>1일 최대 5회</b>까지만 가능합니다 (선행 조건 없음). <b>광고가 노출되는 유일한 구간</b>이므로 타입 B = 광고 매출 발생 구간입니다.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>응모권 소진 정의</h3>
+        <table>
+          <tbody>
+            <tr><td style="width:130px;"><span class="badge b-typea">타입 A</span></td><td>응모 완료 시 <b>사용한 응모권 수만큼 차감 = 소진</b> (1회당 1~n장, 고정 아님)</td></tr>
+            <tr><td><span class="badge b-typeb">타입 B</span></td><td>광고 응모 완료 시 <b>응모권 차감 없음</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>당첨 발표 시점</h3>
+        <p style="margin-top:0;">응모 기간 <b style="color:var(--text-03);">차주 월요일 오전 10시</b></p>
+        <div class="codeblock">예) 4/20(월) 오픈  →  <span class="ck">4/27(월) 10시 발표</span>
+예) 5/18(월) 오픈  →  <span class="ck">5/25(월, 부처님오신날) 10시 발표</span></div>
+      </div>
+
+      <div class="card">
+        <h3>유저 식별 기준</h3>
+        <p style="margin-top:0;"><code class="inl">UID</code> 기준 — 웹/앱 동일 유저 통합 집계</p>
+      </div>
+    </section>
+
+    <!-- ===== 1 ===== -->
+    <section id="req1">
+      <div class="sec-head"><span class="sec-num">1</span><h2>응모권 발급·소진·잔고 일별 집계</h2></div>
+      <div class="purpose-line"><b>목적 ·</b> "예측은 하는데 응모를 안 하는 유저"가 응모권이 없어서인지, 있는데 안 쓰는 건지 구분</div>
+
+      <div class="callout warn">
+        <span class="ic">⚠️</span>
+        <div><b>핵심 전제 — 타입 A 응모권 사용 방식</b><br>
+        유저가 1회 응모 시 응모권을 <b>n장 자유 선택하여 사용</b>합니다 (1장 고정 아님).
+        따라서 <b>응모 횟수(<code>entry_count</code>)와 소진된 응모권 수(<code>tickets_used_total</code>)는 다르며, 반드시 분리 집계</b>해야 합니다.</div>
+      </div>
+
+      <div class="card">
+        <h3>발급 관련</h3>
+        <table>
+          <thead><tr><th style="width:34%;">지표명</th><th>정의</th><th style="width:24%;">비고</th></tr></thead>
+          <tbody>
+            <tr><td><span class="metric">issued_total</span></td><td>당일 발급된 응모권 총 수 (장)</td><td class="note-cell">발급 이벤트 발생일 기준</td></tr>
+            <tr><td><span class="metric">issued_pred_reward</span></td><td>예측 적중 보상으로 발급된 수</td><td class="note-cell">발급 사유 = 예측 보상</td></tr>
+            <tr><td><span class="metric">issued_event_other</span></td><td>이벤트·프로모션 등 기타 발급 수</td><td class="note-cell">위 외 모든 발급</td></tr>
+            <tr><td><span class="metric">issued_users</span></td><td>당일 응모권을 1장 이상 발급받은 유니크 유저 수</td><td class="note-cell">UID 기준</td></tr>
+          </tbody>
+        </table>
+
+        <h3>소진 관련 <span class="badge b-typea" style="margin-left:4px;">타입 A · 응모권 차감</span></h3>
+        <table>
+          <thead><tr><th style="width:34%;">지표명</th><th>정의</th><th style="width:24%;">비고</th></tr></thead>
+          <tbody>
+            <tr><td><span class="metric">entry_count</span></td><td>당일 타입A 응모 완료 횟수</td><td class="note-cell">응모 버튼을 누른 횟수</td></tr>
+            <tr><td><span class="metric">entry_users</span></td><td>당일 타입A 응모를 1회 이상 한 유니크 유저 수</td><td class="note-cell">UID 기준</td></tr>
+            <tr><td><span class="metric">tickets_used_total</span></td><td>당일 타입A로 소진된 응모권 총 수 (장)</td><td class="note-cell"><b>entry_count와 다름</b> — 1회에 n장</td></tr>
+            <tr><td><span class="metric">tickets_per_entry_avg</span></td><td>타입A 1회 응모당 평균 사용 응모권 수</td><td class="note-cell">tickets_used_total / entry_count</td></tr>
+            <tr><td><span class="metric">tickets_per_user_avg</span></td><td>당일 응모 유저 1인당 평균 소진 응모권 수</td><td class="note-cell">tickets_used_total / entry_users</td></tr>
+          </tbody>
+        </table>
+
+        <h3>잔고 관련</h3>
+        <table>
+          <thead><tr><th style="width:34%;">지표명</th><th>정의</th><th style="width:24%;">비고</th></tr></thead>
+          <tbody>
+            <tr><td><span class="metric">balance_users</span></td><td>당일 23:59 기준 잔고 &gt; 0인 유니크 유저 수</td><td class="note-cell">누적발급 − 누적소진 &gt; 0</td></tr>
+            <tr><td><span class="metric">balance_avg</span></td><td>잔고 보유 유저의 평균 잔고</td><td class="note-cell">SUM(잔고) / balance_users</td></tr>
+            <tr><td><span class="metric">balance_total</span></td><td>전체 유저 잔고 합계</td><td class="note-cell">—</td></tr>
+            <tr><td><span class="metric">balance_not_entry_users</span></td><td>당일 잔고 &gt; 0 이면서 <b>타입A 응모를 하지 않은</b> 유저 수</td><td class="note-cell">balance_users 중 entry_users(타입A) 제외</td></tr>
+            <tr><td><span class="metric">balance_not_entry_rate</span> <span class="badge b-key">진단</span></td><td>잔고 보유자 중 미응모 비율</td><td class="note-cell">… / balance_users × 100</td></tr>
+          </tbody>
+        </table>
+        <div class="callout key">
+          <span class="ic">🎯</span>
+          <div><code>balance_not_entry_rate</code> = "응모권이 있는데 쓰지 않는 유저 비율" — <b>응모 이탈의 핵심 진단 지표</b>입니다.<br><br>
+          <b>여기서 '응모'는 타입A(응모권 차감)만 가리킵니다.</b> 이 지표의 목적이 "보유 응모권을 소비하지 않는 유저"를 잡는 것이기 때문입니다. 따라서 응모권을 쓰지 않는 <b>타입B(광고 응모)만 한 유저도 '미응모'로 함께 집계</b>됩니다 — 이들 역시 응모권은 그대로 쌓아둔 유저이므로 진단 대상이 맞습니다.<br><br>
+          이 비율이 높으면 = 응모권은 충분한데 응모 동선에서 막히거나 동기가 없는 상태 → <b>응모 화면 진입·동기부여 UX를 점검할 신호</b>입니다.</div>
+        </div>
+
+        <div class="out-label">출력 형식</div>
+        <div class="codeblock"><span class="ck">date</span>,
+issued_total, issued_pred_reward, issued_event_other, issued_users,
+entry_count, entry_users, tickets_used_total, tickets_per_entry_avg, tickets_per_user_avg,
+balance_users, balance_avg, balance_total, balance_not_entry_users, balance_not_entry_rate(%)</div>
+        <div class="out-label">기간</div>
+        <div class="period">📅 <b>2026-03-26 ~ 2026-06-07</b> · 일별 · 74행</div>
+      </div>
+    </section>
+
+    <!-- ===== 2 ===== -->
+    <section id="req2">
+      <div class="sec-head"><span class="sec-num">2</span><h2>광고 응모(타입 B) 현황 일별 집계</h2></div>
+      <div class="purpose-line"><b>목적 ·</b> 광고 매출 급락의 원인 규명 — 헤비유저(경기당 5회 이상 응모자) 감소인지 확인</div>
+
+      <div class="card">
+        <div class="callout info">
+          <span class="ic">ℹ️</span>
+          <div><b>배경</b> · 타입 B 흐름은 [응모 완료 → 광고 시청 → 응모권 1장 추가 → 무료 추가 응모]이며, 경기·시점 무관 <b>1일 최대 5회</b>까지 가능합니다. 광고가 노출되는 유일한 구간이므로
+          <b>이 지표의 감소 = 광고 응모 활성 유저 감소 = 광고 매출 감소</b>로 직결됩니다.</div>
+        </div>
+        <table>
+          <thead><tr><th style="width:30%;">지표명</th><th>정의</th><th style="width:26%;">비고</th></tr></thead>
+          <tbody>
+            <tr><td><span class="metric">ad_entry_count</span></td><td>당일 타입B(광고 응모) 완료 횟수</td><td class="note-cell">광고 시청 후 응모 완료 건</td></tr>
+            <tr><td><span class="metric">ad_entry_users</span></td><td>당일 타입B를 1회 이상 사용한 유니크 유저 수</td><td class="note-cell">UID 기준</td></tr>
+            <tr><td><span class="metric">ad_view_count</span></td><td>응모 목적 광고 시청 횟수</td><td class="note-cell">타입B 트리거 광고 노출 수</td></tr>
+            <tr><td><span class="metric">ad_view_to_entry_rate</span></td><td>광고 시청 후 응모 완료 전환율</td><td class="note-cell">ad_entry_count / ad_view_count × 100</td></tr>
+            <tr><td><span class="metric">avg_ad_entry_per_user</span></td><td>타입B 사용 유저의 1인당 평균 광고 응모 횟수</td><td class="note-cell">ad_entry_count / ad_entry_users</td></tr>
+          </tbody>
+        </table>
+
+        <h3>광고 응모 횟수 구간별 분포 <span class="badge b-key" style="margin-left:4px;">진단</span></h3>
+        <p style="margin-top:0;">당일 타입B 응모 횟수(1~5회)별 유니크 유저 수. 구간은 상호 배타적이며 합계 = <code class="inl">ad_entry_users</code>.</p>
+        <table>
+          <thead><tr><th style="width:30%;">지표명</th><th>정의</th></tr></thead>
+          <tbody>
+            <tr><td><span class="metric">ad_users_1</span></td><td>당일 타입B를 정확히 1회 한 유저 수</td></tr>
+            <tr><td><span class="metric">ad_users_2</span></td><td>당일 타입B를 정확히 2회 한 유저 수</td></tr>
+            <tr><td><span class="metric">ad_users_3</span></td><td>당일 타입B를 정확히 3회 한 유저 수</td></tr>
+            <tr><td><span class="metric">ad_users_4</span></td><td>당일 타입B를 정확히 4회 한 유저 수</td></tr>
+            <tr><td><span class="metric">ad_users_5</span></td><td>당일 타입B를 <b>5회(일 상한) 모두 소진</b>한 유저 수</td></tr>
+          </tbody>
+        </table>
+        <div class="callout key"><span class="ic">🎯</span><div>이 분포로 <b>광고 매출 급락이 어느 구간 유저 감소 때문인지</b>(예: 5회 유저만 줄었는지, 전 구간이 고르게 줄었는지)를 진단합니다.</div></div>
+
+        <div class="out-label">출력 형식</div>
+        <div class="codeblock"><span class="ck">date</span>, ad_entry_count, ad_entry_users, ad_view_count,
+ad_view_to_entry_rate(%), avg_ad_entry_per_user,
+ad_users_1, ad_users_2, ad_users_3, ad_users_4, ad_users_5</div>
+        <div class="out-label">기간</div>
+        <div class="period">📅 <b>2026-03-26 ~ 2026-06-07</b> · 일별 · 74행</div>
+      </div>
+    </section>
+
+    <!-- ===== 3 ===== -->
+    <section id="req3">
+      <div class="sec-head"><span class="sec-num">3</span><h2>당첨/미당첨 결과 후 유저 행동</h2></div>
+      <div class="purpose-line"><b>목적 ·</b> 미당첨 경험이 이탈의 직접 원인인지 확인</div>
+
+      <div class="card">
+        <h3>집계 단위 — 응모 결과 발표 회차별 (매주 월 10시)</h3>
+        <div class="callout warn"><span class="ic">⚠️</span><div>
+          <b>유저 분류 규칙 (이중 집계 방지)</b><br>
+          한 유저가 같은 회차에 여러 경기를 응모하면 <b>당첨·미당첨이 섞일 수 있습니다.</b> 이때 양쪽 행에 모두 잡으면 <code>revisit</code>·<code>reentry</code>가 이중 집계됩니다. 따라서 <b>한 회차에서 1건이라도 당첨이면 그 유저는 '당첨자'로만 분류</b>합니다(당첨 우선). 한 유저는 한 회차에서 당첨/미당첨 중 <b>정확히 한 행</b>에만 집계되어야 합니다.</div></div>
+        <table>
+          <thead><tr><th style="width:30%;">지표명</th><th>정의</th><th style="width:24%;">비고</th></tr></thead>
+          <tbody>
+            <tr><td><span class="metric">announce_date</span></td><td>당첨 발표일 (차주 월요일 10시)</td><td class="note-cell">—</td></tr>
+            <tr><td><span class="metric">result_type</span></td><td>당첨 / 미당첨</td><td class="note-cell">—</td></tr>
+            <tr><td><span class="metric">user_count</span></td><td>해당 결과를 받은 유저 수</td><td class="note-cell">UID 기준</td></tr>
+            <tr><td><span class="metric">revisit_d7</span></td><td>발표일 기준 7일 내 앱/웹 재방문 유저 수</td><td class="note-cell">공통 '활동(재방문) 정의' 기준</td></tr>
+            <tr><td><span class="metric">revisit_rate_d7</span></td><td>revisit_d7 / user_count × 100</td><td class="note-cell">—</td></tr>
+            <tr><td><span class="metric">reentry_d7</span></td><td>발표일 기준 7일 내 재응모(타입A or B) 유저 수</td><td class="note-cell">—</td></tr>
+            <tr><td><span class="metric">reentry_rate_d7</span></td><td>reentry_d7 / user_count × 100</td><td class="note-cell">—</td></tr>
+            <tr><td><span class="metric">revisit_d30</span></td><td>발표일 기준 30일 내 재방문 유저 수</td><td class="note-cell">—</td></tr>
+            <tr><td><span class="metric">reentry_d30</span></td><td>발표일 기준 30일 내 재응모 유저 수</td><td class="note-cell">—</td></tr>
+          </tbody>
+        </table>
+
+        <div class="out-label">출력 형식</div>
+        <div class="codeblock"><span class="ck">announce_date</span>, result_type, user_count,
+revisit_d7, revisit_rate_d7(%), reentry_d7, reentry_rate_d7(%),
+revisit_d30, reentry_d30</div>
+
+        <div class="cohort-box">
+          <div class="ct-title">🧒 어린이날 코호트 별도 요청</div>
+          <dl>
+            <dt>대상 정의</dt><dd>2026-04-20(월) ~ 04-26(일) 응모기간 동안 <code>5/5~5/10</code> 경기에 응모권을 사용한 유저</dd>
+            <dt>발표일</dt><dd><code>2026-04-27(월) 오전 10시</code></dd>
+            <dt>분리</dt><dd>당첨자 / 미당첨자</dd>
+            <dt>추적 기간</dt><dd>발표일 이후 <code>7일(~5/4)</code> / <code>14일(~5/11)</code> / <code>30일(~5/27)</code></dd>
+            <dt>지표</dt><dd>재방문율, 재응모율, 재응모 시 사용한 응모권 수</dd>
+          </dl>
+          <div class="out-label" style="margin-top:14px;">출력 형식</div>
+          <div class="codeblock"><span class="ck">cohort</span>(='children_day'), result_type(당첨/미당첨), user_count,
+revisit_rate_d7(%), reentry_rate_d7(%), tickets_per_reentry_d7,
+revisit_rate_d14(%), reentry_rate_d14(%), tickets_per_reentry_d14,
+revisit_rate_d30(%), reentry_rate_d30(%), tickets_per_reentry_d30</div>
+          <p style="font-size:12px;color:var(--text-05);margin:6px 0 0;"><code class="inl">tickets_per_reentry_dN</code> = 추적기간 내 재응모 시 사용한 평균 응모권 수 (타입A 기준). 분류 규칙은 위 요청3과 동일(당첨 우선).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 4 ===== -->
+    <section id="req4">
+      <div class="sec-head"><span class="sec-num">4</span><h2>앱 설치 여부 × 응모 행동 비교</h2></div>
+      <div class="purpose-line"><b>목적 ·</b> 앱 미설치 유저(결과 확인 불가)가 응모 참여에서 더 빨리 이탈하는지 확인</div>
+
+      <div class="card">
+        <h3>유저 분류 정의</h3>
+        <table>
+          <thead><tr><th style="width:26%;">분류명</th><th>정의</th></tr></thead>
+          <tbody>
+            <tr><td><span class="metric">web_only</span></td><td>가입 후 2026-06-07 기준 앱 미설치 상태 유저</td></tr>
+            <tr><td><span class="metric">app_installed</span></td><td>웹 가입 후 앱 설치 완료 이력 있는 유저</td></tr>
+          </tbody>
+        </table>
+        <div class="callout info"><span class="ic">ℹ️</span><div>앱 <b>최초 설치일</b> 기준으로 분류. 설치 후 삭제해도 <code>app_installed</code>로 유지.</div></div>
+
+        <h3>지표 정의</h3>
+        <table>
+          <thead><tr><th style="width:34%;">지표명</th><th>정의</th></tr></thead>
+          <tbody>
+            <tr><td><span class="metric">user_count</span></td><td>분류별 유저 수</td></tr>
+            <tr><td><span class="metric">ever_entry_rate</span></td><td>가입 후 1회 이상 응모한 유저 비율</td></tr>
+            <tr><td><span class="metric">total_entry_avg</span></td><td>1인당 누적 응모 횟수 평균 (타입A+B 합산)</td></tr>
+            <tr><td><span class="metric">type_b_rate</span></td><td>타입B(광고 응모) 사용 경험 유저 비율</td></tr>
+            <tr><td><span class="metric">days_to_install_median</span></td><td>웹 가입일 → 앱 설치일 경과 일수 (중앙값)</td></tr>
+            <tr><td><span class="metric">entry_before_install</span></td><td>앱 설치 이전 응모 경험이 있는 유저 수</td></tr>
+            <tr><td><span class="metric">entry_rate_before</span></td><td>설치 전 응모율 = (설치 이전 1회 이상 응모한 유저) / (app_installed 유저 수) × 100</td></tr>
+            <tr><td><span class="metric">entry_rate_after</span></td><td>설치 후 응모율 = (설치 후 30일 내 1회 이상 응모한 유저) / (app_installed 유저 수) × 100</td></tr>
+          </tbody>
+        </table>
+        <div class="callout warn"><span class="ic">⚠️</span><div>
+          <b>설치 시점이 있어야 산출되는 지표</b>(<code>days_to_install_median</code>·<code>entry_before_install</code>·<code>entry_rate_before</code>·<code>entry_rate_after</code>)는 <code>web_only</code> 행에서 모두 <code>-</code>(N/A) 처리하고, <code>app_installed</code> 행에서만 채웁니다. <code>web_only</code>는 설치 이력 자체가 없어 '설치 전/후' 구분이 성립하지 않습니다.</div></div>
+
+        <div class="out-label">출력 형식</div>
+        <div class="codeblock"><span class="ck">user_type</span>, user_count, ever_entry_rate(%), total_entry_avg,
+type_b_rate(%), days_to_install_median, entry_before_install,
+entry_rate_before(%), entry_rate_after(%)</div>
+      </div>
+    </section>
+
+    <!-- ===== 5 ===== -->
+    <section id="req5">
+      <div class="sec-head"><span class="sec-num">5</span><h2>응모권 발급 사유 분류 유저별 행동 비교</h2></div>
+      <div class="purpose-line"><b>목적 ·</b> 응모권을 어떻게 획득한 유저가 응모를 더 많이 하는지 확인</div>
+
+      <div class="card">
+        <h3>유저 분류 정의</h3>
+        <table>
+          <thead><tr><th style="width:30%;">분류명</th><th>정의</th></tr></thead>
+          <tbody>
+            <tr><td><span class="metric">pred_reward_only</span></td><td>예측 보상으로만 응모권을 획득한 유저</td></tr>
+            <tr><td><span class="metric">event_reward_only</span></td><td>이벤트 보상으로만 응모권을 획득한 유저</td></tr>
+            <tr><td><span class="metric">mixed</span></td><td>두 가지 이상 경로로 획득한 유저</td></tr>
+          </tbody>
+        </table>
+
+        <h3>지표 정의</h3>
+        <table>
+          <thead><tr><th style="width:28%;">지표명</th><th>정의</th></tr></thead>
+          <tbody>
+            <tr><td><span class="metric">user_count</span></td><td>분류별 유저 수</td></tr>
+            <tr><td><span class="metric">avg_issued</span></td><td>1인당 평균 총 발급 응모권 수</td></tr>
+            <tr><td><span class="metric">avg_used</span></td><td>1인당 평균 총 소진 응모권 수</td></tr>
+            <tr><td><span class="metric">use_rate</span></td><td>avg_used / avg_issued × 100 (응모권 소진율)</td></tr>
+            <tr><td><span class="metric">avg_entry_count</span></td><td>1인당 평균 총 응모 횟수 (타입A+B)</td></tr>
+            <tr><td><span class="metric">type_b_rate</span></td><td>타입B 사용 경험 비율</td></tr>
+          </tbody>
+        </table>
+
+        <div class="out-label">출력 형식</div>
+        <div class="codeblock"><span class="ck">user_type</span>, user_count, avg_issued, avg_used, use_rate(%),
+avg_entry_count, type_b_rate(%)</div>
+      </div>
+    </section>
+
+    <!-- ===== 6 ===== -->
+    <section id="req6">
+      <div class="sec-head"><span class="sec-num">6</span><h2>가입 코호트별 리텐션</h2></div>
+      <div class="purpose-line"><b>목적 ·</b> 어느 시기 가입자가 언제 이탈하는지, 채널별 품질 차이</div>
+
+      <div class="card">
+        <table>
+          <thead><tr><th style="width:26%;">지표명</th><th>정의</th></tr></thead>
+          <tbody>
+            <tr><td><span class="metric">cohort_week</span></td><td>가입 주차 (형식: 2026-W13)</td></tr>
+            <tr><td><span class="metric">channel</span></td><td>유입 채널 (에어브릿지 channel 원본값 사용)</td></tr>
+            <tr><td><span class="metric">cohort_size</span></td><td>해당 주·채널 가입자 수</td></tr>
+            <tr><td><span class="metric">retention_d1</span></td><td>가입 익일 재방문율 = 가입 다음날 활동 유저 / cohort_size</td></tr>
+            <tr><td><span class="metric">retention_d7</span></td><td>가입 후 7일 내 재방문율</td></tr>
+            <tr><td><span class="metric">retention_d14</span></td><td>가입 후 14일 내 재방문율</td></tr>
+            <tr><td><span class="metric">retention_d30</span></td><td>가입 후 30일 내 재방문율</td></tr>
+            <tr><td><span class="metric">entry_d7</span></td><td>가입 후 7일 내 응모 참여율</td></tr>
+            <tr><td><span class="metric">entry_d30</span></td><td>가입 후 30일 내 응모 참여율</td></tr>
+          </tbody>
+        </table>
+        <div class="callout warn"><span class="ic">⚠️</span><div>
+          <b>재방문 정의</b> · 가입일과 다른 날짜에 예측·응모·퀴즈·광고시청 이벤트 발생<br>
+          <b>탈퇴 유저 포함</b> · 이탈 원인 분석이 목적이므로 탈퇴 유저도 코호트에 포함</div></div>
+
+        <div class="out-label">출력 형식</div>
+        <div class="codeblock"><span class="ck">cohort_week</span>, channel, cohort_size,
+retention_d1(%), retention_d7(%), retention_d14(%), retention_d30(%),
+entry_d7(%), entry_d30(%)</div>
+        <div class="out-label">기간</div>
+        <div class="period">📅 <b>2026-W13(3/23~) ~ 2026-W22(5/25~)</b></div>
+      </div>
+    </section>
+
+    <!-- ===== Common ===== -->
+    <section id="common">
+      <div class="sec-head"><span class="sec-num">§</span><h2>공통 요청 사항</h2></div>
+      <div class="card">
+        <table>
+          <thead><tr><th style="width:28%;">항목</th><th>기준</th></tr></thead>
+          <tbody>
+            <tr><td><b>조사 대상 기간</b></td><td><code class="inl">2026-03-26 ~ 2026-06-07</code> (KST) · 일별 집계는 74행</td></tr>
+            <tr><td><b>시간대</b></td><td>KST 00:00~23:59</td></tr>
+            <tr><td><b>유저 식별</b></td><td><code class="inl">UID</code> 기준 (웹/앱 통합)</td></tr>
+            <tr><td><b>활동(재방문) 정의</b></td><td>기준일(가입일·발표일)과 <b>다른 날짜</b>에 <b>예측·응모·퀴즈·광고시청</b> 중 1건 이상 발생. <b>요청3·6 공통 적용</b> (두 요청의 재방문 정의 동일).</td></tr>
+            <tr><td><b>탈퇴 유저</b></td><td>분석 목적상 포함</td></tr>
+            <tr><td><b>최소 샘플</b></td><td>유저 수 10명 미만 셀은 <code class="inl">-</code> 처리</td></tr>
+            <tr><td><b>0 나눗셈 처리</b></td><td>비율·평균 지표에서 분모가 0이면 <code class="inl">0</code>으로 표기 (에러·공란 금지)</td></tr>
+            <tr><td><b>파일 형식</b></td><td>CSV (UTF-8)</td></tr>
+            <tr><td><b>수치 형식</b></td><td>비율은 % 단위 소수점 1자리, 건수는 정수</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<div class="footer">PolyBall · 서버 데이터 요청서 v2 · 2026-06-08 · 요청자 PM</div>
+
+<script>
+  // 스크롤 위치에 따라 사이드바 active 표시
+  const links = document.querySelectorAll('.sidebar a');
+  const sections = [...links].map(a => document.querySelector(a.getAttribute('href')));
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const id = e.target.id;
+        links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + id));
+      }
+    });
+  }, { rootMargin: '-10% 0px -80% 0px' });
+  sections.forEach(s => s && observer.observe(s));
+</script>
+
+</body>
+</html>
