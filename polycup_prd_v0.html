@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>폴리컵 리그 기능정의서 v2.0</title>
+<style>
+  :root{
+    --blue:#1F30E9; --blue2:#2563EB; --navy:#00143F; --mint:#09FFEE;
+    --ink:#14161A; --sub:#5A6270; --line:#E5E8EF; --bg:#F6F8FC; --card:#FFFFFF;
+    --ok:#0F9D58; --warn:#E8A100; --hold:#8A93A6;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font-family:'Pretendard','Apple SD Gothic Neo',-apple-system,sans-serif;
+    line-height:1.65; font-size:15px;}
+  .wrap{max-width:920px; margin:0 auto; padding:0 20px 80px;}
+
+  /* 상단 바 */
+  .topbar{background:var(--navy); color:#fff; padding:22px 0; margin-bottom:28px;}
+  .topbar .wrap{padding-bottom:0;}
+  .topbar h1{margin:0; font-size:22px; font-weight:800; letter-spacing:-.3px;}
+  .topbar .meta{margin-top:6px; font-size:13px; color:#9FB0CC;}
+  .topbar .meta b{color:var(--mint); font-weight:600;}
+
+  h2{font-size:19px; font-weight:800; color:var(--blue); margin:34px 0 4px;
+    letter-spacing:-.3px;}
+  h2 .num{display:inline-block; min-width:26px; color:var(--blue2);}
+  .h2sub{color:var(--sub); font-size:13.5px; margin:0 0 14px;}
+
+  h3{font-size:16px; font-weight:700; color:var(--navy); margin:22px 0 8px;}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:18px 20px; margin:12px 0; box-shadow:0 1px 2px rgba(20,30,60,.03);}
+
+  p{margin:6px 0;}
+  ul{margin:6px 0 6px; padding-left:20px;}
+  li{margin:3px 0;}
+  .lead{color:var(--ink);}
+  .muted{color:var(--sub); font-size:14px;}
+
+  /* 배지 */
+  .badge{display:inline-block; font-size:11.5px; font-weight:700; padding:2px 9px;
+    border-radius:100px; vertical-align:middle; margin-left:6px;}
+  .b-fix{background:#E7F6EE; color:var(--ok);}
+  .b-tmp{background:#FDF3DC; color:#B07A00;}
+  .b-und{background:#EEF0F4; color:var(--hold);}
+  .b-new{background:#E9ECFE; color:var(--blue);}
+
+  /* 코드/키워드 */
+  code{font-family:'DM Mono','SFMono-Regular',Menlo,monospace; font-size:13px;
+    background:#EEF0F6; color:var(--navy); padding:1px 6px; border-radius:5px;}
+
+  /* 표 */
+  table{width:100%; border-collapse:collapse; margin:10px 0; font-size:14px;}
+  th,td{border:1px solid var(--line); padding:9px 11px; text-align:left; vertical-align:top;}
+  th{background:#EEF1FA; color:var(--navy); font-weight:700; font-size:13px;}
+  td .k{font-weight:700; color:var(--navy);}
+
+  /* 콜아웃 */
+  .callout{border-left:4px solid var(--blue); background:#F2F4FE; border-radius:0 10px 10px 0;
+    padding:12px 16px; margin:12px 0; font-size:14px;}
+  .callout.warn{border-color:var(--warn); background:#FDF8EC;}
+  .callout b{color:var(--navy);}
+
+  /* 점수 테이블 강조 */
+  .score td:last-child{font-weight:700; color:var(--blue); font-family:'DM Mono',monospace;}
+
+  /* 2단 */
+  .two{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  @media(max-width:680px){ .two{grid-template-columns:1fr;} }
+
+  .pill-row{display:flex; flex-wrap:wrap; gap:8px; margin:8px 0;}
+  .pill{background:#fff; border:1px solid var(--line); border-radius:100px;
+    padding:5px 13px; font-size:13px; color:var(--navy);}
+  .pill.on{background:var(--blue); color:#fff; border-color:var(--blue);}
+  .pill.navy{background:var(--navy); color:#fff; border-color:var(--navy);}
+
+  .foot{margin-top:40px; padding-top:18px; border-top:1px solid var(--line);
+    color:var(--sub); font-size:12.5px;}
+  .legend{display:flex; gap:14px; flex-wrap:wrap; font-size:12.5px; color:var(--sub); margin-top:6px;}
+  .legend span{display:inline-flex; align-items:center; gap:5px;}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <h1>폴리컵 리그 기능정의서</h1>
+    <div class="meta">버전 <b>v2.0</b> · 2026-06-29 · 폴리볼 2.0 / Wallet 사업실 · <b>공유용 요약본</b></div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="callout">
+    <b>v2.0 핵심 변경</b> — 폴리컵을 ‘상시 통합 랭킹’이 아니라 <b>시즌·이벤트 단위로 선별 개설하는 리그형 이벤트</b>로 재정의한다.
+    랭킹은 <b>리그 랭킹(보상)</b>과 <b>누적 랭킹(명예·기록)</b>으로 이원화하며, <b>동시 다중 리그 운영</b>을 전제로 한다.
+  </div>
+  <div class="legend">
+    <span><i class="dot" style="background:#0F9D58"></i>확정</span>
+    <span><i class="dot" style="background:#E8A100"></i>임시(출시 후 정교화)</span>
+    <span><i class="dot" style="background:#8A93A6"></i>미결정</span>
+    <span><i class="dot" style="background:#1F30E9"></i>신규</span>
+  </div>
+
+  <!-- 1 -->
+  <h2><span class="num">1.</span> 제품 정의</h2>
+  <p class="h2sub">폴리컵 리그가 무엇이고, 무엇이 아닌가</p>
+
+  <div class="card">
+    <h3>한 줄 정의</h3>
+    <p class="lead">폴리컵 리그는 일정·정답·트래픽이 명확한 시즌성 예측 콘텐츠에 한해 <b>선별적으로 여는 리그형 예측 이벤트</b>다.
+    모든 예측에 자동으로 붙는 상시 랭킹 시스템이 아니다.</p>
+
+    <h3>구조 원칙 <span class="badge b-fix">확정</span></h3>
+    <ul>
+      <li><b>아니다</b> — “폴리컵 안에 모든 예측이 있다” (상시 통합 모델 폐기)</li>
+      <li><b>맞다</b> — “예측 서비스 안에 여러 카테고리가 있고, 그중 특정 이벤트에 폴리컵 리그가 열린다”</li>
+    </ul>
+
+    <h3>BM 연결</h3>
+    <p class="muted">참여 모멘텀이 큰 이벤트에 경쟁·보상을 집중 → 픽/응모 빈도 상승 → 광고 노출 기회 증가.
+    리그 사이 공백기는 누적 랭킹(명예)으로 상시 참여 동기를 유지한다.</p>
+  </div>
+
+  <!-- 2 -->
+  <h2><span class="num">2.</span> 리그 개설 대상 기준</h2>
+  <p class="h2sub">아무 카테고리에나 리그를 붙이지 않는다</p>
+
+  <div class="card">
+    <h3>4개 조건 — 모두 충족 시에만 개설 <span class="badge b-fix">확정</span></h3>
+    <table>
+      <tr><th style="width:34px">#</th><th>조건</th></tr>
+      <tr><td>1</td><td>유저 참여·트래픽이 충분히 기대되는 주제</td></tr>
+      <tr><td>2</td><td>일정이 명확한 주제</td></tr>
+      <tr><td>3</td><td>정답·결과 판정 기준이 명확한 주제</td></tr>
+      <tr><td>4</td><td>일정 기간 예측 콘텐츠를 꾸준히 공급할 수 있는 주제</td></tr>
+    </table>
+    <div class="two" style="margin-top:10px;">
+      <div>
+        <p class="k" style="color:var(--blue); font-weight:700; margin:0 0 4px;">✓ 대상 (폴리컵)</p>
+        <p class="muted" style="margin:0;">KBO · EPL · 챔피언스리그 · KBL · 월드컵 · 아시안게임 등 시즌성 스포츠/대회</p>
+      </div>
+      <div>
+        <p class="k" style="color:var(--sub); font-weight:700; margin:0 0 4px;">✕ 제외 (→ 폴리픽)</p>
+        <p class="muted" style="margin:0;">연애·예능·사연·여론 등 정답 없는 의견형. 폴리컵 리그 집계 대상 아님</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <h2><span class="num">3.</span> 동시 다중 리그 운영</h2>
+  <p class="h2sub">여러 리그가 동시에 열리는 것을 전제로 설계한다</p>
+
+  <div class="card">
+    <p class="lead">KBO 리그가 도는 중에 월드컵·MSI 리그가 <b>동시에 열릴 수 있다.</b> 따라서 다음을 설계 대상으로 한다.</p>
+    <table>
+      <tr><th style="width:120px">영역</th><th>결정해야 할 것</th></tr>
+      <tr><td class="k">운영</td><td>동시 N개 리그의 개설·정산·보상 병렬 관리 방안</td></tr>
+      <tr><td class="k">진입점</td><td>여러 리그가 열렸을 때 유저가 각 리그로 들어가는 경로</td></tr>
+      <tr><td class="k">UI 구조</td><td>‘진행 중 리그’ 목록 화면 + 카테고리 필터([전체]+대분류 동적 탭)</td></tr>
+      <tr><td class="k">상세 페이지</td><td>개별 리그의 기간·상태·랭킹·마켓·보상 조회 구조</td></tr>
+    </table>
+    <div class="callout warn">
+      <b>주의</b> — 이전에 폐기했던 ‘리그 선택’ 화면이 다중 리그 전제에서는 다시 필요해진다.
+      단, “유저가 참여를 고르는” 화면이 아니라 “열린 리그를 탐색·진입하는” 목록으로서 필요하다.
+    </div>
+  </div>
+
+  <!-- 4 -->
+  <h2><span class="num">4.</span> 랭킹 이원화</h2>
+  <p class="h2sub">보상은 리그 단위, 명예는 누적 단위로 분리한다</p>
+
+  <div class="card">
+    <table>
+      <tr><th style="width:130px">구분</th><th>리그 랭킹</th><th>누적 랭킹</th></tr>
+      <tr><td class="k">목적</td><td>경쟁 · 보상</td><td>명예 · 기록</td></tr>
+      <tr><td class="k">범위</td><td>개별 리그 기간 내 성과</td><td>카테고리 무관 전체 누적</td></tr>
+      <tr><td class="k">보상</td><td><b>지급 기준 (O)</b></td><td>보상 아님 (X)</td></tr>
+      <tr><td class="k">표현</td><td>리그 랭킹 보드</td><td>개인 트랙레코드 (전문 분야)</td></tr>
+    </table>
+    <p class="muted" style="margin-top:8px;">누적을 보상 기준으로 쓰지 않는 이유: 참여량 많은 유저가 과도하게 유리해지고,
+    ‘적중률 vs 참여량’ 우열 기준이 모호해 공정성 논란이 생긴다.</p>
+    <div class="callout">
+      <b>통합 ‘폴리컵 리그’(가칭) <span class="badge b-und">미결정</span></b><br>
+      카테고리를 아우르는 전체 통합 랭킹을 둘지 검토 중. 방향은 <b>보상 없는 명예·누적 레이어</b>로 존치(주인공은 개별 이벤트 리그).
+      노출 위계 미결정 — (가) 별도 랭킹 화면 / (나) 마이 트랙레코드로만 표현.
+    </div>
+  </div>
+
+  <!-- 5 -->
+  <h2><span class="num">5.</span> 점수 산정 <span class="badge b-fix">확정</span></h2>
+  <p class="h2sub">리그 내 점수 규칙 (기능명세서 기준 유지)</p>
+
+  <div class="card">
+    <h3>선택률 가중 점수</h3>
+    <table class="score">
+      <tr><th>적중 조건</th><th>점수</th></tr>
+      <tr><td>적중 기본</td><td>100</td></tr>
+      <tr><td>선택률 30~21% 적중</td><td>150</td></tr>
+      <tr><td>선택률 20~11% 적중</td><td>180</td></tr>
+      <tr><td>선택률 10~1% 적중</td><td>200</td></tr>
+    </table>
+    <p class="muted">선택률은 예측 마감 시점에 고정. 소수가 맞힌 예측(역배)일수록 고점.</p>
+
+    <h3>랭킹 산출 · 동점 처리</h3>
+    <ul>
+      <li>리그 랭킹은 <b>리그 기간 내 누적 점수</b> 내림차순</li>
+      <li>동점 처리: <code>①적중 수</code> → <code>②userTime</code> → <code>③hash(리그+유저)</code>, 공동 순위 미허용</li>
+      <li><code>userTime</code> = (마감−제출) 시각 합산. 클수록 = 일찍 예측 → 상위. 내부 로직(유저 비노출)</li>
+    </ul>
+
+    <h3>어뷰징 가드레일 <span class="badge b-tmp">임시</span></h3>
+    <p class="muted">마켓 참여자 <b>N명 미만</b>이면 선택률 가중 제외(기본 100점만 부여). 소수 담합에 의한 고점 방지. N은 운영자 설정.</p>
+  </div>
+
+  <!-- 6 -->
+  <h2><span class="num">6.</span> 순위 표시 — 예상 / 확정 <span class="badge b-fix">확정</span></h2>
+  <p class="h2sub">결과 확정 전후를 구분해 보여준다</p>
+
+  <div class="card">
+    <div class="two">
+      <div>
+        <p class="k" style="color:var(--blue); font-weight:700; margin:0 0 4px;">확정 순위</p>
+        <p class="muted" style="margin:0;">결과 확정된 적중분만 반영. <b>보상 기준.</b> (예: 142위 · 1,180점)</p>
+      </div>
+      <div>
+        <p class="k" style="color:var(--navy); font-weight:700; margin:0 0 4px;">예상 순위</p>
+        <p class="muted" style="margin:0;">“진행 중 예측이 <b>모두 적중하면</b> 최대 +540점 → 88위”. 픽 직후·랭킹 보드 노출.</p>
+      </div>
+    </div>
+    <ul style="margin-top:10px;">
+      <li>예상치에는 <b>“모두 적중 시 / 최대”</b> 조건 표기 필수 (단일 숫자 노출 금지 → 급락 클레임 방지)</li>
+      <li>예상 등수는 “본인 예상 점수를 현재 순위표에 끼워넣어 위치 산출” → 전체 재정렬 없이 구현, 부하 낮음</li>
+      <li>부하 발생 시 폴백: 점수만 표시 (등수 생략)</li>
+    </ul>
+  </div>
+
+  <!-- 7 -->
+  <h2><span class="num">7.</span> 기간 · 참여 · 보상</h2>
+
+  <div class="card">
+    <h3>리그 기간 / 리셋 <span class="badge b-tmp">재검토</span></h3>
+    <p class="muted">리그가 이벤트 단위이므로 리셋은 <b>리그 기간 단위</b>로 정의(이벤트마다 상이). 이전 ‘주간 일괄 리셋’은 폐기.
+    점수 귀속 = <b>결과 확정 시점이 속한 기간</b>.</p>
+
+    <h3>최소 참여 / 랭킹 노출 <span class="badge b-tmp">재정의</span></h3>
+    <ul>
+      <li>랭킹 <b>노출</b>: 조건 없음(픽 1회부터 표시)</li>
+      <li>보상 <b>대상</b>: 리그 기간 내 최소 유효 참여 기준 충족 시 (수치는 리그별 운영자 설정, 초기 기준값 검증 후 확정)</li>
+      <li>미달자: 랭킹엔 노출 + “보상까지 N회 더” 진행 표시 → 추가 픽 유도</li>
+    </ul>
+
+    <h3>보상 기준 <span class="badge b-fix">확정</span></h3>
+    <p class="muted">보상은 <b>리그가 열린 기간 내 성과 기준</b>으로 지급. 전체 누적 랭킹 기반 보상은 폐기.
+    KBO는 보상 재화가 전용(직관티켓→경품 응모)이며 별도 고지.</p>
+  </div>
+
+  <!-- 8 -->
+  <h2><span class="num">8.</span> 노출 · 안전 정책 <span class="badge b-fix">확정</span></h2>
+
+  <div class="card">
+    <ul>
+      <li><b>닉네임 마스킹</b> — 랭킹 보드 전원 마스킹(홍*동). 본인 행은 강조 + “나” 라벨. 닉네임 자유설정 가능하나 초기 디폴트값 자동지정</li>
+      <li><b>공개 동의</b> — 가입 약관에 “랭킹·닉네임 공개” 포함. 필수항목 개정이므로 기존 회원에 개정 고지 + 미동의 시 탈퇴 권장</li>
+      <li><b>신고 / 차단</b> — 신고 누적·제재 유저는 닉네임 가림 또는 랭킹 제외</li>
+      <li><b>비로그인</b> — 리그 홈·랭킹 보드·보상 안내 열람 가능. 개인화(내 순위·내 보상)는 로그인 후, 원래 맥락 복귀</li>
+      <li><b>빈 상태</b> — TOP 랭킹은 항상 노출. 내 순위 자리는 placeholder+CTA(픽0회=첫픽 / 비로그인=로그인). 동일 템플릿, CTA만 분기</li>
+    </ul>
+  </div>
+
+  <!-- 9 -->
+  <h2><span class="num">9.</span> 폴리컵 ↔ 폴리픽 경계 <span class="badge b-fix">확정</span></h2>
+
+  <div class="card">
+    <table>
+      <tr><th style="width:120px">구분</th><th>폴리컵</th><th>폴리픽 (픽)</th></tr>
+      <tr><td class="k">성격</td><td>결과가 명확한 예측</td><td>의견형 이슈</td></tr>
+      <tr><td class="k">구조</td><td>시즌성 리그 · 랭킹 가능</td><td>투표 · 토론 · 커뮤니티</td></tr>
+      <tr><td class="k">예시</td><td>KBO · EPL · 월드컵</td><td>연애 예능 · 사연 · 여론</td></tr>
+      <tr><td class="k">UI 방향</td><td>진행 중 리그 · 카테고리 · 리그 마켓</td><td>핫 주제 · 참여 인원 · 댓글/의견 (네이트판·아고라식)</td></tr>
+    </table>
+  </div>
+
+  <!-- 10 -->
+  <h2><span class="num">10.</span> 남은 결정 과제</h2>
+
+  <div class="card">
+    <table>
+      <tr><th style="width:46px">상태</th><th>항목</th></tr>
+      <tr><td><span class="badge b-und">미결정</span></td><td>통합 ‘폴리컵 리그’ 존치 여부 및 노출 위계 (별도 화면 vs 마이 트랙레코드)</td></tr>
+      <tr><td><span class="badge b-und">미결정</span></td><td>동시 다중 리그의 진입점·홈 IA 확정</td></tr>
+      <tr><td><span class="badge b-und">미결정</span></td><td>“컵 / 픽 / 리그 / 예측” 명칭 정리</td></tr>
+      <tr><td><span class="badge b-tmp">임시</span></td><td>리그 기간/리셋 표준안, 최소 참여 기준 수치</td></tr>
+      <tr><td><span class="badge b-new">신규</span></td><td>팀 랭킹전(서비스 제공 그룹) — 프라이빗 리그와 구분 설계 (별도 정의 예정)</td></tr>
+    </table>
+  </div>
+
+  <div class="foot">
+    참조: 폴리컵 랭킹 리그 기능명세서(2026-06-29), 보고자료 2.0 PPT(260623), 폴리컵/폴리픽 회의록(2026-06-29) ·
+    본 문서는 공유용 요약본으로, 상세 산식·로그·어드민 스펙은 기능명세서 원본을 따른다.
+  </div>
+
+</div>
+</body>
+</html>
