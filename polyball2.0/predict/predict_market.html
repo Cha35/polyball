@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PolyBall 기능정의서 — 예측 마켓 설계 (PM-D) v0.1</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap');
+  :root{
+    --primary:#2563EB; --primary-light:#EFF6FF; --primary-mid:#BFDBFE;
+    --dark:#0F172A; --mid:#475569; --muted:#94A3B8; --border:#E2E8F0;
+    --bg:#F1F5F9; --white:#fff; --row-alt:#F8FAFC; --row-head:#EFF6FF;
+    --struct:#2563EB; --struct-bg:#EFF6FF; --struct-line:#BFDBFE;
+    --hot:#EA580C; --hot-bg:#FFF7ED; --hot-line:#FED7AA;
+    --new:#059669; --new-bg:#ECFDF5; --new-line:#A7F3D0;
+    --undef-bg:#FFF7ED; --undef-text:#C2410C;
+    --later-bg:#F5F3FF; --later-text:#7C3AED; --later-border:#DDD6FE;
+    --sidebar-w:250px; --topbar-h:48px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--dark);font-size:13px;line-height:1.6;}
+  .layout{display:flex;min-height:100vh;padding-top:var(--topbar-h);}
+
+  .topbar{position:fixed;top:0;left:0;right:0;height:var(--topbar-h);background:var(--dark);display:flex;align-items:center;padding:0 24px;gap:16px;z-index:200;}
+  .topbar-brand{font-size:13px;font-weight:800;color:#fff;letter-spacing:-.3px;}
+  .topbar-divider{width:1px;height:16px;background:#334155;}
+  .topbar-meta{font-size:11px;color:#64748B;font-family:'DM Mono',monospace;}
+  .topbar-version{margin-left:auto;font-size:10px;font-weight:700;color:var(--primary);background:#1E293B;border:1px solid #334155;border-radius:4px;padding:2px 10px;font-family:'DM Mono',monospace;}
+
+  .sidebar{position:fixed;top:var(--topbar-h);left:0;width:var(--sidebar-w);height:calc(100vh - var(--topbar-h));background:var(--white);border-right:1px solid var(--border);overflow-y:auto;z-index:100;padding:20px 0 40px;}
+  .sidebar::-webkit-scrollbar{width:4px;}
+  .sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+  .sidebar-group-label{font-size:9px;font-weight:800;letter-spacing:1.2px;color:var(--muted);padding:10px 16px 4px;text-transform:uppercase;font-family:'DM Mono',monospace;}
+  .sidebar-item{display:flex;align-items:center;gap:8px;padding:6px 16px;font-size:12px;font-weight:600;color:var(--mid);text-decoration:none;border-left:2px solid transparent;cursor:pointer;transition:all .12s;}
+  .sidebar-item:hover{background:var(--primary-light);color:var(--primary);border-left-color:var(--primary-mid);}
+  .sidebar-item.active{background:var(--primary-light);color:var(--primary);border-left-color:var(--primary);}
+  .sidebar-item-id{font-family:'DM Mono',monospace;font-size:9px;font-weight:600;color:var(--muted);background:var(--bg);border-radius:3px;padding:1px 5px;flex-shrink:0;}
+  .sidebar-divider{height:1px;background:var(--border);margin:8px 16px;}
+
+  .main{margin-left:var(--sidebar-w);flex:1;padding:40px 48px 120px;max-width:calc(100% - var(--sidebar-w));}
+  .content-wrap{max-width:880px;}
+
+  .cover{padding:8px 0 32px;border-bottom:1px solid var(--border);margin-bottom:36px;}
+  .cover-tag{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1.5px;color:var(--primary);background:var(--primary-light);border:1px solid var(--primary-mid);border-radius:4px;padding:3px 10px;margin-bottom:12px;font-family:'DM Mono',monospace;}
+  .cover h1{font-size:27px;font-weight:900;letter-spacing:-.8px;margin-bottom:6px;}
+  .cover-sub{font-size:14px;color:var(--muted);margin-bottom:18px;}
+  .cover-meta{display:flex;gap:18px;flex-wrap:wrap;}
+  .cover-meta-item{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
+  .cover-meta-item span{color:var(--mid);font-weight:600;}
+
+  .legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:36px;}
+  .rel{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;border-radius:6px;padding:4px 11px;font-family:'DM Mono',monospace;}
+  .rel-struct{background:var(--struct-bg);color:var(--struct);border:1px solid var(--struct-line);}
+  .rel-new{background:var(--new-bg);color:var(--new);border:1px solid var(--new-line);}
+  .rel-undef{background:var(--undef-bg);color:var(--undef-text);border:1px solid var(--hot-line);}
+
+  .section{margin-bottom:52px;scroll-margin-top:60px;}
+  .section-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid var(--primary);}
+  .section-num{font-family:'DM Mono',monospace;font-size:11px;color:#fff;background:var(--primary);border-radius:5px;padding:3px 9px;}
+  .section-title{font-size:19px;font-weight:900;letter-spacing:-.5px;}
+  .section-tags{margin-left:auto;display:flex;gap:5px;}
+  .rel-sm{font-size:9px;font-weight:800;border-radius:5px;padding:2px 7px;font-family:'DM Mono',monospace;}
+  .rel-sm.rel-struct{background:var(--struct-bg);color:var(--struct);border:1px solid var(--struct-line);}
+  .rel-sm.rel-new{background:var(--new-bg);color:var(--new);border:1px solid var(--new-line);}
+  .rel-sm.rel-undef{background:var(--undef-bg);color:var(--undef-text);border:1px solid var(--hot-line);}
+
+  .sub-h3{font-size:10px;font-weight:800;color:var(--muted);letter-spacing:.8px;margin:18px 0 8px;text-transform:uppercase;font-family:'DM Mono',monospace;}
+
+  .desc-card{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:8px;}
+  .desc-card-body{padding:12px 16px;}
+  .desc-item{font-size:12.5px;color:var(--mid);padding-left:14px;position:relative;margin-bottom:6px;line-height:1.65;}
+  .desc-item::before{content:'·';position:absolute;left:4px;color:var(--muted);}
+  .desc-item:last-child{margin-bottom:0;}
+  .desc-item.d2{padding-left:26px;font-size:11.5px;color:var(--muted);margin-bottom:3px;}
+  .desc-item.d2::before{content:'–';left:14px;font-size:10px;}
+  .desc-item strong{color:var(--dark);font-weight:700;}
+
+  .spec-table{width:100%;border-collapse:collapse;border-radius:10px;overflow:hidden;border:1px solid var(--border);margin-bottom:8px;}
+  .spec-table th{background:var(--primary);color:#fff;font-size:11px;font-weight:700;padding:9px 14px;text-align:left;}
+  .spec-table td{padding:8px 14px;font-size:12px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.6;}
+  .spec-table tr:last-child td{border-bottom:none;}
+  .spec-table tr:nth-child(even) td{background:var(--row-alt);}
+  .spec-2col td:first-child{width:200px;font-weight:700;color:var(--primary);background:var(--row-head)!important;white-space:nowrap;font-size:11px;}
+  td.confirmed{background:#F0FDF4!important;color:#166534;}
+  td.undef{background:var(--undef-bg)!important;color:var(--undef-text);font-style:italic;}
+  td.undef::before{content:'⚠ ';font-style:normal;}
+  td.later{background:var(--later-bg)!important;color:var(--later-text);font-style:italic;}
+  td.later::before{content:'🕐 ';font-style:normal;}
+  .mono,code{font-family:'DM Mono',monospace;font-size:11px;background:var(--primary-light);color:var(--primary);border-radius:4px;padding:1px 6px;}
+
+  .rule-box{background:var(--white);border-left:3px solid var(--primary);border-radius:0 8px 8px 0;padding:11px 16px;margin-bottom:10px;font-size:12px;color:var(--mid);line-height:1.7;}
+  .rule-box strong{color:var(--dark);}
+  .info-box-blue{background:var(--primary-light);border-left:3px solid var(--primary);border-radius:0 8px 8px 0;padding:11px 16px;margin-bottom:10px;font-size:12px;color:#1e40af;line-height:1.7;}
+  .info-box-green{background:var(--new-bg);border-left:3px solid var(--new);border-radius:0 8px 8px 0;padding:11px 16px;margin-bottom:10px;font-size:12px;color:#065F46;line-height:1.7;}
+  .info-box-hot{background:var(--hot-bg);border-left:3px solid var(--hot);border-radius:0 8px 8px 0;padding:11px 16px;margin-bottom:10px;font-size:12px;color:#7C2D12;line-height:1.7;}
+  .info-box-later{background:var(--later-bg);border-left:3px solid var(--later-text);border-radius:0 8px 8px 0;padding:11px 16px;margin-bottom:10px;font-size:12px;color:#5B21B6;line-height:1.7;}
+
+  .pill{display:inline-block;font-size:10px;font-weight:700;border-radius:4px;padding:1px 7px;font-family:'DM Mono',monospace;margin-left:3px;}
+  .pill-undef{background:var(--undef-bg);color:var(--undef-text);border:1px solid #FED7AA;}
+  .pill-later{background:var(--later-bg);color:var(--later-text);border:1px solid #DDD6FE;}
+  .pill-new{background:var(--new-bg);color:var(--new);border:1px solid var(--new-line);}
+
+  /* 변별력 등급 배지 */
+  .grade{display:inline-block;font-size:10px;font-weight:800;border-radius:5px;padding:2px 8px;font-family:'DM Mono',monospace;}
+  .g-high{background:#F0FDF4;color:#166534;border:1px solid #BBF7D0;}
+  .g-mid{background:var(--hot-bg);color:var(--hot);border:1px solid var(--hot-line);}
+  .g-low{background:#FEF2F2;color:#DC2626;border:1px solid #FECACA;}
+
+  .open-q{margin-top:16px;background:var(--undef-bg);border:1px solid var(--hot-line);border-radius:10px;padding:14px 18px;}
+  .open-q h3{font-size:12px;font-weight:800;color:var(--hot);margin-bottom:10px;}
+  .open-q .q{font-size:12px;color:#7C2D12;padding-left:16px;position:relative;margin-bottom:8px;line-height:1.6;}
+  .open-q .q::before{content:'?';position:absolute;left:2px;font-weight:800;color:var(--hot);}
+  .open-q .q b{color:#9A3412;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="topbar-brand">PolyBall</span>
+  <span class="topbar-divider"></span>
+  <span class="topbar-meta">기능정의서 · 예측 마켓 설계 (2.0 to Wallet)</span>
+  <span class="topbar-version">PM-D v0.3</span>
+</div>
+
+<nav class="sidebar">
+  <div class="sidebar-group-label">Overview</div>
+  <a class="sidebar-item" href="#s0"><span class="sidebar-item-id">0</span> 배경 · 목적 (데이터 BM)</a>
+  <a class="sidebar-item" href="#s1"><span class="sidebar-item-id">1</span> 마켓 선정 2대 기준</a>
+  <a class="sidebar-item" href="#s2"><span class="sidebar-item-id">2</span> 마켓 후보군 개요</a>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-group-label">주식 · 경제형</div>
+  <a class="sidebar-item" href="#s3"><span class="sidebar-item-id">3</span> 종목 선정</a>
+  <a class="sidebar-item" href="#s4"><span class="sidebar-item-id">4</span> 마켓 3유형 · 변별력</a>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-group-label">파생시장 복제형</div>
+  <a class="sidebar-item" href="#s5"><span class="sidebar-item-id">5</span> KBO 스포츠토토형</a>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-group-label">채점 · 연동</div>
+  <a class="sidebar-item" href="#s6"><span class="sidebar-item-id">6</span> 채점 · 신뢰점수 모델</a>
+  <a class="sidebar-item" href="#s7"><span class="sidebar-item-id">7</span> 기존 구조 연동</a>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-group-label">기타</div>
+  <a class="sidebar-item" href="#s8"><span class="sidebar-item-id">8</span> 미결 · 확인 대기</a>
+</nav>
+
+<div class="layout">
+<main class="main">
+<div class="content-wrap">
+
+  <div class="cover">
+    <span class="cover-tag">FEATURE SPEC · PREDICTION MARKET DESIGN</span>
+    <h1>예측 마켓 설계 — 2.0 to Wallet</h1>
+    <div class="cover-sub">신뢰 가능한 유저 예측 데이터를 축적하기 위한 마켓 유형·채점·신뢰점수 설계안</div>
+    <div class="cover-meta">
+      <div class="cover-meta-item">문서 <span>PM-D v0.3</span></div>
+      <div class="cover-meta-item">연관 <span>EM-R v1.0 · CM-R v1.1</span></div>
+      <div class="cover-meta-item">전제 <span>EM v1.9 예측형/참여형 승계</span></div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span class="rel rel-struct">■ 설계 확정</span>
+    <span class="rel rel-new">■ 신규 제안</span>
+    <span class="rel rel-undef">■ 확인 대기 · 추후</span>
+  </div>
+
+  <!-- 0 -->
+  <div class="section" id="s0">
+    <div class="section-header"><span class="section-num">0</span><span class="section-title">배경 · 목적 (데이터 BM)</span></div>
+
+    <div class="info-box-blue">
+      EM-R(카드 개편)·CM-R(마켓 댓글 전환)으로 <strong>마켓 참여·토론 구조</strong>가 갖춰진 뒤, 2.0의 핵심은 <strong>"어떤 마켓을 지속 운영해 유저 예측 데이터를 축적하느냐"</strong>입니다. 본 문서는 그 마켓의 <strong>선정 기준·유형·채점·신뢰점수 설계</strong>를 정의합니다.
+    </div>
+
+    <div class="sub-h3">데이터 BM 논지</div>
+    <div class="desc-card"><div class="desc-card-body">
+      <div class="desc-item">유저가 폴리볼 마켓에 지속 참여하면, <strong>높은 적중률을 보이는 상위 유저</strong>가 통계적으로 구별된다.</div>
+      <div class="desc-item">해당 통계는 <strong>조작·변조 불가능한 실제 마켓 결과</strong>에 근거한다 → 보기 좋은 말·SNS 활동을 배제하고 <strong>실측 데이터로 검증</strong>된다.</div>
+      <div class="desc-item">폴리볼(월렛)의 고적중률 데이터가 <strong>파생시장(폴리마켓·스포츠토토 등)의 승률을 보장하는 데이터</strong>로 이어진다면, 그 데이터는 <strong>비용을 지불할 가치</strong>를 갖는다. — 이것이 예측 데이터 BM의 핵심.</div>
+    </div></div>
+
+    <div class="sub-h3">본 문서의 설계 목표</div>
+    <div class="rule-box">
+      "무슨 마켓을 만들까"에 앞서, <strong>어떤 마켓이 유저를 잘 변별하고(변별력) 그 결과가 신뢰 가능한가(신뢰도)</strong>를 기준으로 마켓을 고르고, 그 결과를 <strong>유저 신뢰점수로 환산하는 방식</strong>까지 정의하는 것이 목표입니다. 변별력의 상당 부분은 마켓 주제가 아니라 <strong>채점 방식(§6)</strong>에서 나옵니다.
+    </div>
+  </div>
+
+  <!-- 1 -->
+  <div class="section" id="s1">
+    <div class="section-header"><span class="section-num">1</span><span class="section-title">마켓 선정 2대 기준</span><div class="section-tags"><span class="rel-sm rel-struct">설계 확정</span></div></div>
+
+    <table class="spec-table">
+      <thead><tr><th>기준</th><th>정의</th><th>충족 조건</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>신뢰도</strong><br>(검증 가능성)</td>
+          <td>마켓 결과가 객관적으로 확정되고, 조작·변조가 불가능한가</td>
+          <td class="confirmed">공개·불변·객관 소스에서 결과 확정 (예: 주가 종가/최저가, KBO 공식 경기 결과)</td>
+        </tr>
+        <tr>
+          <td><strong>변별력</strong><br>(실력·운 분리)</td>
+          <td>한 마켓의 결과가 유저의 실력 신호를 얼마나 담는가 (운으로 맞힐 여지가 적은가)</td>
+          <td>연속값 채점 가능 · 기저확률이 극단적이지 않음 · 충분한 반복으로 통계적 유의성 확보</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="info-box-green">
+      <strong>변별력의 두 원천</strong> — ① <strong>이벤트당 정보량</strong>: 적중/실패 이분법보다 <strong>오차 거리로 순위</strong>를 매길 수 있는 연속값 마켓이 한 번의 결과로도 유저를 잘 가른다. ② <strong>표본 수(N)</strong>: 이분형(50% 기저)은 실력자와 운을 가르려면 반복 횟수가 많이 필요하다. 마켓은 이 둘의 균형으로 선정한다.
+    </div>
+
+    <div class="rule-box">
+      <strong>통계적 배경</strong> — 상승/하락 같은 50% 기저 이분형에서 "55% 실력자"를 동전던지기와 통계적으로 구분(p&lt;0.05)하려면 대략 <strong>수백 회 규모</strong>의 예측이 필요합니다. 반면 연속값(오차 거리) 마켓은 한 이벤트에 담기는 정보가 커서 <strong>유의한 랭킹에 훨씬 빨리</strong> 도달합니다. → 마켓 유형별로 신뢰점수 반영 방식을 달리해야 하는 근거(§6).
+    </div>
+  </div>
+
+  <!-- 2 -->
+  <div class="section" id="s2">
+    <div class="section-header"><span class="section-num">2</span><span class="section-title">마켓 후보군 개요</span><div class="section-tags"><span class="rel-sm rel-struct">설계 확정</span><span class="rel-sm rel-new">신규 제안</span></div></div>
+
+    <table class="spec-table">
+      <thead><tr><th>후보군</th><th>내용</th><th>선정 이유</th><th>상태</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>A. 파생시장 복제형</strong><br>(스포츠토토: 야구·축구)</td>
+          <td>현행 스포츠토토 게임 유형을 마켓으로 구현 — 야구(KBO) + 해외축구(EPL) · 월드컵은 별도 하드코딩</td>
+          <td>파생시장 승률을 <strong>직접</strong> 증명 → BM 논지와 정확히 일치</td>
+          <td><span class="pill pill-new">§5</span></td>
+        </tr>
+        <tr>
+          <td><strong>B. 주식 · 경제형</strong><br>(국내/해외)</td>
+          <td>국내주식·해외주식 각 5종에 3유형 마켓(금액대·방향·저점/고점) 지속 오픈</td>
+          <td>예측 데이터 <strong>수요가 가장 클 것으로 예상</strong>되는 영역</td>
+          <td><span class="pill pill-new">§3·§4</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="rule-box">
+      두 후보군 모두 결과에 <strong>정답이 존재</strong>하므로 EM-R 분류상 <strong>예측형</strong>(정답 O)에 해당하며, 적중률·신뢰점수 데이터를 생성합니다. 정답이 없는 <strong>참여형</strong>(여론·투표)은 데이터 BM 대상이 아닙니다(관심도·체류용).
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <div class="section" id="s3">
+    <div class="section-header"><span class="section-num">3</span><span class="section-title">주식·경제 — 카테고리 · 종목</span><div class="section-tags"><span class="rel-sm rel-new">확정</span></div></div>
+
+    <div class="info-box-blue">
+      마켓은 BO 카테고리(1차 대분류 → 2차 → 3차 리프)에 등록되며 <strong>상위 카테고리 값을 함께 보유</strong>합니다. 별도 그룹핑은 <strong>Ticker/Keyword</strong> 값으로 부여(BO 리스트 관리)합니다. 유저가 화면에서 인지하는 단위는 보통 <strong>2차 카테고리</strong>까지이며, 랭킹도 2차 기준입니다(RK-D).
+    </div>
+
+    <div class="sub-h3">카테고리 구조 (예시)</div>
+    <table class="spec-table spec-2col">
+      <tr><td>1차 (대분류)</td><td>야구 · 축구 · 이스포츠 · 주식/경제 …</td></tr>
+      <tr><td>2차</td><td>국내야구·해외야구 / 해외축구(EPL) / LOL / <strong>국내주식·해외주식</strong> …</td></tr>
+      <tr><td>3차 (리프)</td><td>실제 마켓 등록 단위 · 상위 카테고리 값 보유 → 2차로 rollup</td></tr>
+      <tr><td>Ticker/Keyword</td><td>종목 등 별도 그룹 축 · 랭킹 아닌 <strong>업적/뱃지</strong>로 활용 (RK-D §5)</td></tr>
+    </table>
+
+    <div class="sub-h3">주식 종목 — 국내 5 / 해외 5</div>
+    <table class="spec-table">
+      <thead><tr><th>구분</th><th>국내주식</th><th>해외주식</th></tr></thead>
+      <tbody>
+        <tr><td><strong>지수</strong></td><td>코스피</td><td>나스닥</td></tr>
+        <tr><td><strong>지수</strong></td><td>코스닥</td><td>S&amp;P500</td></tr>
+        <tr><td><strong>개별주</strong></td><td>삼성전자</td><td>애플</td></tr>
+        <tr><td><strong>개별주</strong></td><td>SK하이닉스</td><td>스페이스X (SPCX)</td></tr>
+        <tr><td><strong>개별주</strong></td><td>현대차</td><td>테슬라</td></tr>
+      </tbody>
+    </table>
+
+    <div class="rule-box">
+      <strong>확정:</strong> 국내/해외 각 5종(지수 2 + 개별주 3) 대칭 구성. 이전 후보였던 <strong>환율·구글은 제외</strong>(의도된 제외) · <strong>애플 유지</strong>(리테일 친숙도 최고 + 고변동주(스페이스X·테슬라) 사이의 안정주 밸런스).<br>
+      <strong>확인 필요:</strong> ① 지수 세부 지정 — 나스닥(종합/100), S&amp;P500(지수/ETF) · <strong>지수는 수치 직접 지정</strong>(§4-구간). ② 스페이스X는 <strong>2026-06-12 신규 상장</strong>(고변동·짧은 이력) → 초기 구간 폭 보정 필요.
+    </div>
+  </div>
+
+  <!-- 4 -->
+  <div class="section" id="s4">
+    <div class="section-header"><span class="section-num">4</span><span class="section-title">주식·경제 — 마켓 3유형 · 변별력</span><div class="section-tags"><span class="rel-sm rel-new">신규 제안</span></div></div>
+
+    <div class="info-box-blue">
+      선정 종목마다 아래 3유형을 <strong>지속 오픈</strong>합니다. 각 유형은 변별력(실력 신호)이 크게 다르므로, 신뢰점수 반영 시 <strong>유형별 가중치(§6)</strong>를 달리 둡니다.
+    </div>
+
+    <table class="spec-table">
+      <thead><tr><th>유형</th><th>질문 예시</th><th>결과값</th><th>변별력</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>4-1 금액 예측형</strong><br>(가격대 구간)</td>
+          <td>"이번 주 OO의 종가는 어느 구간?"</td>
+          <td>구간 선택 (가격대)</td>
+          <td><span class="grade g-high">높음</span></td>
+        </tr>
+        <tr>
+          <td><strong>4-2 방향형</strong></td>
+          <td>"이번 주 OO은 상승할까 하락할까?"</td>
+          <td>이분 (상승/하락)</td>
+          <td><span class="grade g-low">낮음</span></td>
+        </tr>
+        <tr>
+          <td><strong>4-3 저점/고점형</strong><br>(가격대 구간)</td>
+          <td>"이번 주 OO의 최저가/최고가는 어느 구간?"</td>
+          <td>구간 선택 (가격대)</td>
+          <td><span class="grade g-mid">중간</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 4-1 -->
+    <div class="sub-h3">4-1 금액 예측형 — 종가 "구간" 맞추기 <span class="pill pill-new">권장 핵심</span></div>
+    <div class="info-box-blue">
+      <strong>세부 금액 직접 입력은 채택하지 않습니다.</strong> 정확한 값 입력은 유저 난이도가 높고, 현재 폴리볼 마켓이 <strong>선택지 제공형</strong>이라는 구조와도 맞지 않습니다. 대신 <strong>가격대를 여러 구간(버킷)으로 나눠 고르게</strong> 합니다 — KBO 야구토토 스페셜의 "최종 득점대(0~1, 2~3, …) 맞히기"와 동일한 방식으로, <strong>기존 리스트형 카드 그대로 표현 가능</strong>합니다.
+    </div>
+    <div class="desc-card"><div class="desc-card-body">
+      <div class="desc-item"><strong>정의:</strong> 정해진 기간(주간) 종료 시점의 <strong>종가가 속할 가격대 구간</strong>을 고른다.</div>
+      <div class="desc-item"><strong>구간 설계:</strong> 종목별 현재가·변동성에 맞춰 N개 구간으로 분할 (예: 현재가 ±범위를 5~7개 밴드로) — <span class="pill pill-undef">구간 수·폭 산정 방식 §8</span></div>
+      <div class="desc-item"><strong>변별력:</strong> 이분(상승/하락)보다 <strong>선택지가 여러 개</strong>라 이벤트당 정보량이 크고, <strong>인접 구간 부분점수</strong>(정답에서 몇 칸 떨어졌나)로 오차 거리 신호를 상당 부분 살릴 수 있음.</div>
+      <div class="desc-item d2">단, 구간화는 연속값을 거칠게 만들므로 순수 오차 채점보다 해상도는 낮음 → 부분점수로 보완.</div>
+      <div class="desc-item"><strong>입력 UI:</strong> 기존 <strong>리스트형(선택지 N개)</strong> 그대로 · 신규 렌더형 불필요.</div>
+      <div class="desc-item"><strong>채점:</strong> 정답 구간 적중 + 인접 구간 부분점수(거리 기반) (§6-1).</div>
+    </div></div>
+
+    <!-- 4-2 -->
+    <div class="sub-h3">4-2 방향형 — 상승/하락</div>
+    <div class="desc-card"><div class="desc-card-body">
+      <div class="desc-item"><strong>정의:</strong> 해당 종목이 상승할지 하락할지 이분 선택.</div>
+      <div class="desc-item"><strong>변별력 이슈:</strong> 기저확률 50% 이분형 → 이벤트당 정보량이 낮아 <strong>운과 실력을 가르려면 표본이 많이 필요</strong>.</div>
+      <div class="desc-item d2"><strong>데일리:</strong> 표본 수(N)는 빨리 쌓이나 이벤트당 정보량이 낮음.</div>
+      <div class="desc-item d2"><strong>위클리:</strong> 정보량은 늘지만 N이 적어짐 — 정반대 트레이드오프.</div>
+      <div class="desc-item"><strong>포지셔닝:</strong> "변별 마켓"보다 <strong>표본 축적·참여 유지용</strong>으로 두고, 신뢰점수 <strong>가중치를 낮게</strong> 둔다.</div>
+      <div class="desc-item"><strong>입력 UI:</strong> 예측형 + 이분이지만 <strong>양자택일형(선택률 즉시 노출)은 정답 힌트</strong>가 되어 불가 → 리스트형(선택률 참여 후 노출)으로 <span class="pill pill-undef">§7 확인</span></div>
+    </div></div>
+    <div class="info-box-hot">
+      데일리/위클리 중 어느 주기로 운영할지 <strong>결정 필요</strong>(§8). 초기에는 <strong>위클리 기본 + 데일리 병행</strong>으로 두고, 데일리는 참여·표본용으로 가중치를 낮추는 안을 제안합니다.
+    </div>
+
+    <!-- 4-3 -->
+    <div class="sub-h3">4-3 저점/고점형 — 추세 따라 유동 오픈 <span class="pill pill-new">확정</span></div>
+    <div class="info-box-green">
+      최저가·최고가를 <strong>가격대 구간</strong>으로 맞힙니다. <strong>추세가 하향일 땐 저점 마켓, 상방일 땐 고점 마켓</strong>을 유동적으로 오픈합니다(둘 다 상시 운영 아님). 구간은 4-공통 규칙으로 자동 제안.
+    </div>
+    <div class="desc-card"><div class="desc-card-body">
+      <div class="desc-item"><strong>정의:</strong> 해당 종목의 주간 <strong>최저가(저점형) 또는 최고가(고점형)</strong>가 속할 가격대 구간을 고른다.</div>
+      <div class="desc-item"><strong>오픈 기준:</strong> 시장 추세에 맞춰 저점형/고점형 중 선택 오픈 (하향 → 저점, 상방 → 고점).</div>
+      <div class="desc-item"><strong>변별력 이슈:</strong> 저점/고점은 <strong>장중 순간 변동성(노이즈)</strong>으로 정해지는 경우가 있어 종가보다 운 비중이 다소 큼 → 신뢰점수 가중치 중간(§6).</div>
+    </div></div>
+
+    <!-- 4-공통: 구간 산정 규칙 -->
+    <div class="sub-h3">4-공통 · 구간 산정 규칙 <span class="pill pill-new">확정</span></div>
+    <div class="info-box-blue">
+      금액대·저점/고점형의 <strong>선택지(구간) 범위를 시스템이 자동 제안</strong>하고 BO에서 확정합니다. 개별주와 지수의 방식을 나눕니다.
+    </div>
+    <table class="spec-table spec-2col">
+      <tr><td>개별주</td><td class="confirmed">기준가(마켓 오픈 직전 종가)에서 <strong>비율로 상·하단</strong>을 잡아 N개 구간 + <strong>양 끝 오픈 구간</strong>("X 이하"/"Y 이상") 자동 제안</td></tr>
+      <tr><td>지수</td><td class="confirmed"><strong>수치를 직접 지정</strong>해 선택지 구성(수동 버킷) · 양 끝 오픈 구간 동일 적용</td></tr>
+      <tr><td>변동성 보정</td><td class="undef">고정 비율 일괄 적용 시 저변동주는 가운데 쏠림·고변동주는 분산 → <strong>종목별 비율 계수 또는 최근 N주 변동성 자동 스케일링</strong> 필요</td></tr>
+      <tr><td>랭킹 정합</td><td>구간 폭은 <strong>정답 투표율이 적당히 갈리는</strong> 수준 목표 — 너무 좁으면 다수 200점(변별력↓), 너무 넓으면 다수 동일 구간(변별력↓) · RK-D 언더독 점수와 직접 연동</td></tr>
+      <tr><td>세부 파라미터</td><td class="later">비율(%)·구간 수·변동성 계수 등 수치는 추후 확정</td></tr>
+    </table>
+  </div>
+
+  <!-- 5 -->
+  <div class="section" id="s5">
+    <div class="section-header"><span class="section-num">5</span><span class="section-title">파생시장 복제형 — 스포츠토토 (야구·축구)</span><div class="section-tags"><span class="rel-sm rel-new">공식 규정 반영</span></div></div>
+
+    <div class="info-box-green">
+      현행 야구 스포츠토토(체육진흥투표권)는 크게 <strong>'토토'(수익률 배분·고정환급률식) 4종</strong>과 <strong>'프로토'(고정배당률식) 2종</strong>으로 나뉩니다. 중요한 점은 <strong>토토 대부분이 이미 "선택지/구간" 구조</strong>(승·1·패, 득점대 구간, 홈런 O/X)라는 것 — 폴리볼의 선택지 기반 마켓으로 <strong>그대로 매핑 가능</strong>합니다. 출처: 스포츠토토 공식(sportstoto.co.kr).
+    </div>
+
+    <div class="info-box-hot">
+      <strong>차용 범위 원칙:</strong> 폴리볼은 배팅이 아니라 <strong>예측 데이터 축적</strong>이 목적이므로, 토토의 <strong>"무엇을 예측하는가(게임 방법·선택지 구조)"만 차용</strong>하고 배당률·환급·조합구매·발매금액 등 <strong>금전/사행 요소는 제외</strong>합니다. (재화·법령 관련은 §7·기존 법령 레퍼런스와 연계)
+    </div>
+
+    <div class="sub-h3">A. 토토 — 야구토토 4종</div>
+    <table class="spec-table">
+      <thead><tr><th>게임</th><th>게임 방법 (공식)</th><th>폴리볼 마켓 적용</th><th>변별력</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>승1패</strong></td>
+          <td>홈팀 결과를 <strong>승/1/패</strong>로. 승=홈 2점차↑ 승리, 1=1점차 이내(무승부 포함), 패=홈 2점차↑ 패배 (공식은 14경기 묶음)</td>
+          <td>경기당 <strong>3지선다 리스트형</strong> (승/1/패) · 14경기 묶음 대신 개별 경기 단위로 운영</td>
+          <td><span class="grade g-mid">중간</span></td>
+        </tr>
+        <tr>
+          <td><strong>스페셜</strong><br>(더블/트리플)</td>
+          <td>대상경기 <strong>최종 득점 합계 구간</strong> 맞히기 — 6구간: 0~1, 2~3, 4~5, 6~7, 8~9, 10+ (더블=2경기, 트리플=3경기)</td>
+          <td><strong>6구간 리스트형</strong> · 금액 예측형(§4-1)과 동일한 구간+부분점수 채점 적용</td>
+          <td><span class="grade g-high">높음</span></td>
+        </tr>
+        <tr>
+          <td><strong>스페셜+</strong><br>(더블/트리플)</td>
+          <td>스페셜 계열 변형 <span class="pill pill-undef">세부 항목 별도 확인</span></td>
+          <td>스페셜과 동일 매핑 (구간형)</td>
+          <td><span class="grade g-high">높음</span></td>
+        </tr>
+        <tr>
+          <td><strong>매치</strong></td>
+          <td>한 경기의 <strong>홈런 유무(O/X)</strong> + <strong>최종 점수대</strong>(0~2,3~4,5~6,7~8,9~10,11+) 동시 맞히기</td>
+          <td><strong>OX 1문항 + 6구간 1문항</strong> (복합) · 한 마켓에 두 선택 or 두 마켓 분리 <span class="pill pill-undef">§8</span></td>
+          <td><span class="grade g-high">높음</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sub-h3">B. 프로토 — 승부식 · 기록식</div>
+    <table class="spec-table">
+      <thead><tr><th>게임</th><th>게임 방법 (공식)</th><th>폴리볼 마켓 적용</th><th>변별력</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>승부식</strong></td>
+          <td>① 일반 <strong>승·(무)·패</strong> ② <strong>핸디캡</strong>(홈팀 기준 특별점수 반영 후 승패) ③ <strong>언더오버</strong>(양팀 점수합이 기준값 대비 미만/초과)</td>
+          <td>각각 <strong>2~3지선다 리스트형/양자택일형</strong> · 기준선(핸디캡/UO 라인)은 마켓 오픈 시 제시</td>
+          <td><span class="grade g-mid">중간</span></td>
+        </tr>
+        <tr>
+          <td><strong>기록식</strong></td>
+          <td>최종점수, 전/후반 승·(무)·패, 첫 득점자, 총 득점, 우승팀/선수, <strong>홈런 수, 점수 차</strong> 등 특정 요소 예측</td>
+          <td>요소별 <strong>구간/선택지 리스트형</strong> (점수차·홈런수 등 = 구간형, 최종점수 = 구간형)</td>
+          <td><span class="grade g-high">높음</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class="spec-table spec-2col">
+      <tr><td>신뢰도</td><td class="confirmed">KBO 공식 경기 결과 = 공개·불변·객관 소스 (검증 가능) · 대상시간은 연장 포함 최종 결과, 더블헤더는 1차전 기준(공식 규정)</td></tr>
+      <tr><td>1차 우선 유형(제안)</td><td>변별력 높은 <strong>스페셜(득점대 구간) · 매치 · 기록식</strong>을 축으로, 승1패·승부식은 참여·표본용으로 병행</td></tr>
+      <tr><td>운영 시즌성</td><td class="later">KBO 정규/포스트시즌 외 기간(비시즌) 대체 마켓(해외리그 등) 운영 방안 검토</td></tr>
+    </table>
+
+    <div class="rule-box">
+      <strong>핵심 시사점</strong> — 토토는 이미 "구간·선택지" 예측 구조라, 형규 님이 §4-1에서 우려한 "세부 금액 입력" 문제를 스포츠 쪽에서는 겪지 않습니다. 오히려 스페셜의 <strong>득점대 구간 방식이 주식 금액 예측형의 참고 모델</strong>이 됩니다.
+    </div>
+
+    <div class="sub-h3">C. 축구 — 해외축구(EPL)</div>
+    <div class="info-box-blue">
+      해외축구 <strong>EPL 일정을 토토 형태</strong>로 준비합니다. 야구와 달리 <strong>무승부가 흔해 승/무/패 3지선다</strong>가 자연스럽습니다(프로토 승부식 승·무·패 구조). 언더오버·핸디캡도 동일 적용 가능.
+    </div>
+    <table class="spec-table spec-2col">
+      <tr><td>2차 카테고리</td><td>해외축구(EPL)</td></tr>
+      <tr><td>기본 유형</td><td>승/무/패 3지선다 · 언더오버(양팀 득점 합) · 핸디캡</td></tr>
+      <tr><td>월드컵</td><td class="later">별도 하드코딩 구성(정규 일정 아님) — EPL과 분리 운영</td></tr>
+      <tr><td>국내축구(K리그)</td><td class="undef">이번 범위 포함 여부 확인</td></tr>
+      <tr><td>신뢰도</td><td class="confirmed">EPL 공식 경기 결과 = 공개·불변·객관 소스 (검증 가능)</td></tr>
+      <tr><td>변별력</td><td>승/무/패=중간 · 언더오버·정확 스코어(기록식)=높음</td></tr>
+    </table>
+  </div>
+
+  <!-- 6 -->
+  <div class="section" id="s6">
+    <div class="section-header"><span class="section-num">6</span><span class="section-title">채점 · 신뢰점수 모델</span><div class="section-tags"><span class="rel-sm rel-new">신규 제안</span></div></div>
+
+    <div class="info-box-green">
+      <strong>확신도(확률) 입력은 미적용 확정</strong> — 확신도를 수기로 받으면 UX 복잡도가 커진다는 판단. 모든 마켓이 <strong>선택지/구간 방식</strong>이므로 채점은 <strong>정답 선택지·구간 적중</strong> 기반이며, <strong>랭킹 반영 산식은 RK-D의 "언더독 가중"으로 확정</strong>(정답 투표율↓ → 고득점, 정확 적중만). 즉 본 절은 채점 원칙, 구체 랭킹 점수는 <span class="mono">RK-D</span>가 정의합니다.
+    </div>
+
+    <div class="sub-h3">6-1 유형별 채점 방식</div>
+    <table class="spec-table">
+      <thead><tr><th>유형</th><th>결과값</th><th>채점 방식</th><th>신뢰점수 가중치(제안)</th></tr></thead>
+      <tbody>
+        <tr><td>금액대(구간)</td><td>구간 선택</td><td>정답 구간 적중 → RK-D 언더독 가중 · 인접 구간 부분점수는 마켓 내부 피드백용(랭킹 미반영)</td><td><span class="grade g-high">높음</span></td></tr>
+        <tr><td>저점/고점(구간)</td><td>구간 선택</td><td>정답 구간 적중 → RK-D 언더독 가중 (노이즈로 가중치 중간)</td><td><span class="grade g-mid">중간</span></td></tr>
+        <tr><td>방향형</td><td>이분</td><td>정답 방향 적중 → RK-D 언더독 가중 · 표본 누적</td><td><span class="grade g-low">낮음</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sub-h3">6-2 신뢰점수 산출 원칙</div>
+    <div class="desc-card"><div class="desc-card-body">
+      <div class="desc-item"><strong>다중 구간 우선:</strong> 선택지가 여러 개인 구간형이 이분형보다 이벤트당 정보량이 크므로, 유형별 가중치에서 상위(§6-1).</div>
+      <div class="desc-item"><strong>언더독 가중:</strong> 정답 투표율이 낮을수록 고득점(RK-D) → "쉬운 걸 많이 맞힌 사람"이 아니라 "어려운 걸 맞힌 사람"이 상위.</div>
+      <div class="desc-item"><strong>집계:</strong> 주/월 누적합 · 정확도는 별도 표기 (RK-D §1·§3) · 방향형은 표본 누적으로 보완.</div>
+      <div class="desc-item"><strong>최근성:</strong> 최근 성적에 가중(감쇠)해 현재 실력을 반영할지 여부 검토.</div>
+      <div class="desc-item"><strong>구체 산식·파라미터:</strong> <span class="pill pill-later">추후 확정</span> (정규화 방식·가중치 수치·표본 하한값 등)</div>
+    </div></div>
+
+    <div class="rule-box">
+      본 절은 <strong>원칙</strong>까지만 정의합니다. 정확한 산식·가중치 수치는 운영 데이터 없이 임의로 정하지 않고, 유형 확정 및 초기 운영 데이터 확보 후 별도 확정합니다(프로젝트 규칙 준수).
+    </div>
+  </div>
+
+  <!-- 7 -->
+  <div class="section" id="s7">
+    <div class="section-header"><span class="section-num">7</span><span class="section-title">기존 구조 연동 (EM-R / CM-R)</span><div class="section-tags"><span class="rel-sm rel-struct">설계 확정</span></div></div>
+
+    <table class="spec-table spec-2col">
+      <tr><td>예측형 승계</td><td class="confirmed">신규 마켓은 모두 EM-R <strong>예측형</strong>(정답 O) → 정답보상🏆 + 참여보상🎫 아이콘 정책 그대로 적용</td></tr>
+      <tr><td>금액 예측형 렌더</td><td class="confirmed">가격대 <strong>구간 선택 = 기존 리스트형 그대로</strong> 재사용 (세부 금액 입력 미채택) → 신규 렌더형 불필요</td></tr>
+      <tr><td>방향형 렌더</td><td class="undef">양자택일형은 선택률 즉시 노출 = 정답 힌트 → 예측형 방향 마켓은 <strong>리스트형(선택률 참여 후 노출)</strong>로</td></tr>
+      <tr><td>마켓 댓글·근거 코멘트</td><td class="confirmed">CM-R 마켓 댓글·예측 근거 코멘트 구조 그대로 적용 (선택지 스냅샷 뱃지 = 예측값 기록)</td></tr>
+      <tr><td>정규 마켓 관계</td><td class="later">API 자동생성 정규 마켓(개발팀 이관)과의 경계·데이터 통합 방식 협의 필요</td></tr>
+    </table>
+  </div>
+
+  <!-- 8 -->
+  <div class="section" id="s8">
+    <div class="section-header"><span class="section-num">8</span><span class="section-title">미결 · 확인 대기</span></div>
+
+    <table class="spec-table">
+      <thead><tr><th>#</th><th>이슈</th><th>상태 / 방향</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>주식 종목 (국내5/해외5)</td><td class="confirmed">확정 — 코스피·코스닥·삼성전자·SK하이닉스·현대차 / 나스닥·S&amp;P500·애플·스페이스X·테슬라 (§3)</td></tr>
+        <tr><td>2</td><td>지수 세부 수치 지정</td><td class="undef">나스닥(종합/100)·S&amp;P500(지수/ETF) 구체 지정 · 지수는 수치 직접 지정 (§3·§4)</td></tr>
+        <tr><td>3</td><td>스페이스X 신규상장 보정</td><td class="undef">2026-06-12 상장 · 고변동·짧은 이력 → 초기 구간 폭 보정 (§3)</td></tr>
+        <tr><td>4</td><td>금액대 입력 방식</td><td class="confirmed">가격대 구간 선택 · 세부 금액 입력 미채택 (§4-1)</td></tr>
+        <tr><td>5</td><td>구간 자동 제안 방식</td><td class="confirmed">개별주=기준가 비율 자동 제안 / 지수=수치 수동 지정 · 양끝 오픈구간 (§4-공통)</td></tr>
+        <tr><td>6</td><td>구간 세부 파라미터</td><td class="later">비율(%)·구간 수·변동성 계수 등 수치 추후 (§4-공통)</td></tr>
+        <tr><td>7</td><td>방향형 운영 주기 (데일리/위클리)</td><td class="undef">제안: 위클리 기본 + 데일리 병행(저가중) — §4-2</td></tr>
+        <tr><td>8</td><td>저점/고점형</td><td class="confirmed">저점·고점 둘 다 · 추세 따라 유동 오픈(하향→저점, 상방→고점) — §4-3</td></tr>
+        <tr><td>9</td><td>축구 EPL 추가</td><td class="confirmed">해외축구(EPL) 토토형(승/무/패 3지선다) · 월드컵 별도 · 국내축구 범위 <span class="pill pill-undef">확인</span> — §5</td></tr>
+        <tr><td>10</td><td>KBO 토토 유형 반영</td><td class="confirmed">공식 규정 반영 완료 (토토 4종·프로토 2종) — §5</td></tr>
+        <tr><td>11</td><td>KBO 잔여 확인</td><td class="undef">스페셜+ 세부 · 매치 복합(OX+점수대) 구성 · 비시즌 대체 — §5</td></tr>
+        <tr><td>12</td><td>신뢰점수 산식·가중치 수치</td><td class="later">운영 데이터 확보 후 확정 — §6</td></tr>
+        <tr><td>13</td><td>정규 마켓과의 데이터 통합 경계</td><td class="later">개발팀 협의 — §7</td></tr>
+      </tbody>
+    </table>
+
+    <div class="open-q">
+      <h3>다음 단계 결정 대기</h3>
+      <div class="q"><b>지수 세부 지정:</b> 나스닥(종합/100)·S&amp;P500(지수/ETF) 수치 확정 (§8 #2)</div>
+      <div class="q"><b>구간 세부 파라미터:</b> 비율·구간 수·변동성 계수 산정값 (§4-공통 · §8 #6)</div>
+      <div class="q"><b>방향형 주기:</b> 데일리/위클리 결정 (§4-2 · §8 #7)</div>
+      <div class="q"><b>EPL·KBO 잔여:</b> 국내축구 범위 · 스페셜+·매치 복합·비시즌 대체 (§5 · §8 #9·#11)</div>
+    </div>
+  </div>
+
+</div>
+</main>
+</div>
+
+<script>
+  const items=document.querySelectorAll('.sidebar-item');
+  const secs=document.querySelectorAll('.section');
+  window.addEventListener('scroll',()=>{
+    let cur='';
+    secs.forEach(s=>{if(window.scrollY>=s.offsetTop-80)cur=s.id;});
+    items.forEach(i=>i.classList.toggle('active',i.getAttribute('href')==='#'+cur));
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PolyBall 기능정의서 — 커뮤니티 개편 · 마켓 댓글 전환 (CM-R) v1.0</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap');
+  :root{
+    --primary:#2563EB; --primary-light:#EFF6FF; --primary-mid:#BFDBFE;
+    --dark:#0F172A; --mid:#475569; --muted:#94A3B8; --border:#E2E8F0;
+    --bg:#F1F5F9; --white:#fff; --row-alt:#F8FAFC; --row-head:#EFF6FF;
+    --struct:#2563EB; --struct-bg:#EFF6FF; --struct-line:#BFDBFE;
+    --hot:#EA580C; --hot-bg:#FFF7ED; --hot-line:#FED7AA;
+    --new:#059669; --new-bg:#ECFDF5; --new-line:#A7F3D0;
+    --undef-bg:#FFF7ED; --undef-text:#C2410C;
+    --later-bg:#F5F3FF; --later-text:#7C3AED; --later-border:#DDD6FE;
+    --sidebar-w:250px; --topbar-h:48px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--dark);font-size:13px;line-height:1.6;}
+  .layout{display:flex;min-height:100vh;padding-top:var(--topbar-h);}
+
+  .topbar{position:fixed;top:0;left:0;right:0;height:var(--topbar-h);background:var(--dark);display:flex;align-items:center;padding:0 24px;gap:16px;z-index:200;}
+  .topbar-brand{font-size:13px;font-weight:800;color:#fff;letter-spacing:-.3px;}
+  .topbar-divider{width:1px;height:16px;background:#334155;}
+  .topbar-meta{font-size:11px;color:#64748B;font-family:'DM Mono',monospace;}
+  .topbar-version{margin-left:auto;font-size:10px;font-weight:700;color:var(--primary);background:#1E293B;border:1px solid #334155;border-radius:4px;padding:2px 10px;font-family:'DM Mono',monospace;}
+
+  .sidebar{position:fixed;top:var(--topbar-h);left:0;width:var(--sidebar-w);height:calc(100vh - var(--topbar-h));background:var(--white);border-right:1px solid var(--border);overflow-y:auto;z-index:100;padding:20px 0 40px;}
+  .sidebar::-webkit-scrollbar{width:4px;}
+  .sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+  .sidebar-group-label{font-size:9px;font-weight:800;letter-spacing:1.2px;color:var(--muted);padding:10px 16px 4px;text-transform:uppercase;font-family:'DM Mono',monospace;}
+  .sidebar-item{display:flex;align-items:center;gap:8px;padding:6px 16px;font-size:12px;font-weight:600;color:var(--mid);text-decoration:none;border-left:2px solid transparent;cursor:pointer;transition:all .12s;}
+  .sidebar-item:hover{background:var(--primary-light);color:var(--primary);border-left-color:var(--primary-mid);}
+  .sidebar-item.active{background:var(--primary-light);color:var(--primary);border-left-color:var(--primary);}
+  .sidebar-item-id{font-family:'DM Mono',monospace;font-size:9px;font-weight:600;color:var(--muted);background:var(--bg);border-radius:3px;padding:1px 5px;flex-shrink:0;}
+  .sidebar-divider{height:1px;background:var(--border);margin:8px 16px;}
+
+  .main{margin-left:var(--sidebar-w);flex:1;padding:40px 48px 120px;max-width:calc(100% - var(--sidebar-w));}
+  .content-wrap{max-width:880px;}
+
+  .cover{padding:8px 0 32px;border-bottom:1px solid var(--border);margin-bottom:36px;}
+  .cover-tag{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1.5px;color:var(--primary);background:var(--primary-light);border:1px solid var(--primary-mid);border-radius:4px;padding:3px 10px;margin-bottom:12px;font-family:'DM Mono',monospace;}
+  .cover h1{font-size:27px;font-weight:900;letter-spacing:-.8px;margin-bottom:6px;}
+  .cover-sub{font-size:14px;color:var(--muted);margin-bottom:18px;}
+  .cover-meta{display:flex;gap:18px;flex-wrap:wrap;}
+  .cover-meta-item{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
+  .cover-meta-item span{color:var(--mid);font-weight:600;}
+
+  .legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:36px;}
+  .rel{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;border-radius:6px;padding:4px 11px;font-family:'DM Mono',monospace;}
+  .rel-struct{background:var(--struct-bg);color:var(--struct);border:1px solid var(--struct-line);}
+  .rel-hot{background:var(--hot-bg);color:var(--hot);border:1px solid var(--hot-line);}
+  .rel-new{background:var(--new-bg);color:var(--new);border:1px solid var(--new-line);}
+
+  .section{margin-bottom:52px;scroll-margin-top:60px;}
+  .section-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid var(--primary);}
+  .section-num{font-family:'DM Mono',monospace;font-size:11px;color:#fff;background:var(--primary);border-radius:5px;padding:3px 9px;}
+  .section-title{font-size:19px;font-weight:900;letter-spacing:-.5px;}
+  .section-tags{margin-left:auto;display:flex;gap:5px;}
+  .rel-sm{font-size:9px;font-weight:800;border-radius:5px;padding:2px 7px;font-family:'DM Mono',monospace;}
+
+  .sub{margin-bottom:32px;scroll-margin-top:60px;}
+  .sub-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+  .screen-id{font-family:'DM Mono',monospace;font-size:10px;font-weight:600;color:var(--primary);background:var(--primary-light);border:1px solid var(--primary-mid);border-radius:4px;padding:2px 8px;white-space:nowrap;}
+  .screen-id.del{color:#DC2626;background:#FEF2F2;border-color:#FECACA;}
+  .screen-id.new{color:var(--new);background:var(--new-bg);border-color:var(--new-line);}
+  .screen-name{font-size:15px;font-weight:800;}
+  .screen-desc{font-size:11px;color:var(--muted);}
+  .sub-h3{font-size:10px;font-weight:800;color:var(--muted);letter-spacing:.8px;margin:18px 0 8px;text-transform:uppercase;font-family:'DM Mono',monospace;}
+
+  .desc-card{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:8px;}
+  .desc-card-body{padding:12px 16px;}
+  .desc-item{font-size:12.5px;color:var(--mid);padding-left:14px;position:relative;margin-bottom:6px;line-height:1.65;}
+  .desc-item::before{content:'·';position:absolute;left:4px;color:var(--muted);}
+  .desc-item:last-child{margin-bottom:0;}
+  .desc-item.d2{padding-left:26px;font-size:11.5px;color:var(--muted);margin-bottom:3px;}
+  .desc-item.d2::before{content:'–';left:14px;font-size:10px;}
+  .desc-item strong{color:var(--dark);font-weight:700;}
+
+  .spec-table{width:100%;border-collapse:collapse;border-radius:10px;overflow:hidden;border:1px solid var(--border);margin-bottom:8px;}
+  .spec-table th{background:var(--primary);color:#fff;font-size:11px;font-weight:700;padding:9px 14px;text-align:left;}
+  .spec-table td{padding:8px 14px;font-size:12px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.6;}
+  .spec-table tr:last-child td{border-bottom:none;}
+  .spec-table tr:nth-child(even) td{background:var(--row-alt);}
+  .spec-2col td:first-child{width:200px;font-weight:700;color:var(--primary);background:var(--row-head)!important;white-space:nowrap;font-size:11px;}
+  td.confirmed{background:#F0FDF4!important;color:#166534;}
+  td.undef{background:var(--undef-bg)!important;color:var(--undef-text);font-style:italic;}
+  td.undef::before{content:'⚠ ';font-style:normal;}
+  td.later{background:var(--later-bg)!important;color:var(--later-text);font-style:italic;}
+  td.later::before{content:'🕐 ';font-style:normal;}
+  td.del{background:#FEF2F2!important;color:#DC2626;}
+  td.del::before{content:'✕ ';font-style:normal;}
+  .mono,code{font-family:'DM Mono',monospace;font-size:11px;background:var(--primary-light);color:var(--primary);border-radius:4px;padding:1px 6px;}
+
+  .flow{display:flex;align-items:center;flex-wrap:wrap;gap:6px;background:var(--white);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:8px;}
+  .flow-step{background:var(--primary-light);border:1px solid var(--primary-mid);border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;color:var(--primary);line-height:1.4;}
+  .flow-step small{display:block;font-size:10px;font-weight:500;color:var(--muted);}
+  .flow-step.ok{background:#F0FDF4;border-color:#86EFAC;color:#065F46;}
+  .flow-step.del{background:#FEF2F2;border-color:#FECACA;color:#991B1B;}
+  .flow-arrow{font-size:12px;color:var(--muted);}
+
+  .rule-box{background:var(--white);border-left:3px solid var(--primary);border-radius:0 8px 8px 0;padding:11px 16px;margin-bottom:10px;font-size:12px;color:var(--mid);line-height:1.7;}
+  .rule-box strong{color:var(--dark);}
+  .info-box-blue{background:var(--primary-light);border-left:3px solid var(--primary);border-radius:0 8px 8px 0;padding:11px 16px;margin-bottom:10px;font-size:12px;color:#1e40af;line-height:1.7;}
+  .info-box-green{background:var(--new-bg);border-left:3px solid var(--new);border-radius:0 8px 8px 0;padding:11px 16px;margin-bottom:10px;font-size:12px;color:#065F46;line-height:1.7;}
+  .info-box-hot{background:var(--hot-bg);border-left:3px solid var(--hot);border-radius:0 8px 8px 0;padding:11px 16px;margin-bottom:10px;font-size:12px;color:#7C2D12;line-height:1.7;}
+  .rec{background:var(--hot-bg);border:1px dashed var(--hot-line);border-radius:8px;padding:8px 12px;margin-top:6px;font-size:11.5px;color:#7C2D12;}
+  .rec strong{color:#9A3412;}
+
+  .tag-new{background:var(--new-bg);color:var(--new);font-size:10px;font-weight:700;border-radius:3px;padding:1px 5px;font-family:'DM Mono',monospace;border:1px solid var(--new-line);}
+
+  /* Before/After 다이어그램 */
+  .ba{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px;}
+  .ba-col{flex:1;min-width:300px;border-radius:12px;border:1px solid var(--border);overflow:hidden;}
+  .ba-col-head{padding:10px 14px;font-size:12px;font-weight:800;color:#fff;}
+  .ba-before .ba-col-head{background:#94A3B8;}
+  .ba-after .ba-col-head{background:var(--primary);}
+  .ba-col-body{padding:12px 14px;background:var(--white);}
+  .ba-node{font-size:11.5px;color:var(--mid);padding:6px 0;line-height:1.5;}
+  .ba-node strong{color:var(--dark);}
+  .ba-link{text-align:center;font-size:16px;color:var(--muted);padding:2px 0;}
+  .ba-tag{display:inline-block;font-size:10px;font-family:'DM Mono',monospace;background:var(--bg);color:var(--mid);border-radius:4px;padding:1px 6px;margin:2px 2px 0 0;}
+
+  /* 모바일 목업 */
+  .mk{width:260px;}
+  .mk-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-family:'DM Mono',monospace;margin-bottom:6px;}
+  .phone{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+  .ph-detail{padding:12px;border-bottom:1px solid var(--border);background:var(--row-alt);}
+  .ph-detail .q{font-size:12px;font-weight:700;margin-bottom:8px;}
+  .ph-opt{display:flex;align-items:center;gap:8px;border:1.5px solid var(--border);border-radius:9px;padding:8px 10px;font-size:11px;font-weight:600;color:var(--mid);margin-bottom:5px;}
+  .ph-opt .r{width:13px;height:13px;border-radius:50%;border:2px solid #CBD5E1;}
+  .ph-opt.sel{border-color:var(--primary);background:var(--primary-light);color:var(--primary);}
+  .ph-opt.sel .r{border-color:var(--primary);background:radial-gradient(circle,var(--primary) 44%,transparent 48%);}
+  .ph-cmt-head{padding:10px 12px 6px;font-size:11px;font-weight:800;color:var(--dark);}
+  .cmt{padding:8px 12px;border-top:1px solid #F1F5F9;}
+  .cmt-top{display:flex;align-items:center;gap:6px;margin-bottom:3px;}
+  .cmt-badge{font-size:8.5px;font-weight:800;font-family:'DM Mono',monospace;background:var(--primary-light);color:var(--primary);border:1px solid var(--primary-mid);border-radius:4px;padding:1px 5px;}
+  .cmt-name{font-size:10.5px;font-weight:700;color:var(--dark);}
+  .cmt-time{font-size:9.5px;color:var(--muted);font-family:'DM Mono',monospace;}
+  .cmt-body{font-size:11px;color:var(--mid);line-height:1.5;}
+  .cmt-act{font-size:9.5px;color:var(--muted);margin-top:3px;font-family:'DM Mono',monospace;}
+  .cmt.reply{padding-left:26px;background:#FBFCFE;}
+  .cmt.reply .tag{color:var(--primary);font-weight:700;}
+  .ph-input{padding:9px 12px;border-top:1px solid var(--border);font-size:10.5px;color:var(--muted);background:var(--white);}
+
+  .modal-mk{width:260px;}
+  .modal-box{background:#fff;border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:0 6px 24px rgba(0,0,0,.12);}
+  .modal-box h4{font-size:13px;font-weight:800;margin-bottom:6px;}
+  .modal-box p{font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.5;}
+  .modal-input{border:1.5px solid var(--border);border-radius:10px;padding:10px;font-size:11px;color:var(--muted);margin-bottom:12px;}
+  .modal-btns{display:flex;gap:8px;}
+  .modal-btn{flex:1;text-align:center;font-size:11.5px;font-weight:700;border-radius:10px;padding:9px;}
+  .modal-btn.primary{background:var(--primary);color:#fff;}
+  .modal-btn.ghost{background:var(--bg);color:var(--mid);}
+  .modal-foot{text-align:center;font-size:10px;color:var(--muted);margin-top:10px;text-decoration:underline;}
+
+  .row2{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;margin:12px 0;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="topbar-brand">PolyBall</span>
+  <span class="topbar-divider"></span>
+  <span class="topbar-meta">기능정의서 · 커뮤니티 개편 (마켓 댓글 전환)</span>
+  <span class="topbar-version">CM-R v1.1</span>
+</div>
+
+<nav class="sidebar">
+  <div class="sidebar-group-label">Overview</div>
+  <a class="sidebar-item" href="#s0"><span class="sidebar-item-id">0</span> 개요 · 릴리스</a>
+  <a class="sidebar-item" href="#s1"><span class="sidebar-item-id">1</span> Before / After</a>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-group-label">구조변경</div>
+  <a class="sidebar-item" href="#s2"><span class="sidebar-item-id">2</span> 마켓 댓글 구조</a>
+  <a class="sidebar-item" href="#s21"><span class="sidebar-item-id">2-1</span> 예측 근거 코멘트</a>
+  <a class="sidebar-item" href="#s22"><span class="sidebar-item-id">2-2</span> 코멘트 보상</a>
+  <a class="sidebar-item" href="#s3"><span class="sidebar-item-id">3</span> 탭 폐기·재정의</a>
+  <a class="sidebar-item" href="#s4"><span class="sidebar-item-id">4</span> 예측 불러오기</a>
+  <a class="sidebar-item" href="#s5"><span class="sidebar-item-id">5</span> 기존 데이터</a>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-group-label">프론트핫픽스</div>
+  <a class="sidebar-item" href="#s6"><span class="sidebar-item-id">6</span> 이미지 버튼 차단</a>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-group-label">기타</div>
+  <a class="sidebar-item" href="#s7"><span class="sidebar-item-id">7</span> 예외 · 미결</a>
+</nav>
+
+<div class="layout">
+<main class="main">
+<div class="content-wrap">
+
+  <div class="cover">
+    <span class="cover-tag">FEATURE SPEC · COMMUNITY REVISION</span>
+    <h1>커뮤니티 개편 — 마켓 댓글 전환</h1>
+    <div class="cover-sub">마켓–커뮤니티 연결 해제 · 마켓 자체 댓글 전환 · 예측 근거 코멘트 · 이미지 버튼 차단</div>
+    <div class="cover-meta">
+      <div class="cover-meta-item">문서 <span>CM-R v1.1</span></div>
+      <div class="cover-meta-item">기준 <span>커뮤니티 v2.8 · EM v1.9</span></div>
+      <div class="cover-meta-item">연관 <span>EM-R v1.0 (카드 개편)</span></div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span class="rel rel-struct">■ 구조변경</span>
+    <span class="rel rel-new">■ 신규</span>
+    <span class="rel rel-hot">■ 프론트핫픽스</span>
+  </div>
+
+  <!-- 0 -->
+  <div class="section" id="s0">
+    <div class="section-header"><span class="section-num">0</span><span class="section-title">개요 · 범위 · 릴리스 구분</span></div>
+
+    <div class="info-box-blue">
+      현재 마켓 상세의 커뮤니티 탭은 독립 게시판이 아니라 <strong>CM-01 통합 피드의 필터 뷰</strong>입니다. 마켓에 쓴 글이 마켓 탭과 커뮤니티 GNB에 동시 노출되는 <strong>양방향 구조</strong>를 해제하고, 마켓이 <strong>자체 댓글(2depth)</strong>을 갖는 구조로 전환합니다.
+    </div>
+
+    <div class="sub-h3">릴리스 구분</div>
+    <table class="spec-table spec-2col">
+      <tr><td>[구조변경]</td><td>마켓–커뮤니티 연결 해제 · 마켓 댓글 전환 · 예측 근거 코멘트/보상 · 탭 폐기</td></tr>
+      <tr><td>[프론트핫픽스]</td><td>이미지 업로드 버튼 차단 (방통위 인증 이슈) · 프론트 숨김만 · 축소배포 없음</td></tr>
+    </table>
+
+    <div class="sub-h3">불변 조건</div>
+    <table class="spec-table spec-2col">
+      <tr><td>마켓 유형·정산</td><td class="confirmed">예측형/참여형 로직·정산 시점·재화 지급 흐름 변경 없음 (EM v1.9 승계)</td></tr>
+      <tr><td>기존 재화 시스템</td><td class="confirmed">변경 없음 · 코멘트 보상은 본 버전 미적용(참고 정책, §2-2)</td></tr>
+      <tr><td>답글(CM-03-RE)</td><td class="confirmed">flat 나열 · @닉네임 태그 · 즉시 푸시+인앱 정책 그대로 승계</td></tr>
+    </table>
+  </div>
+
+  <!-- 1 -->
+  <div class="section" id="s1">
+    <div class="section-header"><span class="section-num">1</span><span class="section-title">Before / After 구조</span><div class="section-tags"><span class="rel-sm rel-struct">구조변경</span></div></div>
+
+    <div class="ba">
+      <div class="ba-col ba-before">
+        <div class="ba-col-head">Before — 양방향 노출</div>
+        <div class="ba-col-body">
+          <div class="ba-node"><strong>마켓 상세 · 커뮤니티 탭</strong><br>= CM-01 필터 뷰 <span class="ba-tag">special-pick/{seq}</span><span class="ba-tag">prediction/{seq}</span></div>
+          <div class="ba-link">↕ 같은 게시글 데이터</div>
+          <div class="ba-node"><strong>커뮤니티 GNB (CM-01)</strong><br>통합 피드에 마켓 태그 글 동시 노출</div>
+          <div class="ba-node" style="color:var(--muted);">글 작성 = 게시글 (CM-02 → CM-03)</div>
+        </div>
+      </div>
+      <div class="ba-col ba-after">
+        <div class="ba-col-head">After — 단방향 인용 + 분리</div>
+        <div class="ba-col-body">
+          <div class="ba-node"><strong>마켓 상세 · 첫 탭 하단</strong><br>= 마켓 자체 <strong>댓글(2depth)</strong> · CM-01 비노출</div>
+          <div class="ba-link">↑ 인용 + 링크 (단방향)</div>
+          <div class="ba-node"><strong>커뮤니티 GNB (CM-01)</strong><br>마켓 태그 글 <strong>노출 제외</strong> · 예측 불러오기는 인용 카드 + 마켓 이동 링크만</div>
+          <div class="ba-node" style="color:var(--muted);">마켓 글 = 댓글 (게시글 아님 · CM-02/CM-03 미경유)</div>
+        </div>
+      </div>
+    </div>
+    <div class="rule-box">
+      핵심 변화 — 마켓과 커뮤니티가 <strong>양방향 피드 공유</strong>에서 <strong>단방향 참조(커뮤니티 글 → 마켓 링크)</strong>로 바뀝니다. 마켓에 남기는 것은 게시글이 아니라 <strong>마켓에 직접 달리는 댓글</strong>이며, 커뮤니티 통합 피드에는 노출되지 않습니다.
+    </div>
+  </div>
+
+  <!-- 2 -->
+  <div class="section" id="s2">
+    <div class="section-header"><span class="section-num">2</span><span class="section-title">마켓 댓글 구조</span><div class="section-tags"><span class="rel-sm rel-struct">구조변경</span></div></div>
+
+    <div class="info-box-green">
+      마켓 상세의 <strong>별도 커뮤니티 탭을 폐기</strong>하고, 상세 첫 탭(예측/예측현황) <strong>하단에 댓글 영역</strong>을 통합합니다. 마켓 = 게시글 필터 뷰가 아니라 자체 댓글을 보유하는 단위가 됩니다.
+    </div>
+
+    <div class="row2">
+      <div class="mk">
+        <div class="mk-label">마켓 상세 — 첫 탭 하단 댓글 통합</div>
+        <div class="phone">
+          <div class="ph-detail">
+            <div class="q">🎯 나는 솔로 역대 남자 외모 순위는?</div>
+            <div class="ph-opt sel"><span class="r"></span>11기 영철 <span style="margin-left:auto;font-weight:800;">37%</span></div>
+            <div class="ph-opt"><span class="r"></span>27기 상철 <span style="margin-left:auto;">32%</span></div>
+          </div>
+          <div class="ph-cmt-head">💬 댓글 283</div>
+          <div class="cmt">
+            <div class="cmt-top"><span class="cmt-badge">예측: 11기 영철</span><span class="cmt-name">폴리유저</span><span class="cmt-time">2분 전</span></div>
+            <div class="cmt-body">영철이 이번에 서사가 좋아서 무조건 1위일 듯</div>
+            <div class="cmt-act">♡ 12 · 답글</div>
+          </div>
+          <div class="cmt reply">
+            <div class="cmt-top"><span class="cmt-name">직관러</span><span class="cmt-time">1분 전</span></div>
+            <div class="cmt-body"><span class="tag">@폴리유저</span> 인정… 근데 상철도 만만치 않음</div>
+            <div class="cmt-act">♡ 3 · 답글</div>
+          </div>
+          <div class="ph-input">💬 댓글을 남겨보세요…</div>
+        </div>
+      </div>
+      <div style="flex:1;min-width:280px;">
+        <div class="sub-h3">댓글 영역 구성</div>
+        <div class="desc-card"><div class="desc-card-body">
+          <div class="desc-item"><strong>위치:</strong> 상세 첫 탭(예측/예측현황) 하단 · 단일 스크롤 (별도 탭 없음)</div>
+          <div class="desc-item"><strong>구성:</strong> 댓글 수 헤더 → 댓글 리스트 → 하단 입력창</div>
+          <div class="desc-item"><strong>댓글 항목:</strong> 작성자 닉네임 · 본문 · 작성시간 · 좋아요 · 답글 버튼 · ··· 메뉴</div>
+          <div class="desc-item"><strong>2depth 답글:</strong> 댓글 하위 flat 나열 + <code>@닉네임</code> 태그 (CM-03-RE 승계)</div>
+          <div class="desc-item"><strong>예측 코멘트 뱃지:</strong> 근거 코멘트인 경우 "예측: OOO" 뱃지 (§2-1)</div>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="sub-h3">댓글·답글 정책 (CM-03-RE 승계)</div>
+    <table class="spec-table spec-2col">
+      <tr><td>댓글 정렬</td><td class="confirmed">작성 시간 오름차순 (오래된 순 → 최신순) · 커뮤니티 v2.8 동일</td></tr>
+      <tr><td>답글 구조</td><td class="confirmed">flat 나열 (들여쓰기 1단) · <code>@닉네임</code> 자동 세팅 (수동 삭제 가능) · 답글의 답글 동일 depth</td></tr>
+      <tr><td>이미지 첨부</td><td class="del">불가 (댓글·답글 공통) · §6 이미지 차단과 별개로 원래 불가</td></tr>
+      <tr><td>좋아요 / 삭제 / 신고</td><td class="confirmed">기존 커뮤니티 정책 준용 · 신고 누적 5회 자동 블라인드</td></tr>
+      <tr><td>비노출 조건</td><td class="confirmed">deleted · blinded 처리 · 삭제된 댓글의 답글은 유지 ("삭제된 댓글입니다.")</td></tr>
+      <tr><td>비로그인</td><td class="confirmed">열람 가능 · 입력/답글/좋아요 시 로그인 유도</td></tr>
+    </table>
+
+    <div class="sub-h3">알림 정책</div>
+    <table class="spec-table">
+      <thead><tr><th>대상 행위</th><th>알림 대상</th><th>발송</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr><td>최상위 댓글 작성</td><td class="del">없음 (대상=마켓, 수신자 없음)</td><td>미발송</td><td>마켓은 소유자 없음</td></tr>
+        <tr><td>답글 작성</td><td class="confirmed">답글 대상 댓글/답글 작성자</td><td>즉시 푸시 + 인앱</td><td>CM-03-RE 승계 · 자기 자신 제외</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sub-h3">카드 하단 "댓글 N" 연동 (EM-R A-5)</div>
+    <div class="rule-box">
+      마켓 카드 하단의 <strong>💬 댓글 N</strong>은 해당 마켓 댓글 + 답글 <strong>합산</strong>입니다 (커뮤니티 v2.8 카운트 기준 동일). 댓글/답글 등록·삭제 즉시 반영되며, <strong>EM-R 카드 개편의 하단 지표와 동일 데이터</strong>를 참조합니다.
+    </div>
+  </div>
+
+  <!-- 2-1 -->
+  <div class="section" id="s21">
+    <div class="section-header"><span class="section-num">2-1</span><span class="section-title">예측 근거 코멘트</span><div class="section-tags"><span class="rel-sm rel-struct">구조변경</span><span class="rel-sm rel-new">신규</span></div></div>
+
+    <div class="info-box-green">
+      예측 선택 직후 "왜 그렇게 생각하는지" 한 줄 코멘트를 유도합니다. 코멘트는 <strong>마켓 댓글로 자동 누적</strong>되어 댓글 수를 늘리고(커뮤니티 진입 유도), 자신의 의견이 걸린 마켓의 결과를 확인하러 오는 <strong>재방문을 강화</strong>합니다.
+    </div>
+
+    <div class="row2">
+      <div class="modal-mk">
+        <div class="mk-label">선택 직후 유도 모달</div>
+        <div class="modal-box">
+          <h4>왜 그렇게 생각하세요?</h4>
+          <p>예측 근거를 한 줄 남기면 다른 팬들과 의견을 나눌 수 있어요. (선택)</p>
+          <div class="modal-input">예) 최근 폼이 좋아서 이번엔 확실할 듯…</div>
+          <div class="modal-btns">
+            <div class="modal-btn ghost">건너뛰기</div>
+            <div class="modal-btn primary">남기기</div>
+          </div>
+          <div class="modal-foot">하루 동안 보지 않기</div>
+        </div>
+      </div>
+      <div style="flex:1;min-width:280px;">
+        <div class="sub-h3">동작 정의</div>
+        <div class="desc-card"><div class="desc-card-body">
+          <div class="desc-item"><strong>트리거:</strong> 예측/참여 선택 확정 직후 모달 노출</div>
+          <div class="desc-item"><strong>입력:</strong> 한 줄 텍스트 (선택 · 건너뛰기 가능)</div>
+          <div class="desc-item"><strong>빈도 제어:</strong> "하루 동안 보지 않기" → <strong>모달만</strong> 24시간 숨김</div>
+          <div class="desc-item d2">모달을 숨겨도 마켓 댓글 입력창은 상시 열려 있어 코멘트 작성 가능</div>
+          <div class="desc-item"><strong>저장:</strong> 작성 시 마켓 댓글로 누적 (일반 댓글과 동일 리스트)</div>
+          <div class="desc-item"><strong>적용 유형:</strong> 예측형 · 참여형 공통</div>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="sub-h3">선택지 스냅샷 뱃지</div>
+    <table class="spec-table spec-2col">
+      <tr><td>뱃지 내용</td><td>"예측: {선택지명}" — 코멘트 작성자가 고른 선택지 표기</td></tr>
+      <tr><td>스냅샷 기준</td><td class="confirmed"><strong>작성 시점 선택지를 고정</strong> · 이후 유저가 예측을 변경해도 그 코멘트 뱃지는 불변</td></tr>
+      <tr><td>근거</td><td>예측은 마감 전 변경 가능 → 실시간 선택 참조 시 코멘트-선택 불일치 발생. 작성 당시 생각의 기록으로 고정</td></tr>
+      <tr><td>복수 코멘트</td><td class="confirmed">마켓당 여러 번 허용 · 선택 변경 시 서로 다른 뱃지의 코멘트가 각각 누적</td></tr>
+      <tr><td>참여형 뱃지</td><td>정답 개념 없음 → "예측:" 대신 "선택: {선택지명}" 표기 (유형에 맞는 라벨)</td></tr>
+    </table>
+
+    <div class="sub-h3">뱃지 노출 시점 <span class="tag-new">확정</span></div>
+    <div class="info-box-green">
+      예측형·참여형 모두 코멘트 뱃지를 <strong>작성 즉시 노출</strong>합니다. 예측형이라도 마감 전 노출을 막지 않습니다.
+      <div class="rec" style="background:var(--new-bg);border-color:var(--new-line);color:#065F46;"><strong>근거:</strong> 마감 후 노출 대상은 집계 <strong>선택률(%)</strong>이지 개별 유저의 텍스트 의견이 아닙니다. 개별 코멘트 뱃지는 여론 전체를 드러내지 않아 힌트 리스크가 제한적이고, 수준 높은 코멘트가 조기에 보여야 토론이 붙어 마켓 관심도·체류가 올라갑니다(광고 노출 유리). 따라서 즉시 노출.</div>
+    </div>
+  </div>
+
+  <!-- 2-2 -->
+  <div class="section" id="s22">
+    <div class="section-header"><span class="section-num">2-2</span><span class="section-title">코멘트 보상</span><div class="section-tags"><span class="rel-sm rel-struct">구조변경</span><span class="rel-sm rel-new">신규</span></div></div>
+
+    <div class="info-box-hot" style="background:var(--later-bg);border-left-color:var(--later-text);color:#5B21B6;">
+      <strong>참고 정책 (본 버전 미적용)</strong> — 근거 코멘트에 재화 보상을 거는 방안은 <strong>핵심 기능에서 제외</strong>합니다. 보상을 걸면 체리피커성 저품질 댓글이 늘어 실익이 낮다는 판단입니다. 아래는 향후 도입 시 참고할 정책안으로만 남깁니다.
+    </div>
+
+    <table class="spec-table spec-2col">
+      <tr><td>적용 여부</td><td class="later">본 버전 미적용 · 참고 정책으로만 보존</td></tr>
+      <tr><td>(참고) 지급 조건</td><td>근거 코멘트 5글자 이상 작성 시 재화 1개</td></tr>
+      <tr><td>(참고) 일일 상한</td><td>하루 5회까지 · 초과 시 작성은 되나 보상 없음</td></tr>
+      <tr><td>(참고) 정산 연동</td><td>없음 · 정답 2배 등 정산 로직 변경 없음</td></tr>
+    </table>
+
+    <div class="rule-box">
+      <strong>설계 이력</strong> — 초기 검토안(예측형 정답 시 정답보상 2배 / 마켓당 지급)은 재화 지출 통제 문제로 "하루 5회 상한 단일 정책"으로 축소했다가, 최종적으로 <strong>보상 자체를 본 버전에서 제외</strong>했습니다. 코멘트는 보상 유인 없이 "예측 근거 공유 → 토론·관심도 상승"이라는 자발적 참여로 운영합니다. 재화 유인은 체리피커 리스크가 커 참고 정책으로만 보존합니다.
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <div class="section" id="s3">
+    <div class="section-header"><span class="section-num">3</span><span class="section-title">커뮤니티 탭 폐기 · 재정의 매트릭스</span><div class="section-tags"><span class="rel-sm rel-struct">구조변경</span></div></div>
+
+    <table class="spec-table">
+      <thead><tr><th>화면</th><th>기존</th><th>변경</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="screen-id del">EM-05-B</span></td>
+          <td>이벤트 마켓 커뮤니티 탭 (MARKET_SEQ 필터 뷰)</td>
+          <td class="del">폐기 → 상세 첫 탭 하단 댓글로 통합 (§2)</td>
+        </tr>
+        <tr>
+          <td><span class="screen-id del">PD-01-B</span></td>
+          <td>경기 커뮤니티 탭 (Gmkey 필터 뷰)</td>
+          <td class="del">폐기 → 상세 첫 탭 하단 댓글로 통합 (동일 처리)</td>
+        </tr>
+        <tr>
+          <td><span class="screen-id">CM-01</span></td>
+          <td>통합 피드 (마켓 태그 글 포함 노출)</td>
+          <td><code>special-pick</code> · <code>prediction</code> 태그 게시글 <strong>노출 제외</strong></td>
+        </tr>
+        <tr>
+          <td><span class="screen-id">CM-02</span></td>
+          <td>글쓰기 (스페셜예측 탭 · 투표 탭 · 마켓 태그)</td>
+          <td class="del">스페셜예측 탭·투표 탭 폐기 · 마켓 태그 기반 글쓰기 제거 (예측 불러오기는 §4)</td>
+        </tr>
+        <tr>
+          <td><span class="screen-id">CM-03</span></td>
+          <td>게시글 상세 (마켓 태그 글 진입 포함)</td>
+          <td>마켓 글 진입 경로 정리 · <strong>일반 게시글은 유지</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="rule-box">
+      경기(PD-01)·이벤트 마켓(EM-05) 모두 <strong>커뮤니티 탭 자체를 제거</strong>하고, 각 상세의 첫 탭 하단에 댓글을 통합합니다. 두 화면의 탭 구조가 사라지고 단일 스크롤(예측 → 댓글) 구조가 됩니다.
+    </div>
+  </div>
+
+  <!-- 4 -->
+  <div class="section" id="s4">
+    <div class="section-header"><span class="section-num">4</span><span class="section-title">예측 불러오기 재정의</span><div class="section-tags"><span class="rel-sm rel-struct">구조변경</span></div></div>
+
+    <table class="spec-table spec-2col">
+      <tr><td>존치 형태</td><td class="confirmed">CM-02에 <strong>인용 + 링크로만</strong> 존치 — 마켓 정보(카드 요약) 인용 + 마켓 이동 네비게이션</td></tr>
+      <tr><td>역방향 연결</td><td class="del">해제 — 인용한 글이 마켓 댓글/피드에 역으로 걸리지 않음</td></tr>
+      <tr><td>인용 카드 동작</td><td>탭 시 해당 마켓 상세로 이동 (링크 역할만)</td></tr>
+      <tr><td>기능 완전 제거</td><td class="confirmed">본 버전 제거하지 않음 · 유지 확정 (역연결만 해제)</td></tr>
+    </table>
+
+    <div class="rule-box">
+      커뮤니티에서 마켓과 엮이는 접점은 <strong>예측 불러오기(인용 + 링크)</strong> 하나만 남습니다. 태그 기반 글쓰기(마켓 커뮤니티 탭에 역노출)는 사라지고, 인용은 마켓으로 가는 단방향 링크로만 기능합니다.
+    </div>
+  </div>
+
+  <!-- 5 -->
+  <div class="section" id="s5">
+    <div class="section-header"><span class="section-num">5</span><span class="section-title">기존 데이터 처리</span><div class="section-tags"><span class="rel-sm rel-struct">구조변경</span></div></div>
+
+    <table class="spec-table spec-2col">
+      <tr><td>마이그레이션</td><td class="confirmed">없음 — 마켓 댓글로 이관하지 않음 (초기 스테이지, 볼륨 작음)</td></tr>
+      <tr><td>기존 태그 게시글</td><td class="confirmed"><code>special-pick</code> · <code>prediction</code> 태그 게시글 → 태그 없는 <strong>커뮤니티 일반 글로 잔존</strong></td></tr>
+      <tr><td>CM-01 노출</td><td>일반 글로서 통합 피드에 계속 노출 (마켓 연결만 해제)</td></tr>
+      <tr><td>마켓 상세 노출</td><td class="del">기존 게시글은 마켓 상세(신규 댓글 영역)에 표시되지 않음</td></tr>
+    </table>
+  </div>
+
+  <!-- 6 -->
+  <div class="section" id="s6">
+    <div class="section-header"><span class="section-num">6</span><span class="section-title">이미지 업로드 버튼 차단</span><div class="section-tags"><span class="rel-sm" style="background:var(--later-bg);color:var(--later-text);border:1px solid var(--later-border);">보류</span></div></div>
+
+    <div class="info-box-hot" style="background:var(--later-bg);border-left-color:var(--later-text);color:#5B21B6;">
+      <strong>보류 (본 버전 미적용)</strong> — 방통위 인증 이슈가 <strong>계도기간</strong>으로 확인되어, 이미지 업로드 버튼 차단을 <strong>보류</strong>합니다. 즉시 조치하지 않고 인증 요건이 확정되는 시점에 커뮤니티 vNext에서 정식 대응합니다.
+    </div>
+
+    <table class="spec-table spec-2col">
+      <tr><td>적용 여부</td><td class="later">본 버전 미적용 · 보류 (계도기간)</td></tr>
+      <tr><td>(대기) 대상</td><td>CM-02 글쓰기 하단 툴바 이미지 첨부 버튼 (마켓 댓글은 원래 이미지 불가)</td></tr>
+      <tr><td>(대기) 처리 방식</td><td>차단 시 프론트 숨김만 · 백엔드/API 유지 · 축소 배포 없음</td></tr>
+      <tr><td>근거</td><td>방통위 인증 이슈 (계도기간 → 요건 확정 시 대응)</td></tr>
+      <tr><td>이월</td><td class="later">커뮤니티 vNext에서 이미지 기능 정식 정의 및 차단 여부 결정</td></tr>
+    </table>
+
+    <div class="rule-box">
+      계도기간 동안은 기존 이미지 업로드·표시 정책을 그대로 유지합니다. 차단이 필요해지는 시점에 CM-02 글쓰기 버튼 숨김으로 대응하며, 그 전까지 별도 조치는 하지 않습니다.
+    </div>
+  </div>
+
+  <!-- 7 -->
+  <div class="section" id="s7">
+    <div class="section-header"><span class="section-num">7</span><span class="section-title">예외 · 리스크 · 미결</span></div>
+
+    <table class="spec-table">
+      <thead><tr><th>#</th><th>이슈</th><th>방향 / 상태</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>코멘트 보상 재화 지급</td><td class="later">본 버전 미적용 · 참고 정책으로 보존 (체리피커 리스크) — 확정 (§2-2)</td></tr>
+        <tr><td>2</td><td>예측형 코멘트 뱃지 노출 시점</td><td class="confirmed">즉시 노출 확정 — 수준 높은 코멘트로 관심도 상승, 힌트 리스크 제한적 (§2-1)</td></tr>
+        <tr><td>3</td><td><strong>예측 불러오기</strong> 기능 존폐</td><td class="confirmed">유지 확정 · 역방향 연결만 해제 (§4)</td></tr>
+        <tr><td>4</td><td>이미지 업로드 버튼 차단</td><td class="later">보류 확정 · 계도기간 → vNext 대응 (§6)</td></tr>
+        <tr><td>5</td><td>탈퇴/삭제 사용자 <code>@태그</code></td><td class="confirmed">"알 수 없는 사용자" 표기 (기존 커뮤니티 정책 준용)</td></tr>
+        <tr><td>6</td><td>법령 검토</td><td class="later">현 시점 우선순위 아님 · 재화·본인확인 이슈 발생 시 진행</td></tr>
+        <tr><td>7</td><td>커뮤니티 vNext 이월</td><td class="later">이미지 기능 정식 정의 · 신고 처리 플로우 등</td></tr>
+      </tbody>
+    </table>
+
+    <div class="rule-box" style="margin-top:16px;">
+      참조: 기능정의서_픽상세_커뮤니티_v2.8 (CM-01 · CM-02 · CM-03 · CM-03-RE 답글 · 댓글 수 합산 · 정렬 정책) · 기능정의서_이벤트마켓_EM_v1.9 (EM-05-B · 예측형/참여형) · 기능정의서_픽_예측상세_PD-01_v1.0 (PD-01-B) · EM-R v1.0 (카드 하단 댓글 수 연동) · 폴리볼_법령_레퍼런스_v1.0 (확정 후 검토 예정)
+    </div>
+  </div>
+
+</div>
+</main>
+</div>
+
+<script>
+  const items=document.querySelectorAll('.sidebar-item');
+  const secs=document.querySelectorAll('.section');
+  window.addEventListener('scroll',()=>{
+    let cur='';
+    secs.forEach(s=>{if(window.scrollY>=s.offsetTop-80)cur=s.id;});
+    items.forEach(i=>i.classList.toggle('active',i.getAttribute('href')==='#'+cur));
+  });
+</script>
+</body>
+</html>
