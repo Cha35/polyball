@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>기능정의서 — 마이 &gt; 내 지갑 &gt; 보유 경품 WL v1.0</title>
+  <style>
+    :root {
+      --primary: #1F30E9;
+      --primary-light: #EEF0FD;
+      --navy: #00143F;
+      --white: #ffffff;
+      --bg: #F8FAFC;
+      --bg2: #F1F5F9;
+      --border: #E2E8F0;
+      --text1: #0F172A;
+      --text2: #1E293B;
+      --text3: #475569;
+      --text4: #64748B;
+      --text5: #94A3B8;
+      --green: #059669;
+      --green-bg: #ECFDF5;
+      --orange: #D97706;
+      --orange-bg: #FFFBEB;
+      --red: #DC2626;
+      --red-bg: #FEF2F2;
+      --purple: #7C3AED;
+      --purple-bg: #F5F3FF;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, 'Pretendard', 'Apple SD Gothic Neo', sans-serif; background: var(--bg); color: var(--text1); font-size: 14px; line-height: 1.6; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; }
+
+    .cover { background: var(--primary); border-radius: 16px; padding: 36px 32px 32px; margin-bottom: 32px; color: white; }
+    .cover-tag { font-size: 11px; font-weight: 700; letter-spacing: 2px; opacity: .7; margin-bottom: 10px; text-transform: uppercase; }
+    .cover h1 { font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+    .cover-sub { font-size: 13px; opacity: .75; margin-bottom: 20px; }
+    .cover-meta { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 12px; opacity: .85; border-top: 1px solid rgba(255,255,255,.2); padding-top: 16px; }
+    .cover-meta strong { opacity: .65; margin-right: 4px; }
+
+    .toc { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-bottom: 32px; }
+    .toc h3 { font-size: 13px; font-weight: 700; color: var(--text4); margin-bottom: 12px; letter-spacing: .5px; text-transform: uppercase; }
+    .toc ol { padding-left: 18px; }
+    .toc li { font-size: 13px; margin-bottom: 4px; }
+    .toc a { color: var(--primary); text-decoration: none; }
+    .toc a:hover { text-decoration: underline; }
+
+    .section { background: white; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 24px; overflow: hidden; }
+    .section-header { background: var(--primary); color: white; padding: 16px 24px; display: flex; align-items: center; gap: 14px; }
+    .section-num { width: 32px; height: 32px; background: rgba(255,255,255,.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; flex-shrink: 0; }
+    .section-title { font-size: 16px; font-weight: 700; }
+    .section-subtitle { font-size: 12px; opacity: .75; margin-top: 2px; }
+    .section-body { padding: 24px; }
+    .sec-badge { display: inline-block; margin-left: auto; font-size: 10px; font-weight: 700; background: rgba(255,255,255,.2); border-radius: 4px; padding: 2px 8px; flex-shrink: 0; }
+
+    .sub-section { margin-bottom: 24px; }
+    .sub-section:last-child { margin-bottom: 0; }
+    .sub-title { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid var(--primary-light); }
+    .sub-h3 { font-size: 12px; font-weight: 700; color: var(--text3); margin: 16px 0 8px; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { background: var(--bg2); color: var(--text3); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    .td-label { font-weight: 600; color: var(--text3); white-space: nowrap; }
+
+    .tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; white-space: nowrap; }
+    .tag-green  { background: var(--green-bg); color: var(--green); }
+    .tag-orange { background: var(--orange-bg); color: var(--orange); }
+    .tag-red    { background: var(--red-bg); color: var(--red); }
+    .tag-blue   { background: var(--primary-light); color: var(--primary); }
+    .tag-gray   { background: var(--bg2); color: var(--text3); }
+    .tag-navy   { background: var(--navy); color: white; }
+    .tag-purple { background: var(--purple-bg); color: var(--purple); }
+
+    .callout { border-radius: 8px; padding: 12px 16px; margin: 12px 0; font-size: 13px; }
+    .callout-info   { background: var(--primary-light); border-left: 3px solid var(--primary); }
+    .callout-warn   { background: var(--orange-bg); border-left: 3px solid var(--orange); }
+    .callout-green  { background: var(--green-bg); border-left: 3px solid var(--green); }
+    .callout-danger { background: var(--red-bg); border-left: 3px solid var(--red); }
+    .callout ul { margin-top: 6px; padding-left: 16px; }
+    .callout li { margin-bottom: 3px; }
+
+    .flow-box { background: var(--bg2); border-radius: 8px; padding: 16px 20px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; color: var(--text2); line-height: 2; white-space: pre-wrap; overflow-x: auto; margin: 10px 0; }
+
+    .func-card { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
+    .func-card-hd { background: var(--bg2); padding: 8px 14px; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; }
+    .func-card-body { padding: 12px 14px; font-size: 13px; }
+    .feat { padding: 4px 0; color: var(--text2); }
+    .feat::before { content: "·"; margin-right: 8px; color: var(--primary); font-weight: 700; }
+
+    .mono { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--primary); }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+    .tbd { display:inline-block; font-size:10px; font-weight:700; background:var(--orange-bg); color:var(--orange); border-radius:4px; padding:2px 7px; }
+
+    footer { text-align: center; font-size: 11px; color: var(--text5); margin-top: 40px; }
+
+    /* ===== 인라인 목업 (.mk 스코프) ===== */
+    .mk{ --mkmint:#09FFEE; --mkred:#E5484D; --mkpurple:#7C3AED; }
+    .mk-row{ display:flex; flex-wrap:wrap; gap:18px; margin:14px 0 4px; }
+    .mk-fw{ width:248px; }
+    .mk-lab{ font-size:11px; font-weight:700; color:var(--text2); margin-bottom:8px; display:flex; align-items:center; gap:5px; }
+    .mk-lab .d{ width:5px;height:5px;border-radius:50%;background:var(--primary); }
+    .mk-lab .s{ font-weight:500; color:var(--text5); }
+    .mk .phone{ width:248px; height:512px; background:#fff; border-radius:28px; border:6px solid #11141b; overflow:hidden; position:relative; box-shadow:0 8px 26px rgba(10,15,40,.12); }
+    .mk .scr{ position:absolute; inset:0; overflow-y:auto; overflow-x:hidden; display:flex; flex-direction:column; }
+    .mk .scr::-webkit-scrollbar{ width:3px; }
+    .mk .scr::-webkit-scrollbar-thumb{ background:rgba(0,0,0,.18); border-radius:3px; }
+    .mk .sb{ height:26px; display:flex; align-items:center; justify-content:space-between; padding:0 14px; font-size:10px; font-weight:700; flex-shrink:0; }
+    .mk .gnb{ display:flex; align-items:center; justify-content:space-between; padding:6px 12px 9px; flex-shrink:0; background:#fff; }
+    .mk .gnb .logo{ font-size:15px; font-weight:800; color:var(--primary); }
+    .mk .gnb .ico{ display:flex; gap:10px; font-size:13px; }
+    .mk .sgnb{ display:flex; align-items:center; gap:8px; padding:9px 12px; flex-shrink:0; border-bottom:1px solid var(--border); }
+    .mk .sgnb .bk{ font-size:15px; } .mk .sgnb .tt{ font-size:12px; font-weight:700; }
+    .mk .bd{ flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; padding:0 12px 14px; background:var(--bg); }
+    .mk .bd::-webkit-scrollbar{ width:3px; } .mk .bd::-webkit-scrollbar-thumb{ background:rgba(0,0,0,.15); border-radius:3px; }
+    .mk .bd.w{ background:#fff; padding:0; }
+    .mk .prof{ background:#F3F4F8; border-radius:13px; padding:10px 12px; display:flex; align-items:center; gap:9px; margin:8px 0 10px; }
+    .mk .ava{ width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#5B6Cff,#1F30E9);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0; }
+    .mk .prof .nm{ font-size:13px; font-weight:800; } .mk .prof .tm{ font-size:9px; font-weight:700; color:var(--text2); margin-top:2px; }
+    .mk .prof .tm b{ background:var(--primary); color:#fff; font-size:8px; padding:1px 4px; border-radius:3px; }
+    .mk .prof .cv{ margin-left:auto; color:var(--text5); }
+    .mk .dvk{ height:6px; background:#EEF0F4; margin:0 -12px 10px; }
+    .mk .st{ font-size:14px; font-weight:800; margin:4px 0 9px; }
+    .mk .sr{ display:flex; align-items:center; justify-content:space-between; margin:13px 0 7px; }
+    .mk .sr .l{ font-size:12px; font-weight:800; } .mk .sr .r{ font-size:10px; color:var(--text4); font-weight:600; } .mk .sr .r b{ color:var(--primary); } .mk .sr .cv{ color:var(--text5); font-size:13px; }
+    .mk .nu{ background:var(--mkmint); color:var(--navy); font-size:8px; font-weight:800; padding:1px 5px; border-radius:3px; margin-left:5px; }
+    .mk .tk{ background:#EEF1FE; border-radius:13px; padding:11px; }
+    .mk .tk .bg{ display:inline-block; background:#fff; color:var(--primary); font-size:9px; font-weight:800; padding:2px 7px; border-radius:5px; margin-bottom:7px; }
+    .mk .tk .mt{ display:flex; align-items:center; justify-content:space-between; } .mk .tk .tm{ font-size:14px; font-weight:800; } .mk .tk .ct{ text-align:center; font-size:9px; color:var(--text3); line-height:1.5; } .mk .tk .ct b{ color:var(--text1); }
+    .mk .gl{ display:flex; flex-direction:column; gap:7px; }
+    .mk .gc{ background:#fff; border:1px solid var(--border); border-radius:12px; padding:10px; display:flex; align-items:center; gap:10px; }
+    .mk .gc .th{ width:42px;height:42px;border-radius:10px;flex-shrink:0;background:#FBE9DC;display:flex;align-items:center;justify-content:center;font-size:20px; }
+    .mk .gc .gi{ flex:1; min-width:0; }
+    .mk .gc .tyb{ font-size:8px; font-weight:800; padding:1px 5px; border-radius:3px; display:inline-block; margin-bottom:3px; }
+    .mk .tg{ background:var(--primary-light); color:var(--primary); } .mk .tp{ background:#F2EEFE; color:var(--mkpurple); } .mk .tx{ background:var(--bg2); color:var(--text4); }
+    .mk .gc .gn{ font-size:11px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .mk .gc .ge{ font-size:9px; color:var(--text3); margin-top:2px; } .mk .gc .ge .dd{ color:var(--mkred); font-weight:800; }
+    .mk .gc .cv{ color:var(--text5); font-size:13px; flex-shrink:0; }
+    .mk .gc.ex{ opacity:.55; } .mk .gc.ex .th{ filter:grayscale(1); }
+    .mk .ept{ background:#fff; border:1px solid var(--border); border-radius:12px; padding:24px 12px; text-align:center; }
+    .mk .ept .ic{ width:38px;height:38px;border-radius:50%;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:18px;margin:0 auto 9px; }
+    .mk .ept .t{ font-size:12px; font-weight:700; color:var(--text2); } .mk .ept .s{ font-size:10px; color:var(--text4); margin-top:4px; }
+    .mk .tbx{ background:#F3F4F8; border-radius:12px; padding:11px; display:flex; }
+    .mk .tbx .c{ flex:1; text-align:center; position:relative; } .mk .tbx .c+.c::before{ content:""; position:absolute; left:0; top:2px; bottom:2px; width:1px; background:var(--border); }
+    .mk .tbx .c .l{ font-size:9px; color:var(--text3); } .mk .tbx .c .v{ font-size:13px; font-weight:800; margin-top:3px; } .mk .tbx .c .v.r{ color:var(--mkred); }
+    .mk .nav{ display:flex; background:#fff; border-top:1px solid var(--border); flex-shrink:0; padding:6px 0 9px; }
+    .mk .nav .ni{ flex:1; text-align:center; color:var(--text4); } .mk .nav .ni .i{ font-size:14px; } .mk .nav .ni .l{ font-size:8px; margin-top:2px; font-weight:600; } .mk .nav .ni.on{ color:var(--primary); } .mk .nav .ni.on .l{ font-weight:800; }
+    /* 기프티콘 상세 */
+    .mk .gdi{ width:104px;height:104px;border-radius:14px;background:#FBE9DC;margin:16px auto 10px;display:flex;align-items:center;justify-content:center;font-size:44px; }
+    .mk .gdb{ text-align:center; font-size:11px; font-weight:700; color:var(--text2); } .mk .gdn{ text-align:center; font-size:13px; font-weight:800; line-height:1.4; padding:0 14px; } .mk .gde{ text-align:center; font-size:10px; color:var(--text4); margin-top:5px; }
+    .mk .bc{ margin:16px 18px 6px; text-align:center; }
+    .mk .bcl{ height:56px; border-radius:5px; background-image:repeating-linear-gradient(90deg,#111 0 2px,#fff 2px 4px,#111 4px 7px,#fff 7px 9px,#111 9px 10px,#fff 10px 14px,#111 14px 17px,#fff 17px 18px); }
+    .mk .bcn{ font-size:12px; font-weight:700; letter-spacing:1.5px; margin-top:9px; } .mk .bcn.dim{ color:var(--text4); }
+    .mk .pb{ margin:18px; background:#F3F4F8; border-radius:12px; padding:16px 12px; text-align:center; } .mk .pb .pl{ font-size:10px; color:var(--text3); font-weight:700; } .mk .pb .pv{ font-size:14px; font-weight:800; letter-spacing:1px; margin-top:5px; }
+    .mk .btn{ margin:5px 18px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; }
+    .mk .b-soft{ background:var(--primary-light); color:var(--primary); } .mk .b-pri{ background:var(--primary); color:#fff; } .mk .b-dis{ background:var(--bg2); color:var(--text5); }
+    .mk .isec{ background:#F3F4F8; margin-top:14px; padding:16px 14px; flex:1; } .mk .isec .h{ font-size:11px; font-weight:800; color:var(--text2); margin:10px 0 6px; } .mk .isec .h:first-child{ margin-top:0; }
+    .mk .isec li{ font-size:9px; color:var(--text4); line-height:1.7; list-style:none; padding-left:9px; position:relative; } .mk .isec li::before{ content:"·"; position:absolute; left:1px; }
+    .mk .exn{ margin:14px 18px; background:var(--bg2); border-radius:12px; padding:18px 12px; text-align:center; color:var(--text4); } .mk .exn .ic{ font-size:20px; margin-bottom:6px; } .mk .exn .t{ font-size:11px; font-weight:700; }
+    .mk .blur{ filter:blur(4px); opacity:.5; }
+    /* 실물 플로우 */
+    .mk .ft{ font-size:15px; font-weight:800; line-height:1.4; padding:18px 16px 5px; } .mk .fs{ font-size:11px; color:var(--text3); padding:0 16px 14px; line-height:1.6; }
+    .mk .cs{ margin:0 14px; border:1px solid var(--border); border-radius:12px; overflow:hidden; } .mk .cs .ci{ display:flex; align-items:flex-start; gap:8px; padding:11px; border-bottom:1px solid var(--border); } .mk .cs .ci:last-child{ border-bottom:none; }
+    .mk .cb{ width:16px;height:16px;border-radius:5px;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;margin-top:1px; } .mk .cb.on{ background:var(--primary); border-color:var(--primary); }
+    .mk .cs .ct{ flex:1; font-size:11px; font-weight:600; } .mk .cs .ct .rq{ color:var(--primary); font-weight:800; } .mk .cs .ct .su{ font-size:9px; color:var(--text4); font-weight:500; margin-top:2px; } .mk .cs .mo{ font-size:9px; color:var(--text4); text-decoration:underline; white-space:nowrap; }
+    .mk .fld{ margin:0 14px 10px; } .mk .fld .fl{ font-size:10px; font-weight:700; color:var(--text2); margin-bottom:5px; } .mk .fld .fl .rq{ color:var(--primary); }
+    .mk .inp{ border:1.5px solid var(--border); border-radius:10px; padding:10px 11px; font-size:11px; color:var(--text2); } .mk .inp.ph{ color:var(--text5); }
+    .mk .ar{ display:flex; gap:6px; } .mk .ar .inp{ flex:1; } .mk .ab{ background:var(--navy); color:#fff; border-radius:10px; padding:0 12px; display:flex; align-items:center; font-size:10px; font-weight:700; white-space:nowrap; }
+    .mk .taxb{ margin:3px 14px 11px; background:#FFF7ED; border:1px solid #FED7AA; border-radius:10px; padding:11px; } .mk .taxb .th{ font-size:10px; font-weight:800; color:#C2410C; } .mk .taxb .tt{ font-size:9px; color:#9A3412; line-height:1.6; margin-top:4px; } .mk .taxb .bd2{ display:inline-block; font-size:8px; font-weight:800; background:#FFEDD5; color:#C2410C; border-radius:3px; padding:1px 5px; margin-top:5px; }
+    .mk .dw{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:22px 18px; text-align:center; }
+    .mk .dic{ width:50px;height:50px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:13px; } .mk .dt{ font-size:15px; font-weight:800; } .mk .ds{ font-size:11px; color:var(--text3); margin-top:6px; line-height:1.6; }
+    .mk .dsum{ width:100%; background:#F3F4F8; border-radius:12px; padding:11px 13px; margin-top:16px; text-align:left; } .mk .dsum .dr{ display:flex; justify-content:space-between; font-size:10px; padding:3px 0; } .mk .dsum .dr .k{ color:var(--text4); } .mk .dsum .dr .v{ color:var(--text2); font-weight:700; }
+    .mk .sp{ flex:1; }
+    .mk-cap{ font-size:11px; color:var(--text4); margin-top:8px; padding-left:2px; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 커버 -->
+  <div class="cover">
+    <div class="cover-tag">Feature Specification</div>
+    <h1>마이 &gt; 내 지갑 &gt; 보유 경품</h1>
+    <div class="cover-sub">기프티콘 · 실물경품 보유 표시 및 수령 — MVP (기획 + 화면 목업 통합본)</div>
+    <div class="cover-meta">
+      <div><strong>기능 ID</strong> WL</div>
+      <div><strong>버전</strong> v1.3</div>
+      <div><strong>작성일</strong> 2026-06-26 (v1.3 갱신)</div>
+      <div><strong>플랫폼</strong> APP (웹은 앱 유도)</div>
+      <div><strong>상위 화면</strong> 마이(MY-01) / 내 지갑 · 응모 현황</div>
+    </div>
+    <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.2);font-size:12px;opacity:.9;line-height:1.7;">
+      <strong>v1.3 변경</strong> — ① 결과 확인을 <strong>직관 티켓 풀스크린 패턴</strong>으로 통일([결과 확인하기] → 당첨/낙첨 전체화면, 바텀시트는 수령 확인 전용으로 유지) · ② <strong>낙첨자 광고 시청 볼 환급</strong> 신설(경품 단위, 최대 3회, 회당 <span class="mono">round_up(사용볼×10%)</span> 최소 1볼, 발표+7일) || v1.2 — 제세공과금 운영위탁 전환, 상태 2계층 재정의, 수령 기한·당첨 취소, 제3자 제공 동의 || v1.1 — 수령 모델·경품 응모 현황 신설·지갑=수령완료분
+    </div>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <h3>목차</h3>
+    <ol>
+      <li><a href="#overview">1. 개요 및 BM 연결</a></li>
+      <li><a href="#policy">2. 보상 타입별 정책 · 상태 모델</a></li>
+      <li><a href="#receive">3. 결과 확인 · 수령 동선 · 낙첨 환급</a></li>
+      <li><a href="#wl01">4. WL-01 내 지갑 — 보유 경품 영역</a></li>
+      <li><a href="#wl02">5. WL-02 기프티콘 상세</a></li>
+      <li><a href="#wl03">6. WL-03 실물경품 수령 플로우</a></li>
+      <li><a href="#data">7. 데이터 설계 (MVP)</a></li>
+      <li><a href="#legal">8. 법령 검토</a></li>
+      <li><a href="#todo">9. 미결 사항</a></li>
+    </ol>
+  </div>
+
+  <!-- 1. 개요 -->
+  <div class="section" id="overview">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <div><div class="section-title">개요 및 BM 연결</div><div class="section-subtitle">왜 만드는가</div></div>
+    </div>
+    <div class="section-body">
+      <p>직관 티켓 외 <strong>두 번째 보상 경로</strong>로 기프티콘·실물경품을 도입하고, 지급된 경품을 유저가 인앱에서 확인·수령할 수 있는 화면을 정의한다. 보유 경품은 <strong>마이 &gt; 내 지갑</strong>의 보유 티켓 하단에 노출하고, 수령 진입은 <strong>마이 &gt; 내 활동 &gt; 응모 현황 &gt; 경품 응모</strong> 및 당첨 알림에서 시작한다.</p>
+      <div class="callout callout-warn">
+        <strong>핵심 원칙 (v1.1)</strong>
+        <ul>
+          <li><strong>수령 모델</strong> — 당첨 = 즉시 발급이 아니다. 기프티콘은 발행분 정산 대상이므로, 유저가 <strong>[받기]를 클릭한 시점에 발급/코드 할당</strong>한다.</li>
+          <li><strong>진입점 분리</strong> — 수령은 <strong>경품 응모 현황 + 당첨 알림</strong>에서 시작한다. <strong>내 지갑은 수령 완료된 경품만</strong> 노출한다(수령 전 건은 지갑에 넣지 않음).</li>
+          <li><strong>상세 진입 조건</strong> — 코드(바코드/핀)가 있는 상세는 발급 완료(사용가능) 이후에만 진입한다. 발급 전 '빈 상세'는 존재하지 않는다.</li>
+        </ul>
+      </div>
+      <div class="callout callout-info">
+        <strong>BM 연결</strong><br>
+        고정 공급되는 직관 티켓은 유저 증가·시즌 종료 국면에서 당첨 희소성이 구조적으로 악화된다. 기프티콘·실물경품은 이 희소성을 분산하는 두 번째 보상 경로로, <strong>픽/응모 지속 동기를 유지 → 광고 노출 방어</strong>에 기여한다. 보상 모델 검증 트랙의 인앱 표시 레이어에 해당하므로, 이 화면 자체에는 광고를 삽입하지 않고 <strong>마찰 없는 수령 경험</strong>을 우선한다.
+      </div>
+      <div class="sub-h3">MVP 범위</div>
+      <div class="func-card">
+        <div class="func-card-hd"><span class="tag tag-blue">IN</span> 이번 문서 범위</div>
+        <div class="func-card-body">
+          <div class="feat">경품 응모 현황(미당첨 안내 + 수령 진입점) 신설 · 경품 단위 결과 표시</div>
+          <div class="feat">수령 동선(받기 → 확인 → 본인인증 → 발급/분기) 및 상태 모델</div>
+          <div class="feat">내 지갑 보유 경품 표시(수령 완료분) · 기프티콘 상세(바코드형/쿠폰번호형 · 상태 분기)</div>
+          <div class="feat">실물경품 수령 플로우(동의 → 본인인증 → 배송지 입력 → 접수 완료, 제세공과금 분기 포함)</div>
+        </div>
+      </div>
+      <div class="func-card">
+        <div class="func-card-hd"><span class="tag tag-gray">OUT</span> 이번 문서 제외</div>
+        <div class="func-card-body">
+          <div class="feat">어드민 경품 등록·관리 (ADM-PZ 별도 문서)</div>
+          <div class="feat">실물경품 배송 상태 추적(배송중/완료) — 접수 완료까지만 표시</div>
+          <div class="feat">제세공과금 신고 대행 — 운영위탁 업체 소관(직관 티켓과 동일). 배송 상태·송장 안내도 위탁업체 소관</div>
+          <div class="feat">정규 경품 응모의 회차 진행·발표 단위·알림 정책 상세 — <span class="tbd">TBD · 타 기획 의존</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 정책 -->
+  <div class="section" id="policy">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <div><div class="section-title">보상 타입별 정책</div><div class="section-subtitle">선정 기준 · 진입 게이트 · 수집 정보</div></div>
+    </div>
+    <div class="section-body">
+      <table>
+        <thead><tr><th style="width:90px;">구분</th><th>당첨자 선정 기준</th><th>상세 진입 게이트</th><th>추가 수집</th><th style="width:120px;">만료 개념</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="td-label">티켓</td>
+            <td>본인인증 완료자(휴대폰)만 선정</td>
+            <td>기존 로직(MY-03)</td>
+            <td>—</td>
+            <td>교환 기한</td>
+          </tr>
+          <tr>
+            <td class="td-label">기프티콘</td>
+            <td>본인인증 <strong>무관</strong> 선정</td>
+            <td>본인인증(미완료 시) → 당첨 결과 확인·[받기] → <strong>즉시 발급·코드 노출</strong></td>
+            <td>없음 (인증만)</td>
+            <td>사용 유효기간 만료 · 수령 기한(발표+7일)</td>
+          </tr>
+          <tr>
+            <td class="td-label">실물경품</td>
+            <td>본인인증 <strong>무관</strong> 선정</td>
+            <td>개인정보 동의 → 본인인증 → 배송지 입력 → 접수 완료</td>
+            <td>배송지 + 동의 이력 + <strong>제3자 제공(위탁) 동의</strong></td>
+            <td>수령 기한(발표+7일) 내 배송지 입력</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout callout-info">
+        본인인증은 1회 완료 시 계정에 저장되므로(기존 티켓 본인인증 자산 재사용), 재진입 시 게이트를 스킵하고 바로 노출/입력 단계로 진입한다.
+      </div>
+      <div class="callout callout-warn">
+        <strong>제세공과금 = 운영위탁 (v1.2)</strong> — 제세공과금(5만원 초과 경품)의 신고 대행은 폴리볼이 아닌 <strong>운영위탁 업체</strong>가 진행한다(직관 티켓과 동일 구조). 폴리볼은 제세공과금 정보를 수집·입금 확인하지 않으며, <strong>배송지 정보를 위탁업체에 전달</strong>하고 유저에게 <strong>"3영업일 내 제세공과금 관련 안내가 진행됩니다" 노티만 제공</strong>한다. 기프티콘은 제세공과금 발생 수준의 고가 상품을 운영하지 않는 것을 전제로 한다.
+      </div>
+      <div class="callout callout-warn">
+        <strong>수령 모델 (정산 구조 반영)</strong> — 당첨 = 즉시 발급이 아니다. 기프티콘은 <strong>발행분 정산</strong> 대상이므로 무조건 선발급하지 않고, <strong>당첨 결과 확인·[받기] 시점에 발급/코드 할당</strong>한다. 실물경품은 [배송지 입력]으로 수령 의사를 받는다. 수령 기한은 <strong>당첨 발표일로부터 7일</strong>이며, 기한 내 미수령 시 <strong>당첨이 자동 취소</strong>된다(복구 불가). (어드민 PZ는 '발급 예약'만 보유)
+      </div>
+      <div class="sub-h3">상태 모델 (2계층 · 직관 티켓 용어 기준)</div>
+      <p>1계층(응모 결과)은 직관 티켓과 동일한 용어를 사용하고, 경품은 <strong>'당첨' 안에서만</strong> 하위 상태가 확장된다.</p>
+      <table>
+        <thead><tr><th style="width:110px;">1계층 (응모 결과)</th><th>의미</th><th>카드 표시</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tag tag-blue">응모 진행 중</span></td><td>응모 기간 중</td><td>진행 중</td></tr>
+          <tr><td><span class="tag tag-orange">발표 대기</span></td><td>응모 마감 ~ 발표 전</td><td>"○월 ○일 발표 예정"</td></tr>
+          <tr><td><span class="tag tag-green">당첨</span></td><td>발표 후 당첨</td><td>하위 상태로 분기 (아래 표)</td></tr>
+          <tr><td><span class="tag tag-gray">미당첨</span></td><td>발표 후 미당첨</td><td>뱃지 + 딤, 종결</td></tr>
+        </tbody>
+      </table>
+      <table>
+        <thead><tr><th style="width:110px;">'당첨' 하위</th><th>기프티콘</th><th>실물경품</th></tr></thead>
+        <tbody>
+          <tr><td class="td-label">수령 전</td><td>[받기] + 수령 기한 <span class="tag tag-red">D-N</span> (발표+7일)</td><td>[배송지 입력] + 기한 <span class="tag tag-red">D-N</span></td></tr>
+          <tr><td class="td-label">수령 후</td><td><span class="tag tag-green">사용가능</span>(코드 발급) → <span class="tag tag-blue">사용완료</span>(발급사 API, 각주①) / <span class="tag tag-gray">만료</span>(유효기간)</td><td><span class="tag tag-blue">접수 완료</span> — 폴리볼 측 종착(배송·송장은 위탁업체 안내)</td></tr>
+          <tr><td class="td-label">기한 경과</td><td colspan="2"><span class="tag tag-red">당첨 취소</span> — 발표+7일 내 미수령 시 자동 취소, 복구 불가 (각주②)</td></tr>
+          <tr><td class="td-label">제세공과금</td><td>해당 없음 (고가 미운영)</td><td>접수 완료 + "3영업일 내 위탁업체 안내" 노티. <span class="tag tag-purple">확인 중</span> 상태 신설 여부 = <span class="tbd">TBD</span> (위탁업체의 처리 완료 통보 시점·방식 확인 후 결정)</td></tr>
+        </tbody>
+      </table>
+      <div class="callout callout-info" style="font-size:12px;">
+        <strong>각주①</strong> 기프티콘 <strong>사용완료</strong>는 발급사 API 연동으로 매장 실사용 여부를 받아 표기한다(연동 전제). &nbsp;
+        <strong>각주②</strong> <strong>당첨 취소</strong>는 CS 방어를 위해 사전 고지가 필수다 — 응모 유의사항·당첨 알림톡(기한 명시)·당첨 카드 D-day·리마인드 알림(D-2)·취소 후 카드·이용약관/경품 정책에 모두 반영한다. 취소된 코드/재고 처리(재추첨·재사용·소멸)는 어드민 미결.
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 수령 동선 · 경품 응모 현황 -->
+  <div class="section" id="receive">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <div><div class="section-title">결과 확인 · 수령 동선 · 낙첨 환급</div><div class="section-subtitle">진입점 · 결과 확인(당첨/낙첨) · 받기 → 발급 · 광고 환급</div></div>
+      <span class="sec-badge">APP</span>
+    </div>
+    <div class="section-body">
+
+      <div class="sub-section">
+        <div class="sub-title">3-1. 진입점</div>
+        <p>수령은 <strong>내 지갑이 아니라</strong> 아래 두 경로에서 시작한다. 내 지갑은 수령 완료분만 보유하므로 수령 전 건의 진입점이 될 수 없다.</p>
+        <table>
+          <thead><tr><th style="width:140px;">진입점</th><th>역할</th></tr></thead>
+          <tbody>
+            <tr><td class="td-label">당첨 알림(알림톡)</td><td>발표 시 발송(직관 티켓 패턴 재사용). 당첨 → 받기 동선으로 연결, 미당첨은 중립·재참여 유도 카피.</td></tr>
+            <tr><td class="td-label">경품 응모 현황</td><td>마이 &gt; 내 활동 &gt; 응모 현황 &gt; <strong>경품 응모</strong> 탭. 알림을 놓쳐도 결과·수령을 확인하는 영속 화면.</td></tr>
+          </tbody>
+        </table>
+        <div class="callout callout-info"><strong>영속성</strong> — 이벤트 페이지(응모하는 곳)는 종료·소멸 가능하지만, 경품 응모 현황은 유저↔응모/당첨 데이터 기반이라 페이지 소멸과 무관하게 내 내역·수령이 유지된다. 정규 경품 응모도 동일 세션 위에 얹는다.</div>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">3-2. 경품 응모 현황 화면</div>
+        <p>위치: <strong>마이 &gt; 내 활동 &gt; 응모 현황</strong> 상단에 <strong>[직관 티켓 | 경품 응모]</strong> 탭 추가(기존 IA·화면 재사용). 데이터 단위는 <strong>경품 단위</strong> — 스페셜 응모가 경품별로 응모되므로, 카드 = 내가 응모한 경품 1개.</p>
+        <table>
+          <thead><tr><th style="width:120px;">카드 상태</th><th>표시</th><th>액션</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tag tag-blue">응모 진행 중</span></td><td>진행 중 (응모 기간)</td><td>없음</td></tr>
+            <tr><td><span class="tag tag-orange">발표 대기</span></td><td>"발표됨" + <strong>[결과 확인하기]</strong> (직관 티켓 패턴 재사용)</td><td><strong>[결과 확인하기]</strong> → 결과 확인 화면(3-2a)</td></tr>
+            <tr><td><span class="tag tag-gray">미당첨</span></td><td>뱃지 + 딤</td><td>수령 기한 내 <strong>[광고 보고 볼 받기]</strong>(3-2b) → 기한/3회 소진 후 종결</td></tr>
+            <tr><td><span class="tag tag-green">당첨 · 수령 전</span></td><td>당첨 뱃지 + 수령 기한 <span class="tag tag-red">D-N</span> (발표+7일)</td><td><strong>[경품 받기]</strong>(기프티콘) / <strong>[배송지 입력]</strong>(실물) → 수령 동선(3-3)</td></tr>
+            <tr><td><span class="tag tag-blue">당첨 · 수령 완료</span></td><td>기프티콘 "수령 완료" / 실물 "접수 완료"</td><td>지갑에서 확인</td></tr>
+            <tr><td><span class="tag tag-red">당첨 취소</span></td><td>"기한 내 미수령으로 당첨이 취소되었어요" (종결, 복구 불가)</td><td>없음</td></tr>
+          </tbody>
+        </table>
+        <div class="callout callout-warn"><strong>실물 '확인 중' = TBD</strong> — 5만원 초과 실물경품의 제세공과금은 위탁업체가 안내·처리하며, 접수 완료 화면·카드에 "3영업일 내 안내" 노티만 제공한다. 위탁업체가 처리 완료를 폴리볼에 통보할 수 있는 시점·방식이 확인되면 '확인 중 → 접수 완료' 상태 전환 도입을 결정한다.</div>
+        <div class="mk"><div class="mk-row">
+          <div class="mk-fw">
+            <div class="mk-lab"><span class="d"></span>경품 응모 현황 <span class="s">경품 단위 · 상태 분기</span></div>
+            <div class="phone"><div class="scr">
+              <div class="sb"><span>9:41</span><span>▪▪▪ 📶 🔋</span></div>
+              <div class="sgnb"><span class="bk">←</span><span class="tt">응모 현황</span></div>
+              <div style="display:flex;gap:14px;padding:8px 14px 0;border-bottom:1px solid var(--border);flex-shrink:0">
+                <span style="font-size:11px;color:var(--text4);padding-bottom:7px">직관 티켓</span>
+                <span style="font-size:11px;font-weight:700;color:var(--text1);padding-bottom:7px;border-bottom:2px solid var(--text1)">경품 응모</span>
+              </div>
+              <div class="bd" style="padding-top:10px">
+                <div class="gl">
+                  <div class="gc" style="flex-direction:column;align-items:stretch;gap:8px">
+                    <div style="display:flex;align-items:center;gap:9px">
+                      <div class="th" style="background:#FFFBEB">🎮</div>
+                      <div class="gi"><span class="tag tag-orange" style="font-size:8px">발표됨</span> <span class="gn" style="display:inline">닌텐도 스위치2</span><div class="ge">내 응모 30회 · 결과가 나왔어요</div></div>
+                    </div>
+                    <div class="btn b-pri" style="margin:0;height:32px;border-radius:9px">결과 확인하기</div>
+                  </div>
+                  <div class="gc"><div class="th" style="background:#FFFBEB">⏳</div><div class="gi"><span class="tag tag-orange" style="font-size:8px">발표 대기</span> <span class="gn" style="display:inline">네이버페이 1만원</span><div class="ge">07.20(월) 발표 예정</div></div></div>
+                  <div class="gc ex"><div class="th">🎁</div><div class="gi"><span class="tag tag-red" style="font-size:8px">당첨 취소</span> <span class="gn" style="display:inline">올리브영 5천원권</span><div class="ge">기한 내 미수령 · 06.27 취소</div></div></div>
+                </div>
+              </div>
+            </div></div>
+          </div>
+          <div class="mk-fw">
+            <div class="mk-lab"><span class="d"></span>결과 확인 <span class="s">풀스크린 · 당첨</span></div>
+            <div class="phone"><div class="scr">
+              <div class="sb"><span>9:41</span><span>▪▪▪ 📶 🔋</span></div>
+              <div class="bd w" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 16px">
+                <div style="font-size:44px">🎉</div>
+                <div style="font-size:15px;font-weight:800;margin-top:8px">경품에 당첨됐어요!</div>
+                <div style="width:100%;background:#F3F4F8;border-radius:12px;padding:12px;margin-top:14px">
+                  <div style="font-size:12px;font-weight:700">닌텐도 스위치2</div>
+                  <div style="font-size:10px;color:var(--text3);margin-top:5px;line-height:1.5">7일 내 수령하지 않으면<br>당첨이 취소돼요</div>
+                </div>
+                <div class="btn b-pri" style="width:100%;margin:16px 0 0">경품 받기</div>
+                <div style="font-size:10px;color:var(--text4);margin-top:10px">목록으로 가기</div>
+              </div>
+            </div></div>
+          </div>
+          <div class="mk-fw">
+            <div class="mk-lab"><span class="d"></span>결과 확인 <span class="s">풀스크린 · 낙첨(광고 환급)</span></div>
+            <div class="phone"><div class="scr">
+              <div class="sb"><span>9:41</span><span>▪▪▪ 📶 🔋</span></div>
+              <div class="bd w" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:20px 16px">
+                <div style="font-size:34px">😅</div>
+                <div style="font-size:14px;font-weight:800;margin-top:8px">아쉽게 낙첨됐어요</div>
+                <div style="font-size:10px;color:var(--text3);margin-top:4px">닌텐도 스위치2 · 사용 볼 30개</div>
+                <div style="width:100%;background:#F3F4F8;border-radius:12px;padding:12px;margin-top:14px;text-align:left">
+                  <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;font-weight:700">광고 보고 볼 돌려받기</span><span style="font-size:11px;font-weight:800;color:var(--primary)">1/3</span></div>
+                  <div style="display:flex;gap:4px;margin-top:8px"><div style="flex:1;height:5px;border-radius:3px;background:var(--primary)"></div><div style="flex:1;height:5px;border-radius:3px;background:var(--primary)"></div><div style="flex:1;height:5px;border-radius:3px;background:var(--border)"></div></div>
+                  <div style="font-size:9px;color:var(--text3);margin-top:8px">1회 시청당 <b>3볼</b> 환급 (사용 볼의 10%, 소수점 올림, 최소 1볼)</div>
+                </div>
+                <div class="btn b-pri" style="width:100%;margin-top:14px">▶ 광고 보고 3볼 받기</div>
+                <div style="font-size:9px;color:var(--text4);margin-top:8px">7.13(월)까지 시청 가능 · D-5</div>
+              </div>
+            </div></div>
+          </div>
+        </div>
+        <div class="mk-cap">결과 확인은 직관 티켓과 동일한 풀스크린 패턴 재사용(바텀시트는 이미 안 당첨의 '수령 확인'에만 사용). 낙첨 화면의 환급 예시(3볼)는 30볼×10%=3.0의 계산 결과이며 고정값이 아니다.</div></div>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">3-2a. 결과 확인 동선</div>
+        <div class="flow-box">경품 응모 현황(발표 대기 카드) [결과 확인하기]
+  → 결과 확인 화면 (풀스크린, 직관 티켓 패턴)
+      [당첨] 당첨 안내 + [경품 받기] → 수령 확인 바텀시트(3-3)
+      [낙첨] 낙첨 안내 + 광고 시청 볼 환급 UI (3-2b)</div>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">3-2b. 낙첨자 광고 시청 볼 환급</div>
+        <p>낙첨을 완전한 종결로 두지 않고, 광고 시청을 매개로 <strong>볼(재화) 일부를 환급</strong>해 재응모를 유도한다.</p>
+        <table>
+          <thead><tr><th style="width:150px;">항목</th><th>정책</th></tr></thead>
+          <tbody>
+            <tr><td class="td-label">환급 기준</td><td><strong>경품 단위</strong> — 해당 낙첨 경품에 사용한 볼 수 기준 (회차 전체 아님)</td></tr>
+            <tr><td class="td-label">최대 시청 횟수</td><td><strong>낙첨 경품 1건당 최대 3회</strong> (계정 일괄 아님, 카드별 귀속)</td></tr>
+            <tr><td class="td-label">회당 환급량</td><td><span class="mono">round_up(사용 볼 × 10%)</span>, <strong>최소 1볼 보장</strong>. 예) 30볼→3볼, 11볼→2볼, 9볼→1볼</td></tr>
+            <tr><td class="td-label">시청 가능 기한</td><td><strong>발표일로부터 7일</strong> (당첨 수령 기한과 동일 정책, 공용 리마인드 가능)</td></tr>
+            <tr><td class="td-label">소진/종료 처리</td><td>3회 소진 또는 기한 경과 시 버튼 제거, 낙첨 종결 표시로 전환</td></tr>
+          </tbody>
+        </table>
+        <div class="callout callout-info">BM 연결 — 낙첨은 지금까지 완전한 데드엔드였다. 광고 시청을 매개로 볼을 환급하면 <strong>가장 이탈 위험이 큰 순간을 RV 시청 기회로 전환</strong>하고, 환급된 볼은 재응모로 돌아와 픽/응모 지속 동기에 재기여한다. 낙첨자 수가 당첨자보다 압도적으로 많아 RV 인벤토리 확대 효과가 크다.</div>
+        <div class="callout callout-warn">법령 — 무료 재화(볼)의 사후 일부 환급이 경품 응모의 대가성·확률형 해석에 영향이 없는지 <span class="tbd">법령 레퍼런스 점검 필요</span>(§8 반영).</div>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">3-3. 수령 동선 (받기 → 발급)</div>
+        <div class="flow-box">[기프티콘]
+  결과 확인 화면(당첨) [경품 받기]
+  → 수령 확인 바텀시트("받으시겠어요? 발급 후 취소·교환 불가") → [받기]
+  → 즉시 발급 → 내 지갑에 '사용가능' 편입 → 상세(바코드/핀) 진입
+
+[실물경품]
+  결과 확인 화면(당첨) [배송지 입력]
+  → 개인정보 동의 → 배송지 입력(+ 제3자 제공(위탁) 동의) → 접수 완료
+  → [5만원↑] 접수 완료 화면·카드에 "3영업일 내 위탁업체가 제세공과금 안내" 노티
+
+[공통 분기 · 미인증]  위 흐름에 본인인증 1회 추가(이후 영구 생략)
+[공통 · 수령 기한]    발표+7일 내 미수령 시 당첨 자동 취소(복구 불가)</div>
+        <div class="callout callout-info">수령 확인은 비가역 액션이므로 <strong>바텀시트 1회 확인</strong>으로 충분(별도 화면·재확인 불필요). 제세공과금은 폴리볼이 수집·입금 확인하지 않으므로 앱 내 별도 절차·대기 화면이 없다 — <strong>노티 1건으로 대체</strong>. 발급/코드 할당은 [받기] 시점에 확정된다.</div>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">3-4. 당첨 취소(7일 미수령) 고지 위치</div>
+        <p>당첨 취소는 CS 방어를 위해 <strong>사전 고지가 필수</strong>다. 아래 위치에 모두 반영한다.</p>
+        <table>
+          <thead><tr><th style="width:190px;">위치</th><th>문구(안)</th></tr></thead>
+          <tbody>
+            <tr><td class="td-label">응모 상세 · 유의사항</td><td>"당첨 발표일로부터 <strong>7일 이내 미수령 시 당첨이 자동 취소</strong>되며, 복구되지 않습니다."</td></tr>
+            <tr><td class="td-label">당첨 알림(알림톡)</td><td>"○월 ○일까지 수령하지 않으면 당첨이 취소돼요." (수령 기한 명시)</td></tr>
+            <tr><td class="td-label">당첨 카드 (경품 응모 현황)</td><td>"D-N · ○월 ○일까지 수령" 카운트다운 표기</td></tr>
+            <tr><td class="td-label">리마인드 알림</td><td>기한 D-2 발송: "수령 기한이 2일 남았어요"</td></tr>
+            <tr><td class="td-label">취소 후 카드</td><td>"기한 내 미수령으로 당첨이 취소되었어요" (종결 표기)</td></tr>
+            <tr><td class="td-label">이용약관 · 경품 정책</td><td>미수령 소멸·복구 불가 조항 (재추첨 여부는 어드민 정책 확정 후 반영)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 4. WL-01 -->
+  <div class="section" id="wl01">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <div><div class="section-title">WL-01 — 내 지갑 보유 경품 영역</div><div class="section-subtitle">마이 &gt; 내 지갑 · 보유 티켓 하단 신설</div></div>
+      <span class="sec-badge">APP</span>
+    </div>
+    <div class="section-body">
+
+      <div class="sub-section">
+        <div class="sub-title">4-0. 화면 미리보기</div>
+        <div class="mk"><div class="mk-row">
+          <div class="mk-fw">
+            <div class="mk-lab"><span class="d"></span>보유 경품 <span class="s">빈 상태(0건)</span></div>
+            <div class="phone"><div class="scr">
+              <div class="sb"><span>13:48</span><span>▪▪▪ 📶 🔋</span></div>
+              <div class="gnb"><div class="logo">PolyBall.</div><div class="ico"><span>🔔</span><span>⚙️</span></div></div>
+              <div class="bd">
+                <div class="prof"><div class="ava">🐶</div><div><div class="nm">야구왕픽커</div><div class="tm"><b>MY팀</b> SSG</div></div><div class="cv">›</div></div>
+                <div class="dvk"></div>
+                <div class="st">내 지갑</div>
+                <div class="sr"><span class="l">보유 티켓</span><span class="r"><b>1</b> / 1</span></div>
+                <div class="tk"><span class="bg">준비 완료</span><div class="mt"><span class="tm">한화</span><div class="ct"><b>6.22(수)</b><br>수원 위즈파크</div><span class="tm">KIA</span></div></div>
+                <div class="sr"><span class="l">보유 경품 <span class="nu">NEW</span></span><span class="cv">›</span></div>
+                <div class="ept"><div class="ic">🎁</div><div class="t">아직 받은 경품이 없어요</div><div class="s">예측·응모에 참여하고 받아보세요</div></div>
+                <div class="sr"><span class="l">보유 응모권</span><span class="cv">›</span></div>
+                <div class="tbx"><div class="c"><div class="l">이번 주 획득</div><div class="v">5장</div></div><div class="c"><div class="l">이번 주 사용</div><div class="v r">2장</div></div></div>
+              </div>
+              <div class="nav"><div class="ni"><div class="i">☑️</div><div class="l">승부예측</div></div><div class="ni"><div class="i">📥</div><div class="l">응모</div></div><div class="ni"><div class="i">💬</div><div class="l">커뮤니티</div></div><div class="ni on"><div class="i">👤</div><div class="l">마이</div></div></div>
+            </div></div>
+          </div>
+          <div class="mk-fw">
+            <div class="mk-lab"><span class="d"></span>보유 경품 <span class="s">보유(기프티콘+실물+만료)</span></div>
+            <div class="phone"><div class="scr">
+              <div class="sb"><span>13:48</span><span>▪▪▪ 📶 🔋</span></div>
+              <div class="gnb"><div class="logo">PolyBall.</div><div class="ico"><span>🔔</span><span>⚙️</span></div></div>
+              <div class="bd">
+                <div class="prof"><div class="ava">🐶</div><div><div class="nm">야구왕픽커</div><div class="tm"><b>MY팀</b> SSG</div></div><div class="cv">›</div></div>
+                <div class="dvk"></div>
+                <div class="st">내 지갑</div>
+                <div class="sr"><span class="l">보유 티켓</span><span class="r"><b>1</b> / 1</span></div>
+                <div class="tk"><span class="bg">준비 완료</span><div class="mt"><span class="tm">한화</span><div class="ct"><b>6.22(수)</b></div><span class="tm">KIA</span></div></div>
+                <div class="sr"><span class="l">보유 경품 <span class="nu">NEW</span></span><span class="r"><b>3</b>개 · 전체 ›</span></div>
+                <div class="gl">
+                  <div class="gc"><div class="th">🍩</div><div class="gi"><span class="tyb tg">기프티콘</span><div class="gn">[던킨] 아메리카노 2+도넛세트</div><div class="ge">~12.31까지 <span class="dd">· D-5</span></div></div><span class="cv">›</span></div>
+                  <div class="gc"><div class="th" style="background:#E7EEFF">🎽</div><div class="gi"><span class="tyb tp">실물</span><div class="gn">SSG 랜더스 공식 유니폼</div><div class="ge" style="color:var(--primary)">접수 완료 · 배송 예정</div></div><span class="cv">›</span></div>
+                  <div class="gc ex"><div class="th">☕</div><div class="gi"><span class="tyb tx">만료</span><div class="gn">[스타벅스] 아이스 아메리카노 T</div><div class="ge">06.20 만료됨</div></div><span class="cv">›</span></div>
+                </div>
+                <div class="sr"><span class="l">보유 응모권</span><span class="cv">›</span></div>
+                <div class="tbx"><div class="c"><div class="l">이번 주 획득</div><div class="v">5장</div></div><div class="c"><div class="l">이번 주 사용</div><div class="v r">2장</div></div></div>
+              </div>
+              <div class="nav"><div class="ni"><div class="i">☑️</div><div class="l">승부예측</div></div><div class="ni"><div class="i">📥</div><div class="l">응모</div></div><div class="ni"><div class="i">💬</div><div class="l">커뮤니티</div></div><div class="ni on"><div class="i">👤</div><div class="l">마이</div></div></div>
+            </div></div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">4-1. 내 지갑 구성 순서 (변경)</div>
+        <div class="flow-box">본인인증 배너 → 보유 티켓 → [신설] 보유 경품 → 보유 응모권</div>
+        <p>기프티콘·실물경품은 별도 섹션을 늘리지 않고 <strong>"보유 경품" 단일 영역에 통합</strong>하며, 리스트 아이템의 <strong>타입 뱃지</strong>(기프티콘 / 실물)로 구분한다.</p>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">4-2. 노출 범위 · 상태 분기</div>
+        <div class="callout callout-info"><strong>내 지갑은 수령 완료된 경품만</strong> 노출한다. 수령 대기·발표 대기 건은 지갑이 아닌 <strong>경품 응모 현황(§3)</strong>에서 다룬다. 따라서 지갑 카드는 기프티콘 <span class="tag tag-green">사용가능</span>/<span class="tag tag-blue">사용완료</span>/<span class="tag tag-gray">만료</span>, 실물 <span class="tag tag-blue">접수 완료</span>(+제세공과금 <span class="tag tag-purple">확인 중</span>) 상태만 존재한다.</div>
+        <table>
+          <thead><tr><th style="width:140px;">상태</th><th>노출</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="tag tag-gray">보유 0건</span></td>
+              <td>섹션 헤더 유지 + Empty(타입 A) — "아직 받은 경품이 없어요." (보유 티켓 빈 상태 패턴과 통일)</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-blue">보유 N건</span></td>
+              <td>수령 완료 경품 카드 리스트. 사용가능 상단, 사용완료·만료 하단 정렬.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">4-3. 리스트 아이템 구성</div>
+        <table>
+          <thead><tr><th style="width:140px;">요소</th><th>내용</th></tr></thead>
+          <tbody>
+            <tr><td class="td-label">대표 이미지</td><td><span class="mono">image_url</span> 썸네일 (정사각, radius-12)</td></tr>
+            <tr><td class="td-label">타입 뱃지</td><td><span class="tag tag-blue">기프티콘</span> / <span class="tag tag-purple">실물</span></td></tr>
+            <tr><td class="td-label">상품명</td><td>1줄 (초과 시 말줄임)</td></tr>
+            <tr><td class="td-label">기한</td><td>기프티콘 <span class="mono">~MM.DD까지</span> · 실물 <span class="mono">접수 완료</span> · 임박 시 <span class="tag tag-red">D-N</span> 강조</td></tr>
+            <tr><td class="td-label">우측</td><td>chevron-right (탭 → 상세 진입)</td></tr>
+            <tr><td class="td-label">만료/사용완료</td><td>딤(opacity↓) + <span class="tag tag-gray">만료</span>/<span class="tag tag-blue">사용완료</span> 뱃지, 리스트 하단 정렬</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">4-4. 진입 분기</div>
+        <div class="callout callout-info">지갑 카드는 모두 <strong>수령 완료분</strong>이므로 본인인증·수령 게이트가 없다(수령 단계에서 이미 완료). 탭 시 바로 상세로 진입한다.</div>
+        <div class="flow-box">[기프티콘] 카드 탭 (사용가능/사용완료/만료)
+  └ 기프티콘 상세 (WL-02) — 상태별 코드 영역 분기
+
+[실물경품] 카드 탭 (접수 완료)
+  └ 접수 내역 확인 (읽기 전용)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. WL-02 -->
+  <div class="section" id="wl02">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <div><div class="section-title">WL-02 — 기프티콘 상세</div><div class="section-subtitle">발급 이후 상세 · 사용가능(바코드/쿠폰번호) → 사용완료 / 만료</div></div>
+      <span class="sec-badge">APP</span>
+    </div>
+    <div class="section-body">
+
+      <div class="sub-section">
+        <div class="sub-title">5-0. 화면 미리보기</div>
+        <div class="mk"><div class="mk-row">
+          <div class="mk-fw">
+            <div class="mk-lab"><span class="d"></span>바코드형 <span class="s">사용가능 · 딤 제거</span></div>
+            <div class="phone"><div class="scr">
+              <div class="sb"><span>9:41</span><span>▪▪▪ 📶 🔋</span></div>
+              <div class="sgnb"><span class="bk">←</span></div>
+              <div class="bd w">
+                <div class="gdi">🍩</div>
+                <div class="gdb">[던킨도너츠]</div><div class="gdn">아메리카노 2 + 도넛세트</div><div class="gde">2023.12.31 까지</div>
+                <div class="bc"><div class="bcl"></div><div class="bcn">1234 5678 9012 0914</div></div>
+                <div class="btn b-soft">복사하기</div>
+                <div class="isec"><div class="h">이용안내</div><ul><li>유효기간: 발행일로부터 30일</li><li>미사용 쿠폰 연장·환불 불가</li><li>던킨 전 매장 사용 가능</li></ul><div class="h">유의사항</div><ul><li>유의사항 내용은 아래로 길게 노출</li></ul></div>
+              </div>
+            </div></div>
+          </div>
+          <div class="mk-fw">
+            <div class="mk-lab"><span class="d"></span>쿠폰번호형 <span class="s">복사 단일·비번 제거</span></div>
+            <div class="phone"><div class="scr">
+              <div class="sb"><span>9:41</span><span>▪▪▪ 📶 🔋</span></div>
+              <div class="sgnb"><span class="bk">←</span></div>
+              <div class="bd w">
+                <div class="gdi">🍩</div>
+                <div class="gdb">[던킨도너츠]</div><div class="gdn">아메리카노 2 + 도넛세트</div><div class="gde">2023.12.31 까지</div>
+                <div class="pb"><div class="pl">쿠폰번호</div><div class="pv">123ABC123A123456</div></div>
+                <div class="btn b-soft">복사하기</div>
+                <div class="isec"><div class="h">이용안내</div><ul><li>유효기간: 발행일로부터 30일</li><li>미사용 쿠폰 연장·환불 불가</li><li>던킨 전 매장 사용 가능</li></ul><div class="h">유의사항</div><ul><li>유의사항 내용은 아래로 길게 노출</li></ul></div>
+              </div>
+            </div></div>
+          </div>
+          <div class="mk-fw">
+            <div class="mk-lab"><span class="d"></span>만료 후 <span class="s">코드 비활성</span></div>
+            <div class="phone"><div class="scr">
+              <div class="sb"><span>9:41</span><span>▪▪▪ 📶 🔋</span></div>
+              <div class="sgnb"><span class="bk">←</span></div>
+              <div class="bd w">
+                <div class="gdi" style="filter:grayscale(1);opacity:.6">☕</div>
+                <div class="gdb" style="color:var(--text4)">[스타벅스]</div><div class="gdn" style="color:var(--text4)">아이스 아메리카노 T</div><div class="gde">2026.06.20 까지</div>
+                <div class="bc"><div class="bcl blur"></div><div class="bcn dim">•••• •••• •••• ••••</div></div>
+                <div class="exn"><div class="ic">⌛</div><div class="t">유효기간이 만료된 기프티콘이에요</div></div>
+                <div class="btn b-dis">복사하기</div>
+                <div class="isec"><div class="h">이용안내</div><ul><li>미사용 쿠폰 연장·환불 불가</li></ul></div>
+              </div>
+            </div></div>
+          </div>
+        </div>
+        <div class="mk-cap">첨부 시안 대비 변경점 반영 — 바코드형: 바코드 상단 딤 제거 / 쿠폰번호형: 복사하기 단일 버튼 + 비밀번호 미노출.</div></div>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">5-1. 공통 구성</div>
+        <table>
+          <thead><tr><th style="width:140px;">영역</th><th>내용</th></tr></thead>
+          <tbody>
+            <tr><td class="td-label">헤더</td><td>← 뒤로가기 (서브 헤더)</td></tr>
+            <tr><td class="td-label">대표 이미지</td><td><span class="mono">image_url</span> (중앙, 정사각 radius-16)</td></tr>
+            <tr><td class="td-label">상품명</td><td><span class="mono">product_name</span> (중앙, Heading)</td></tr>
+            <tr><td class="td-label">유효기간</td><td><span class="mono">expire_at</span> "YYYY.MM.DD 까지" (중앙, text-04)</td></tr>
+            <tr><td class="td-label">코드 영역</td><td><strong>type 분기</strong> (아래 4-2)</td></tr>
+            <tr><td class="td-label">이용안내/유의사항</td><td><span class="mono">caution</span> 하단 회색 박스, 불릿 리스트</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">5-2. 코드 영역 — type 분기</div>
+        <div class="func-card">
+          <div class="func-card-hd"><span class="tag tag-blue">type = BARCODE</span> 바코드형</div>
+          <div class="func-card-body">
+            <div class="feat"><span class="mono">code</span> 값으로 바코드 렌더 + 하단에 번호 텍스트 노출</div>
+            <div class="feat"><strong>바코드 상단 딤(오버레이) 제거</strong> — 첨부 시안과 달리 바코드를 즉시 노출 (참고 이미지의 "사진첩 저장" 딤 없음)</div>
+            <div class="feat">하단 버튼: <strong>복사하기</strong> (번호 복사) → 토스트 "쿠폰 번호가 복사되었어요"</div>
+          </div>
+        </div>
+        <div class="func-card">
+          <div class="func-card-hd"><span class="tag tag-blue">type = PIN</span> 쿠폰번호형</div>
+          <div class="func-card-body">
+            <div class="feat"><span class="mono">code</span> = 쿠폰번호 텍스트 노출 (회색 박스)</div>
+            <div class="feat"><strong>비밀번호 필드 제거</strong> — 쿠폰번호만 노출</div>
+            <div class="feat">하단 버튼: <strong>복사하기 단일</strong> — 쿠폰 등록하기 버튼 제거</div>
+          </div>
+        </div>
+        <div class="callout callout-info">첨부 시안 대비 변경점 2가지 확정: (1) 바코드형 — 바코드 딤 제거 / (2) 쿠폰번호형 — 비밀번호 미노출 + 복사하기 단일 버튼.</div>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">5-3. 상태별 코드 영역 분기 (발급 이후)</div>
+        <div class="callout callout-info">기프티콘 상세는 <strong>발급 완료(사용가능) 이후에만</strong> 진입한다. 수령 대기(당첨·미수령)는 발급 전 상태로, <strong>경품 응모 현황(§3)</strong>에서 다룬다.</div>
+        <table>
+          <thead><tr><th style="width:120px;">상태</th><th>코드 영역</th><th>비고</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tag tag-green">사용가능</span></td><td>바코드/번호 정상 노출 + 복사하기 활성</td><td>발급 완료 상태. 임박(D-N) 시 유효기간 강조</td></tr>
+            <tr><td><span class="tag tag-blue">사용완료</span></td><td>코드 영역 딤 + "사용 완료된 기프티콘이에요" 안내.</td><td>발급사 API 사용 확인(각주①)</td></tr>
+            <tr><td><span class="tag tag-gray">만료</span></td><td>코드 영역 비활성(블러) + "유효기간이 만료된 기프티콘이에요" 안내. 복사하기 비활성.</td><td>리스트 진입은 가능(이력 확인)</td></tr>
+          </tbody>
+        </table>
+        <div class="mk-cap">각주① 사용완료는 발급사 API 연동으로 매장 실사용 여부를 받아 표기한다(연동 전제).</div>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">5-4. 수령·발급 동선</div>
+        <div class="callout callout-info">수령(받기) → 발급 → 사용가능까지의 동선과 제세공과금(확인 중) 분기는 <strong>§3 수령 동선·경품 응모 현황</strong>에서 정의한다. WL-02는 발급 이후의 상세 표시만 담당한다.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. WL-03 -->
+  <div class="section" id="wl03">
+    <div class="section-header">
+      <div class="section-num">6</div>
+      <div><div class="section-title">WL-03 — 실물경품 수령 플로우</div><div class="section-subtitle">동의 → 본인인증 → 배송지 입력 → 접수 완료</div></div>
+      <span class="sec-badge">APP</span>
+    </div>
+    <div class="section-body">
+
+      <div class="sub-section">
+        <div class="sub-title">6-0. 화면 미리보기</div>
+        <div class="mk"><div class="mk-row">
+          <div class="mk-fw">
+            <div class="mk-lab"><span class="d"></span>① 개인정보 동의 <span class="s">본인인증 목적</span></div>
+            <div class="phone"><div class="scr">
+              <div class="sb"><span>9:41</span><span>▪▪▪ 📶 🔋</span></div>
+              <div class="sgnb"><span class="bk">←</span><span class="tt">경품 수령</span></div>
+              <div class="bd w" style="display:flex;flex-direction:column">
+                <div class="ft">경품 수령을 위해<br>본인인증이 필요해요</div>
+                <div class="fs">아래 항목에 동의하면 본인인증을 진행해요.</div>
+                <div class="cs">
+                  <div class="ci"><div class="cb on">✓</div><div class="ct"><span class="rq">(필수)</span> 개인정보 수집·이용 동의<div class="su">목적: 본인확인 / 항목: 이름·생년월일·통신사·휴대폰번호</div></div><span class="mo">보기</span></div>
+                  <div class="ci"><div class="cb on">✓</div><div class="ct"><span class="rq">(필수)</span> 통신사 본인확인 서비스 이용 동의<div class="su">통신사 → 인증기관 제3자 제공</div></div><span class="mo">보기</span></div>
+                </div>
+                <div class="sp"></div>
+                <div class="btn b-pri" style="margin-bottom:16px">동의하고 본인인증 하기</div>
+              </div>
+            </div></div>
+          </div>
+          <div class="mk-fw">
+            <div class="mk-lab"><span class="d"></span>② 본인인증 <span class="s">MY-07 · 수단 TBD</span></div>
+            <div class="phone"><div class="scr">
+              <div class="sb"><span>9:41</span><span>▪▪▪ 📶 🔋</span></div>
+              <div class="sgnb"><span class="bk">←</span><span class="tt">본인인증</span></div>
+              <div class="bd w" style="display:flex;flex-direction:column">
+                <div class="dw">
+                  <div class="dic" style="background:#FFF7ED">🔒</div>
+                  <div class="dt">본인인증 진행</div>
+                  <div class="ds">인증 수단(통신사/PASS 등)은 MY-07 확정 후 연동돼요. <b>1회 인증 시 계정 저장</b>되어 다음 수령 시 생략돼요.</div>
+                  <div class="dsum"><div class="dr"><span class="k">상태</span><span class="v" style="color:var(--primary)">수단 연동 대기(TBD)</span></div><div class="dr"><span class="k">완료 시</span><span class="v">→ 배송지 입력</span></div></div>
+                </div>
+                <div class="btn b-pri" style="margin-bottom:16px">인증 완료 (→ 배송지)</div>
+              </div>
+            </div></div>
+          </div>
+          <div class="mk-fw">
+            <div class="mk-lab"><span class="d"></span>③ 배송지 입력 <span class="s">입력+동의+제세공과금</span></div>
+            <div class="phone"><div class="scr">
+              <div class="sb"><span>9:41</span><span>▪▪▪ 📶 🔋</span></div>
+              <div class="sgnb"><span class="bk">←</span><span class="tt">배송지 입력</span></div>
+              <div class="bd w" style="display:flex;flex-direction:column;padding:12px 0 16px;overflow-y:auto">
+                <div class="fld"><div class="fl">수령인 <span class="rq">*</span></div><div class="inp ph">이름을 입력해 주세요</div></div>
+                <div class="fld"><div class="fl">연락처 <span class="rq">*</span></div><div class="inp ph">- 없이 숫자만 입력</div></div>
+                <div class="fld"><div class="fl">주소 <span class="rq">*</span></div><div class="ar"><div class="inp ph">우편번호</div><div class="ab">주소 검색</div></div></div>
+                <div class="cs" style="margin-bottom:10px"><div class="ci"><div class="cb on">✓</div><div class="ct"><span class="rq">(필수)</span> 배송지 정보 수집·이용 동의<div class="su">목적: 경품 배송 / 보유: 배송 완료 후 파기</div></div><span class="mo">보기</span></div></div>
+                <div class="taxb"><div class="th">⚠ 제세공과금 안내</div><div class="tt">5만원 이상 경품은 제세공과금 대상이며, 배송지 정보가 위탁업체에 전달돼 3영업일 내 안내가 진행돼요.</div><span class="bd2">위탁업체 신고 대행</span></div>
+                <div class="cs" style="margin-bottom:12px"><div class="ci"><div class="cb on">✓</div><div class="ct"><span class="rq">(필수)</span> 제세공과금 처리 관련 동의</div><span class="mo">보기</span></div></div>
+                <div class="btn b-pri">신청 완료하기</div>
+              </div>
+            </div></div>
+          </div>
+          <div class="mk-fw">
+            <div class="mk-lab"><span class="d"></span>④ 접수 완료 <span class="s">배송상태 MVP 제외</span></div>
+            <div class="phone"><div class="scr">
+              <div class="sb"><span>9:41</span><span>▪▪▪ 📶 🔋</span></div>
+              <div class="sgnb"><span class="bk">←</span><span class="tt">경품 수령</span></div>
+              <div class="bd w" style="display:flex;flex-direction:column">
+                <div class="dw">
+                  <div class="dic">✓</div>
+                  <div class="dt">신청이 접수됐어요!</div>
+                  <div class="ds">입력하신 배송지로 경품을 보내드려요.<br>배송 안내는 별도로 전달돼요.</div>
+                  <div class="dsum"><div class="dr"><span class="k">경품</span><span class="v">SSG 공식 유니폼</span></div><div class="dr"><span class="k">수령인</span><span class="v">김○○</span></div><div class="dr"><span class="k">연락처</span><span class="v">010-****-1234</span></div><div class="dr"><span class="k">상태</span><span class="v" style="color:var(--primary)">접수 완료</span></div></div>
+                </div>
+                <div class="btn b-pri" style="margin-bottom:16px">내 지갑으로 돌아가기</div>
+              </div>
+            </div></div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">6-1. 전체 플로우</div>
+        <div class="flow-box">경품 응모 현황(§3) 당첨 카드 [배송지 입력] 또는 당첨 알림
+  → ① 개인정보 수집·이용 동의 (본인인증 목적)
+  → ② 본인인증 진행 (MY-07, 미완료 시)
+  → ③ 배송지 입력 화면
+       · 배송지 정보 입력 (수령인 / 연락처 / 주소)
+       · 배송지 정보 수집·이용 동의 (체크)
+       · 배송지 정보 제3자 제공(운영위탁 업체) 동의 (체크)
+  → ④ 저장(접수) → 접수 완료
+       · [경품가 5만원↑] 접수 완료 화면·카드에 노티:
+         "배송지 정보가 위탁업체에 전달되며, 3영업일 내 제세공과금 관련 안내가 진행돼요"</div>
+        <div class="callout callout-info">
+          동의는 <strong>정보를 실제 수집하는 시점</strong>에 받는다. ①은 본인인증 목적으로 분리하고, 배송지 수집·이용 동의와 <strong>제3자 제공(위탁) 동의</strong>는 ③에서 입력과 함께 받는다. 제세공과금은 폴리볼이 수집·입금 확인하지 않으며 <strong>위탁업체가 신고 대행</strong>한다(직관 티켓과 동일 구조).
+        </div>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">6-2. ③ 배송지 입력 화면 상세</div>
+        <table>
+          <thead><tr><th style="width:160px;">요소</th><th>내용</th></tr></thead>
+          <tbody>
+            <tr><td class="td-label">수령인명</td><td>Text Field (필수)</td></tr>
+            <tr><td class="td-label">연락처</td><td>Text Field (필수, 숫자)</td></tr>
+            <tr><td class="td-label">주소</td><td>우편번호 검색 + 상세주소 (필수)</td></tr>
+            <tr><td class="td-label">배송지 동의</td><td>Checkbox (필수) — "배송지 정보 수집·이용 동의" + 전문 보기</td></tr>
+            <tr><td class="td-label">제3자 제공 동의</td><td>Checkbox (필수) — "배송지 정보 제3자 제공(운영위탁 업체) 동의" + 전문 보기. 배송·제세공과금 처리 목적 명시.</td></tr>
+            <tr><td class="td-label">제세공과금 고지</td><td><span class="tag tag-orange">경품가 5만원 이상 시</span> 안내 박스(고지, 동의 아님) — "5만원 이상 경품은 제세공과금 대상이며, 위탁업체가 3영업일 내 안내해 드려요"</td></tr>
+            <tr><td class="td-label">CTA</td><td>필수 입력·동의 완료 시 "신청 완료하기" 활성 (Primary)</td></tr>
+          </tbody>
+        </table>
+        <div class="callout callout-warn">
+          수집·이용 동의와 <strong>제3자 제공 동의는 분리 체크박스</strong>로 받는다(개보법 §22 일괄 동의 금지). 제세공과금은 <strong>고지 사항</strong>으로만 표기하며 앱 내 정보 등록·입금 절차가 없다.
+        </div>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">6-3. ④ 접수 완료</div>
+        <div class="func-card">
+          <div class="func-card-body">
+            <div class="feat">저장 즉시 <span class="tag tag-blue">접수 완료</span> + 배송지 요약 노출, 재진입 시 읽기 전용</div>
+            <div class="feat">[경품가 5만원↑] 접수 완료 화면·지갑 카드에 "3영업일 내 위탁업체가 제세공과금 안내" 노티 노출</div>
+            <div class="feat">접수 완료 = 폴리볼 측 <strong>종착 상태</strong>. 배송·송장·제세공과금 안내는 위탁업체 소관(배송 완료 정보는 폴리볼에 없음)</div>
+            <div class="feat">'확인 중' 상태 신설 여부는 <span class="tbd">TBD</span> — 위탁업체의 처리 완료 통보 시점·방식 확인 후 결정</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. 데이터 -->
+  <div class="section" id="data">
+    <div class="section-header">
+      <div class="section-num">7</div>
+      <div><div class="section-title">데이터 설계 (MVP)</div><div class="section-subtitle">유저 ID ↔ 경품 매핑 테이블</div></div>
+    </div>
+    <div class="section-body">
+      <div class="sub-section">
+        <div class="sub-title">6-1. 경품 매핑 테이블 (안)</div>
+        <table>
+          <thead><tr><th style="width:150px;">필드</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">reward_id</td><td>PK</td></tr>
+            <tr><td class="mono">user_id</td><td>지급 대상 유저 ID</td></tr>
+            <tr><td class="mono">type</td><td>BARCODE / PIN / PHYSICAL — 상세 화면 분기</td></tr>
+            <tr><td class="mono">product_name</td><td>상품명</td></tr>
+            <tr><td class="mono">image_url</td><td>대표 이미지</td></tr>
+            <tr><td class="mono">code</td><td>기프티콘 바코드/쿠폰번호 (PHYSICAL은 null)</td></tr>
+            <tr><td class="mono">expire_at</td><td>기프티콘=사용 유효기간 (실물은 해당 없음 — 수령 기한은 receive_deadline)</td></tr>
+            <tr><td class="mono">caution</td><td>이용안내·유의사항 (텍스트)</td></tr>
+            <tr><td class="mono">prize_value</td><td>경품가 — 5만원 이상 시 제세공과금 분기 판정</td></tr>
+            <tr><td class="mono">status</td><td>1계층: 응모 진행 중/발표 대기/당첨/미당첨 · 당첨 하위 — 기프티콘: 수령 전/사용가능/사용완료/만료/당첨 취소, 실물: 수령 전/접수 완료/당첨 취소</td></tr>
+            <tr><td class="mono">received_at</td><td>유저 [받기] 클릭 시각 (이 시점에 발급/코드 할당)</td></tr>
+            <tr><td class="mono">receive_deadline</td><td>수령 기한 = 당첨 발표일 + 7일. 경과 시 status=당첨 취소 처리(배치)</td></tr>
+            <tr><td class="mono">tax_notice_target</td><td>제세공과금 대상 여부(경품가 5만원 초과) — 접수 완료 노티 분기 판정</td></tr>
+            <tr><td class="mono">consent_thirdparty</td><td>배송지 제3자 제공(위탁) 동의 이력 (동의 시각)</td></tr>
+            <tr><td class="mono">ad_refund_count</td><td>낙첨 경품별 광고 시청 환급 횟수 (0~3)</td></tr>
+            <tr><td class="mono">ad_refund_ball_per_view</td><td><span class="mono">round_up(해당 경품 사용 볼 × 10%)</span>, 최소 1볼 — 조회 시 계산</td></tr>
+            <tr><td class="mono">ad_refund_deadline</td><td>광고 환급 가능 기한 = 발표일 + 7일 (수령 기한과 동일 정책)</td></tr>
+            <tr><td class="mono">created_at</td><td>지급(예약)일</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="sub-section">
+        <div class="sub-title">6-2. 실물경품 접수 정보 (별도 또는 확장)</div>
+        <table>
+          <thead><tr><th style="width:150px;">필드</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">recipient_name</td><td>수령인명 (암호화 저장)</td></tr>
+            <tr><td class="mono">recipient_phone</td><td>연락처 (암호화 저장)</td></tr>
+            <tr><td class="mono">address</td><td>우편번호 + 주소 (암호화 저장)</td></tr>
+            <tr><td class="mono">consent_shipping</td><td>배송지 동의 이력 (동의 시각)</td></tr>
+            <tr><td class="mono">consent_tax</td><td>제세공과금 관련 동의 이력 (해당 시)</td></tr>
+            <tr><td class="mono">verified</td><td>본인인증 완료 여부 (계정 인증 자산 참조)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. 법령 -->
+  <div class="section" id="legal">
+    <div class="section-header" style="background: var(--navy);">
+      <div class="section-num">⚖</div>
+      <div><div class="section-title">법령 검토</div><div class="section-subtitle">폴리볼 법령 레퍼런스 v1.0 기준</div></div>
+      <span class="sec-badge">LEGAL</span>
+    </div>
+    <div class="section-body">
+      <div class="callout callout-danger">
+        <strong>핵심 리스크 — 신규 개인정보 수집 발생</strong><br>
+        기프티콘(응모권과 달리)·실물경품 수령 과정에서 <strong>본인인증·배송지 등 신규 개인정보 수집</strong>이 발생하므로, 기존 온보딩 약관만으로는 커버되지 않는다. 수집 시점별 별도 동의 설계가 필수다.
+      </div>
+      <table>
+        <thead><tr><th style="width:110px;">근거</th><th>항목</th><th>검토</th></tr></thead>
+        <tbody>
+          <tr><td>개보법 §15·§22</td><td>배송지 수집·이용 동의</td><td><span class="tag tag-orange">필수</span> 수집 시점(③ 배송지 입력)에 목적·항목·보유기간·거부권 고지. 배송지 동의와 제세공과금 동의를 <strong>분리 체크박스</strong>로 구성(일괄 동의 금지).</td></tr>
+          <tr><td>개보법 §24·§29</td><td>본인인증 / 안전조치</td><td><span class="tag tag-orange">필수</span> 본인인증 동의 목적에 <strong>'경품 수령'을 추가</strong>해야 함 — 현 레퍼런스는 "티켓 교환 목적에 한정"으로 기재됨. 수령인·연락처·주소는 암호화 저장.</td></tr>
+          <tr><td>소득세법</td><td>제세공과금 (기타소득)</td><td>5만원 초과 경품은 기타소득 신고 대상 — <strong>운영위탁 업체가 신고 대행</strong>(직관 티켓과 동일). 폴리볼은 고지·노티만 담당.</td></tr>
+          <tr><td>개보법 §17·§26</td><td>제3자 제공 / 처리위탁</td><td><span class="tag tag-orange">필수</span> 배송지 정보를 위탁업체에 전달하므로 <strong>제3자 제공(또는 처리위탁) 동의</strong>·고지 필요. 직관 티켓과 동일 구조이므로 기존 위탁 계약·동의문 재사용 검토. 제공 항목·목적·보유기간 명시.</td></tr>
+          <tr><td>사행성/대가성 검토</td><td>낙첨 광고 환급(볼)</td><td><span class="tbd">TBD</span> 무료 재화(볼)의 사후 일부 환급이 경품 응모의 대가성·확률형 해석에 영향 없는지 법령 레퍼런스 점검 필요.</td></tr>
+          <tr><td>개보법 §21</td><td>파기 시점</td><td><span class="tag tag-orange">필수</span> 배송 완료 후 배송지 정보 파기 시점 정의 필요(레퍼런스 기재 사항).</td></tr>
+        </tbody>
+      </table>
+      <div class="callout callout-warn">법령 요약은 참고용이며 최종 약관·동의 문구는 법무 검토를 거친다.</div>
+    </div>
+  </div>
+
+  <!-- 8. 미결 -->
+  <div class="section" id="todo">
+    <div class="section-header">
+      <div class="section-num">9</div>
+      <div><div class="section-title">미결 사항</div><div class="section-subtitle">착수 전·후 확정 필요</div></div>
+    </div>
+    <div class="section-body">
+      <table>
+        <thead><tr><th style="width:200px;">항목</th><th>내용</th><th style="width:90px;">담당</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tbd">TBD</span> 위탁업체 처리 완료 통보</td><td>위탁업체가 제세공과금 처리 완료를 폴리볼에 언제·어떻게 통보 가능한지 확인 → 실물 '확인 중' 상태 신설 여부 결정.</td><td>기획/제휴</td></tr>
+          <tr><td><span class="tbd">TBD</span> 위탁 전달 데이터·동의문</td><td>위탁업체 전달 데이터 범위, 제3자 제공/처리위탁 동의문(직관 티켓 동의문 재사용 검토).</td><td>법무/제휴</td></tr>
+          <tr><td><span class="tbd">TBD</span> 취소 재고 처리</td><td>당첨 취소(7일 미수령)된 코드/재고의 재추첨·재사용·소멸 정책.</td><td>어드민(ADM-PZ)</td></tr>
+          <tr><td>⚠ 본인인증 수단</td><td>MY-07 본인인증 수단 미확정(WIP). 확정 전까지 게이트는 "본인인증 화면 이동"까지만 정의 가능.</td><td>기획/개발</td></tr>
+          <tr><td>⚠ 본인인증 동의 목적 확장</td><td>인증 동의 목적에 '경품 수령' 추가 — 약관/동의 문구 반영 필요.</td><td>기획/법무</td></tr>
+          <tr><td>⚠ 배송지 파기 정책</td><td>배송 완료 후 배송지 개인정보 파기 시점 정의.</td><td>기획/법무</td></tr>
+          <tr><td>⚠ 바코드 렌더 방식</td><td>code 문자열 → 클라이언트 바코드 렌더 라이브러리/포맷 확정.</td><td>개발팀</td></tr>
+          <tr><td>⚠ 리마인드 알림 정책</td><td>수령 기한 D-2 리마인드 발송 채널·카피 확정.</td><td>기획/운영</td></tr>
+          <tr><td><span class="tbd">TBD</span> 낙첨 광고 환급 법령 검토</td><td>볼 환급의 대가성·확률형 해석 영향 여부 (법령 레퍼런스 1회 점검).</td><td>법무</td></tr>
+          <tr><td>⚠ 낙첨 환급 리소스/난이도</td><td>우선순위 점수의 리소스·난이도 값 확정(임팩트 재산정 포함).</td><td>기획/개발</td></tr>
+                    <tr><td>⚠ 기프티콘 사용완료 API</td><td>발급사 API 연동으로 매장 사용 여부 수신(사용완료 상태 전제).</td><td>개발팀</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>기능정의서_보유경품_WL_v1_3 · 2026-06-25 · 참조: 마이_기능정의서_v1.0, 폴리볼_서비스_IA_v1_0, 폴리볼_법령_레퍼런스_v1_0, 폴리볼_디자인가이드_v1</footer>
+
+</div>
+</body>
+</html>
