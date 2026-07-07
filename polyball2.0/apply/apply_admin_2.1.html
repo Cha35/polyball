@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>경품 어드민 — 응모 회차 구조 개편 (초안) v2.1</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500;700;800&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Noto Sans KR',sans-serif;background:#F1F5F9;color:#0F172A;font-size:13px;line-height:1.65}
+  .layout{display:flex}
+
+  /* sidebar */
+  .sidebar{width:220px;background:#1E293B;flex-shrink:0;position:fixed;top:0;left:0;height:100vh;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
+  .sidebar-logo{padding:18px 16px 14px;border-bottom:1px solid #334155}
+  .sidebar-logo-main{font-size:15px;font-weight:800;color:#fff}
+  .sidebar-logo-sub{font-size:10px;font-weight:500;color:#64748B;margin-top:2px;font-family:'DM Mono',monospace}
+  .sidebar-group-label{font-size:9px;font-weight:800;letter-spacing:1.2px;color:#475569;padding:14px 16px 4px;text-transform:uppercase;font-family:'DM Mono',monospace}
+  .sidebar-item{display:flex;align-items:center;gap:8px;padding:8px 16px;font-size:12px;color:#94A3B8;text-decoration:none;border-left:3px solid transparent}
+  .sidebar-item:hover{background:#334155;color:#E2E8F0}
+  .sidebar-item.active{background:rgba(37,99,235,.15);color:#60A5FA;border-left-color:#2563EB;font-weight:700}
+  .sidebar-item-id{font-family:'DM Mono',monospace;font-size:9px;color:#475569;background:#0F172A;border-radius:3px;padding:1px 5px;flex-shrink:0;margin-left:auto}
+  .sidebar-divider{height:1px;background:#334155;margin:6px 16px}
+  .badge-new{font-family:'DM Mono',monospace;font-size:8px;font-weight:800;background:#059669;color:#fff;border-radius:3px;padding:1px 5px;flex-shrink:0;margin-left:auto}
+  .badge-mod{font-family:'DM Mono',monospace;font-size:8px;font-weight:800;background:#D97706;color:#fff;border-radius:3px;padding:1px 5px;flex-shrink:0;margin-left:auto}
+
+  /* topbar */
+  .topbar{position:fixed;top:0;left:220px;right:0;height:52px;background:#fff;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:90}
+  .topbar-left{display:flex;align-items:center;gap:10px}
+  .topbar-title{font-size:14px;font-weight:800}
+  .topbar-badge{font-size:10px;font-weight:700;background:#EFF6FF;color:#2563EB;border:1px solid #BFDBFE;border-radius:4px;padding:2px 7px}
+  .topbar-version{font-family:'DM Mono',monospace;font-size:10px;color:#94A3B8}
+
+  .main{margin-left:220px;padding-top:52px;flex:1}
+  .content{padding:28px 28px 80px}
+  .content-inner{max-width:100%}
+
+  /* page header */
+  .page-header{background:#fff;border:1px solid #E2E8F0;border-radius:10px;padding:22px 24px;margin-bottom:18px}
+  .page-header h1{font-size:21px;font-weight:800;margin-bottom:6px}
+  .page-header .ph-sub{font-size:13px;color:#64748B;margin-bottom:14px;line-height:1.7}
+  .page-meta{display:flex;flex-wrap:wrap;gap:6px 20px;border-top:1px solid #F1F5F9;padding-top:14px}
+  .meta-item{font-size:11px;color:#94A3B8;font-family:'DM Mono',monospace}
+  .meta-item b{color:#475569;font-weight:700}
+
+  .draft-box{background:#FFFBEB;border:1.5px dashed #F59E0B;border-radius:10px;padding:14px 18px;margin-bottom:22px;font-size:12.5px;color:#92400E;line-height:1.8}
+  .draft-box b{color:#B45309}
+
+  /* section */
+  .section{background:#fff;border:1px solid #E2E8F0;border-radius:10px;padding:22px 24px;margin-bottom:20px;scroll-margin-top:64px}
+  .section-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #E2E8F0}
+  .section-id{font-family:'DM Mono',monospace;font-size:10px;font-weight:700;color:#fff;background:#2563EB;border-radius:4px;padding:2px 8px}
+  .section-id.new{background:#059669}
+  .section-id.ref{background:#94A3B8}
+  .section-title{font-size:15px;font-weight:800}
+  .section-badge{font-size:10px;font-weight:700;border-radius:20px;padding:2px 8px;white-space:nowrap;margin-left:auto}
+  .badge-admin{background:#F5F3FF;color:#7C3AED;border:1px solid #E9D5FF}
+  .badge-data{background:#ECFEFF;color:#0E7490;border:1px solid #A5F3FC}
+  .badge-scope-out{background:#F8FAFC;color:#94A3B8;border:1px solid #E2E8F0}
+
+  .sub-title{font-size:13px;font-weight:800;color:#1E293B;margin:18px 0 9px;display:flex;align-items:center;gap:7px}
+  .sub-title::before{content:'';display:inline-block;width:3px;height:14px;background:#2563EB;border-radius:2px}
+  .sub-title:first-child{margin-top:0}
+  p.desc{font-size:13px;color:#334155;margin-bottom:8px;line-height:1.7}
+
+  /* tables */
+  table{width:100%;border-collapse:collapse;font-size:12px;margin:8px 0}
+  .spec-table th{background:#2563EB;color:#fff;font-size:11px;font-weight:700;padding:9px 12px;text-align:left;white-space:nowrap}
+  .spec-table td{padding:9px 12px;border-bottom:1px solid #E2E8F0;vertical-align:top;color:#334155}
+  .spec-table tr:nth-child(even) td{background:#F8FAFC}
+  .spec-2col td:first-child{width:180px;font-weight:700;color:#2563EB;background:#EFF6FF !important;white-space:nowrap;font-size:11px}
+  td.ok{background:#F0FDF4 !important;color:#166534}
+  td.tbd{background:#FFFBEB !important;color:#92400E}
+  td.risk{background:#FEF2F2 !important;color:#991B1B}
+  .mono{font-family:'DM Mono',monospace;font-size:11px;color:#2563EB}
+  .del{color:#94A3B8;text-decoration:line-through}
+  .add{color:#059669;font-weight:700}
+
+  /* tags */
+  .tag{display:inline-flex;align-items:center;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700;white-space:nowrap;font-family:'DM Mono',monospace}
+  .tag-gift{background:#EFF6FF;color:#2563EB;border:1px solid #BFDBFE}
+  .tag-phys{background:#F5F3FF;color:#7C3AED;border:1px solid #E9D5FF}
+  .tag-req{background:#FEF2F2;color:#DC2626;border:1px solid #FECACA}
+  .tag-yes{background:#ECFDF5;color:#059669;border:1px solid #6EE7B7}
+  .tag-no{background:#F8FAFC;color:#94A3B8;border:1px solid #E2E8F0}
+  .tag-tbd{background:#FFFBEB;color:#D97706;border:1px solid #FDE68A}
+  .tag-new{background:#ECFDF5;color:#059669;border:1px solid #6EE7B7}
+  .tag-del{background:#F8FAFC;color:#94A3B8;border:1px solid #E2E8F0;text-decoration:line-through}
+
+  /* info boxes */
+  .info-box{background:#FFF7ED;border-left:3px solid #F97316;border-radius:0 8px 8px 0;padding:11px 14px;font-size:12px;color:#7C2D12;line-height:1.7;margin:10px 0}
+  .info-box-blue{background:#EFF6FF;border-left:3px solid #2563EB;border-radius:0 8px 8px 0;padding:11px 14px;font-size:12px;color:#1E3A5F;line-height:1.7;margin:10px 0}
+  .info-box-green{background:#F0FDF4;border-left:3px solid #059669;border-radius:0 8px 8px 0;padding:11px 14px;font-size:12px;color:#065F46;line-height:1.7;margin:10px 0}
+  .info-box-red{background:#FEF2F2;border-left:3px solid #DC2626;border-radius:0 8px 8px 0;padding:11px 14px;font-size:12px;color:#7F1D1D;line-height:1.7;margin:10px 0}
+  .info-box-navy{background:#0F172A;border-radius:8px;padding:14px 16px;font-size:12px;color:#CBD5E1;line-height:1.75;margin:10px 0}
+  .info-box-navy b{color:#fff}
+
+  /* btn (mock) */
+  .btn{height:30px;border-radius:6px;padding:0 14px;font-size:11px;font-weight:700;border:none;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+  .btn-primary{background:#2563EB;color:#fff}
+  .btn-success{background:#F0FDF4;color:#059669;border:1px solid #86EFAC}
+  .btn-secondary{background:#F1F5F9;color:#475569;border:1px solid #E2E8F0}
+  .btn-danger-ghost{background:#fff;color:#DC2626;border:1px solid #FECACA}
+
+  /* flow */
+  .flow{display:flex;align-items:center;flex-wrap:wrap;gap:6px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:8px;padding:14px;margin:10px 0}
+  .flow .step{background:#fff;border:1px solid #CBD5E1;border-radius:6px;padding:7px 11px;font-size:11px;font-weight:700;color:#334155}
+  .flow .step.b{background:#2563EB;color:#fff;border-color:#2563EB}
+  .flow .step.n{background:#059669;color:#fff;border-color:#059669}
+  .flow .arr{color:#94A3B8;font-weight:700}
+
+  /* admin screen wireframe */
+  .wire{border:1px solid #CBD5E1;border-radius:10px;overflow:hidden;margin:12px 0}
+  .wire-bar{background:#1E293B;color:#fff;font-size:11px;font-weight:700;padding:8px 14px;display:flex;align-items:center;gap:8px}
+  .wire-bar .wid{font-family:'DM Mono',monospace;font-size:9px;background:#0F172A;color:#60A5FA;border-radius:3px;padding:1px 6px}
+  .wire-bar .wid.new{color:#6EE7B7}
+  .wire-body{background:#fff;padding:14px}
+  .wire-toolbar{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+  .wire-input{border:1px solid #CBD5E1;border-radius:6px;padding:6px 10px;font-size:11px;color:#94A3B8;background:#fff}
+  .wt th{background:#F1F5F9;color:#475569;font-size:10px;font-weight:700;padding:7px 9px;text-align:left;border-bottom:1px solid #E2E8F0;white-space:nowrap}
+  .wt td{padding:7px 9px;border-bottom:1px solid #F1F5F9;font-size:11px;color:#334155}
+  .wt tr:last-child td{border-bottom:none}
+  .form-grid{display:grid;grid-template-columns:160px 1fr;gap:0;border:1px solid #E2E8F0;border-radius:8px;overflow:hidden}
+  .form-grid .fl{background:#F8FAFC;border-bottom:1px solid #E2E8F0;border-right:1px solid #E2E8F0;padding:10px 12px;font-size:11px;font-weight:700;color:#475569;display:flex;align-items:center;gap:5px}
+  .form-grid .fv{background:#fff;border-bottom:1px solid #E2E8F0;padding:8px 12px;font-size:11px;color:#334155;display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+  .form-grid .fl:last-of-type,.form-grid .fv:last-child{border-bottom:none}
+  .fake-input{border:1px solid #CBD5E1;border-radius:6px;padding:6px 10px;font-size:11px;color:#94A3B8;background:#fff;flex:1;max-width:320px}
+  .fake-select{border:1px solid #CBD5E1;border-radius:6px;padding:6px 10px;font-size:11px;color:#334155;background:#fff}
+
+  .fn{font-size:11px;color:#64748B;background:#F8FAFC;border:1px dashed #CBD5E1;border-radius:8px;padding:10px 14px;margin:10px 0;line-height:1.7}
+  .fn b{color:#D97706}
+  ul.bul{margin:6px 0 6px 4px;list-style:none}
+  ul.bul li{font-size:12px;color:#334155;padding:3px 0 3px 14px;position:relative;line-height:1.6}
+  ul.bul li::before{content:'·';position:absolute;left:3px;color:#2563EB;font-weight:800}
+  footer{font-family:'DM Mono',monospace;font-size:10px;color:#94A3B8;text-align:center;padding:20px}
+
+  /* screen meta (admin kv) */
+  .scrmeta{background:#0F172A;color:#fff;border-radius:10px;padding:14px 18px;margin:12px 0 18px;display:flex;gap:10px;flex-wrap:wrap}
+  .scrmeta .p{font-size:11px;background:rgba(255,255,255,.09);border-radius:6px;padding:5px 10px}
+  .scrmeta .p b{color:#6EE7B7;font-weight:800;margin-right:5px}
+
+  /* axis header */
+  .sx{margin:26px 0 10px;display:flex;align-items:center;gap:9px;padding-bottom:7px;border-bottom:2px solid #E2E8F0}
+  .sx .n{font-size:10px;font-weight:800;color:#fff;background:#2563EB;border-radius:6px;padding:3px 9px;font-family:'DM Mono',monospace}
+  .sx h3{font-size:14px;font-weight:800;color:#1E293B}
+  .sx .hint{font-size:11px;color:#94A3B8;font-weight:500}
+
+  .callno{position:absolute;min-width:20px;height:20px;border-radius:10px;background:#DC2626;color:#fff;font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #fff;z-index:60;font-family:'DM Mono',monospace;padding:0 5px}
+
+  /* ===== 전체화면 어드민 목업 ===== */
+  .admin-mock{border:1px solid #CBD5E1;border-radius:12px;overflow:hidden;box-shadow:0 12px 30px rgba(15,23,42,.16);margin:20px 0 6px;position:relative;background:#fff}
+  .admin-mock .am-cap{position:absolute;top:-11px;left:16px;background:#1E293B;color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:5px;font-family:'DM Mono',monospace;z-index:5}
+  .am-wrap{display:flex;min-height:380px;position:relative}
+  .am-side{width:196px;flex-shrink:0;background:#1E293B;overflow:hidden;position:relative}
+  .am-side .logo{padding:14px 14px 10px;border-bottom:1px solid #334155;color:#fff;font-weight:800;font-size:12px}
+  .am-side .logo small{display:block;color:#64748B;font-weight:500;font-size:8px;margin-top:3px;font-family:'DM Mono',monospace}
+  .am-side .g{padding:10px 14px 3px;color:#475569;font-weight:800;letter-spacing:.6px;font-size:8px;text-transform:uppercase}
+  .am-side a{display:flex;align-items:center;gap:5px;padding:6px 14px;color:#94A3B8;font-size:10px;border-left:2px solid transparent;text-decoration:none}
+  .am-side a.on{background:rgba(37,99,235,.18);color:#60A5FA;border-left-color:#2563EB;font-weight:700}
+  .am-side a.sub{padding-left:26px;font-size:9.5px}
+  .am-main{flex:1;min-width:0;display:flex;flex-direction:column;background:#F1F5F9;position:relative}
+  .am-top{height:38px;background:#fff;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;padding:0 14px;gap:6px;flex-shrink:0;position:relative}
+  .am-tab{font-size:10px;color:#94A3B8;padding:4px 9px;border-radius:5px 5px 0 0}
+  .am-tab.on{background:#EFF6FF;color:#2563EB;font-weight:700;border-bottom:2px solid #2563EB}
+  .am-top .sp{flex:1}
+  .am-top .meta{font-size:9px;color:#94A3B8;font-family:'DM Mono',monospace}
+  .am-body{flex:1;padding:18px 22px;overflow:visible;position:relative}
+  .am-title{font-size:16px;font-weight:800;color:#0F172A;margin-bottom:12px}
+  .am-sub{font-size:12px;font-weight:800;color:#1E293B;margin:16px 0 8px}
+  .am-filter{background:#fff;border:1px solid #E2E8F0;border-radius:8px;padding:14px 16px;display:flex;gap:18px;flex-wrap:wrap;margin-bottom:12px;position:relative}
+  .am-field{display:flex;flex-direction:column;gap:4px}
+  .am-field label{font-size:9px;color:#64748B;font-weight:700}
+  .am-field .in{border:1px solid #CBD5E1;border-radius:6px;padding:6px 10px;font-size:10.5px;color:#334155;background:#fff;min-width:150px}
+  .am-filter-btns{display:flex;align-items:flex-end;gap:6px;margin-left:auto}
+  .am-fbtn{height:30px;border-radius:6px;padding:0 12px;font-size:10.5px;font-weight:700;display:flex;align-items:center;gap:4px;border:none}
+  .am-fbtn.pri{background:#2563EB;color:#fff}
+  .am-fbtn.sec{background:#fff;border:1px solid #CBD5E1;color:#475569}
+  .am-count{font-size:11px;color:#334155;margin-bottom:6px;display:flex;align-items:center;position:relative}
+  .am-count b{color:#2563EB}
+  .am-count .add{margin-left:auto}
+  table.am-table{width:100%;background:#fff;border:1px solid #E2E8F0;border-radius:8px;overflow:hidden;font-size:10.5px;border-collapse:collapse}
+  table.am-table th{background:#2563EB;color:#fff;padding:8px 10px;text-align:left;font-weight:700;font-size:10px;white-space:nowrap}
+  table.am-table td{padding:8px 10px;border-bottom:1px solid #F1F5F9;color:#334155;white-space:nowrap}
+  table.am-table td.hl{background:#ECFDF5}
+  .am-modal-overlay{position:absolute;inset:0;background:rgba(15,23,42,.5);display:flex;align-items:flex-start;justify-content:center;padding-top:40px;z-index:10}
+  .am-modal{background:#fff;border-radius:10px;width:640px;max-width:92%;box-shadow:0 22px 55px rgba(0,0,0,.35);overflow:hidden;max-height:560px;display:flex;flex-direction:column}
+  .am-modal-hd{padding:14px 18px;border-bottom:1px solid #E2E8F0;font-weight:800;font-size:13px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+  .am-modal-bd{padding:16px 18px;overflow:auto}
+  .am-modal-ft{padding:12px 18px;border-top:1px solid #E2E8F0;display:flex;justify-content:flex-end;gap:8px;flex-shrink:0}
+  .am-formgrid{display:grid;grid-template-columns:120px 1fr;gap:0;border:1px solid #E2E8F0;border-radius:8px;overflow:hidden;margin-bottom:14px}
+  .am-formgrid .fl{background:#F8FAFC;border-bottom:1px solid #E2E8F0;border-right:1px solid #E2E8F0;padding:9px 11px;font-size:10.5px;font-weight:700;color:#475569}
+  .am-formgrid .fv{background:#fff;border-bottom:1px solid #E2E8F0;padding:7px 11px;font-size:10.5px;color:#334155;display:flex;align-items:center;flex-wrap:wrap;gap:5px}
+  .am-formgrid .fl:last-of-type,.am-formgrid .fv:last-child{border-bottom:none}
+  .am-chk{display:flex;align-items:center;gap:8px;padding:8px 6px;border-bottom:1px solid #F1F5F9;font-size:11px}
+  .am-chk .box{width:15px;height:15px;border:1.5px solid #CBD5E1;border-radius:4px;flex-shrink:0}
+  .am-chk .box.on{background:#2563EB;border-color:#2563EB}
+  .am-chk.dis{opacity:.4}
+
+
+  .mock-label{display:inline-block;background:#1E293B;color:#fff;font-size:10px;font-weight:700;padding:4px 10px;border-radius:5px;font-family:'DM Mono',monospace;margin-bottom:8px}
+  table.am-table{table-layout:fixed;border-collapse:separate;border-spacing:0}
+  table.am-table td{white-space:normal;overflow:hidden;text-overflow:ellipsis}
+
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-main">Wallet Admin</div>
+      <div class="sidebar-logo-sub">경품 어드민 · ADM-PZ v2.1(초안)</div>
+    </div>
+    <div class="sidebar-group-label">Overview</div>
+    <a class="sidebar-item active" href="#overview">개요 · AS-IS 문제 <span class="sidebar-item-id">PZ-00</span></a>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-group-label">경품 관리</div>
+    <a class="sidebar-item" href="#pz01">경품 상품 관리 <span class="badge-mod">수정</span></a>
+    <a class="sidebar-item" href="#pz03">응모 회차 관리 <span class="badge-new">NEW</span></a>
+    <a class="sidebar-item" href="#pz05">당첨자 관리 <span class="sidebar-item-id">PZ-05</span></a>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-group-label">상품 관리 (기존)</div>
+    <a class="sidebar-item" href="#pz02">쿠칩 상품 관리 <span class="sidebar-item-id">참고</span></a>
+    <a class="sidebar-item" href="#coupon">쿠폰 코드 관리 <span class="sidebar-item-id">범위外</span></a>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-group-label">Reference</div>
+    <a class="sidebar-item" href="#pz04">코드풀 관리 <span class="sidebar-item-id">유지</span></a>
+    <a class="sidebar-item" href="#data">데이터 모델 <span class="sidebar-item-id">DATA</span></a>
+    <a class="sidebar-item" href="#todo">결정 필요 · 미결 <span class="sidebar-item-id">TODO</span></a>
+  </nav>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-title">경품 어드민</span>
+      <span class="topbar-badge">ADM-PZ</span>
+      <span class="topbar-badge" style="background:#FEF2F2;color:#DC2626;border-color:#FECACA">v2.1 초안</span>
+    </div>
+    <span class="topbar-version">2026-07-06 · 응모 회차 구조 개편(안)</span>
+  </div>
+
+  <main class="main">
+  <div class="content">
+  <div class="content-inner">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <h1>경품 어드민 — 응모 회차 구조 개편 (초안)</h1>
+      <div class="ph-sub">실제 구현된 Wallet Admin 화면 검토 결과 확인된 <b>"경품 = 응모 1:1"</b> 구조 문제를 해결한다. 경품 마스터와 응모(회차)를 분리하고, 회차 안에서 경품 여러 개 · 경품별 당첨 인원/수량을 지정하는 지점을 신설한다.</div>
+      <div class="page-meta">
+        <span class="meta-item"><b>기능 ID</b> ADM-PZ</span>
+        <span class="meta-item"><b>버전</b> v2.1 (초안)</span>
+        <span class="meta-item"><b>플랫폼</b> BO(Wallet Admin)</span>
+        <span class="meta-item"><b>기반</b> ADM-PZ v1.0 실 구현 화면 리뷰</span>
+        <span class="meta-item"><b>작성일</b> 2026-07-06</span>
+      </div>
+    </div>
+
+    <div class="draft-box">
+      <b>초안 범위 안내</b> — 이 문서는 실 구현 화면(경품 상품 관리)에서 발견된 <b>구조 문제(경품=응모 1:1) · 당첨 인원/수량 필드 부재</b>를 해결하는 데 범위를 한정한다. 확정보상·최다 응모자·본인인증 응모 게이트·제세공과금 자동 트리거 등 기존 v2.0 기획안의 추가 정책은 <b>이번 구조 개편이 확정된 후 별도 반영</b>한다(§TODO 참조). 필드명·화면 배치는 제안 값이며 개발 검토 후 확정한다.
+    </div>
+
+    <!-- PZ-00 개요 · AS-IS -->
+    <div class="section" id="overview">
+      <div class="section-header"><span class="section-id">PZ-00</span><span class="section-title">개요 · AS-IS 문제 정리</span></div>
+
+      <p class="desc">경품 어드민은 인앱 <strong>마이 &gt; 내 지갑 &gt; 보유 경품(WL)</strong>에 표시되는 경품 데이터를 생성·운영하는 상위 도구다. 실 구현 화면을 리뷰한 결과, 아래 5가지 구조적 문제가 확인되어 개편이 필요하다.</p>
+
+      <div class="sub-title">AS-IS 문제 · 실 화면 근거</div>
+      <table class="spec-table">
+        <thead><tr><th style="width:170px;">문제</th><th>실 화면 근거</th><th>영향</th></tr></thead>
+        <tbody>
+          <tr><td class="td-label"><b>① 경품=응모 1:1 구조</b></td><td>「경품 상품 목록」에 <b>"닌텐도 스위치2"</b>가 SEQ 1 · SEQ 3으로 <b>중복 등록</b>되어 있고, 각각 다른 응모 시작/종료일을 가짐. 「경품 상품 등록」 모달에 응모 시작/종료일시가 경품 필드로 박혀 있음</td><td class="risk">같은 경품을 다른 기간에 재사용하려면 전체 정보를 재입력해야 함. 마스터 재사용이 무력화됨</td></tr>
+          <tr><td class="td-label"><b>② 당첨 인원·수량 필드 부재</b></td><td>등록 모달·목록 어디에도 "몇 명에게 몇 개씩"을 입력·표시하는 필드가 없음</td><td class="risk">재고 검증·추첨 배치를 실행할 근거 데이터 자체가 없음</td></tr>
+          <tr><td class="td-label">③ 노출/응모 기간 미분리</td><td>「경품 상품 등록」에 응모 시작/종료일시만 존재, 노출 기간 필드 없음</td><td class="tbd">마감 후에도 상품을 계속 열람시키는 운영이 불가능</td></tr>
+          <tr><td class="td-label">④ 활성화가 경품 단위</td><td>「경품 상품 목록」의 🚫 아이콘이 경품(행) 단위로만 존재</td><td class="tbd">응모 하나를 통째로 멈추려면 그 안 경품을 각각 꺼야 함</td></tr>
+          <tr><td class="td-label">⑤ 쿠폰코드관리 위치 혼동</td><td>「쿠폰 코드 관리」(제휴사 수기 쿠폰, 응모 미사용)가 「쿠칩 상품 관리」 하위에 나란히 위치</td><td class="tbd">운영자가 응모용 코드 관리로 오인할 위험</td></tr>
+        </tbody>
+      </table>
+
+      <div class="sub-title">운영 사이클 (TO-BE)</div>
+      <div class="flow">
+        <span class="step b">경품 마스터 등록</span><span class="arr">→</span>
+        <span class="step n">응모 회차 등록</span><span class="arr">→</span>
+        <span class="step n">경품 추가 · 당첨설정</span><span class="arr">→</span>
+        <span class="step">서버 배치 추첨</span><span class="arr">→</span>
+        <span class="step b">당첨자 관리</span><span class="arr">→</span>
+        <span class="step">인앱 WL 노출</span>
+      </div>
+      <div class="info-box-blue">굵게 표시한 두 단계(<b>응모 회차 등록 / 경품 추가·당첨설정</b>)가 이번 개편으로 신설되는 지점이다. 나머지 단계는 기존 화면을 그대로 유지한다.</div>
+    </div>
+
+    <!-- PZ-01 경품 상품 관리 (수정) -->
+    <div class="section" id="pz01">
+      <div class="section-header"><span class="section-id">PZ-01</span><span class="section-title">경품 상품 관리</span><span class="section-badge badge-admin">수정</span></div>
+      <p class="desc">경품의 "정의"만 담당하는 <b>순수 마스터</b>로 축소한다. 응모 일정·당첨 인원은 더 이상 이 화면의 책임이 아니다 — 「응모 회차 관리(PZ-03)」로 이동한다.</p>
+
+      <div class="scrmeta">
+        <span class="p"><b>메뉴 위치</b>경품 관리 &gt; 경품 상품 관리 &gt; 경품 상품 목록</span>
+        <span class="p"><b>필요 권한</b>경품 운영자 이상 (제안값 · 역할 체계 TBD)</span>
+        <span class="p"><b>데이터 소스</b>prize_master · 쿠칩 상품 카탈로그(참조)</span>
+        <span class="p"><b>연관 화면</b>쿠칩 상품 관리(참고) · PZ-03 응모 회차 관리 · PZ-04 코드풀 관리</span>
+      </div>
+
+      <div class="sub-title">필드 변경 (경품 상품 등록)</div>
+      <table class="spec-table">
+        <thead><tr><th style="width:150px;">필드</th><th style="width:90px;">변경</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td>상품명 · 경품구분 · 쿠칩상품 · 이미지URL</td><td><span class="tag tag-no">유지</span></td><td>변경 없음</td></tr>
+          <tr><td>경품가치(원)</td><td><span class="tag tag-tbd">보강</span></td><td>쿠칩 상품 선택 시 <b>쿠칩 소비자가를 자동으로 채움</b>(현재는 수동 입력 placeholder만 존재). 선정 시점 값으로 스냅샷 고정 — 이후 쿠칩 가격이 변해도 자동 갱신하지 않음(제세공과금 판정 기준 안정성)</td></tr>
+          <tr><td>유효/마감 기한, 이용안내·유의사항</td><td><span class="tag tag-new">신설</span></td><td>기프티콘=사용 유효기간 / 실물=신청 마감. 현재 화면엔 없던 필드(PZ v1.0에는 있었으나 실 구현에서 누락)</td></tr>
+          <tr><td class="del">응모 시작일시 / 응모 종료일시</td><td><span class="tag tag-del">삭제</span></td><td>경품의 속성이 아니라 <b>회차의 속성</b>이므로 PZ-03으로 이동</td></tr>
+          <tr><td class="del">노출 순서</td><td><span class="tag tag-del">삭제</span></td><td>회차 내 경품 정렬 순서이므로 PZ-03의 "경품 추가" 설정으로 이동</td></tr>
+          <tr><td>사용여부(활성)</td><td><span class="tag tag-tbd">역할 축소</span></td><td>경품 자체를 회차에 사용 가능한 상태로 둘지만 결정(품절·단종 시 OFF). <b>응모 진행 자체의 on/off는 PZ-03(회차)로 이관</b></td></tr>
+        </tbody>
+      </table>
+
+      <!-- 화면 A: 경품 상품 목록 -->
+      <div class="sub-title">화면 A — 경품 상품 목록 (풀스크린, 수정)</div>
+      <div class="mock-label">PZ-01-A · 경품 상품 관리 &gt; 경품 상품 목록</div>
+      <div class="admin-mock">
+        <div class="am-wrap">
+          <div class="am-side">
+            <div class="logo">Wallet Admin<small>ADM-PZ v2.1</small></div>
+            <div class="g">경품 관리</div>
+            <a class="on">경품 상품 관리</a>
+            <a class="sub on">경품 상품 목록</a>
+            <a>응모 회차 관리</a>
+            <a class="sub">회차 목록</a>
+            <a>당첨자 관리</a>
+            <div class="g">상품 관리</div>
+            <a>쿠칩 상품 관리</a>
+            <a class="sub">쿠칩 상품 목록</a>
+            <a class="sub">쿠폰 목록</a>
+            <div class="g">기타</div>
+            <a>파일 관리</a>
+            <a>공통 서비스 관리</a>
+            <a>관리자 관리</a>
+          </div>
+          <div class="am-main">
+            <div class="am-top">
+              <span class="am-tab on">경품 상품 관리 ×</span>
+              <span class="sp"></span>
+              <span class="meta">⏱ 29:58 · ↻ 연장 · 👤 차*호</span>
+            </div>
+            <div class="am-body">
+              <div class="am-title">경품 상품 관리</div>
+              <div class="am-filter">
+                <div class="am-field"><label>상품명</label><span class="in" style="color:#94A3B8">🔍 상품명 검색</span></div>
+                <div class="am-field"><label>구분</label><span class="in">all</span></div>
+                <div class="am-field"><label>사용여부</label><span class="in">all</span></div>
+                <div class="am-filter-btns"><span class="am-fbtn sec">↺ 초기화</span><span class="am-fbtn pri">🔍 검색</span></div>
+                <span class="callno" style="left:0;top:-12px">1</span>
+              </div>
+              <div class="am-count">총 <b>2</b>건<span class="add"><span class="am-fbtn pri">＋ 경품 등록</span></span><span class="callno" style="right:0;top:-10px">2</span></div>
+              <table class="am-table">
+                <thead><tr><th style="width:70px">경품ID</th><th>상품명</th><th style="width:80px">구분</th><th style="width:100px">쿠칩상품ID</th><th style="width:90px">경품가치</th><th style="width:80px">코드재고</th><th style="width:90px">연결된 회차</th><th style="width:80px">사용여부</th><th style="width:60px">관리</th></tr></thead>
+                <tbody>
+                  <tr><td>P-1001</td><td>[던킨] 아메리카노 2+도넛세트</td><td>기프티콘</td><td>CC-88213</td><td>9,000원</td><td>198개</td><td style="position:relative;color:#059669">2개 회차<span class="callno" style="top:2px;right:2px">3</span></td><td>사용</td><td style="position:relative">✎<span class="callno" style="top:2px;right:2px">4</span></td></tr>
+                  <tr><td>P-1002</td><td>닌텐도 스위치2</td><td>실물</td><td>—</td><td>420,000원</td><td>—</td><td style="color:#059669">1개 회차</td><td>사용</td><td>✎</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mk-cap" style="font-size:11px;color:#64748B;margin:6px 0 16px">① 필터바(상품명·구분·사용여부) ② [＋ 경품 등록] → 화면 B ③ "연결된 회차" 클릭 → PZ-03 회차 목록으로 이동(더 이상 SEQ 중복 생성 안 됨) ④ 관리(✎ 수정)</div>
+
+      <!-- 화면 B: 경품 등록 모달 -->
+      <div class="sub-title">화면 B — 경품 등록 (모달, 수정)</div>
+      <div class="mock-label">PZ-01-B · 경품 상품 등록</div>
+      <div class="admin-mock">
+        <div class="am-wrap" style="min-height:520px">
+          <div class="am-side">
+            <div class="logo">Wallet Admin<small>ADM-PZ v2.1</small></div>
+            <div class="g">경품 관리</div>
+            <a class="on">경품 상품 관리</a>
+            <a class="sub on">경품 상품 목록</a>
+            <a>응모 회차 관리</a>
+          </div>
+          <div class="am-main">
+            <div class="am-top">
+              <span class="am-tab on">경품 상품 관리 ×</span>
+              <span class="sp"></span>
+              <span class="meta">⏱ 29:41 · ↻ 연장 · 👤 차*호</span>
+            </div>
+            <div class="am-body">
+              <div class="am-title" style="opacity:.35">경품 상품 관리</div>
+              <div class="am-modal-overlay" style="align-items:center;padding-top:0">
+                <div class="am-modal" style="width:520px">
+                  <div class="am-modal-hd">경품 상품 등록 <span style="color:#94A3B8;font-weight:400;cursor:pointer">✕</span></div>
+                  <div class="am-modal-bd">
+                    <div class="am-formgrid">
+                      <div class="fl">상품명 *</div><div class="fv"><span class="in" style="min-width:260px">상품명 입력</span></div>
+                      <div class="fl">경품 구분 *</div><div class="fv"><span class="in" style="min-width:160px">GIFTICON</span></div>
+                      <div class="fl" style="position:relative">쿠칩 상품 *<span class="callno" style="right:-24px;top:6px">5</span></div><div class="fv" style="background:#ECFDF5"><span class="in" style="min-width:220px">[던킨] 아메리카노 2+도넛세트</span></div>
+                      <div class="fl" style="position:relative">경품가치(원)<span class="callno" style="right:-24px;top:6px">6</span></div><div class="fv" style="background:#ECFDF5"><span class="in" style="min-width:140px;color:#059669;font-weight:700">9,000 (자동)</span></div>
+                      <div class="fl">유효/마감기한 *</div><div class="fv"><span class="in" style="min-width:160px">2026-12-31</span></div>
+                      <div class="fl">이용안내·유의사항</div><div class="fv"><span class="in" style="min-width:260px">유효기간 · 사용처 등 안내문</span></div>
+                      <div class="fl">이미지 URL</div><div class="fv"><span class="in" style="min-width:260px">https://...</span></div>
+                      <div class="fl">사용여부</div><div class="fv"><span class="tag tag-yes">사용</span> <span class="tag tag-no">중지</span></div>
+                    </div>
+                  </div>
+                  <div class="am-modal-ft"><span class="am-fbtn sec">취소</span><span class="am-fbtn pri">등록</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mk-cap" style="font-size:11px;color:#64748B;margin:6px 0 16px">⑤ 경품구분=GIFTICON일 때만 "쿠칩 상품" 드롭다운 노출(PHYSICAL이면 숨김) — 목록은 쿠칩 상품 관리에서 사용여부=ON인 항목만 ⑥ 쿠칩 상품 선택 즉시 경품가치 자동 채움 · 등록 완료 시점 값으로 스냅샷 고정(<b class="req">신규 보강</b>)</div>
+
+      <div class="sx"><span class="n">1</span><h3>화면 상태</h3></div>
+      <table class="spec-table">
+        <thead><tr><th style="width:150px">상태</th><th>조건</th><th>표시</th></tr></thead>
+        <tbody>
+          <tr><td>EMPTY</td><td>등록된 경품 없음 / 필터 결과 없음</td><td>"데이터가 없습니다"</td></tr>
+          <tr><td>LIST</td><td>1건 이상</td><td>테이블 렌더 + 총 N건</td></tr>
+          <tr><td>FORM_INIT</td><td>등록 모달 오픈, 미입력</td><td>[등록] 비활성</td></tr>
+          <tr><td>FORM_GIFTICON</td><td>경품구분=GIFTICON 선택</td><td>"쿠칩 상품" 드롭다운 노출, 선택 시 경품가치 자동 채움(readonly)</td></tr>
+          <tr><td>FORM_PHYSICAL</td><td>경품구분=PHYSICAL 선택</td><td>"쿠칩 상품" 필드 숨김, 경품가치 수동 입력 활성</td></tr>
+          <tr><td>FORM_READY</td><td>필수값 전체 입력</td><td>[등록] 활성</td></tr>
+          <tr><td>SAVING</td><td>저장 요청 중</td><td>버튼 로딩, 중복 클릭 방지</td></tr>
+        </tbody>
+      </table>
+
+      <div class="sx"><span class="n">2</span><h3>구성 요소</h3></div>
+      <table class="spec-table">
+        <thead><tr><th style="width:30px">#</th><th style="width:130px">요소</th><th>상세 설명</th></tr></thead>
+        <tbody>
+          <tr><td class="td-label" style="text-align:center">1</td><td class="td-label">필터바</td><td>상품명 검색 · 구분(all/기프티콘/실물) · 사용여부(all/사용/중지) · 초기화/검색</td></tr>
+          <tr><td class="td-label" style="text-align:center">2</td><td class="td-label">[＋ 경품 등록]</td><td>클릭 시 등록 모달(화면 B) 오픈</td></tr>
+          <tr><td class="td-label" style="text-align:center">3</td><td class="td-label"><b>"연결된 회차" 배지</b></td><td><b class="req">신규 보강</b> — 이 경품이 걸린 회차 개수 표시. 클릭 시 PZ-03 회차 목록(해당 경품 필터)으로 이동</td></tr>
+          <tr><td class="td-label" style="text-align:center">4</td><td class="td-label">관리(✎)</td><td>수정 모달 오픈(화면 B와 동일 폼, 값 로드)</td></tr>
+          <tr><td class="td-label" style="text-align:center">5</td><td class="td-label">쿠칩 상품 드롭다운</td><td>경품구분=GIFTICON일 때만 노출. 쿠칩 상품 관리에서 <b>사용여부=ON</b>인 항목만 후보로 노출</td></tr>
+          <tr><td class="td-label" style="text-align:center">6</td><td class="td-label"><b>경품가치 자동 채움</b></td><td><b class="req">신규 보강</b> — 쿠칩 상품 선택 시 소비자가를 자동으로 채우고 <b>등록 시점 값으로 스냅샷 고정</b>(이후 쿠칩 가격 변동에 연동하지 않음)</td></tr>
+        </tbody>
+      </table>
+
+      <div class="sx"><span class="n">3</span><h3>인터랙션 · 플로우</h3></div>
+      <table class="spec-table">
+        <thead><tr><th style="width:190px">단계 · 동작</th><th>처리 · 결과</th></tr></thead>
+        <tbody>
+          <tr><td>① [＋ 경품 등록]</td><td>등록 모달(화면 B) 오픈, 경품구분 선택 대기</td></tr>
+          <tr><td>② 경품구분 = GIFTICON 선택</td><td>"쿠칩 상품" 드롭다운 노출 → 상품 선택 시 경품가치 자동 채움</td></tr>
+          <tr><td>③ 경품구분 = PHYSICAL 선택</td><td>"쿠칩 상품" 필드 숨김, 경품가치 직접 입력</td></tr>
+          <tr><td>④ 나머지 필드 입력 후 [등록]</td><td>서버 검증(필수값) → 성공 시 목록 반영(prize_id 발급) / 실패 시 인라인 에러</td></tr>
+          <tr><td>⑤ 목록 [연결된 회차] 클릭</td><td>PZ-03 회차 목록으로 이동, 해당 경품이 걸린 회차만 필터링</td></tr>
+          <tr><td>⑥ 목록 [✎ 수정]</td><td>동일 모달에 기존 값 로드. 이미 회차에 걸린 경품의 가치 수정 시 <b>기존 회차엔 영향 없음</b>(스냅샷 유지)</td></tr>
+        </tbody>
+      </table>
+
+      <div class="sx"><span class="n">4</span><h3>CASE (분기)</h3></div>
+      <table class="spec-table">
+        <thead><tr><th style="width:190px">CASE</th><th>처리</th></tr></thead>
+        <tbody>
+          <tr><td>경품구분 GIFTICON ↔ PHYSICAL 전환</td><td>전환 시 이전 구분 전용 필드(쿠칩상품 등) 초기화</td></tr>
+          <tr><td>쿠칩 상품이 이후 판매중단됨</td><td>기존 등록된 경품·회차엔 영향 없음(스냅샷). 신규 등록 시엔 후보 목록에서 제외</td></tr>
+          <tr><td>이미 회차에 걸린 경품 수정</td><td>상품명·이미지 등은 즉시 반영되나, <b>가치는 스냅샷이라 기존 회차엔 미반영</b> — 신규 회차부터 새 값 적용</td></tr>
+          <tr><td>사용여부 = 중지로 변경</td><td>PZ-03 "경품 추가" 서브모달의 후보 목록에서 제외(체크 비활성). 이미 담긴 회차는 유지</td></tr>
+        </tbody>
+      </table>
+
+      <div class="sx"><span class="n">5</span><h3>검증 · 정책</h3></div>
+      <table class="spec-table spec-2col">
+        <tr><td class="req">가치 스냅샷</td><td>쿠칩 가격 변동과 무관하게 <b>등록·수정 시점 값 고정</b>(제세공과금 판정 기준 안정성)</td></tr>
+        <tr><td>필수값</td><td>상품명 · 경품구분 · 경품가치 · 유효/마감기한 · 이미지URL 필수</td></tr>
+        <tr><td>재사용 원칙</td><td>이 화면에서 등록한 경품은 <b>여러 회차에서 중복 없이 재사용</b>되어야 함(개편 목적)</td></tr>
+      </table>
+
+      <div class="sx"><span class="n">6</span><h3>예외 · 에러</h3></div>
+      <table class="spec-table">
+        <tr><td class="td-label"><b>공통 규격</b></td><td>로딩 · 오프라인 · 세션만료 · 중복 제출 → <b>어드민 공통 컴포넌트 규격 준수</b></td></tr>
+        <tr><td class="td-label">쿠칩 상품 목록 조회 실패</td><td>드롭다운 로딩 실패 시 재시도 버튼, 등록 자체는 PHYSICAL로 우회 불가(GIFTICON 등록만 차단)</td></tr>
+        <tr><td class="td-label">동일 상품명 중복 등록</td><td>허용 여부 <span class="tag tag-tbd">TBD</span> — 현재는 경고 없이 허용</td></tr>
+      </table>
+
+      <div class="sx"><span class="n">7</span><h3>수용기준</h3></div>
+      <table class="spec-table">
+        <thead><tr><th style="width:230px">기준</th><th>충족 조건</th></tr></thead>
+        <tbody>
+          <tr><td>마스터 재사용</td><td>같은 경품이 여러 회차에 재사용될 수 있어야 하며, "연결된 회차" 배지로 확인 가능해야 함</td></tr>
+          <tr><td>구분별 필드 분기</td><td>GIFTICON 선택 시에만 쿠칩 상품 드롭다운이 노출되어야 함</td></tr>
+          <tr><td>가치 자동 채움 · 고정</td><td>쿠칩 상품 선택 시 가치가 자동으로 채워지고, 이후 등록 시점 값으로 고정되어야 함</td></tr>
+          <tr><td>사용중지 경품 제외</td><td>사용여부=중지인 경품은 PZ-03 신규 회차의 경품 추가 후보에서 제외되어야 함</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+
+    <!-- PZ-02 쿠칩 상품 관리 (참고, 변경 없음) -->
+    <div class="section" id="pz02">
+      <div class="section-header"><span class="section-id ref">참고</span><span class="section-title">쿠칩 상품 관리</span><span class="section-badge badge-scope-out">기존 · 변경 없음</span></div>
+      <p class="desc">쿠칩 API 일배치 동기화로 상품 카탈로그를 조회하고 "사용여부"를 토글해 경품 후보로 선정하는 화면. <b>이미 정상 구현되어 있어 이번 개편 대상이 아니다.</b> PZ-01 등록 모달의 "쿠칩 상품" 드롭다운은 여기서 사용여부=ON인 항목만 노출해야 한다(기존 로직 유지 확인 필요 → §TODO).</p>
+    </div>
+
+    <!-- 쿠폰 코드 관리 (범위 외) -->
+    <div class="section" id="coupon">
+      <div class="section-header"><span class="section-id ref">범위外</span><span class="section-title">쿠폰 코드 관리</span><span class="section-badge badge-scope-out">응모 미사용</span></div>
+      <p class="desc">제휴사에서 수기로 등록하는 쿠폰(응모 경품과 무관)을 위한 화면으로 확인됨. <b>본 기능정의서 범위 밖</b>이며, 응모 관련 코드 관리는 PZ-04(코드풀 관리)를 사용한다. 다만 메뉴 트리 상 「쿠칩 상품 관리」 하위에 나란히 있어 혼동 소지가 있으므로 별도 상위 메뉴로 분리하는 것을 권장한다 → §TODO.</p>
+    </div>
+
+    <!-- PZ-03 응모 회차 관리 (신규 핵심) -->
+    <div class="section" id="pz03">
+      <div class="section-header"><span class="section-id new">PZ-03</span><span class="section-title">응모 회차 관리</span><span class="section-badge badge-admin">신규</span></div>
+      <p class="desc">응모(회차) 단위로 기간·재화·발표일을 정의하고, 그 안에 <b>경품 마스터(PZ-01)에서 여러 개를 불러와</b> 경품별 당첨 인원·수량을 지정한다. 개발자가 지적한 "단계적 프로세스 미흡"을 해소하는 핵심 화면이다.</p>
+
+      <div class="scrmeta">
+        <span class="p"><b>메뉴 위치</b>경품 관리 &gt; 응모 회차 관리 &gt; 회차 목록</span>
+        <span class="p"><b>필요 권한</b>경품 운영자 이상 (제안값 · 역할 체계 TBD)</span>
+        <span class="p"><b>데이터 소스</b>round · round_prize · prize_master · code_pool</span>
+        <span class="p"><b>연관 화면</b>PZ-01 경품 상품 관리 · PZ-04 코드풀 관리 · PZ-05 당첨자 관리</span>
+      </div>
+
+      <div class="sub-title">회차 등록 항목 (요약)</div>
+      <table class="spec-table spec-2col">
+        <tr><td>응모 SEQ</td><td><span class="mono">round_seq</span> · 등록 시 자동 채번</td></tr>
+        <tr><td>회차명 · 칩 표기명</td><td>어드민 관리 제목 / 유저 노출 텍스트(예: "7월 2주")</td></tr>
+        <tr><td>응모 재화</td><td>응모권 / 볼 / 볼(P) 중 선택</td></tr>
+        <tr><td>응모 기간 · 노출 기간</td><td>응모 시작~종료, 노출 시작~종료(응모 기간을 포함 ⊇)</td></tr>
+        <tr><td>당첨자 발표일</td><td>회차 공통 발표일(서버 배치 기준)</td></tr>
+        <tr><td>활성 상태</td><td>활성/일시정지 — <b>회차 단위</b>로 응모·노출을 통째로 제어</td></tr>
+        <tr><td>경품 설정</td><td>PZ-01 마스터에서 다중 선택 + 경품별 <b>당첨 인원</b>(신규 필드)</td></tr>
+      </table>
+
+      <!-- 화면 A: 회차 목록 -->
+      <div class="sub-title">화면 A — 회차 목록 (풀스크린)</div>
+      <div class="mock-label">PZ-03-A · 응모 회차 관리 &gt; 회차 목록</div>
+      <div class="admin-mock">
+        <div class="am-wrap">
+          <div class="am-side">
+            <div class="logo">Wallet Admin<small>ADM-PZ v2.1</small></div>
+            <div class="g">경품 관리</div>
+            <a>경품 상품 관리</a>
+            <a class="sub">경품 상품 목록</a>
+            <a class="on">응모 회차 관리</a>
+            <a class="sub on">회차 목록</a>
+            <a>당첨자 관리</a>
+            <div class="g">상품 관리</div>
+            <a>쿠칩 상품 관리</a>
+            <a class="sub">쿠칩 상품 목록</a>
+            <a class="sub">쿠폰 목록</a>
+            <div class="g">기타</div>
+            <a>파일 관리</a>
+            <a>공통 서비스 관리</a>
+            <a>관리자 관리</a>
+          </div>
+          <div class="am-main">
+            <div class="am-top">
+              <span class="am-tab">경품 상품 관리</span>
+              <span class="am-tab on">응모 회차 관리 ×</span>
+              <span class="sp"></span>
+              <span class="meta">⏱ 29:58 · ↻ 연장 · 👤 차*호</span>
+            </div>
+            <div class="am-body">
+              <div class="am-title">응모 회차 관리</div>
+              <div class="am-filter">
+                <div class="am-field"><label>회차명</label><span class="in" style="color:#94A3B8">회차명 검색</span></div>
+                <div class="am-field"><label>상태</label><span class="in">all</span></div>
+                <div class="am-field"><label>응모재화</label><span class="in">all</span></div>
+                <div class="am-filter-btns"><span class="am-fbtn sec">↺ 초기화</span><span class="am-fbtn pri">🔍 검색</span></div>
+                <span class="callno" style="left:0;top:-12px">1</span>
+              </div>
+              <div class="am-count">총 <b>2</b>건<span class="add"><span class="am-fbtn pri">＋ 회차 등록</span></span><span class="callno" style="right:0;top:-10px">2</span></div>
+              <table class="am-table">
+                <thead><tr><th style="width:64px">SEQ</th><th>회차명</th><th style="width:78px">응모재화</th><th style="width:120px">응모기간</th><th style="width:120px">노출기간</th><th style="width:70px">발표일</th><th style="width:64px">경품수</th><th style="width:76px">상태</th><th style="width:56px">활성</th><th style="width:70px">관리</th></tr></thead>
+                <tbody>
+                  <tr><td>R-014</td><td>7월 2주 기프티콘 응모</td><td>볼(P)</td><td>07.07~07.13</td><td>07.05~07.20</td><td>07.14</td><td>2개</td><td style="position:relative">진행중<span class="callno" style="top:2px;right:2px">3</span></td><td>ON</td><td style="position:relative">✎ ⏸<span class="callno" style="top:2px;right:2px">4</span></td></tr>
+                  <tr><td>R-013</td><td>닌텐도 스위치2 특별응모</td><td>볼(P)</td><td>06.12~06.24</td><td>06.10~07.24</td><td>06.25</td><td>1개</td><td>발표완료</td><td>ON</td><td>✎</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mk-cap" style="font-size:11px;color:#64748B;margin:6px 0 4px">① 필터바(회차명·상태·응모재화) ② [＋ 회차 등록] → 화면 B로 이동 ③ 상태 뱃지(활성×기간 자동 산출) ④ 관리(✎ 수정 · ⏸ 일시정지)</div>
+
+      <!-- 화면 B: 회차 등록/수정 -->
+      <div class="sub-title">화면 B — 회차 등록/수정 (풀스크린, 신규 핵심)</div>
+      <div class="mock-label">PZ-03-B · 응모 회차 관리 &gt; 회차 등록</div>
+      <div class="admin-mock">
+        <div class="am-wrap">
+          <div class="am-side">
+            <div class="logo">Wallet Admin<small>ADM-PZ v2.1</small></div>
+            <div class="g">경품 관리</div>
+            <a>경품 상품 관리</a>
+            <a class="sub">경품 상품 목록</a>
+            <a class="on">응모 회차 관리</a>
+            <a class="sub on">회차 목록</a>
+            <a>당첨자 관리</a>
+            <div class="g">상품 관리</div>
+            <a>쿠칩 상품 관리</a>
+          </div>
+          <div class="am-main">
+            <div class="am-top">
+              <span class="am-tab">경품 상품 관리</span>
+              <span class="am-tab">응모 회차 관리</span>
+              <span class="am-tab on">회차 등록 ×</span>
+              <span class="sp"></span>
+              <span class="meta">⏱ 29:41 · ↻ 연장 · 👤 차*호</span>
+            </div>
+            <div class="am-body">
+              <div class="am-title">회차 등록</div>
+              <div class="am-sub">기본정보</div>
+              <div class="am-formgrid">
+                <div class="fl">응모 SEQ</div><div class="fv"><span class="mono">R-015</span>(자동)</div>
+                <div class="fl">회차명</div><div class="fv"><span class="in" style="min-width:260px">8월 1주 기프티콘 응모</span></div>
+                <div class="fl">칩 표기명</div><div class="fv"><span class="in" style="min-width:160px">8월 1주</span></div>
+                <div class="fl">응모 재화</div><div class="fv"><span class="in" style="min-width:120px">볼(P)</span></div>
+                <div class="fl">응모 기간</div><div class="fv"><span class="in" style="min-width:150px">2026-08-01 00:00</span>~<span class="in" style="min-width:150px">2026-08-07 23:59</span></div>
+                <div class="fl">노출 기간</div><div class="fv"><span class="in" style="min-width:150px">2026-07-29 00:00</span>~<span class="in" style="min-width:150px">2026-08-14 23:59</span></div>
+                <div class="fl">발표일</div><div class="fv"><span class="in" style="min-width:150px">2026-08-08</span></div>
+                <div class="fl">활성 상태</div><div class="fv"><span class="tag tag-yes">ON</span> <span class="tag tag-no">OFF</span></div>
+              </div>
+              <div class="am-sub">경품 설정 <span class="callno" style="position:static;display:inline-flex;margin-left:4px">5</span></div>
+              <div class="am-count">이 회차에 담긴 경품 <b>2</b>개<span class="add"><span class="am-fbtn sec">＋ 경품 추가</span></span></div>
+              <table class="am-table">
+                <thead><tr><th>경품</th><th style="width:80px">구분</th><th style="width:110px;background:#059669">당첨 인원 *</th><th style="width:80px">코드재고</th><th style="width:80px">검증</th><th style="width:80px">노출순서</th><th style="width:50px">삭제</th></tr></thead>
+                <tbody>
+                  <tr><td>[던킨] 아메리카노 2+도넛세트</td><td>기프티콘</td><td class="hl" style="position:relative"><span class="in" style="min-width:50px">100</span>명<span class="callno" style="top:2px;left:2px">6</span></td><td>198개</td><td style="color:#059669;position:relative">충분<span class="callno" style="top:2px;right:2px">7</span></td><td><span class="in" style="min-width:40px">1</span></td><td>✕</td></tr>
+                  <tr><td>닌텐도 스위치2</td><td>실물</td><td class="hl"><span class="in" style="min-width:50px">5</span>명</td><td>—</td><td>코드 불요</td><td><span class="in" style="min-width:40px">2</span></td><td>✕</td></tr>
+                </tbody>
+              </table>
+              <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end">
+                <span class="am-fbtn sec">취소</span><span class="am-fbtn sec">임시저장</span><span class="am-fbtn pri">회차 저장</span>
+              </div>
+
+              <!-- 화면 C: 경품 추가 서브모달 (오버레이) -->
+              <div class="am-modal-overlay">
+                <div class="am-modal">
+                  <div class="am-modal-hd">경품 추가 <span style="color:#94A3B8;font-weight:400;cursor:pointer">✕</span></div>
+                  <div class="am-modal-bd">
+                    <div class="am-field" style="margin-bottom:10px;position:relative"><span class="in" style="width:100%;color:#94A3B8">🔍 경품명 검색</span><span class="callno" style="right:-8px;top:-8px">8</span></div>
+                    <div class="am-chk"><span class="box on"></span> [던킨] 아메리카노 2+도넛세트 &nbsp;<span class="tag tag-gift" style="transform:scale(.85)">기프티콘</span>&nbsp;<span style="color:#94A3B8;font-size:10px;margin-left:auto">재고 198개</span></div>
+                    <div class="am-chk"><span class="box on"></span> 닌텐도 스위치2 &nbsp;<span class="tag tag-phys" style="transform:scale(.85)">실물</span></div>
+                    <div class="am-chk"><span class="box"></span> [스타벅스] 아이스 아메리카노 T &nbsp;<span class="tag tag-gift" style="transform:scale(.85)">기프티콘</span>&nbsp;<span style="color:#94A3B8;font-size:10px;margin-left:auto">재고 40개</span></div>
+                    <div class="am-chk dis"><span class="box"></span> [올리브영] 5천원권 <span style="color:#DC2626;font-size:9px;margin-left:8px">사용중지(쿠칩 판매종료)</span></div>
+                  </div>
+                  <div class="am-modal-ft"><span class="am-fbtn sec">취소</span><span class="am-fbtn pri" style="position:relative">선택완료(2)<span class="callno" style="right:-8px;top:-8px">9</span></span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mk-cap" style="font-size:11px;color:#64748B;margin:6px 0 16px">⑤ [＋ 경품 추가] → 화면 C(서브모달) ⑥ 당첨 인원 입력(신규 · 필수) ⑦ 재고 검증 결과(충분/부족⚠) ⑧ 마스터 검색(사용여부=ON만 노출) ⑨ 선택 완료 → 경품설정 표에 반영</div>
+
+      <div class="sx"><span class="n">1</span><h3>화면 상태</h3></div>
+      <table class="spec-table">
+        <thead><tr><th style="width:150px">상태</th><th>조건</th><th>표시</th></tr></thead>
+        <tbody>
+          <tr><td>EMPTY</td><td>등록된 회차 없음 / 필터 결과 없음</td><td>"데이터가 없습니다"</td></tr>
+          <tr><td>LIST</td><td>1건 이상</td><td>테이블 렌더 + 총 N건</td></tr>
+          <tr><td>LOADING</td><td>목록 조회 중</td><td>스켈레톤/스피너</td></tr>
+          <tr><td>FORM_INIT</td><td>회차 등록 진입, 미입력</td><td>[회차 저장] 비활성</td></tr>
+          <tr><td>FORM_READY</td><td>필수값 전체 입력 + 경품 1개 이상 + 당첨인원 전체 입력</td><td>[회차 저장] 활성</td></tr>
+          <tr><td>SAVING</td><td>저장 요청 중</td><td>버튼 로딩 + 중복 클릭 방지</td></tr>
+          <tr><td class="td-label">LOCKED(진행중 수정)</td><td>회차 상태 = 진행중</td><td>기간·당첨인원 필드 readonly + [＋ 경품 추가] 버튼 비활성 + 안내 문구</td></tr>
+        </tbody>
+      </table>
+
+      <div class="sx"><span class="n">2</span><h3>구성 요소</h3></div>
+      <table class="spec-table">
+        <thead><tr><th style="width:30px">#</th><th style="width:130px">요소</th><th>상세 설명</th></tr></thead>
+        <tbody>
+          <tr><td class="td-label" style="text-align:center">1</td><td class="td-label">필터바</td><td>회차명 검색 · 상태(all/대기중/진행중/마감/발표완료/일시정지) · 응모재화(all/응모권/볼/볼(P)) · 초기화/검색</td></tr>
+          <tr><td class="td-label" style="text-align:center">2</td><td class="td-label">[＋ 회차 등록]</td><td>클릭 시 상단탭에 "회차 등록" 탭이 열리며 화면 B로 이동</td></tr>
+          <tr><td class="td-label" style="text-align:center">3</td><td class="td-label">상태 뱃지</td><td>활성(on/off) × 기간(자동) 2축 산출 결과 표시. off는 "일시정지"</td></tr>
+          <tr><td class="td-label" style="text-align:center">4</td><td class="td-label">관리 아이콘</td><td>✎ 수정(화면 B, 값 로드) · ⏸ 일시정지 토글(진행중/대기중만 노출) · 삭제(응모 발생 전만)</td></tr>
+          <tr><td class="td-label" style="text-align:center">5</td><td class="td-label">[＋ 경품 추가]</td><td>PZ-01 마스터에서 다중 선택하는 서브모달(화면 C) 오픈</td></tr>
+          <tr><td class="td-label" style="text-align:center">6</td><td class="td-label"><b>당첨 인원 입력칸</b></td><td>경품별 필수 입력(<b class="req">신규 필드</b>). 미입력 시 저장 불가(FORM_READY 조건). 디지털 경품만 코드재고와 비교 대상</td></tr>
+          <tr><td class="td-label" style="text-align:center">7</td><td class="td-label">검증 컬럼</td><td>당첨인원 ≤ 코드재고 실시간 비교 → "충분"/"부족⚠". 실물은 "코드 불요"</td></tr>
+          <tr><td class="td-label" style="text-align:center">8</td><td class="td-label">경품 체크리스트(서브모달)</td><td>PZ-01 마스터 중 사용여부=ON 항목만 노출·검색 가능. 이미 담긴 경품·사용중지 경품은 선택 불가(회색 처리)</td></tr>
+          <tr><td class="td-label" style="text-align:center">9</td><td class="td-label">[선택완료]</td><td>체크된 경품을 회차 등록화면의 경품설정 표에 반영하고 모달 닫힘. 당첨 인원은 공란으로 추가되어 입력 필요</td></tr>
+        </tbody>
+      </table>
+
+      <div class="sx"><span class="n">3</span><h3>인터랙션 · 플로우</h3></div>
+      <table class="spec-table">
+        <thead><tr><th style="width:190px">단계 · 동작</th><th>처리 · 결과</th></tr></thead>
+        <tbody>
+          <tr><td>① 목록 진입</td><td>필터/검색 → 결과 갱신(화면 A)</td></tr>
+          <tr><td>② [＋ 회차 등록]</td><td>회차 등록 탭 오픈(화면 B) → 기본정보 입력</td></tr>
+          <tr><td>③ [＋ 경품 추가]</td><td>서브모달(화면 C) → 마스터 검색/체크 → [선택완료] → 경품설정 표에 행 추가(당첨인원 공란)</td></tr>
+          <tr><td>④ 당첨 인원 입력</td><td>경품별 입력 → 실시간 재고 비교 표시(디지털만)</td></tr>
+          <tr><td>⑤ [회차 저장]</td><td>서버 검증(필수값 · 기간 순서 · 당첨인원≤재고) → 성공 시 목록 복귀 + SEQ 발급 / 실패 시 인라인 에러</td></tr>
+          <tr><td>⑥ 목록 [✎ 수정]</td><td>동일 화면 B에 기존 값 로드(진행중이면 기간·당첨인원·경품 구성 LOCKED)</td></tr>
+          <tr><td>⑦ 목록 [⏸ 일시정지]</td><td>확인 다이얼로그 → is_active=off, 응모·노출 즉시 중단(볼(P) 보존)</td></tr>
+        </tbody>
+      </table>
+
+      <div class="sx"><span class="n">4</span><h3>CASE (분기)</h3></div>
+      <table class="spec-table">
+        <thead><tr><th style="width:190px">CASE</th><th>처리</th></tr></thead>
+        <tbody>
+          <tr><td>신규 등록 vs 수정</td><td>수정 시 SEQ 고정, 기존 값 전체 로드</td></tr>
+          <tr><td class="td-label">진행 중 회차 수정</td><td>기간·당첨인원·경품 구성(추가/제거) <b>readonly</b>. 회차명 등 비핵심 필드만 수정 가능. 구성 변경이 필요하면 현 회차는 유지하고 신규 회차 개설</td></tr>
+          <tr><td class="td-label">코드재고 부족 상태로 저장 시도</td><td>저장 차단 + "부족⚠" 강조, 재고 보충 또는 인원 조정 안내</td></tr>
+          <tr><td>동일 경품 중복 추가 시도</td><td>서브모달에서 이미 담긴 경품은 체크 비활성 처리</td></tr>
+          <tr><td>경품 0개로 저장 시도</td><td>저장 차단 — "경품을 1개 이상 추가하세요"</td></tr>
+          <tr><td>노출기간이 응모기간을 미포함</td><td>저장 차단 — "노출기간은 응모기간을 포함해야 합니다"</td></tr>
+        </tbody>
+      </table>
+
+      <div class="sx"><span class="n">5</span><h3>검증 · 정책</h3></div>
+      <table class="spec-table spec-2col">
+        <tr><td class="req">재고 검증 시점</td><td><span class="del">경품 등록 시</span> → <span class="add">회차 저장 시(신규)</span>로 이동</td></tr>
+        <tr><td>기간 검증</td><td>노출시작 ≤ 응모시작 &lt; 응모종료 ≤ 노출종료 &lt; 발표일</td></tr>
+        <tr><td class="req">활성 단위</td><td><b>회차(is_active)</b> — 개별 경품 노출/응모는 상위 회차 상태에 종속</td></tr>
+        <tr><td class="req">진행 중 변경 제한</td><td>기간·당첨인원·경품 구성 변경 전면 금지(형평성, <span class="tag tag-yes">확정</span>). 변경 필요 시 신규 회차로 대응</td></tr>
+        <tr><td>삭제 정책</td><td>응모 발생 전(entry_log 0건)만 가능, 이후엔 마감/숨김 처리</td></tr>
+      </table>
+
+      <div class="sx"><span class="n">6</span><h3>예외 · 에러</h3></div>
+      <table class="spec-table">
+        <tr><td class="td-label"><b>공통 규격</b></td><td>로딩 · 오프라인 · 세션만료 · 중복 제출 → <b>어드민 공통 컴포넌트 규격 준수</b></td></tr>
+        <tr><td class="td-label">저장 중 네트워크 오류</td><td>재시도 안내, 입력값 유지(초기화되지 않음)</td></tr>
+        <tr><td class="td-label">동시 편집 충돌</td><td>2인이 같은 회차를 동시 수정 — 낙관적 락 또는 최종 저장자 우선 <span class="tag tag-tbd">TBD</span></td></tr>
+        <tr><td class="td-label">재고 변동 타이밍</td><td>저장 시점과 실제 추첨 배치 시점 사이 코드풀 재고가 변할 경우 배치 직전 재검증 필요 <span class="tag tag-tbd">TBD</span></td></tr>
+      </table>
+
+      <div class="sx"><span class="n">7</span><h3>수용기준</h3></div>
+      <table class="spec-table">
+        <thead><tr><th style="width:230px">기준</th><th>충족 조건</th></tr></thead>
+        <tbody>
+          <tr><td>마스터 재사용</td><td>같은 경품을 여러 회차에서 <b>중복 등록 없이</b> 재사용할 수 있어야 함(SEQ 중복 생성 재발 방지)</td></tr>
+          <tr><td>당첨 인원 필수화</td><td>당첨 인원을 입력하지 않으면 회차를 저장할 수 없어야 함</td></tr>
+          <tr><td>재고 초과 차단</td><td>디지털 경품의 당첨 인원이 코드 재고를 초과하면 저장이 차단되어야 함</td></tr>
+          <tr><td>회차 단위 정지</td><td>회차를 일시정지(OFF)하면 하위 경품 노출·응모가 <b>즉시 함께</b> 멈춰야 함</td></tr>
+          <tr><td>기간 정합성</td><td>노출기간이 응모기간을 포함하지 않으면 저장할 수 없어야 함</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+
+    <!-- PZ-04 코드풀 관리 (유지) -->
+    <div class="section" id="pz04">
+      <div class="section-header"><span class="section-id ref">참고</span><span class="section-title">코드 풀 관리</span><span class="section-badge badge-scope-out">기존 · 변경 없음</span></div>
+      <p class="desc">기프티콘 경품에 바코드/PIN을 적재하는 화면. 화면 자체는 유지하되, <b>재고 검증 시점이 "경품 등록 시"에서 "회차 저장 시"로 이동</b>한다(PZ-03 §경품 설정 참고). 경품별로 "이 코드가 사용된 회차 이력"을 함께 보여주면 운영에 도움이 될 것으로 보인다 → §TODO.</p>
+    </div>
+
+    <!-- PZ-05 당첨자 관리 (유지) -->
+    <div class="section" id="pz05">
+      <div class="section-header"><span class="section-id ref">참고</span><span class="section-title">당첨자 관리</span><span class="section-badge badge-scope-out">기존 · 변경 없음</span></div>
+      <p class="desc">회차(<span class="mono">round_seq</span>) 선택 후 당첨자↔경품/코드 매핑을 조회·엑셀 다운로드하는 화면. 화면 자체는 유지하며, 데이터 소스만 <b>round_prize(신설)</b>를 경유하도록 바뀐다.</p>
+    </div>
+
+    <!-- DATA -->
+    <div class="section" id="data">
+      <div class="section-header"><span class="section-id">DATA</span><span class="section-title">데이터 모델 변경</span><span class="section-badge badge-data">DATA</span></div>
+
+      <table class="spec-table">
+        <thead><tr><th style="width:150px;">테이블</th><th>변경 내용</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">prize_master</td><td><span class="del">entry_start/end, display_order</span> 제거 → <span class="add">round_prize로 이동</span>. <span class="add">expire_at, caution 필드 보강</span></td></tr>
+          <tr><td class="mono">round</td><td><span class="add">신설(부활)</span> — round_seq, round_name, display_label, currency_code, entry_start/end, display_start/end, draw_date, is_active, created/updated_at·by</td></tr>
+          <tr><td class="mono">round_prize</td><td><span class="add">신설</span> — round_seq(FK), prize_id(FK), payout_type(override), <b>winner_count</b>, display_order. 회차×경품 연결 + 당첨 인원의 실제 저장 위치</td></tr>
+          <tr><td class="mono">code_pool</td><td>변경 없음</td></tr>
+          <tr><td class="mono">winner</td><td>변경 없음(round_seq·prize_id 참조는 round_prize 경유로 정합)</td></tr>
+        </tbody>
+      </table>
+      <div class="info-box-navy">
+        핵심 변화: <b>당첨 인원(winner_count)</b>이 <span class="del">prize_master</span>가 아니라 <span class="add">round_prize</span>에 저장된다 — 같은 경품이라도 회차마다 다른 당첨 인원을 가질 수 있고, 코드 재고 검증도 이 레벨에서 이뤄진다.
+      </div>
+    </div>
+
+    <!-- TODO -->
+    <div class="section" id="todo">
+      <div class="section-header"><span class="section-id">TODO</span><span class="section-title">결정 필요 · 미결 사항</span></div>
+      <table class="spec-table">
+        <thead><tr><th style="width:220px;">항목</th><th>내용</th><th style="width:90px;">담당</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tag tag-yes">확정</span> 진행 중 경품 추가/제거</td><td><b>불허.</b> 회차는 동일 조건 단위로 고정(형평성). 구성 변경이 필요하면 신규 회차를 개설</td><td>기획</td></tr>
+          <tr><td><span class="tag tag-yes">확정</span> 노출순서 소속</td><td>경품 마스터 → 회차×경품(round_prize)으로 이동</td><td>기획/개발</td></tr>
+          <tr><td><span class="tag tag-yes">확정</span> 활성화 단위 일원화</td><td><b>회차(is_active) 단위로 일원화.</b> PZ-01 개별 경품 토글은 "마스터 임시보관(신규 회차에 담기지 않게 함)" 의미로 역할 축소, 노출/응모 on-off 권한은 회차에서만 가짐</td><td>기획/개발</td></tr>
+          <tr><td><span class="tag tag-yes">확정</span> 쿠폰 코드 관리 메뉴 위치</td><td>「쿠칩 상품 관리」 하위에서 분리해 별도 상위 메뉴로 이동</td><td>기획/개발</td></tr>
+          <tr><td><span class="tag tag-yes">확정</span> 쿠칩 가격 자동 반영</td><td>가격 스냅샷 고정 정책 채택(회차 진행 중 가치 변동 금지). 구현 여부는 개발 확인</td><td>개발</td></tr>
+          <tr><td><span class="tag tag-yes">확정</span> 코드 재고-회차 이력 노출</td><td>PZ-04에 "이 코드가 사용된 회차" 이력 컬럼 추가</td><td>기획/개발</td></tr>
+          <tr><td><span class="tag tag-yes">확정</span> 확정보상 · 최다 응모자</td><td>이번 v2.1 범위에서 제외, <b>v2.2로 이관.</b> 구조 개편 안정화 후 round_prize에 is_confirmed_reward · confirmed_count 컬럼 추가로 반영</td><td>기획</td></tr>
+          <tr><td><span class="tag tag-yes">확정</span> 본인인증 게이트 시점</td><td><b>수령 단계 게이트 유지</b>(WL v1.4와 정합, 응모 단계 게이트는 개보법 §16·§15③ 과수집 리스크로 미채택). 팀원 v2.0안(PRD-05)은 반영하지 않음</td><td>기획</td></tr>
+          <tr><td><span class="tag tag-tbd">별도 트랙</span> 회원가입·서비스 이용 시 본인인증 필수화</td><td>예측 서비스 통계 정확도 목적의 본인인증 필수화는 본 경품 어드민 범위 밖. 계정/온보딩 기능정의서에서 별도 검토(§24 고유식별정보 동의 포함 법무 검토 필요)</td><td>기획</td></tr>
+          <tr><td><span class="tag tag-yes">확정</span> 제세공과금 자동 트리거</td><td>정책 채택(50,001원 이상 자동 플래그 + 수동 override). 반영 시점은 이번 구조개편 배포 후 후속 스프린트</td><td>기획/개발</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer>기능정의서_경품어드민_ADM-PZ_v2_1_초안 · 2026-07-06 · 기반: 실 구현 화면 리뷰(Wallet Admin) · 참조: 경품어드민_ADM-PZ_v1_0, 응모_상품_관리_admin_v2_0</footer>
+
+  </div>
+  </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  var anchors = [].slice.call(document.querySelectorAll('.sidebar-item[href^="#"]'));
+  var items = anchors.map(function(a){
+    return { a:a, el: document.getElementById(a.getAttribute('href').slice(1)) };
+  }).filter(function(x){ return x.el; });
+  var ticking = false;
+  function update(){
+    ticking = false;
+    var y = window.scrollY + 90;
+    var cur = null, curTop = -Infinity;
+    for(var i=0;i<items.length;i++){
+      var top = items[i].el.getBoundingClientRect().top + window.scrollY;
+      if(top <= y && top > curTop){ curTop = top; cur = items[i]; }
+    }
+    for(var j=0;j<anchors.length;j++) anchors[j].classList.remove('active');
+    if(cur) cur.a.classList.add('active');
+  }
+  function onScroll(){ if(!ticking){ ticking = true; requestAnimationFrame(update); } }
+  window.addEventListener('scroll', onScroll, { passive:true });
+  window.addEventListener('resize', onScroll);
+  update();
+})();
+</script>
+</body>
+</html>
