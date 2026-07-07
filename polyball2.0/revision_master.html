@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PolyBall · 승부예측(메인) + 커뮤니티 개편 통합 목차</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap');
+  :root{
+    --primary:#2563EB; --primary-light:#EFF6FF; --primary-mid:#BFDBFE;
+    --dark:#0F172A; --mid:#475569; --muted:#94A3B8; --border:#E2E8F0;
+    --bg:#F1F5F9; --white:#fff; --row-head:#EFF6FF;
+    --em:#0369A1; --em-bg:#F0F9FF; --em-line:#BAE6FD;
+    --cm:#7C3AED; --cm-bg:#F5F3FF; --cm-line:#DDD6FE;
+    --struct:#2563EB; --struct-bg:#EFF6FF; --struct-line:#BFDBFE;
+    --hot:#EA580C; --hot-bg:#FFF7ED; --hot-line:#FED7AA;
+    --new:#059669; --new-bg:#ECFDF5; --new-line:#A7F3D0;
+    --undef-bg:#FFF7ED; --undef-text:#C2410C;
+    --later-bg:#F5F3FF; --later-text:#7C3AED;
+    --topbar-h:48px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--dark);font-size:13px;line-height:1.6;padding-top:var(--topbar-h);}
+  .topbar{position:fixed;top:0;left:0;right:0;height:var(--topbar-h);background:var(--dark);display:flex;align-items:center;padding:0 24px;gap:16px;z-index:200;}
+  .topbar-brand{font-size:13px;font-weight:800;color:#fff;letter-spacing:-.3px;}
+  .topbar-divider{width:1px;height:16px;background:#334155;}
+  .topbar-meta{font-size:11px;color:#64748B;font-family:'DM Mono',monospace;}
+  .topbar-version{margin-left:auto;font-size:10px;font-weight:700;color:var(--primary);background:#1E293B;border:1px solid #334155;border-radius:4px;padding:2px 10px;font-family:'DM Mono',monospace;}
+
+  .wrap{max-width:960px;margin:0 auto;padding:40px 32px 120px;}
+
+  .cover{padding:8px 0 32px;border-bottom:1px solid var(--border);margin-bottom:28px;}
+  .cover-tag{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1.5px;color:var(--primary);background:var(--primary-light);border:1px solid var(--primary-mid);border-radius:4px;padding:3px 10px;margin-bottom:12px;font-family:'DM Mono',monospace;}
+  .cover h1{font-size:27px;font-weight:900;letter-spacing:-.8px;margin-bottom:6px;}
+  .cover-sub{font-size:14px;color:var(--muted);margin-bottom:18px;}
+  .cover-meta{display:flex;gap:18px;flex-wrap:wrap;}
+  .cover-meta-item{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
+  .cover-meta-item span{color:var(--mid);font-weight:600;}
+
+  .overview{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:16px;}
+  .overview h3{font-size:12px;font-weight:800;color:var(--mid);margin-bottom:12px;letter-spacing:.3px;}
+  .track-row{display:flex;gap:14px;flex-wrap:wrap;}
+  .track-card{flex:1;min-width:280px;border-radius:10px;padding:14px 16px;border:1px solid;}
+  .track-em{background:var(--em-bg);border-color:var(--em-line);}
+  .track-cm{background:var(--cm-bg);border-color:var(--cm-line);}
+  .track-card .tc-id{font-family:'DM Mono',monospace;font-size:10px;font-weight:700;border-radius:5px;padding:2px 8px;display:inline-block;margin-bottom:8px;}
+  .track-em .tc-id{background:var(--em);color:#fff;}
+  .track-cm .tc-id{background:var(--cm);color:#fff;}
+  .track-card h4{font-size:14px;font-weight:800;margin-bottom:4px;}
+  .track-card p{font-size:11.5px;color:var(--mid);line-height:1.6;}
+  .track-card .st{margin-top:8px;font-size:10.5px;font-family:'DM Mono',monospace;font-weight:700;}
+  .st-done{color:var(--new);}
+  .st-toc{color:var(--hot);}
+
+  .legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px;}
+  .rel{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;border-radius:6px;padding:4px 11px;font-family:'DM Mono',monospace;}
+  .rel-struct{background:var(--struct-bg);color:var(--struct);border:1px solid var(--struct-line);}
+  .rel-hot{background:var(--hot-bg);color:var(--hot);border:1px solid var(--hot-line);}
+  .rel-new{background:var(--new-bg);color:var(--new);border:1px solid var(--new-line);}
+
+  .track-head{display:flex;align-items:center;gap:12px;margin:36px 0 16px;padding-bottom:10px;border-bottom:2px solid;}
+  .track-head.em{border-color:var(--em);}
+  .track-head.cm{border-color:var(--cm);}
+  .th-badge{font-family:'DM Mono',monospace;font-size:12px;font-weight:800;color:#fff;border-radius:6px;padding:4px 12px;}
+  .th-badge.em{background:var(--em);}
+  .th-badge.cm{background:var(--cm);}
+  .th-title{font-size:18px;font-weight:900;letter-spacing:-.4px;}
+  .th-doc{margin-left:auto;font-size:10.5px;font-family:'DM Mono',monospace;color:var(--muted);}
+
+  .sec{background:var(--white);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;overflow:hidden;}
+  .sec-head{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);}
+  .sec-head.em{background:var(--em-bg);}
+  .sec-head.cm{background:var(--cm-bg);}
+  .sec-num{font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:#fff;border-radius:6px;padding:3px 9px;flex-shrink:0;}
+  .sec-num.em{background:var(--em);}
+  .sec-num.cm{background:var(--cm);}
+  .sec-title{font-size:14.5px;font-weight:800;letter-spacing:-.3px;}
+  .sec-tags{margin-left:auto;display:flex;gap:5px;}
+  .rel-sm{font-size:9px;font-weight:800;border-radius:5px;padding:2px 7px;font-family:'DM Mono',monospace;}
+  .sec-body{padding:13px 16px;}
+  .item{font-size:12.5px;color:var(--mid);padding-left:16px;position:relative;margin-bottom:6px;line-height:1.6;}
+  .item:last-child{margin-bottom:0;}
+  .item::before{content:'';position:absolute;left:4px;top:8px;width:5px;height:5px;border-radius:50%;}
+  .em .item::before, .item.em-dot::before{background:var(--em-line);}
+  .cm .item::before, .item.cm-dot::before{background:var(--cm-line);}
+  .sec-body.em .item::before{background:var(--em-line);}
+  .sec-body.cm .item::before{background:var(--cm-line);}
+  .item strong{color:var(--dark);font-weight:700;}
+  .k{font-family:'DM Mono',monospace;font-size:11px;background:var(--primary-light);color:var(--primary);border-radius:4px;padding:1px 6px;}
+  .pill{display:inline-block;font-size:10px;font-weight:700;border-radius:4px;padding:1px 7px;font-family:'DM Mono',monospace;margin-left:3px;}
+  .pill-del{background:#FEF2F2;color:#DC2626;border:1px solid #FECACA;}
+  .pill-keep{background:#F0FDF4;color:#16A34A;border:1px solid #BBF7D0;}
+  .pill-new{background:var(--new-bg);color:var(--new);border:1px solid var(--new-line);}
+  .pill-undef{background:var(--undef-bg);color:var(--undef-text);border:1px solid #FED7AA;}
+  .pill-later{background:var(--later-bg);color:var(--later-text);border:1px solid #DDD6FE;}
+  .pill-done{background:#F0FDF4;color:#16A34A;border:1px solid #BBF7D0;}
+
+  .foot-note{margin-top:28px;font-size:11px;color:var(--muted);line-height:1.7;padding:14px 16px;background:var(--white);border:1px solid var(--border);border-radius:10px;}
+  .foot-note b{color:var(--mid);}
+  .open-q{margin-top:16px;background:var(--undef-bg);border:1px solid var(--hot-line);border-radius:10px;padding:14px 18px;}
+  .open-q h3{font-size:12px;font-weight:800;color:var(--hot);margin-bottom:10px;}
+  .open-q .q{font-size:12px;color:#7C2D12;padding-left:16px;position:relative;margin-bottom:6px;line-height:1.6;}
+  .open-q .q::before{content:'?';position:absolute;left:2px;font-weight:800;color:var(--hot);}
+  .open-q .q b{color:#9A3412;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="topbar-brand">PolyBall</span>
+  <span class="topbar-divider"></span>
+  <span class="topbar-meta">승부예측(메인) + 커뮤니티 개편 · 통합 목차</span>
+  <span class="topbar-version">MASTER TOC</span>
+</div>
+
+<div class="wrap">
+
+  <div class="cover">
+    <span class="cover-tag">FEATURE SPEC · MASTER TABLE OF CONTENTS</span>
+    <h1>승부예측(메인) + 커뮤니티 개편</h1>
+    <div class="cover-sub">이벤트 마켓 카드 개편(EM-R) · 커뮤니티 마켓 댓글 전환(CM-R) 통합 구성안</div>
+    <div class="cover-meta">
+      <div class="cover-meta-item">문서 <span>Master TOC</span></div>
+      <div class="cover-meta-item">기준 <span>EM v1.9 · 커뮤니티 v2.8</span></div>
+      <div class="cover-meta-item">스테이지 <span>초기 론칭 (W13)</span></div>
+    </div>
+  </div>
+
+  <!-- 두 트랙 개요 -->
+  <div class="overview">
+    <h3>개편 트랙 개요</h3>
+    <div class="track-row">
+      <div class="track-card track-em">
+        <span class="tc-id">EM-R v1.0</span>
+        <h4>이벤트 마켓 카드 개편</h4>
+        <p>예측형·참여형 카드 프론트 UI 재구성 · 보상 아이콘 우측 상단 딤드 · 댓글 수 노출. 유형(로직) × 렌더형(표현) 분리.</p>
+        <div class="st st-done">■ 정의서 + 디자인 시안 작성 완료</div>
+      </div>
+      <div class="track-card track-cm">
+        <span class="tc-id">CM-R v1.0</span>
+        <h4>커뮤니티 마켓 댓글 전환</h4>
+        <p>마켓–커뮤니티 연결 해제 · 마켓 자체 댓글(2depth) 전환 · 예측 근거 코멘트/보상 · 이미지 버튼 차단.</p>
+        <div class="st st-toc">■ 목차 확정 · 본문 대기</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span class="rel rel-struct">■ 구조변경</span>
+    <span class="rel rel-new">■ 신규</span>
+    <span class="rel rel-hot">■ 프론트핫픽스</span>
+  </div>
+
+  <!-- ═══════════ TRACK A : EM-R ═══════════ -->
+  <div class="track-head em">
+    <span class="th-badge em">TRACK A</span>
+    <span class="th-title">이벤트 마켓 카드 개편</span>
+    <span class="th-doc">EM-R v1.0 · 작성 완료</span>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head em"><span class="sec-num em">A-0</span><span class="sec-title">개요 · 작업 범위</span></div>
+    <div class="sec-body em">
+      <div class="item"><strong>포함:</strong> 예측형·참여형 카드 렌더형 재정의 · 상태별 UI · 보상 아이콘 이관/딤드 · 댓글 수 노출</div>
+      <div class="item"><strong>제외:</strong> 정규 마켓(API 자동생성, 개발팀 이관) <span class="pill pill-del">범위 밖</span> · 퀴즈형 <span class="pill pill-later">보류</span></div>
+      <div class="item"><strong>불변:</strong> 유형·정산·카테고리·재화 (DISPLAY_TYPE 체크박스 1개만 신규)</div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head em"><span class="sec-num em">A-1</span><span class="sec-title">유형 · 렌더형 구조</span></div>
+    <div class="sec-body em">
+      <div class="item"><strong>1축 유형(로직):</strong> 예측형(정답 O) / 참여형(정답 X) — 정산·보상 시점 결정</div>
+      <div class="item"><strong>2축 렌더형(표현):</strong> 리스트형 / 양자택일형</div>
+      <div class="item"><strong>예측형 →</strong> 리스트형 고정</div>
+      <div class="item"><strong>참여형 →</strong> 리스트형 / 양자택일형 (<span class="k">DISPLAY_TYPE</span> 체크 + 선택지 2개)</div>
+      <div class="item"><strong>양자택일형 = 참여형 전용</strong> (선택률 즉시 노출 → 예측형엔 정답 힌트 문제)</div>
+      <div class="item">선택지 이미지 = 옵션 요소 (있으면 리스트형 썸네일, 없으면 생략 · 별도 렌더형 아님)</div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head em"><span class="sec-num em">A-2</span><span class="sec-title">렌더형별 카드 스펙</span></div>
+    <div class="sec-body em">
+      <div class="item"><strong>리스트형:</strong> 선택지 세로 나열 + 썸네일(옵션) + 선택률(선택 후)</div>
+      <div class="item"><strong>양자택일형:</strong> 2선택지 좌우 반반 · 선택률 진입 즉시 대비 노출</div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head em"><span class="sec-num em">A-3</span><span class="sec-title">카드 상태 매트릭스</span></div>
+    <div class="sec-body em">
+      <div class="item"><strong>예측형:</strong> 미참여 → 참여·진행중 → 정산대기 → 예측성공/실패 → 미참여·종료</div>
+      <div class="item"><strong>참여형:</strong> 미참여 → 참여완료 → 참여종료 → 미참여·종료</div>
+      <div class="item">상태별 선택지 노출 · 선택률 노출 · 비활성 처리 규칙</div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head em"><span class="sec-num em">A-4</span><span class="sec-title">보상 아이콘 · 딤드 <span style="font-size:11px;color:var(--new);">신규</span></span><div class="sec-tags"><span class="rel-sm rel-new">신규</span></div></div>
+    <div class="sec-body em">
+      <div class="item"><strong>위치:</strong> 카드 우측 상단 아이콘 이관 (하단 텍스트 폐기)</div>
+      <div class="item"><strong>상태 3종:</strong> 컬러(받을 수 있음) / 딤드(받았음) / 없음(받을 수 없음 확정)</div>
+      <div class="item"><strong>예측형:</strong> 정답보상🏆 + 참여보상🎫 2개 독립 — 참여=선택 즉시 딤드, 정답=정산·적중 시 딤드</div>
+      <div class="item"><strong>참여형:</strong> 참여보상🎫 1개 — 선택 즉시 딤드</div>
+      <div class="item"><strong>미적중:</strong> 정답보상 제거 / <strong>미참여 종료:</strong> 전체 제거 · 재화 최대 2종</div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head em"><span class="sec-num em">A-5</span><span class="sec-title">카드 하단 · 댓글 수 <span style="font-size:11px;color:var(--new);">신규</span></span><div class="sec-tags"><span class="rel-sm rel-new">신규</span></div></div>
+    <div class="sec-body em">
+      <div class="item"><strong>하단 구성:</strong> (좌) 💬 댓글 수 · 👥 참여 수 / (우) ⏱ 마감시간(또는 종료)</div>
+      <div class="item">댓글 수 = 해당 마켓 댓글(+답글) 합산 · <strong>CM-R 마켓 댓글과 연동</strong></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head em"><span class="sec-num em">A-6</span><span class="sec-title">BO 변경 · 예외/미결</span></div>
+    <div class="sec-body em">
+      <div class="item"><span class="k">DISPLAY_TYPE</span> 체크박스 1개 신규 (참여형 전용) 외 스키마 불변</div>
+      <div class="item">정규 마켓 컴포넌트 공유 경계 <span class="pill pill-later">개발 협의</span> · 퀴즈형 적용 시점 <span class="pill pill-later">추후</span></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ TRACK B : CM-R ═══════════ -->
+  <div class="track-head cm">
+    <span class="th-badge cm">TRACK B</span>
+    <span class="th-title">커뮤니티 마켓 댓글 전환</span>
+    <span class="th-doc">CM-R v1.0 · 본문 대기</span>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head cm"><span class="sec-num cm">B-0</span><span class="sec-title">개요 · 범위 · 릴리스 구분</span></div>
+    <div class="sec-body cm">
+      <div class="item"><strong>배경:</strong> 마켓 글이 CM-01 통합 피드에 함께 노출되는 구조 → 마켓 자체 댓글로 전환</div>
+      <div class="item"><strong>릴리스:</strong> <span class="rel-sm rel-struct">구조변경</span> 연결 해제·댓글 전환·근거 코멘트 / <span class="rel-sm rel-hot">프론트핫픽스</span> 이미지 버튼 차단</div>
+      <div class="item"><strong>불변:</strong> 마켓 유형·정산·기존 재화 흐름 무관 (코멘트 보상만 신규 지급)</div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head cm"><span class="sec-num cm">B-1</span><span class="sec-title">Before / After 구조도</span><div class="sec-tags"><span class="rel-sm rel-struct">구조변경</span></div></div>
+    <div class="sec-body cm">
+      <div class="item"><strong>Before:</strong> 마켓 커뮤니티 탭 = CM-01 필터 뷰(<span class="k">special-pick</span>/<span class="k">prediction</span>) · 양방향 노출</div>
+      <div class="item"><strong>After:</strong> 마켓 = 자체 댓글(2depth) · CM-01 비노출 · 커뮤니티→마켓 단방향 인용+링크</div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head cm"><span class="sec-num cm">B-2</span><span class="sec-title">마켓 댓글 구조 <span style="font-size:11px;color:var(--new);">핵심</span></span><div class="sec-tags"><span class="rel-sm rel-struct">구조변경</span></div></div>
+    <div class="sec-body cm">
+      <div class="item"><strong>위치:</strong> 상세 첫 탭 하단 댓글 영역 통합 (별도 커뮤니티 탭 없음)</div>
+      <div class="item"><strong>2depth:</strong> 댓글 → 답글(들여쓰기 + <span class="k">@닉네임</span>) · CM-03-RE(v2.8) 승계</div>
+      <div class="item"><strong>알림:</strong> 최상위 댓글(대상=마켓) 푸시 없음 / 답글(대상=사람) 푸시+인앱</div>
+      <div class="item"><strong>카드 하단 "댓글 N"</strong> = 댓글+답글 합산 · <strong>EM-R A-5와 연동</strong></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head cm"><span class="sec-num cm">B-2-1</span><span class="sec-title">예측 근거 코멘트</span><div class="sec-tags"><span class="rel-sm rel-struct">구조변경</span><span class="rel-sm rel-new">신규</span></div></div>
+    <div class="sec-body cm">
+      <div class="item"><strong>입력:</strong> 선택 직후 모달 "왜 그렇게 생각하세요?(선택)" · "하루 동안 보지 않기"(모달만 숨김)</div>
+      <div class="item"><strong>자동 댓글화</strong> + <strong>선택지 스냅샷 뱃지</strong>(작성 시점 선택 고정, 이후 변경돼도 불변)</div>
+      <div class="item"><strong>복수 허용</strong>(마켓당 여러 번) · 예측형·참여형 공통</div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head cm"><span class="sec-num cm">B-2-2</span><span class="sec-title">코멘트 보상</span><div class="sec-tags"><span class="rel-sm rel-struct">구조변경</span><span class="rel-sm rel-new">신규</span></div></div>
+    <div class="sec-body cm">
+      <div class="item"><strong>조건:</strong> 5글자 이상 코멘트 → 재화 1개 · <strong>하루 5회 상한</strong></div>
+      <div class="item">유형 무관 · 정답/정산 연동 없음 · 정산 로직 불변</div>
+      <div class="item">코멘트 보상 전용 카운터 <span class="pill pill-undef">확인 대기</span></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head cm"><span class="sec-num cm">B-3</span><span class="sec-title">커뮤니티 탭 폐기 · 재정의</span><div class="sec-tags"><span class="rel-sm rel-struct">구조변경</span></div></div>
+    <div class="sec-body cm">
+      <div class="item"><strong>EM-05-B</strong> 이벤트 마켓 커뮤니티 탭 <span class="pill pill-del">폐기</span> 첫 탭 하단 댓글 통합</div>
+      <div class="item"><strong>PD-01-B</strong> 경기 커뮤니티 탭 <span class="pill pill-del">폐기</span> 첫 탭 하단 댓글 통합</div>
+      <div class="item"><strong>CM-01</strong> 통합 피드 → 마켓 태그 게시글 노출 제외</div>
+      <div class="item"><strong>CM-02</strong> 스페셜예측·투표 탭 <span class="pill pill-del">폐기</span> · <strong>CM-03</strong> 일반 글 <span class="pill pill-keep">유지</span></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head cm"><span class="sec-num cm">B-4</span><span class="sec-title">예측 불러오기 재정의</span><div class="sec-tags"><span class="rel-sm rel-struct">구조변경</span></div></div>
+    <div class="sec-body cm">
+      <div class="item"><strong>인용 + 링크로만 존치</strong> (마켓 정보 인용 + 네비게이션) · 역방향 연결 해제</div>
+      <div class="item">기능 완전 제거 여부 <span class="pill pill-later">사용률 기반 별도 논의</span></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head cm"><span class="sec-num cm">B-5</span><span class="sec-title">기존 데이터 처리</span><div class="sec-tags"><span class="rel-sm rel-struct">구조변경</span></div></div>
+    <div class="sec-body cm">
+      <div class="item">마이그레이션 없음 · 연결만 해제 (볼륨 작음)</div>
+      <div class="item">기존 태그 게시글 → 태그 없는 <strong>커뮤니티 일반 글로 잔존</strong></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head cm"><span class="sec-num cm">B-6</span><span class="sec-title">이미지 업로드 버튼 차단</span><div class="sec-tags"><span class="rel-sm rel-hot">프론트핫픽스</span></div></div>
+    <div class="sec-body cm">
+      <div class="item"><strong>대상:</strong> CM-02 글쓰기 + 마켓 댓글 입력 이미지 첨부 버튼</div>
+      <div class="item"><strong>처리:</strong> 프론트 숨김만 · 백엔드/API 유지 · 축소배포 없음 · 근거: 방통위 인증</div>
+      <div class="item">커뮤니티 vNext로 정식 정의 이월</div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head cm"><span class="sec-num cm">B-7</span><span class="sec-title">예외 · 리스크 · 미결</span></div>
+    <div class="sec-body cm">
+      <div class="item">방통위 인증 근거·범위 (법령 검토 연계)</div>
+      <div class="item"><strong>예측형 마감 전 코멘트 뱃지 노출</strong> — 여론 유출·힌트 소지 <span class="pill pill-undef">결정 필요 · 추천: 마감 전 가림→정산 후 공개</span></div>
+      <div class="item">탈퇴/삭제 사용자 <span class="k">@태그</span> 처리 · vNext 이월 항목</div>
+    </div>
+  </div>
+
+  <!-- 열린 결정 -->
+  <div class="open-q">
+    <h3>본문 착수 전 결정 대기 (3건)</h3>
+    <div class="q"><b>코멘트 보상 카운터:</b> 하루 5회 상한이 코멘트 전용 카운터인지(그 외 재화 획득과 독립) — B-2-2</div>
+    <div class="q"><b>마감 전 코멘트 뱃지:</b> 예측형 마감 전 선택지 뱃지를 가릴지(추천) — B-7</div>
+    <div class="q"><b>예측 불러오기 존폐:</b> 인용+링크로 유지 vs 완전 제거 — B-4</div>
+  </div>
+
+  <div class="foot-note">
+    <b>연동 포인트:</b> EM-R A-5(카드 하단 댓글 수) ↔ CM-R B-2(마켓 댓글 합산)는 동일 데이터. 두 트랙이 "마켓 댓글" 지점에서 만나므로 함께 배포/검증 권장.<br>
+    <b>다음 단계:</b> 위 3건 결정 → CM-R 본문 작성 → 두 트랙 공통 <b>법령 레퍼런스 1회 검토</b>(재화 지급·광고성 정보·방통위 인증) → 개발팀 리뷰 → 확정본.<br>
+    <b>산출물 현황:</b> EM-R 정의서·디자인 시안 완료 / CM-R 목차 완료·본문 대기 / 본 문서 = 통합 마스터 목차.
+  </div>
+
+</div>
+</body>
+</html>
