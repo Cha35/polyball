@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>경품 응모 운영 실행안 — 시즌 종료 대비 · 론칭 로드맵</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap');
+:root{ --primary:#363E8D; --accent:#F5A623; --bg:#F5F6FA; --card:#fff; --line:#E2E8F0; --t1:#1A2033; --t2:#4A5268; --t3:#8B92A8; --red:#C7273C; --green:#0E8A5F; }
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--t1);font-size:13.5px;line-height:1.7;padding:40px 24px;}
+.wrap{max-width:1000px;margin:0 auto;}
+.cover{background:linear-gradient(120deg,var(--primary),#252B66);border-radius:14px;color:#fff;padding:30px 34px;margin-bottom:22px;}
+.cover .k{font-size:11px;letter-spacing:2px;color:#A7AEE0;font-weight:700;}
+.cover h1{font-size:22px;font-weight:800;margin:6px 0 10px;}
+.cover .meta{font-size:12px;color:#C6CBF0;}
+.sec{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:24px 30px;margin-bottom:18px;}
+.sec h2{font-size:16px;font-weight:800;color:var(--primary);margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.sec h2 .n{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:7px;background:var(--primary);color:#fff;font-size:12px;flex-shrink:0;}
+.sec .sub{font-size:12px;color:var(--t3);margin-bottom:14px;}
+p.lead{color:var(--t2);font-size:13.5px;margin:4px 0 10px;}
+h3.blk{font-size:14px;font-weight:800;margin:18px 0 6px;color:var(--t1);border-left:4px solid var(--primary);padding-left:10px;}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin:8px 0;}
+th{background:#EEF0F8;color:var(--primary);text-align:left;padding:8px 12px;font-size:11.5px;border:1px solid var(--line);}
+td{padding:8px 12px;border:1px solid var(--line);vertical-align:top;color:var(--t2);}
+td b{color:var(--t1);}
+.chain{display:flex;align-items:stretch;gap:6px;flex-wrap:wrap;margin:10px 0;}
+.chain .box{flex:1;min-width:120px;background:#FEF2F2;border:1px solid #F3C6CD;border-radius:8px;padding:9px 10px;font-size:11px;color:#8A2231;text-align:center;display:flex;align-items:center;justify-content:center;}
+.chain .arr{display:flex;align-items:center;color:var(--red);font-weight:800;font-size:14px;}
+.fix{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;}
+.fix .f{flex:1;min-width:220px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;}
+.fix .ft{font-size:12.5px;font-weight:800;color:var(--primary);margin-bottom:4px;}
+.fix .fd{font-size:12px;color:var(--t2);}
+.tl{position:relative;margin:14px 0 4px;padding-left:22px;}
+.tl::before{content:"";position:absolute;left:6px;top:6px;bottom:6px;width:2px;background:var(--line);}
+.tl-item{position:relative;padding:0 0 16px;}
+.tl-item::before{content:"";position:absolute;left:-20px;top:5px;width:11px;height:11px;border-radius:50%;background:#fff;border:3px solid var(--primary);}
+.tl-item.amber::before{border-color:var(--accent);}
+.tl-item .d{font-size:11.5px;font-weight:800;color:var(--primary);}
+.tl-item.amber .d{color:#B47B0E;}
+.tl-item .t{font-size:13px;font-weight:700;margin:1px 0 2px;}
+.tl-item .s{font-size:12px;color:var(--t2);}
+.callout{border-left:4px solid var(--accent);background:#FFF9EE;border-radius:0 8px 8px 0;padding:11px 15px;font-size:12px;color:#7A5A12;margin:10px 0;}
+.callout b{color:#5C430A;}
+.callout.blue{border-left-color:var(--primary);background:#EEF0F8;color:#3A4170;}
+.callout.blue b{color:var(--primary);}
+.pill{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:11px;}
+.pill.tbd{background:#FFF4E1;color:#8A5A00;}
+ul.q{margin:6px 0 0 2px;list-style:none;}
+ul.q li{padding:8px 0 8px 24px;position:relative;font-size:12.5px;color:var(--t2);border-top:1px solid #F1F2F7;}
+ul.q li:first-child{border-top:none;}
+ul.q li::before{content:"?";position:absolute;left:0;top:8px;width:17px;height:17px;border-radius:50%;background:var(--primary);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+footer{font-size:11px;color:var(--t3);text-align:center;padding:12px 0 4px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="cover">
+  <div class="k">POLYBALL 2.0 · PRIZE ENTRY OPS</div>
+  <h1>경품 응모 운영 실행안</h1>
+  <div class="meta">KBO 시즌 종료 대비 BM 방어 · 론칭 로드맵 · 스페셜 응모 · 작성 2026-07-22 · 차상호</div>
+</div>
+
+<!-- 0 -->
+<div class="sec">
+  <h2><span class="n">0</span>목적</h2>
+  <p class="lead">경품 응모는 KBO 직관 티켓에 이은 <b>두 번째 보상 트랙</b>이다. 목적은 두 가지 — ① 야구 시즌에 종속된 광고 매출 리스크를 방어하고, ② 볼(P) 사용을 촉진해 광고 노출(BM)을 확대하는 것. 본 문서는 시즌 종료 대비 전략과 론칭 로드맵(1차 배포 → 낙첨 케어 → 확정당첨 → 스페셜 응모)을 정의한다.</p>
+</div>
+
+<!-- 1 시즌 종료 대비 -->
+<div class="sec">
+  <h2><span class="n">1</span>KBO 시즌 종료(9월~) 대비 — 광고 매출 방어</h2>
+
+  <h3 class="blk">리스크 연쇄</h3>
+  <div class="chain">
+    <div class="box">KBO 시즌 종료<br>티켓 응모 소멸</div>
+    <div class="arr">→</div>
+    <div class="box">티켓 목적 유저<br>이탈</div>
+    <div class="arr">→</div>
+    <div class="box">응모권 받으려<br>광고 보던 유저 이탈</div>
+    <div class="arr">→</div>
+    <div class="box">광고 노출 감소</div>
+    <div class="arr">→</div>
+    <div class="box"><b>광고 매출 하락</b></div>
+  </div>
+
+  <h3 class="blk">경품 응모의 역할 (연쇄 차단)</h3>
+  <p class="lead">경품은 <b>볼(P)</b>로 돌아가고, 볼은 야구 외 예측 콘텐츠(월드컵·이스포츠·연예·이슈 등)에서도 발생한다. 따라서 티켓이 사라져도 <b>"볼을 모으려 광고를 보는" 루프</b>가 유지되면 광고 노출·매출이 방어된다. 관건은 <b>시즌 종료 전에 경품 응모 습관을 심어두는 것</b>.</p>
+
+  <div class="fix">
+    <div class="f"><div class="ft">① 볼 획득 경로 다변화</div><div class="fd">야구 외 예측 콘텐츠에서 볼 발생 유지 → 시즌 무관하게 볼 공급이 끊기지 않도록 (운영PRD 카테고리 확장과 연계)</div></div>
+    <div class="f"><div class="ft">② 경품 응모 상시 운영</div><div class="fd">"광고 볼 이유"를 티켓 → 경품으로 이전. 티켓이 담당하던 리텐션·광고 동기를 경품이 승계</div></div>
+    <div class="f"><div class="ft">③ 시즌 종료 前 습관 형성</div><div class="fd">스페셜 응모로 론칭 초기에 조기 후킹 → 8~9월 이탈 국면 전에 경품 참여율·재방문을 끌어올려 티켓 이탈분을 흡수</div></div>
+    <div class="f"><div class="ft">④ 경품 루프 내 광고 지점 유지</div><div class="fd">응모완료 "광고 보고 1번 더"(1일 5회) + 낙첨 환급 광고 → 경품 활성화가 곧 광고 노출·매출 방어</div></div>
+  </div>
+
+  <div class="callout blue"><b>관리 지표</b> — 시즌 종료 시점(9월)에 <b>경품 응모 활성·재방문 유저</b>가 티켓 이탈분을 흡수할 수준으로 올라와 있어야 한다. 8~9월 경품 주간 참여율·재방문율·볼 소진량을 선행 지표로 모니터링하고, 티켓 대비 광고 노출 이전율을 추적한다.</div>
+</div>
+
+<!-- 2 로드맵 -->
+<div class="sec">
+  <h2><span class="n">2</span>론칭 로드맵</h2>
+  <div class="tl">
+    <div class="tl-item"><div class="d">2026-07-29 ~ 07-31</div><div class="t">경품 응모 1차 배포</div><div class="s">기본 응모 루프(리스트 → 상세 → 응모 → 완료). 정규 회차 상품 CASE 1(현재 실행안, 4항). 응모완료 "광고 보고 1번 더"(1일 5회) 광고 지점 포함</div></div>
+    <div class="tl-item amber"><div class="d">2026-07-29 ~ 8월 말 (약 1개월)</div><div class="t">스페셜 응모 (초반 후킹 · 마케팅)</div><div class="s">고가 상품(다이슨·LG 식기세척기)으로 화제성·유입 확보. 정규 응모와 병행. 상세는 3항</div></div>
+    <div class="tl-item"><div class="d">8월</div><div class="t">낙첨자 케어 (광고 환급)</div><div class="s">낙첨자가 광고 시청 시 사용한 볼 일부 환급(운영PRD §6, WL RC-03). 낙첨자도 광고를 보게 해 AD 추가 노출 + 이탈 방지</div></div>
+    <div class="tl-item"><div class="d">8월 (v2.2)</div><div class="t">확정 당첨 모델</div><div class="s">당첨 인원 5명 이상 상품에 한해 최다 볼 사용자 1명 확정 당첨(SD-PZ PZ-D-05). 추월 긴장감 → 추가 볼 소진 → 광고 노출</div></div>
+  </div>
+</div>
+
+<!-- 3 스페셜 응모 -->
+<div class="sec">
+  <h2><span class="n">3</span>스페셜 응모 (초반 후킹 · 마케팅)</h2>
+  <p class="lead">론칭 초기 인지·유입·습관 형성을 위한 <b>1개월 한정</b> 이벤트. 고가 상품으로 화제성을 만들어 경품 응모로의 초기 유입을 극대화하고, 시즌 종료 대비 경품 습관 형성(1항 ③)의 첫 단추 역할을 한다.</p>
+  <table>
+    <tr><th style="width:130px">항목</th><th>내용</th></tr>
+    <tr><td>기간</td><td>1차 배포 직후 ~ 약 1개월 (7월 말 ~ 8월 말)</td></tr>
+    <tr><td>경품</td><td>① 다이슨 헤어드라이기 &nbsp; ② LG 식기세척기</td></tr>
+    <tr><td>운영 방식</td><td>라운드 <b>최저가 경매</b> 방식 (기보유 상품 활용) <span class="pill tbd">방식 상세 확정 필요</span></td></tr>
+    <tr><td>상품 조달</td><td><b>기보유</b> 상품 — 별도 구매 비용 없음</td></tr>
+    <tr><td>배송·제세공과금</td><td><b>프로모티브 처리</b> 가능 상품 → 자사 배송지·제세공과금 개인정보 수집 <b>불필요</b>(닌텐도 스위치와 동일 구조)</td></tr>
+    <tr><td>BM 연결</td><td>고가 상품 경쟁 → 볼 집중 사용 → 광고 노출 극대화. 마케팅 유입과 결합</td></tr>
+  </table>
+  <div class="callout"><b>확인 필요 — "라운드 최저가 경매" 방식 상세</b> 볼을 어떻게 사용하는지(입찰 단위·횟수), 낙찰 규칙(최저 유일가 등), 라운드 주기, 정규 응모/확정당첨과의 관계를 별도 정의해야 한다. 이 방식은 정규 추첨과 메커니즘이 달라 SD-PZ에 별도 화면·정책 정의가 필요.</div>
+  <div class="callout blue"><b>개인정보 관점</b> — 스페셜 응모 2종은 프로모티브가 배송·제세공과금을 처리하므로, 앞서 준비한 자사 선택 동의서(실물 배송·제세공과금)는 <b>이 상품엔 적용되지 않는다.</b> 프로모티브 위탁 고지(처리방침 수탁 목록)로 커버.</div>
+</div>
+
+<!-- 4 정규 회차 상품 -->
+<div class="sec">
+  <h2><span class="n">4</span>정규 회차 상품 — 예산 2단계 (현재 / 확대)</h2>
+  <p class="lead">주간 회차 정규 상품을 예산 2단계로 운영한다. <b>CASE 1(현재 실행안)</b>은 현 광고 매출 수준에 맞춘 기본안, <b>CASE 2(확대안)</b>는 광고 매출 증가 시 동일 경품의 당첨 인원을 늘리는 확장안이다. 발동 기준은 주간 광고 매출이 해당 상품비를 안정적으로 상회하는 시점.</p>
+
+  <h3 class="blk">CASE 1 — 현재 실행안 (예산 30만원)</h3>
+  <p class="lead">주간 광고 매출(~427,000원) 대비 <b>72%</b>. 현 매출로 지속 가능. 당첨 50명.</p>
+  <table>
+    <tr><th style="width:28px">#</th><th>브랜드</th><th>상품명</th><th style="width:70px">판매가</th><th style="width:70px">할인가</th><th style="width:64px">당첨 인원</th><th style="width:80px">예상 비용</th></tr>
+    <tr><td>1</td><td>배달의민족</td><td>모바일 상품권 2만원</td><td>20,000</td><td>19,400</td><td>5</td><td>97,000</td></tr>
+    <tr><td>2</td><td>BHC</td><td>핫후라이드 + 콜라 1.25L</td><td>22,500</td><td>18,900</td><td>5</td><td>94,500</td></tr>
+    <tr><td>3</td><td>티빙</td><td>티빙 스탠다드 1개월</td><td>13,500</td><td>11,340</td><td>5</td><td>56,700</td></tr>
+    <tr><td>4</td><td>올리브영</td><td>올리브영 기프트카드 5천원권</td><td>5,000</td><td>4,800</td><td>5</td><td>24,000</td></tr>
+    <tr><td>5</td><td>메가MGC커피</td><td>(ICE)아메리카노</td><td>2,000</td><td>1,680</td><td>10</td><td>16,800</td></tr>
+    <tr><td>6</td><td>네이버페이</td><td>네이버페이 포인트 쿠폰</td><td>1,000</td><td>980</td><td>20</td><td>19,600</td></tr>
+    <tr><td colspan="5" style="text-align:right"><b>합계</b></td><td><b>50</b></td><td><b>308,600</b></td></tr>
+  </table>
+
+  <h3 class="blk">CASE 2 — 확대안 (예산 50만원, 광고 매출 증가 시)</h3>
+  <p class="lead">동일 경품 구성에서 <b>당첨 인원만 확대</b>(50 → 112명). 상품비 490,100원으로 현 주간 매출 대비 <b>115%</b>이므로, <b>주간 광고 매출이 약 49만원 이상으로 성장한 뒤 발동</b>한다.</p>
+  <table>
+    <tr><th style="width:28px">#</th><th>브랜드</th><th>상품명</th><th style="width:70px">판매가</th><th style="width:70px">할인가</th><th style="width:64px">당첨 인원</th><th style="width:80px">예상 비용</th></tr>
+    <tr><td>1</td><td>배달의민족</td><td>모바일 상품권 2만원</td><td>20,000</td><td>19,400</td><td>5</td><td>97,000</td></tr>
+    <tr><td>2</td><td>BHC</td><td>핫후라이드 + 콜라 1.25L</td><td>22,500</td><td>18,900</td><td>7</td><td>132,300</td></tr>
+    <tr><td>3</td><td>티빙</td><td>티빙 스탠다드 1개월</td><td>13,500</td><td>11,340</td><td>10</td><td>113,400</td></tr>
+    <tr><td>4</td><td>올리브영</td><td>올리브영 기프트카드 5천원권</td><td>5,000</td><td>4,800</td><td>10</td><td>48,000</td></tr>
+    <tr><td>5</td><td>메가MGC커피</td><td>(ICE)아메리카노</td><td>2,000</td><td>1,680</td><td>30</td><td>50,400</td></tr>
+    <tr><td>6</td><td>네이버페이</td><td>네이버페이 포인트 쿠폰</td><td>1,000</td><td>980</td><td>50</td><td>49,000</td></tr>
+    <tr><td colspan="5" style="text-align:right"><b>합계</b></td><td><b>112</b></td><td><b>490,100</b></td></tr>
+  </table>
+
+  <div class="callout"><b>확대 방향 — 인원 확대에서 품목 확대로</b> CASE 2는 <b>동일 경품의 당첨 인원 증가</b> 구조다. 다만 향후 확대는 인원만 늘리기보다, <b>유저가 선호하는·응모가 몰리는 경품을 트래킹</b>(상품별 응모권 사용량·참여자 수)하여 <b>경품 종류를 넓히는 방향</b>으로도 확장한다. 인기 카테고리를 데이터로 식별해 회차 구성을 최적화하면, 같은 예산으로 참여·볼 소진(=광고 노출)을 더 끌어올릴 수 있다.</div>
+
+  <h3 class="blk">경품 당첨자를 티켓(주 ~120)보다 낮게 두는 근거</h3>
+  <table>
+    <tr><th style="width:150px">근거</th><th>내용</th></tr>
+    <tr><td>비용 성격</td><td>티켓은 구장·제휴 기반 고정 공급(현금 지출 최소), 경품은 건당 현금 구매(재원=광고 매출) → 예산 상한에 묶임</td></tr>
+    <tr><td>수요 대비 BM</td><td>경품 수요 압도적(월드컵 경품 유니크 4,388·응모권 14.6만 장). 소량만 걸어도 경쟁·희소성 유지 → 볼 사용↑ → 광고 노출↑. 많이 주면 역효과</td></tr>
+    <tr><td>운영 지속성</td><td>티켓은 시즌 한정, 경품은 상시 반복 지출 → 매주 광고 매출을 넘기지 않도록 보수적으로</td></tr>
+  </table>
+  <div class="callout blue"><b>참고 데이터</b> — 경품 수요(월드컵): 유니크 4,388명·응모권 146,207장 / 티켓 주간 응모: 181~530명 / 티켓 주간 당첨 상한: ~120명. 경품 수요가 티켓의 10배 이상이므로, 당첨 50명은 의도된 희소성(당첨률 낮음)이며 BM에 유리.</div>
+</div>
+
+<!-- 5 확인 필요 -->
+<div class="sec">
+  <h2><span class="n">5</span>확인 · 후속 필요</h2>
+  <ul class="q">
+    <li><b>스페셜 응모 "최저가 경매" 방식 상세</b> — 볼 사용·입찰·낙찰 규칙, 라운드 주기, 정규 응모/확정당첨과의 관계. SD-PZ에 별도 화면·정책 정의</li>
+    <li><b>볼 발생량 점검</b> — 시즌 종료 후에도 야구 외 예측 콘텐츠에서 볼이 충분히 발생하는지(광고 노출 유지의 전제). 부족 시 콘텐츠 확장·볼 지급 정책 보강</li>
+    <li><b>광고 매출 방어 목표치</b> — 시즌 종료 시점 경품 응모가 흡수해야 할 광고 노출/매출 규모를 수치 목표로 설정</li>
+    <li><b>스페셜 응모 종료 후 연착륙</b> — 1개월 후킹 종료 시 참여 급감을 막을 정규 회차·확정당첨으로의 전환 설계</li>
+  </ul>
+</div>
+
+<footer>경품응모_운영실행안_v1_0 · 2026-07-22 · 참조: 운영PRD v2.0, SD-PZ 경품응모 화면설계서, WL 보유경품 기능정의서, 광고 매출(7/8~7/21)·경품/티켓 응모 비교 데이터</footer>
+</div>
+</body>
+</html>
