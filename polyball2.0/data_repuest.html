@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>데이터 추출 요청 — 경품 응모 KPI (광고 노출 기여도 검증)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap');
+:root{ --primary:#363E8D; --accent:#F5A623; --bg:#F5F6FA; --card:#fff; --line:#E2E8F0; --t1:#1A2033; --t2:#4A5268; --t3:#8B92A8; --red:#C7273C; --green:#0E8A5F; }
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--t1);font-size:13.5px;line-height:1.7;padding:40px 24px;}
+.wrap{max-width:960px;margin:0 auto;}
+.cover{background:linear-gradient(120deg,var(--primary),#252B66);border-radius:14px;color:#fff;padding:28px 32px;margin-bottom:20px;}
+.cover .k{font-size:11px;letter-spacing:2px;color:#A7AEE0;font-weight:700;}
+.cover h1{font-size:21px;font-weight:800;margin:6px 0 8px;}
+.cover .meta{font-size:12px;color:#C6CBF0;}
+.sec{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 28px;margin-bottom:16px;}
+.sec h2{font-size:15.5px;font-weight:800;color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.sec h2 .n{width:23px;height:23px;border-radius:7px;background:var(--primary);color:#fff;font-size:12px;display:inline-flex;align-items:center;justify-content:center;}
+p.lead{color:var(--t2);font-size:13.5px;margin:2px 0 8px;}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin:6px 0;}
+th{background:#EEF0F8;color:var(--primary);text-align:left;padding:8px 11px;font-size:11.5px;border:1px solid var(--line);}
+td{padding:8px 11px;border:1px solid var(--line);vertical-align:top;color:var(--t2);}
+td b{color:var(--t1);}
+.num{width:26px;height:26px;border-radius:7px;background:var(--primary);color:#fff;font-size:12px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.item{display:flex;gap:12px;padding:11px 0;border-top:1px solid #F1F2F7;}
+.item:first-child{border-top:none;}
+.item .body{flex:1;}
+.item .tt{font-size:13.5px;font-weight:800;color:var(--t1);}
+.item .dd{font-size:12.5px;color:var(--t2);margin-top:2px;}
+.pill{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:11px;margin-left:4px;}
+.pill.opt{background:#EEF0F8;color:var(--primary);} .pill.wc{background:#FFF4E1;color:#8A5A00;}
+.callout{border-left:4px solid var(--accent);background:#FFF9EE;border-radius:0 8px 8px 0;padding:11px 15px;font-size:12.5px;color:#7A5A12;margin:8px 0;}
+.callout b{color:#5C430A;}
+.callout.blue{border-left-color:var(--primary);background:#EEF0F8;color:#3A4170;} .callout.blue b{color:var(--primary);}
+.chk{list-style:none;margin:4px 0 0;} .chk li{padding:6px 0 6px 22px;position:relative;font-size:12.5px;color:var(--t2);}
+.chk li::before{content:"?";position:absolute;left:0;top:6px;width:16px;height:16px;border-radius:50%;background:var(--primary);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+.chk li b{color:var(--t1);}
+code{background:#EEF0F8;padding:1px 6px;border-radius:4px;font-size:12px;color:var(--primary);}
+footer{font-size:11px;color:var(--t3);text-align:center;padding:12px 0 4px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="cover">
+  <div class="k">POLYBALL 2.0 · DATA REQUEST</div>
+  <h1>데이터 추출 요청 — 경품 응모 KPI (광고 노출 기여도 검증)</h1>
+  <div class="meta">요청 2026-07-22 · 사업기획팀 차상호 · 수신: 개발팀</div>
+</div>
+
+<!-- 목적 -->
+<div class="sec">
+  <h2><span class="n">0</span>목적</h2>
+  <p class="lead">폴리볼의 BM은 <b>광고 매출</b>이며, 광고 노출은 픽(예측)·응모·미니게임 등 각 지면에서 발생합니다. KBO 시즌이 종료되면 <b>야구 종속 지면(픽·직관 응모 등)의 노출이 사라질 위험</b>이 있어, "경품 응모·비야구 활동이 그 노출을 대체할 수 있는가"를 검증하려 합니다.</p>
+  <div class="callout blue"><b>이번 요청의 범위</b> — 지면별 광고 <b>노출수·매출은 이미 확보</b>했습니다(영상광고 노출 수 파일). 따라서 이번엔 <b>활동별 참여(engagement)와 볼(P) 데이터</b>만 추출 요청드립니다. 이 둘을 주별로 결합해 "참여 → 광고 노출 → 매출" 기여도를 산정합니다.</div>
+</div>
+
+<!-- 공통 조건 -->
+<div class="sec">
+  <h2><span class="n">1</span>공통 추출 조건</h2>
+  <table>
+    <tr><th style="width:130px">항목</th><th>기준</th></tr>
+    <tr><td>대상 기간</td><td><b>2026-03-26 ~ 데이터 최신 완결주</b>(현재 기준 <code>2026-07-19</code>). 월드컵 항목만 별도 시작일(아래)</td></tr>
+    <tr><td>집계 주기</td><td><b>주단위(월~일)</b></td></tr>
+    <tr><td>부분 첫 주 규칙</td><td>추출 시작일이 월요일이 아니면, <b>시작요일 ~ 그 주 일요일</b>까지를 <b>첫 주(부분)</b>로 잡고, 이후부터 정상 월~일 기준으로 집계</td></tr>
+    <tr><td>단위</td><td>유저수 = 유니크, 건수 = 총 발생. 가능하면 <b>웹/앱 분리</b>. 집계 중인 부분 주는 "부분"으로 표기</td></tr>
+  </table>
+  <div class="callout"><b>첫 주 적용 예시</b><br>
+  · 전체 기간 시작 <code>2026-03-26(목)</code> → 첫 주 = <b>03/26~03/29</b>, 이후 03/30(월)~04/05(일)…<br>
+  · 월드컵 예측 <code>2026-06-12(금)</code> → 첫 주 = <b>06/12~06/14</b>, 이후 06/15(월)~…<br>
+  · 월드컵 경품 응모 <code>2026-06-17(수)</code> → 첫 주 = <b>06/17~06/21</b>, 이후 06/22(월)~…</div>
+</div>
+
+<!-- 요청 항목 -->
+<div class="sec">
+  <h2><span class="n">2</span>추출 요청 항목</h2>
+  <div class="item"><span class="num">1</span><div class="body">
+    <div class="tt">예측 참여 (주간 · 마켓별)</div>
+    <div class="dd">마켓 구분: <b>KBO 메인 / KBO 서브 / 월드컵 / 기타 카테고리(연예·이슈·이스포츠)</b> 별 <b>참여 유저수 · 참여 건수</b></div>
+  </div></div>
+  <div class="item"><span class="num">2</span><div class="body">
+    <div class="tt">티켓 응모 (주간)</div>
+    <div class="dd">참여 유저수 · <b>응모권 사용수</b></div>
+  </div></div>
+  <div class="item"><span class="num">3</span><div class="body">
+    <div class="tt">월드컵 <span class="pill wc">시작일 별도</span></div>
+    <div class="dd"><b>예측</b>(콘텐츠 오픈 <code>06/12</code>~): 참여 유저수 · 참여 건수<br><b>경품 응모</b>(<code>06/17</code>~): 응모 유저수 · <b>볼 사용수</b></div>
+  </div></div>
+  <div class="item"><span class="num">4</span><div class="body">
+    <div class="tt">미니게임 (주간)</div>
+    <div class="dd">참여 유저수</div>
+  </div></div>
+  <div class="item"><span class="num">5</span><div class="body">
+    <div class="tt">볼(P) (주간)</div>
+    <div class="dd"><b>발행량</b> — 경로별(예측 적중 · 랭킹 · 광고 · 기타) / <b>소진량</b> — 경품 응모 사용</div>
+  </div></div>
+  <div class="item"><span class="num">6</span><div class="body">
+    <div class="tt">광고 지면별 유니크 유저 <span class="pill opt">선택</span></div>
+    <div class="dd">지면별 <b>노출 유니크 유저수 · 클릭 유저수</b>. (노출수·매출은 확보됨 → 참여 대비 광고 노출 <b>전환율</b> 계산용으로만 필요)</div>
+  </div></div>
+</div>
+
+<!-- 확인 요청 -->
+<div class="sec">
+  <h2><span class="n">3</span>함께 확인 요청</h2>
+  <ul class="chk">
+    <li>티켓 응모가 <b>응모권</b> 사용이 맞는지(볼 아님)</li>
+    <li>월드컵 예측/응모 및 경품 응모 지면에 <b>광고 구좌가 없는 게</b> 맞는지 (현재 광고 데이터상 미존재로 확인됨)</li>
+  </ul>
+</div>
+
+<!-- 참고: 확보 데이터 -->
+<div class="sec">
+  <h2><span class="n">4</span>참고 — 이미 확보한 광고 데이터 (요청 제외)</h2>
+  <p class="lead">지면별 노출·매출(영상광고 노출 수 파일, 04/03~07/21). 아래 참여 데이터와 주별로 결합할 baseline입니다.</p>
+  <table>
+    <tr><th>지면</th><th style="width:110px">노출</th><th style="width:80px">비중</th><th style="width:120px">매출(원)</th><th style="width:80px">구분</th></tr>
+    <tr><td>픽·승부예측</td><td>248,300</td><td>52.4%</td><td>3,360,587</td><td>KBO</td></tr>
+    <tr><td>미니게임</td><td>156,883</td><td>33.1%</td><td>1,329,294</td><td><b>비KBO</b></td></tr>
+    <tr><td>직관 티켓 응모</td><td>58,891</td><td>12.4%</td><td>800,854</td><td>KBO</td></tr>
+    <tr><td>커뮤니티</td><td>9,770</td><td>2.1%</td><td>177,341</td><td>야구 연계</td></tr>
+    <tr><td>퀴즈·긴급티켓</td><td>374</td><td>0.1%</td><td>6,774</td><td>KBO</td></tr>
+  </table>
+  <div class="callout"><b>참고 인사이트</b> — 미니게임(비KBO) 구좌가 6월 개시 후 급성장해 <b>최근 주(W28~30) 비KBO 노출 비중이 51~53%</b>. 반면 <b>월드컵·경품 응모 지면엔 광고 구좌가 아직 없음</b> → 경품이 티켓을 대체하려면 해당 지면 광고 구좌 신설이 선행 과제. (이 가설을 이번 참여 데이터로 정량 검증)</div>
+</div>
+
+<footer>데이터추출요청_경품KPI_광고노출기여도_v1_0 · 2026-07-22 · 회신 후 광고 파일과 주별 결합 → KPI baseline·성공/실패 기준 설계</footer>
+</div>
+</body>
+</html>
