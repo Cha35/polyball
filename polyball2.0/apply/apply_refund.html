@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>기능정의서 — 낙첨 광고 환급 RC-03 v1.0</title>
+<style>
+:root {
+  --primary: #363E8D; --primary-light: #EEF0FD; --navy: #00143F; --accent-onprimary: #F5A623;
+  --white: #ffffff; --bg: #F8FAFC; --bg2: #F1F5F9; --border: #E2E8F0;
+  --text1:#0F172A; --text2:#1E293B; --text3:#475569; --text4:#64748B; --text5:#94A3B8;
+  --green:#059669; --green-bg:#ECFDF5; --orange:#D97706; --orange-bg:#FFFBEB;
+  --red:#DC2626; --red-bg:#FEF2F2; --purple:#7C3AED; --purple-bg:#F5F3FF;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, 'Pretendard', 'Apple SD Gothic Neo', sans-serif; background: var(--bg); color: var(--text1); font-size: 14px; line-height: 1.6; }
+a { color: inherit; }
+.layout{ display:grid; grid-template-columns:238px 1fr; max-width:1760px; margin:0 auto; }
+.scr2{ display:flex; gap:30px; align-items:flex-start; margin-top:6px; }
+.scr2-mk{ flex-shrink:0; max-width:560px; position:sticky; top:18px; }
+.scr2-desc{ flex:1; min-width:0; }
+@media(max-width:1280px){ .scr2{flex-direction:column;} .scr2-mk{position:static;max-width:100%;} }
+.ia{ position:sticky; top:0; align-self:start; height:100vh; overflow-y:auto; background:var(--primary); color:#fff; padding:18px 0 60px; }
+.ia-top{ padding:0 18px 13px; border-bottom:1px solid rgba(255,255,255,.18); margin-bottom:8px; }
+.ia-top .lg{ font-size:10px; font-weight:700; color:#c7d0fb; letter-spacing:1.5px; text-transform:uppercase; }
+.ia-top .ti{ font-size:14px; font-weight:800; margin-top:6px; line-height:1.35; }
+.ia-sep{ padding:11px 18px 4px; font-size:9.5px; font-weight:700; color:#b9c3fa; letter-spacing:.5px; text-transform:uppercase; margin-top:4px; }
+.ia-scr a{ display:block; padding:5px 18px; color:#dde1fc; text-decoration:none; font-size:11.5px; line-height:1.55; }
+.ia-scr a .sc{ font-family:'SF Mono','Fira Code',monospace; font-size:9px; color:#aab6f7; margin-right:5px; }
+.ia-scr a:hover{ background:rgba(255,255,255,.09); color:#fff; }
+.main{ padding:38px 34px 100px; min-width:0; }
+@media(max-width:1020px){ .layout{grid-template-columns:1fr;} .ia{position:static;height:auto;} }
+.cover { background: var(--primary); border-radius: 16px; padding: 34px 30px 28px; margin-bottom: 30px; color: white; }
+.cover-tag { font-size: 11px; font-weight: 700; letter-spacing: 2px; opacity: .7; margin-bottom: 10px; text-transform: uppercase; }
+.cover h1 { font-size: 25px; font-weight: 800; margin-bottom: 6px; }
+.cover-sub { font-size: 13px; opacity: .8; margin-bottom: 18px; line-height:1.6; }
+.cover-meta { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 12px; opacity: .85; border-top: 1px solid rgba(255,255,255,.2); padding-top: 14px; }
+.cover-meta strong { opacity: .65; margin-right: 4px; }
+.cover .req{ color:var(--accent-onprimary); }
+.legend{ display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+.legend .lg{ display:flex; align-items:center; gap:6px; background:rgba(255,255,255,.12); border-radius:8px; padding:5px 10px; font-size:11px; }
+.modsep{ margin:52px 0 22px; padding:14px 20px; background:linear-gradient(100deg,var(--primary),#000e99 140%); border-left:5px solid var(--navy); border-radius:12px; display:flex; align-items:center; gap:12px; color:#fff; box-shadow:0 6px 18px rgba(54,62,141,.22); scroll-margin-top:16px; }
+.modsep:first-of-type{ margin-top:6px; }
+.modsep .mn{ font-size:12px; font-weight:700; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.3); border-radius:7px; padding:4px 11px; }
+.modsep h2{ font-size:18px; font-weight:800; }
+.screen{ margin-bottom:34px; scroll-margin-top:14px; padding-bottom:26px; border-bottom:1px dashed var(--border); }
+.scrhead{ background:var(--primary); color:#fff; border-radius:12px; padding:16px 20px; margin-bottom:10px; display:flex; gap:14px; flex-wrap:wrap; align-items:flex-start; }
+.scrhead .sid{ font-size:12px; font-weight:700; background:var(--navy); border-radius:7px; padding:5px 10px; white-space:nowrap; }
+.scrhead .info{ flex:1; min-width:260px; }
+.scrhead h2{ font-size:16.5px; font-weight:800; margin-bottom:5px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.scrhead .desc{ font-size:12px; color:#e2e4ff; line-height:1.8; }
+.scrhead .desc b{ color:#fff; }
+.scrhead .req{ color:var(--accent-onprimary); font-weight:700; }
+.scrhead .kv{ display:flex; gap:6px; flex-wrap:wrap; margin-top:9px; }
+.scrhead .kv .p{ font-size:10px; background:rgba(255,255,255,.16); border-radius:6px; padding:3px 9px; color:#fff; }
+.scrhead .kv .p b{ font-weight:700; }
+.sx{ margin:24px 0 10px; display:flex; align-items:center; gap:9px; padding-bottom:7px; border-bottom:1.5px solid var(--border); }
+.sx .n{ font-size:10px; font-weight:700; color:#fff; background:var(--primary); border-radius:6px; padding:3px 8px; }
+.sx h3{ font-size:13.5px; font-weight:800; color:var(--primary); }
+.sx .hint{ font-size:11px; color:var(--text4); font-weight:500; }
+.lead{ font-size:12.5px; color:var(--text2); margin:2px 0 10px; line-height:1.75; }
+.plink{ display:inline-block; background:var(--primary-light); color:var(--primary); border:1px solid #d7dcfb; border-radius:6px; padding:2px 8px; font-size:11.5px; font-weight:700; text-decoration:none; margin:1px 3px; }
+.req{ color:var(--red); font-weight:700; }
+.toc { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 18px 22px; margin-bottom: 30px; }
+.toc h3 { font-size: 12px; font-weight: 700; color: var(--text4); margin-bottom: 10px; letter-spacing: .5px; text-transform: uppercase; }
+.toc .row{ display:flex; flex-wrap:wrap; gap:6px; }
+.toc .row a{ font-size:11.5px; color:var(--primary); text-decoration:none; background:var(--primary-light); border-radius:6px; padding:4px 9px; font-weight:600; }
+.section { background: white; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 24px; overflow: hidden; }
+.section-header { background: var(--primary); color: white; padding: 16px 24px; display: flex; align-items: center; gap: 14px; }
+.section-num { width: 32px; height: 32px; background: rgba(255,255,255,.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; flex-shrink: 0; }
+.section-title { font-size: 16px; font-weight: 700; }
+.section-subtitle { font-size: 12px; opacity: .75; margin-top: 2px; }
+.section-body { padding: 22px 24px; }
+.sec-badge { display: inline-block; margin-left: auto; font-size: 10px; font-weight: 700; background: rgba(255,255,255,.2); border-radius: 4px; padding: 2px 8px; flex-shrink: 0; }
+.sub-title { font-size: 12.5px; font-weight: 700; color: var(--primary); margin:16px 0 9px; padding-bottom: 6px; border-bottom: 2px solid var(--primary-light); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom:14px; }
+th { background: var(--bg2); color: var(--text3); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+td.rt{ text-align:right; } td.ct{ text-align:center; }
+.td-label { font-weight: 600; color: var(--text3); white-space: nowrap; }
+.tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; white-space: nowrap; }
+.tag-green  { background: var(--green-bg); color: var(--green); }
+.tag-orange { background: var(--orange-bg); color: var(--orange); }
+.tag-red    { background: var(--red-bg); color: var(--red); }
+.tag-blue   { background: var(--primary-light); color: var(--primary); }
+.tag-gray   { background: var(--bg2); color: var(--text3); }
+.tag-navy   { background: var(--navy); color: white; }
+.callout { border-radius: 8px; padding: 12px 16px; margin: 12px 0; font-size: 12.5px; }
+.callout-info   { background: var(--primary-light); border-left: 3px solid var(--primary); }
+.callout-warn   { background: var(--orange-bg); border-left: 3px solid var(--orange); }
+.callout-green  { background: var(--green-bg); border-left: 3px solid var(--green); }
+.callout-danger { background: var(--red-bg); border-left: 3px solid var(--red); }
+.callout ul { margin-top: 6px; padding-left: 16px; } .callout li { margin-bottom: 3px; }
+.mono { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--primary); }
+.tbd { display:inline-block; font-size:10px; font-weight:700; background:var(--orange-bg); color:var(--orange); border-radius:4px; padding:2px 7px; }
+footer { text-align: center; font-size: 11px; color: var(--text5); margin-top: 40px; }
+/* ===== 인라인 목업 (.mk 스코프) ===== */
+.mk{ --mkmint:#09FFEE; --mkred:#E5484D; --mkpurple:#7C3AED; }
+.mk-row{ display:flex; flex-wrap:wrap; gap:18px; margin:14px 0 4px; }
+.mk-fw{ width:248px; position:relative; }
+.mk-lab{ font-size:11px; font-weight:700; color:var(--text2); margin-bottom:8px; display:flex; align-items:center; gap:5px; }
+.mk-lab .d{ width:5px;height:5px;border-radius:50%;background:var(--primary); }
+.mk-lab .s{ font-weight:500; color:var(--text5); }
+.mk .phone{ width:248px; height:512px; background:#fff; border-radius:28px; border:6px solid #11141b; overflow:hidden; position:relative; box-shadow:0 8px 26px rgba(10,15,40,.12); }
+.mk .scr{ position:absolute; inset:0; overflow-y:auto; overflow-x:hidden; display:flex; flex-direction:column; }
+.mk .scr::-webkit-scrollbar{ width:3px; } .mk .scr::-webkit-scrollbar-thumb{ background:rgba(0,0,0,.18); border-radius:3px; }
+.mk .sb{ height:26px; display:flex; align-items:center; justify-content:space-between; padding:0 14px; font-size:10px; font-weight:700; flex-shrink:0; }
+.mk .gnb{ display:flex; align-items:center; justify-content:space-between; padding:6px 12px 9px; flex-shrink:0; background:#fff; }
+.mk .gnb .logo{ font-size:15px; font-weight:800; color:var(--primary); }
+.mk .gnb .ico{ display:flex; gap:10px; font-size:13px; }
+.mk .sgnb{ display:flex; align-items:center; gap:8px; padding:9px 12px; flex-shrink:0; border-bottom:1px solid var(--border); }
+.mk .sgnb .bk{ font-size:15px; } .mk .sgnb .tt{ font-size:12px; font-weight:700; }
+.mk .bd{ flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; padding:0 12px 14px; background:var(--bg); }
+.mk .bd.w{ background:#fff; padding:0; }
+.mk .st{ font-size:14px; font-weight:800; margin:4px 0 9px; }
+.mk .sr{ display:flex; align-items:center; justify-content:space-between; margin:13px 0 7px; }
+.mk .sr .l{ font-size:12px; font-weight:800; } .mk .sr .r{ font-size:10px; color:var(--text4); font-weight:600; } .mk .sr .r b{ color:var(--primary); }
+.mk .gl{ display:flex; flex-direction:column; gap:7px; }
+.mk .gc{ background:#fff; border:1px solid var(--border); border-radius:12px; padding:10px; display:flex; align-items:flex-start; gap:10px; position:relative; }
+.mk .gc .th{ width:42px;height:42px;border-radius:10px;flex-shrink:0;background:#FBE9DC;display:flex;align-items:center;justify-content:center;font-size:20px; }
+.mk .gc .gi{ flex:1; min-width:0; }
+.mk .gc .tyb{ font-size:8px; font-weight:800; padding:1px 5px; border-radius:3px; display:inline-block; margin-bottom:3px; }
+.mk .tg{ background:var(--primary-light); color:var(--primary); } .mk .tx{ background:var(--bg2); color:var(--text4); }
+.mk .gc .gn{ font-size:11px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .mk .gc .ge{ font-size:9px; color:var(--text3); margin-top:2px; } .mk .gc .ge b{ color:var(--primary); font-weight:800; }
+.mk .gc.ex{ opacity:.7; } .mk .gc.ex .th{ filter:grayscale(1); }
+.mk .rebtn{ margin-top:7px; background:var(--primary); color:#fff; border-radius:8px; text-align:center; font-size:9px; font-weight:800; padding:6px; }
+.mk .banner{ background:var(--primary-light); border:1px solid #d7dcfb; border-radius:11px; padding:9px 11px; font-size:10px; font-weight:800; color:var(--primary); display:flex; align-items:center; justify-content:space-between; margin:8px 0 10px; }
+.mk .wrow{ display:flex; justify-content:space-between; align-items:center; background:#fff; border:1px solid var(--border); border-radius:11px; padding:9px 11px; font-size:10px; margin-bottom:7px; }
+.mk .wrow b{ font-size:13px; font-weight:800; color:var(--primary); }
+.mk .nav{ display:flex; background:#fff; border-top:1px solid var(--border); flex-shrink:0; padding:6px 0 9px; }
+.mk .nav .ni{ flex:1; text-align:center; color:var(--text4); } .mk .nav .ni .i{ font-size:14px; } .mk .nav .ni .l{ font-size:8px; margin-top:2px; font-weight:600; } .mk .nav .ni.on{ color:var(--primary); } .mk .nav .ni.on .l{ font-weight:800; }
+.mk .btn{ margin:5px 18px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; position:relative; }
+.mk .b-soft{ background:var(--primary-light); color:var(--primary); } .mk .b-pri{ background:var(--primary); color:#fff; } .mk .b-dis{ background:var(--bg2); color:var(--text5); }
+.mk .refbox{ width:100%; background:#F3F4F8; border-radius:12px; padding:12px; margin-top:14px; text-align:left; position:relative; }
+.mk .refbox .hd{ display:flex; justify-content:space-between; align-items:center; } .mk .refbox .hd .t{ font-size:11px; font-weight:700; } .mk .refbox .hd .c{ font-size:11px; font-weight:800; color:var(--primary); }
+.mk .pgb{ display:flex; gap:4px; margin-top:8px; } .mk .pgb i{ flex:1; height:5px; border-radius:3px; background:var(--border); } .mk .pgb i.on{ background:var(--primary); }
+.mk .refbox .note{ font-size:9px; color:var(--text3); margin-top:8px; }
+.mk .dcap{ font-size:9px; color:var(--text4); margin-top:8px; }
+.mk-cap{ font-size:11px; color:var(--text4); margin-top:8px; padding-left:2px; line-height:1.6; }
+/* ===== 플로우차트 ===== */
+.fc{ display:flex; flex-direction:column; align-items:center; gap:0; margin:14px 0 4px; }
+.fc .node{ background:var(--primary-light); border:1px solid #d7dcfb; border-radius:10px; padding:9px 14px; font-size:11.5px; font-weight:700; color:var(--primary); text-align:center; max-width:460px; line-height:1.5; }
+.fc .node.act{ background:var(--primary); color:#fff; border-color:var(--primary); }
+.fc .node.soft{ background:#fff; color:var(--text2); font-weight:600; }
+.fc .node small{ font-weight:500; font-size:10px; opacity:.92; }
+.fc .ar{ font-size:15px; color:var(--text5); line-height:1.1; padding:4px 0; font-weight:800; text-align:center; }
+.fc .ar .l{ font-size:10px; color:var(--text4); font-weight:700; }
+.fcbranch{ display:flex; gap:14px; align-items:flex-start; justify-content:center; flex-wrap:wrap; }
+.fcbranch .col{ display:flex; flex-direction:column; align-items:center; gap:0; }
+.fcbranch .lbl{ font-size:10px; font-weight:800; color:var(--text3); background:var(--bg2); border-radius:6px; padding:2px 9px; margin-bottom:6px; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ===================== IA 사이드바 ===================== -->
+<nav class="ia">
+  <div class="ia-top"><div class="lg">FEATURE SPEC · RC-03</div><div class="ti">낙첨 광고 환급<br>기능정의서 v1.0</div></div>
+  <div class="ia-sep">정책 · PL</div>
+  <div class="ia-scr">
+    <a href="#sRULE"><span class="sc">PL</span>환급 규칙 · 계산</a>
+  </div>
+  <div class="ia-sep">화면 · RC-03</div>
+  <div class="ia-scr">
+    <a href="#sSC1"><span class="sc">RC-03-1</span>낙첨 결과 · 환급 진입</a>
+    <a href="#sSC2"><span class="sc">RC-03-2</span>재진입 경로 · 알림</a>
+    <a href="#sSC3"><span class="sc">RC-03-3</span>광고 시청 · 상태 전이</a>
+    <a href="#sSC4"><span class="sc">RC-03-4</span>푸시 · 알림함 · 랜딩</a>
+  </div>
+  <div class="ia-sep">대상 · 재화</div>
+  <div class="ia-scr">
+    <a href="#sTARGET"><span class="sc">TG</span>대상 · 재화 정책</a>
+  </div>
+  <div class="ia-sep">데이터 · DT</div>
+  <div class="ia-scr">
+    <a href="#sDT"><span class="sc">DT</span>어드민 · 필드</a>
+  </div>
+  <div class="ia-sep">측정 · 확인</div>
+  <div class="ia-scr">
+    <a href="#sBM"><span class="sc">BM</span>측정 지표</a>
+    <a href="#sTODO"><span class="sc">TODO</span>확인 · 미결 사항</a>
+  </div>
+</nav>
+
+<main class="main">
+
+  <!-- 커버 -->
+  <div class="cover">
+    <div class="cover-tag">Feature Specification</div>
+    <h1>낙첨 광고 환급 (RC-03)</h1>
+    <div class="cover-sub">경품 응모 낙첨자 대상 · 광고 시청 매개 볼 환급 — 세부 정책·화면 정의<br>
+      <b>범위</b> = 환급 규칙(계산) · 진입/재진입 경로 · 광고 시청 처리 · 대상/재화 · 상태/어드민<br>
+      <b>제외</b> = 사행성/대가성 법령 검토(무료 재화 환급·환전 불가 전제로 본 건 제외) · 어드민 상세(ADM 별도)<br>
+      <b>각 화면</b> = 폰 목업 + 6축(상태 · 구성요소 · 인터랙션 · 검증/정책 · 예외 · 수용기준)</div>
+    <div class="cover-meta">
+      <div><strong>기능 ID</strong> RC-03</div>
+      <div><strong>버전</strong> v1.0</div>
+      <div><strong>작성</strong> 2026-07-24 · 사업기획팀 차상호</div>
+      <div><strong>상위</strong> 보유경품(WL) apply_1.8</div>
+      <div><strong class="req">반영</strong> 2026년 8월(PH2)</div>
+    </div>
+    <div class="legend">
+      <span class="lg">회당 <b>내림(사용 볼 × 10%)</b></span>
+      <span class="lg">10볼 미만 자동 제외</span>
+      <span class="lg">경품별 최대 3회 (≤30%)</span>
+      <span class="lg">기한 발표 + 7일</span>
+      <span class="lg">연속 시청 허용</span>
+    </div>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <h3>목차</h3>
+    <div class="row">
+      <a href="#sRULE">PL 환급 규칙·계산</a>
+      <a href="#sSC1">RC-03-1 낙첨 결과·진입</a>
+      <a href="#sSC2">RC-03-2 재진입 경로·알림</a>
+      <a href="#sSC3">RC-03-3 광고 시청·상태</a>
+      <a href="#sSC4">RC-03-4 푸시·알림함</a>
+      <a href="#sTARGET">대상·재화</a>
+      <a href="#sDT">어드민 필드</a>
+      <a href="#sBM">측정 지표</a>
+      <a href="#sTODO">확인·미결</a>
+    </div>
+  </div>
+
+  <!-- ===================== PL 환급 규칙 ===================== -->
+  <div class="section" id="sRULE">
+    <div class="section-header"><div class="section-num">PL</div><div><div class="section-title">환급 규칙 · 계산</div><div class="section-subtitle">회당 내림(사용 볼 × 10%) · 경품별 최대 3회</div></div><span class="sec-badge">8월 반영</span></div>
+    <div class="section-body">
+      <table>
+        <tr><th style="width:150px">항목</th><th>규칙</th></tr>
+        <tr><td class="td-label">대상</td><td><b>낙첨 확정 건</b>만 (당첨자 · 당첨 후 기한 미수령 취소자 제외)</td></tr>
+        <tr><td class="td-label">지급 매개</td><td>보상형 동영상(RV) <b>시청 완료 1회당 환급 1회</b></td></tr>
+        <tr><td class="td-label">회당 환급 볼</td><td><span class="mono">내림(해당 경품 사용 볼 × 10%)</span> — 소수점 버림(내림), <b class="req">최소 볼 보장 없음</b></td></tr>
+        <tr><td class="td-label">최대 횟수</td><td>경품별 <b>최대 3회</b> (누적 최대 약 30%)</td></tr>
+        <tr><td class="td-label">환급 볼 종류</td><td>응모에 사용한 볼과 <b>동일 종류</b>(일반 경품→일반 볼 / 월드컵 경품→월드컵 볼)</td></tr>
+        <tr><td class="td-label">기한</td><td><b>발표일 + 7일</b> (경품 수령 기한과 동일)</td></tr>
+      </table>
+
+      <div class="sub-title">계산 예시 (검증 완료)</div>
+      <p class="lead">"회당 10%를 <b>내림</b>으로 정수화 + 최소볼 삭제"만으로, <b>10볼 미만은 회당 0볼</b>이 되어 자동으로 환급 대상에서 빠지고, 어떤 경우에도 30%를 넘지 않는다. 별도 "10볼 이상" 게이트 규칙이 필요 없다.</p>
+      <table>
+        <tr><th class="rt">사용 볼</th><th class="rt">회당 (내림)</th><th class="rt">3회 총 환급</th><th class="rt">환급률</th><th>비고</th></tr>
+        <tr><td class="rt">1 ~ 9</td><td class="rt">0</td><td class="rt">0</td><td class="rt">0%</td><td>자동 제외</td></tr>
+        <tr><td class="rt">10</td><td class="rt">1</td><td class="rt"><b>3</b></td><td class="rt">30.0%</td><td>환급 시작점</td></tr>
+        <tr><td class="rt">11</td><td class="rt">1</td><td class="rt">3</td><td class="rt">27.3%</td><td></td></tr>
+        <tr><td class="rt">19</td><td class="rt">1</td><td class="rt">3</td><td class="rt">15.8%</td><td>완만 구간</td></tr>
+        <tr><td class="rt">20</td><td class="rt">2</td><td class="rt">6</td><td class="rt">30.0%</td><td></td></tr>
+        <tr><td class="rt">30</td><td class="rt">3</td><td class="rt">9</td><td class="rt">30.0%</td><td>목업 예시</td></tr>
+        <tr><td class="rt">100</td><td class="rt">10</td><td class="rt">30</td><td class="rt">30.0%</td><td></td></tr>
+      </table>
+      <div class="callout callout-info"><b>형평성 배경</b> — 기존 "올림 + 최소 1볼" 안은 1볼 응모자도 3볼(300%)을 받는 역진성이 있었다. 내림 방식은 <b>많이 쓴 유저일수록 절대 환급 볼이 크고</b>, 소액 응모자(10볼 미만)는 자연 제외되어 회의에서 제기된 형평성 문제를 해소한다. 10~19볼 구간이 회당 1볼(총 3볼)로 같아지는 완만 구간이 있으나, 이는 소액 과다 지급과 반대 방향이라 형평성 훼손이 아니다.</div>
+      <div class="callout callout-danger"><b>상위 골격(WL apply_1.8) 대비 변경점</b> — 회당 계산을 <b>올림 → 내림</b>으로 교체하고 <b>최소 1볼 바닥값을 삭제</b>. 이 두 가지로 10볼 미만 자동 제외 및 30% 상한이 성립한다. 어드민 필드 산식(<span class="mono">ad_refund_ball_per_view</span>) 갱신 필요.</div>
+    </div>
+  </div>
+
+  <!-- ===================== 화면 모듈 ===================== -->
+  <div class="modsep" id="mRC"><span class="mn">RC-03</span><h2>낙첨 광고 환급 · 화면 정의</h2></div>
+
+  <!-- 화면 1 -->
+  <div class="screen" id="sSC1">
+    <div class="scrhead"><span class="sid">RC-03-1</span><div class="info">
+      <h2>낙첨 결과 확인 · 환급 진입 <span class="tag tag-orange" style="font-size:9px">8월 반영</span></h2>
+      <div class="desc">발표 후 결과 확인 시 진입하는 <b>낙첨 결과 풀스크린</b>. 낙첨을 데드엔드로 두지 않고, <b>광고 시청을 매개로 볼 일부를 환급</b>해 재응모를 유도한다.</div>
+      <div class="kv"><span class="p">뎁스 <b>풀스크린</b></span><span class="p">진입 <b>RC-01 [결과 확인하기]</b></span><span class="p">뒤로 <b>목록(RC-01)</b></span><span class="p">권한 <b>광고 SDK(RV)</b></span></div>
+    </div></div>
+    <div class="scr2"><div class="scr2-mk">
+    <div class="mk"><div class="mk-row"><div class="mk-fw">
+      <div class="mk-lab"><span class="d"></span>낙첨 결과 <span class="s">풀스크린 · 최초 진입(0/3)</span></div>
+      <div class="phone"><div class="scr">
+        <div class="sb"><span>9:41</span><span>▪▪▪ 📶 🔋</span></div>
+        <div class="sgnb"><span class="bk">‹</span><span class="tt">응모 결과</span></div>
+        <div class="bd w" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:22px 16px">
+          <div style="font-size:34px">😅</div>
+          <div style="font-size:14px;font-weight:800;margin-top:8px">아쉽게 낙첨됐어요</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:4px">닌텐도 스위치2 · 사용 볼 30개</div>
+          <div class="refbox">
+            <div class="hd"><span class="t">광고 보고 볼 돌려받기</span><span class="c">0/3</span></div>
+            <div class="pgb"><i></i><i></i><i></i></div>
+            <div class="note">1회 시청당 <b>3볼</b> 환급 (사용 볼의 10%, 내림) · 10볼 미만은 대상 아님</div>
+          </div>
+          <div class="btn b-pri" style="width:100%;margin-top:14px">▶ 광고 보고 3볼 받기</div>
+          <div class="dcap">7.31(월)까지 시청 가능 · D-6</div>
+        </div>
+      </div></div>
+    </div></div>
+    <div class="mk-cap">진행바(0/3) + 환급 계산 안내 + [광고 보고 n볼 받기]. 환급 예시(3볼)는 30볼×10%=3.0(내림) 결과이며 고정값 아님.</div></div>
+    <div class="scr2-desc">
+      <div class="sx"><span class="n">1</span><h3>화면 상태</h3></div>
+      <table><tr><th style="width:150px">상태</th><th>조건</th><th>표시</th></tr>
+        <tr><td><span class="tag tag-gray">LOSE</span></td><td>낙첨 결과 최초 열람</td><td>낙첨 카피 + 환급 UI(0/3)</td></tr>
+        <tr><td><span class="tag tag-blue">AD_AVAILABLE</span></td><td>시청 1~2회 완료, 기한 내</td><td>진행바 갱신 + 버튼 유지</td></tr>
+        <tr><td><span class="tag tag-gray">AD_EXHAUSTED</span></td><td>3회 소진</td><td>버튼 제거, 낙첨 종결 표시</td></tr>
+        <tr><td><span class="tag tag-red">EXPIRED</span></td><td>발표 + 7일 경과</td><td>버튼 제거, 낙첨 종결 표시</td></tr>
+      </table>
+      <div class="sx"><span class="n">2</span><h3>구성 요소</h3></div>
+      <table><tr><th style="width:30px">#</th><th style="width:120px">요소</th><th>상세 설명</th></tr>
+        <tr><td class="td-label ct">1</td><td class="td-label">환급 진행바</td><td>n/3 카운터 + 진행바. 회당 환급 볼 계산 안내 텍스트 상시 노출(<span class="mono">내림(사용 볼 × 10%)</span>)</td></tr>
+        <tr><td class="td-label ct">2</td><td class="td-label">[광고 보고 n볼 받기]</td><td>탭 → RV 광고 시청 → 완료 콜백 시 볼 즉시 지급 + 진행바 갱신. n = 회당 환급 볼</td></tr>
+        <tr><td class="td-label ct">3</td><td class="td-label">기한 안내</td><td>발표 + 7일 · D-day 표기</td></tr>
+      </table>
+      <div class="sx"><span class="n">3</span><h3>인터랙션 · 플로우</h3></div>
+      <table><tr><th style="width:180px">단계</th><th>처리</th></tr>
+        <tr><td>① [광고 보고 n볼 받기] 탭</td><td>광고 시청 → 완료 콜백 → 해당 회차 볼 지급 → <span class="mono">ad_refund_count +1</span></td></tr>
+        <tr><td>② 완료 직후</td><td>진행바·잔액 즉시 갱신. <b>연속 시청 허용</b>(바로 다음 회차 가능) → <a class="plink" href="#sSC3">RC-03-3</a></td></tr>
+        <tr><td>③ 3회 소진 / 기한 경과</td><td>버튼 제거, "낙첨 종결" 표시로 전환</td></tr>
+      </table>
+      <div class="sx"><span class="n">4</span><h3>검증 · 정책</h3></div>
+      <table><tr><th style="width:150px">항목</th><th>정책</th></tr>
+        <tr><td class="td-label">환급 기준</td><td><b>경품 단위</b> — 해당 낙첨 경품에 <b>실제 차감된(유료) 볼</b> 기준. 무료 응모분·환급 볼 제외 → <a class="plink" href="#sTARGET">대상·재화</a></td></tr>
+        <tr><td class="td-label">회당 환급량</td><td><span class="mono">내림(사용 볼 × 10%)</span>, 최소볼 없음. 예) 30볼→3볼, 11볼→1볼, 9볼→0볼(대상 아님) → <a class="plink" href="#sRULE">환급 규칙</a></td></tr>
+        <tr><td class="td-label">최대 시청 횟수</td><td><b>경품 1건당 최대 3회</b>(계정 일괄 아님, 카드별 귀속)</td></tr>
+        <tr><td class="td-label">기한</td><td><b>발표 + 7일</b>(당첨 수령 기한과 동일 정책, 공용 리마인드)</td></tr>
+      </table>
+      <div class="callout callout-info"><b>BM 연결</b> — 낙첨은 지금까지 완전한 데드엔드였다. 광고 시청을 매개로 볼을 환급하면 <b>가장 이탈 위험이 큰 순간을 RV 시청 기회로 전환</b>하고, 환급 볼은 재응모로 돌아와 픽/응모 지속 동기에 재기여한다. 낙첨자 수가 당첨자보다 압도적으로 많아 RV 인벤토리 확대 효과가 크다.</div>
+    </div>
+    </div>
+  </div>
+
+  <!-- 화면 2 -->
+  <div class="screen" id="sSC2">
+    <div class="scrhead"><span class="sid">RC-03-2</span><div class="info">
+      <h2>재진입 경로 · 알림 <span class="tag tag-orange" style="font-size:9px">8월 반영</span></h2>
+      <div class="desc">환급 광고 노출을 극대화하려면 결과 확인 1회성에 그치지 않고 <b class="req">낙첨자를 기한 내 여러 번 다시 데려와야</b> 한다. 진입점을 여러 곳에 두되, <b>상태(x/3·기한)는 서버 단일 값</b>으로 공유한다.</div>
+      <div class="kv"><span class="p">경로 <b>결과 배너 · 미당첨 카드 · 푸시</b></span><span class="p">상태 <b>서버 단일</b></span><span class="p">알림 <b>발표 + D-2 (최대 2회)</b></span></div>
+    </div></div>
+    <div class="scr2"><div class="scr2-mk">
+    <div class="mk"><div class="mk-row">
+      <div class="mk-fw">
+        <div class="mk-lab"><span class="d"></span>내 응모 · 결과 배너 <span class="s">최초 진입 · 경로 1</span></div>
+        <div class="phone"><div class="scr">
+          <div class="sb"><span>9:41</span><span>▪▪▪ 📶 🔋</span></div>
+          <div class="sgnb"><span class="bk">←</span><span class="tt">내 응모</span></div>
+          <div style="display:flex;gap:16px;padding:8px 14px 0;border-bottom:1px solid var(--border);flex-shrink:0">
+            <span style="font-size:11px;font-weight:700;color:var(--text1);padding-bottom:7px;border-bottom:2px solid var(--text1)">경품 응모</span>
+            <span style="font-size:11px;color:var(--text4);padding-bottom:7px">경기 응모</span>
+          </div>
+          <div style="display:flex;gap:5px;padding:8px 12px 4px;flex-shrink:0">
+            <span style="font-size:9px;font-weight:800;background:var(--text1);color:#fff;padding:3px 9px;border-radius:11px">전체</span>
+            <span style="font-size:9px;background:var(--bg2);color:var(--text3);padding:3px 9px;border-radius:11px">발표대기</span>
+            <span style="font-size:9px;background:var(--bg2);color:var(--text3);padding:3px 9px;border-radius:11px">당첨</span>
+            <span style="font-size:9px;background:var(--bg2);color:var(--text3);padding:3px 9px;border-radius:11px">미당첨</span>
+          </div>
+          <div class="bd" style="padding-top:8px">
+            <div style="background:var(--primary-light);border-radius:14px;padding:14px;text-align:center;position:relative">
+              <div style="font-size:20px">🎉</div>
+              <div style="font-size:12.5px;font-weight:800;margin-top:5px">당첨 결과가 나왔어요<span class="callno" style="right:2px;top:-4px">1</span></div>
+              <div style="font-size:9px;color:var(--text3);margin-top:2px">응모한 경품 당첨 결과를 확인해 보세요.</div>
+              <div style="background:#fff;border-radius:10px;padding:10px;margin-top:10px">
+                <div style="font-size:10.5px;font-weight:700">네이버페이 포인트쿠폰 1만원권</div>
+                <div style="font-size:9px;color:var(--text4);margin-top:2px">사용 볼 31개 · 06.27(월) 발표</div>
+                <div class="btn b-pri" style="margin:9px 0 0;height:30px;border-radius:8px;font-size:11px">결과 확인하기 ›<span class="callno" style="right:-6px;top:-8px">2</span></div>
+              </div>
+            </div>
+          </div>
+        </div></div>
+      </div>
+      <div class="mk-fw">
+        <div class="mk-lab"><span class="d"></span>내 응모 · 리스트 <span class="s">결과 확인 후 상시 재진입 · 경로 2</span></div>
+        <div class="phone"><div class="scr">
+          <div class="sb"><span>9:41</span><span>▪▪▪ 📶 🔋</span></div>
+          <div class="sgnb"><span class="bk">←</span><span class="tt">내 응모</span></div>
+          <div style="display:flex;gap:16px;padding:8px 14px 0;border-bottom:1px solid var(--border);flex-shrink:0">
+            <span style="font-size:11px;font-weight:700;color:var(--text1);padding-bottom:7px;border-bottom:2px solid var(--text1)">경품 응모</span>
+            <span style="font-size:11px;color:var(--text4);padding-bottom:7px">경기 응모</span>
+          </div>
+          <div class="bd" style="padding-top:10px">
+            <div style="background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:8px">
+              <div style="display:flex;align-items:center;gap:9px;padding:10px">
+                <div class="th" style="background:#FDEEE0">🍗</div>
+                <div class="gi"><span class="tag tag-green" style="font-size:8px">● 당첨</span><div class="gn" style="margin-top:2px">BBQ 황금올리브치킨+콜라</div></div>
+              </div>
+              <div style="display:flex;border-top:1px solid var(--border);background:var(--bg)">
+                <div style="flex:1;text-align:center;padding:7px"><div style="font-size:8px;color:var(--text4)">사용 볼</div><div style="font-size:12px;font-weight:800">19개</div></div>
+                <div style="flex:1;text-align:center;padding:7px;border-left:1px solid var(--border)"><div style="font-size:8px;color:var(--text4)">당첨자 발표</div><div style="font-size:10.5px;font-weight:800">06.27(월)</div></div>
+              </div>
+              <div class="btn b-pri" style="margin:0;height:34px;border-radius:0;font-size:11px">당첨 내역 보기 ›</div>
+            </div>
+            <div style="background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;position:relative">
+              <div style="display:flex;align-items:center;gap:9px;padding:10px">
+                <div class="th" style="background:#E7F7EE;font-size:13px;font-weight:800;color:#03C75A">N</div>
+                <div class="gi"><span class="tag tag-gray" style="font-size:8px">미당첨</span><div class="gn" style="margin-top:2px">네이버페이 포인트쿠폰 1만원권</div></div>
+              </div>
+              <div style="display:flex;border-top:1px solid var(--border);background:var(--bg)">
+                <div style="flex:1;text-align:center;padding:7px"><div style="font-size:8px;color:var(--text4)">사용 볼</div><div style="font-size:12px;font-weight:800">31개</div></div>
+                <div style="flex:1;text-align:center;padding:7px;border-left:1px solid var(--border)"><div style="font-size:8px;color:var(--text4)">당첨자 발표</div><div style="font-size:10.5px;font-weight:800">06.27(월)</div></div>
+              </div>
+              <div class="btn b-soft" style="margin:0;height:34px;border-radius:0;font-size:11px">광고 보고 볼 환급 받기 ›<span class="callno" style="right:-6px;top:-8px">3</span></div>
+            </div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+    <div class="mk-cap">① 결과 배너 [결과 확인하기] = 결과확인 <b>유일 진입점</b>(경로 1) → 낙첨 시 <a class="plink" href="#sSC1">RC-03-1</a> 환급 UI ② 결과 확인 후 미당첨 카드가 리스트에 남고 <b>[광고 보고 볼 환급 받기]</b>가 기한 내 상시 노출(경로 2) — 이탈해도 여기서 재진입. 카드별 <b>독립 카운터</b>(경품마다 3회).</div></div>
+    <div class="scr2-desc">
+      <div class="sx"><span class="n">1</span><h3>진입 경로</h3></div>
+      <table><tr><th style="width:30px">#</th><th style="width:170px">경로</th><th>노출 조건 · 역할</th></tr>
+        <tr><td class="ct">1</td><td class="td-label">내 응모 상단 결과 배너 [결과 확인하기]</td><td>결과 미확인 건이 있을 때 노출. <b class="req">결과확인 유일 진입점</b> — 낙첨 시 <a class="plink" href="#sSC1">RC-03-1</a> 환급 UI로 진입</td></tr>
+        <tr><td class="ct">2</td><td class="td-label">내 응모 미당첨 카드 [광고 보고 볼 환급 받기] <span class="tag tag-green" style="font-size:9px">상시</span></td><td>결과 확인 후 리스트에 남는 미당첨 카드. 미소진(x&lt;3)+기한 내 <b>상시 노출</b> — <b class="req">이탈자 재진입 핵심</b>(이미 실제 화면에 존재)</td></tr>
+        <tr><td class="ct">3</td><td class="td-label">푸시 / 리마인드 <span class="tag tag-blue" style="font-size:9px">절제형</span></td><td>발표 시점 + D-2 리마인드 → 딥링크로 내 응모(낙첨 결과)로 유입</td></tr>
+      </table>
+      <div class="callout callout-warn"><b>내 지갑과 혼동 주의</b> — 환급된 볼은 <b>볼 잔액(재화)에 적립</b>되지만, 환급 <b>액션 진입은 오직 내 응모</b>(결과 배너 · 미당첨 카드)에서만 한다. <b>내 지갑은 당첨된 경품(기프티콘)·티켓 보유만</b> 표시하는 화면이므로 낙첨 환급 배너·버튼을 두지 않는다.</div>
+      <div class="sx"><span class="n">2</span><h3>공통 상태 규칙</h3></div>
+      <table><tr><th style="width:150px">항목</th><th>규칙</th></tr>
+        <tr><td class="td-label">단일 서버 상태</td><td>x/3 진행·남은 기한 D-day는 서버 기준. 경로 1에서 1회 보고 경로 2로 재진입하면 <b>2/3부터 이어서</b> 진행</td></tr>
+        <tr><td class="td-label">노출 조건</td><td>낙첨 확정 + x&lt;3 + 기한 내. 하나라도 어긋나면 모든 경로에서 버튼 숨김</td></tr>
+        <tr><td class="td-label">다경품 처리</td><td>경품별 독립 3회 → 각 경로에서 <b>경품마다 별도 버튼·카운터</b>. 지갑은 "환급 가능 n건" 합산 표시</td></tr>
+        <tr><td class="td-label">종결</td><td>3/3 소진 또는 기한 경과 시 버튼 제거 · 카드 딤 처리</td></tr>
+      </table>
+      <div class="sx"><span class="n">3</span><h3>푸시 케이스 · 리마인드 <span class="hint">절제형</span></h3></div>
+      <table><tr><th style="width:130px">항목</th><th>내용</th></tr>
+        <tr><td class="td-label">케이스명</td><td><b>낙첨 환급 리마인드</b> (PUSH-RF)</td></tr>
+        <tr><td class="td-label">트리거</td><td><b>발표일 + 5일 경과</b> 시점(배치) — 환급 기한(발표+7일) 기준 <b>잔여 2일(D-2)</b></td></tr>
+        <tr><td class="td-label">발송 대상 <span style="font-weight:500">(AND)</span></td><td>① 낙첨 <b>결과 확인 완료</b> · ② 환급 잔여 회차 ≥ 1(<span class="mono">ad_refund_count &lt; 3</span>) · ③ 기한 미경과</td></tr>
+        <tr><td class="td-label">발송 횟수</td><td>유저 단위 <b>1회</b> — 미소진 경품이 여러 개여도 묶어서 1회(경품별 개별 발송 아님, 피로도)</td></tr>
+        <tr><td class="td-label">분류</td><td><b>응모</b> 카테고리(알림함 필터 기준)</td></tr>
+        <tr><td class="td-label">문구</td><td><b>헤더</b> 돌려받지 않은 볼이 있어요<br><b>본문</b> (광고) 경품 응모에 사용했던 볼을 돌려받을 수 있어요. 환급 기한이 <b>2일</b> 남았어요.<br><span style="font-size:11px;color:var(--text4)">* 알림끄기는 폴리볼 앱에서</span></td></tr>
+        <tr><td class="td-label">딥링크</td><td>내 응모 &gt; 미당첨 카드(경로 2). 미소진 건이 여러 개면 목록으로 → 상세·플로우 <a class="plink" href="#sSC4">RC-03-4</a></td></tr>
+        <tr><td class="td-label">제외(미발송)</td><td>결과 미확인 · 3/3 소진 · 기한 경과 · 대상 없음</td></tr>
+        <tr><td class="td-label">상한 · 통합</td><td>발표 시점 결과 알림 + 본 리마인드 = 환급 관련 푸시 <b>최대 2회</b>. WL 경품 수령 리마인드와 <b>동일 스케줄에 통합</b>(중복·남발 방지)</td></tr>
+      </table>
+      <div class="callout callout-info"><b>D-day 확정</b> — 기한 <b>발표+7일</b> 기준 "발표+5일 경과" = 환급 기간 <b>D-2</b>(잔여 2일). 문구는 "2일"로 확정. 목업·알림함·랜딩 플로우는 <a class="plink" href="#sSC4">RC-03-4</a> 참조.</div>
+      <div class="callout callout-info"><b>왜 결과 확인자만?</b> — 결과 미확인 유저에게는 "결과가 나왔어요"(결과 확인 유도) 알림이 별도로 나가므로, 본 케이스는 <b>이미 낙첨을 확인했고 환급 기회가 남은 유저</b>만 대상으로 한다(중복·혼선 방지).</div>
+      <div class="callout callout-info"><b>설계 원칙</b> — 진입점·리마인드를 늘릴수록 광고 노출↑(BM↑)이나 UX 피로와 트레이드오프. 경로 1·2(내 응모)는 상시 노출로 회수율을, 푸시는 절제형으로 피로도 균형을 잡는다.</div>
+      <div class="callout callout-warn"><b>확인 필요</b> — D-2 리마인드 푸시의 최종 적용 여부(현재 절제형으로 포함) → <a class="plink" href="#sTODO">TODO</a></div>
+    </div>
+    </div>
+  </div>
+
+  <!-- 화면 3 -->
+  <div class="screen" id="sSC3">
+    <div class="scrhead"><span class="sid">RC-03-3</span><div class="info">
+      <h2>광고 시청 처리 · 상태 전이 <span class="tag tag-orange" style="font-size:9px">8월 반영</span></h2>
+      <div class="desc">RV 광고 <b>완료 콜백 시에만</b> 지급하며, <b class="req">연속 시청을 허용</b>해(쿨다운 없음) 한자리에서 최대 3회까지 확보한다. 3회 소진 또는 기한 경과 시 자연 종결한다.</div>
+      <div class="kv"><span class="p">지급 <b>완료 콜백 시</b></span><span class="p">시청 <b>연속 허용</b></span><span class="p">상한 <b>서버 count 3</b></span></div>
+    </div></div>
+    <div class="scr2"><div class="scr2-mk">
+    <div class="mk"><div class="mk-row">
+      <div class="mk-fw">
+        <div class="mk-lab"><span class="d"></span>진행 중 <span class="s">1/3 · 기한 내</span></div>
+        <div class="phone"><div class="scr">
+          <div class="sb"><span>9:41</span><span>▪▪▪ 📶 🔋</span></div>
+          <div class="sgnb"><span class="bk">‹</span><span class="tt">응모 결과</span></div>
+          <div class="bd w" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:22px 16px">
+            <div style="font-size:34px">😅</div>
+            <div style="font-size:14px;font-weight:800;margin-top:8px">아쉽게 낙첨됐어요</div>
+            <div style="font-size:10px;color:var(--text3);margin-top:4px">닌텐도 스위치2 · 사용 볼 30개</div>
+            <div class="refbox">
+              <div class="hd"><span class="t">광고 보고 볼 돌려받기</span><span class="c">1/3</span></div>
+              <div class="pgb"><i class="on"></i><i></i><i></i></div>
+              <div class="note">지금까지 <b>3볼</b> 환급 · 남은 2회 시청 시 +6볼</div>
+            </div>
+            <div class="btn b-pri" style="width:100%;margin-top:14px">▶ 이어서 광고 보고 3볼 받기</div>
+            <div class="dcap">D-5 · 연속 시청 가능</div>
+          </div>
+        </div></div>
+      </div>
+      <div class="mk-fw">
+        <div class="mk-lab"><span class="d"></span>소진 완료 <span class="s">3/3 · 종결</span></div>
+        <div class="phone"><div class="scr">
+          <div class="sb"><span>9:41</span><span>▪▪▪ 📶 🔋</span></div>
+          <div class="sgnb"><span class="bk">‹</span><span class="tt">응모 결과</span></div>
+          <div class="bd w" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:22px 16px">
+            <div style="font-size:34px">🎉</div>
+            <div style="font-size:14px;font-weight:800;margin-top:8px">볼을 모두 돌려받았어요</div>
+            <div style="font-size:10px;color:var(--text3);margin-top:4px">닌텐도 스위치2 · 사용 볼 30개</div>
+            <div class="refbox">
+              <div class="hd"><span class="t">광고 보고 볼 돌려받기</span><span class="c" style="color:var(--green)">3/3</span></div>
+              <div class="pgb"><i class="on"></i><i class="on"></i><i class="on"></i></div>
+              <div class="note">총 <b>9볼</b> 환급 완료 · 내 지갑에 적립됐어요</div>
+            </div>
+            <div class="btn b-soft" style="width:100%;margin-top:14px">환급된 볼로 다시 응모하기 ›</div>
+            <div class="dcap">환급 완료 · 버튼 종결</div>
+          </div>
+        </div></div>
+      </div>
+      <div class="mk-fw">
+        <div class="mk-lab"><span class="d"></span>기한 종료 <span class="s">EXPIRED · 딤</span></div>
+        <div class="phone"><div class="scr">
+          <div class="sb"><span>9:41</span><span>▪▪▪ 📶 🔋</span></div>
+          <div class="sgnb"><span class="bk">‹</span><span class="tt">응모 결과</span></div>
+          <div class="bd w" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:22px 16px">
+            <div style="font-size:34px;opacity:.5">😅</div>
+            <div style="font-size:14px;font-weight:800;margin-top:8px">아쉽게 낙첨됐어요</div>
+            <div style="font-size:10px;color:var(--text3);margin-top:4px">닌텐도 스위치2 · 사용 볼 30개</div>
+            <div class="refbox" style="opacity:.55">
+              <div class="hd"><span class="t">광고 보고 볼 돌려받기</span><span class="c" style="color:var(--text4)">1/3</span></div>
+              <div class="pgb"><i class="on"></i><i></i><i></i></div>
+              <div class="note">환급 기간이 종료됐어요 (발표 + 7일)</div>
+            </div>
+            <div class="btn b-dis" style="width:100%;margin-top:14px">환급 기간 종료</div>
+            <div class="dcap">기한 경과 · 미소진분 소멸</div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+    <div class="mk-cap">진행(1/3) → 소진(3/3, 재응모 유도) → 기한 종료(딤·종결). 소진·기한 경과 시 버튼이 자연스럽게 사라진다.</div></div>
+    <div class="scr2-desc">
+      <div class="sx"><span class="n">1</span><h3>시청 완료 판정</h3></div>
+      <table><tr><th style="width:170px">처리</th><th>내용</th></tr>
+        <tr><td class="td-label">완료 판정</td><td>RV <b>완료 콜백 수신 시에만</b> 지급</td></tr>
+        <tr><td class="td-label">중도 이탈 · 실패</td><td>스킵·닫기·재생 실패 → <b>미지급 · 카운터 미증가</b>, "끝까지 시청해야 볼을 받아요" 토스트 후 재시도</td></tr>
+        <tr><td class="td-label">지급 · 검증</td><td>완료 즉시 서버 지급 + <span class="mono">ad_refund_count +1</span> + 잔액 반영. 경품별 <b>count 상한 3</b>, 중복 콜백 무시, SDK 서버 검증 콜백으로 위·변조 차단</td></tr>
+      </table>
+      <div class="sx"><span class="n">2</span><h3>연속 시청 정책 <span class="hint">확정: 연속 허용</span></h3></div>
+      <table><tr><th style="width:170px">항목</th><th>정책</th></tr>
+        <tr><td class="td-label">연속 허용</td><td>1회 완료 후 <b>바로 다음 광고 시청 가능</b> — 한자리에서 최대 3회 연속. 쿨다운·텀 없음</td></tr>
+        <tr><td class="td-label">근거</td><td>환급 기한이 7일로 짧고 이탈 리스크가 커, <b>온 김에 다 보게 하는 편이 노출 확보에 유리</b></td></tr>
+      </table>
+      <div class="sx"><span class="n">3</span><h3>상태 전이</h3></div>
+      <table><tr><th style="width:150px">상태</th><th>조건 · 표시</th></tr>
+        <tr><td><span class="tag tag-blue">진행 중</span></td><td>x&lt;3 · 기한 내 → 진행바 갱신 + 버튼 유지("이어서 광고 보고 n볼 받기")</td></tr>
+        <tr><td><span class="tag tag-green">소진 완료</span></td><td>3/3 → 총 환급 볼 표시 + <b>재응모 유도 버튼</b>, 환급 버튼 종결</td></tr>
+        <tr><td><span class="tag tag-red">기한 종료</span></td><td>발표 + 7일 경과 → 버튼 비활성·딤, 미소진분 <b>소멸(별도 보상 없음)</b></td></tr>
+      </table>
+      <div class="sx"><span class="n">4</span><h3>예외 · 에러</h3></div>
+      <table><tr><th style="width:170px">예외</th><th>처리</th></tr>
+        <tr><td><b>공통 규격</b></td><td>로딩·오프라인·세션 만료 등 → <b>폴리볼 공통 스펙 준수</b></td></tr>
+        <tr><td>광고 재고 없음(no-fill)</td><td>"잠시 후 다시 시도해주세요" 안내, <b>카운터 미증가·버튼 유지</b> → 기한 내 재시도</td></tr>
+        <tr><td>시청 실패(SDK 오류·중도 이탈)</td><td>지급하지 않고 재시청 유도 — 카운터 미증가</td></tr>
+      </table>
+      <div class="sx"><span class="n">5</span><h3>수용기준</h3></div>
+      <table><tr><th style="width:190px">기준</th><th>충족 조건</th></tr>
+        <tr><td>재응모 동기 전환</td><td>환급된 볼이 재응모로 이어지도록 소진 화면에서 재응모 경로를 제공해야 함</td></tr>
+        <tr><td>자연스러운 종결</td><td>3회 소진·기한 경과 시 버튼이 자연스럽게 사라지고 종결 상태로 전환되어야 함</td></tr>
+        <tr><td>노출 무결성</td><td>완료 콜백 외 지급 불가, 경품별 3회 초과 지급 불가(서버 검증)</td></tr>
+      </table>
+    </div>
+    </div>
+  </div>
+
+  <!-- 화면 4 -->
+  <div class="screen" id="sSC4">
+    <div class="scrhead"><span class="sid">RC-03-4</span><div class="info">
+      <h2>낙첨 환급 푸시 · 알림함 · 랜딩 <span class="tag tag-orange" style="font-size:9px">8월 반영</span></h2>
+      <div class="desc">PUSH-RF(발표 + 5일, D-2) 발송 → OS 배너 노출 → 미탭 시 <b>알림함(응모 분류)</b>에 적재 → 탭 시 <b>내 응모 &gt; 미당첨 카드</b>로 랜딩. 광고성 푸시로 <b class="req">(광고) 표기 · 야간 발송 제외</b>를 준수한다.</div>
+      <div class="kv"><span class="p">분류 <b>응모</b></span><span class="p">보관 <b>최근 30일</b></span><span class="p">랜딩 <b>내 응모 &gt; 미당첨 카드</b></span></div>
+    </div></div>
+    <div class="scr2"><div class="scr2-mk">
+    <div class="mk"><div class="mk-row">
+      <div class="mk-fw">
+        <div class="mk-lab"><span class="d"></span>푸시 노출 <span class="s">잠금화면 · 배너</span></div>
+        <div class="phone"><div class="scr" style="background:linear-gradient(160deg,#2A3350,#141a2b)">
+          <div class="sb" style="color:#fff"><span>9:41</span><span>▪▪▪ 📶 🔋</span></div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:26px 12px 0;color:#fff">
+            <div style="font-size:40px;font-weight:300;letter-spacing:1px">9:41</div>
+            <div style="font-size:11px;opacity:.75;margin-bottom:22px">4월 14일 월요일</div>
+            <div style="width:100%;background:rgba(255,255,255,.94);border-radius:15px;padding:11px 12px;text-align:left;color:var(--text1);position:relative">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span style="width:15px;height:15px;border-radius:4px;background:var(--primary);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:800">P</span><span style="font-size:9px;color:var(--text4);font-weight:600">PolyBall · 지금</span></div>
+              <div style="font-size:12px;font-weight:800">돌려받지 않은 볼이 있어요</div>
+              <div style="font-size:10px;color:var(--text3);margin-top:3px;line-height:1.5">(광고) 경품 응모에 사용했던 볼을 돌려받을 수 있어요. 환급 기한이 2일 남았어요.</div>
+              <span class="callno" style="right:-6px;top:-8px">1</span>
+            </div>
+          </div>
+        </div></div>
+      </div>
+      <div class="mk-fw">
+        <div class="mk-lab"><span class="d"></span>알림함 <span class="s">미탭 시 적재 · 응모 분류</span></div>
+        <div class="phone"><div class="scr">
+          <div class="sb"><span>9:41</span><span>▪▪▪ 📶 🔋</span></div>
+          <div class="sgnb"><span class="bk">←</span><span class="tt" style="flex:1;text-align:center">알림함</span><span style="font-size:11px;color:var(--primary);font-weight:700">설정</span></div>
+          <div style="display:flex;gap:5px;padding:8px 12px;flex-shrink:0;border-bottom:1px solid var(--border);overflow:hidden">
+            <span style="font-size:9px;background:var(--bg2);color:var(--text3);padding:3px 9px;border-radius:11px">전체</span>
+            <span style="font-size:9px;background:var(--bg2);color:var(--text3);padding:3px 9px;border-radius:11px">승부예측</span>
+            <span style="font-size:9px;font-weight:800;background:var(--text1);color:#fff;padding:3px 9px;border-radius:11px">응모</span>
+            <span style="font-size:9px;background:var(--bg2);color:var(--text3);padding:3px 9px;border-radius:11px">커뮤니티</span>
+          </div>
+          <div class="bd" style="padding:0;background:#fff">
+            <div style="background:var(--primary-light);padding:12px;border-bottom:1px solid var(--border);display:flex;gap:9px;position:relative">
+              <div style="font-size:17px">🎁</div>
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start"><span style="font-size:11.5px;font-weight:800">돌려받지 않은 볼이 있어요 <span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--red);vertical-align:middle"></span></span><span style="font-size:9px;color:var(--text4);white-space:nowrap;margin-left:4px">방금</span></div>
+                <div style="font-size:10px;color:var(--text3);margin-top:3px">경품 응모에 사용했던 볼을 돌려받을 수 있어요.</div>
+              </div>
+              <span class="callno" style="right:-6px;top:-8px">2</span>
+            </div>
+            <div style="padding:12px;border-bottom:1px solid var(--border);display:flex;gap:9px">
+              <div style="font-size:17px">🎫</div>
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;justify-content:space-between"><span style="font-size:11.5px;font-weight:700">직관 경기 당첨 결과가 발표됐어요</span><span style="font-size:9px;color:var(--text4);white-space:nowrap;margin-left:4px">59분 전</span></div>
+                <div style="font-size:10px;color:var(--text4);margin-top:3px">결과를 확인하러 가볼까요?</div>
+              </div>
+            </div>
+            <div style="text-align:center;font-size:9px;color:var(--text5);padding:14px 0">최근 30일 이내 알림만 보관됩니다.</div>
+          </div>
+        </div></div>
+      </div>
+      <div class="mk-fw">
+        <div class="mk-lab"><span class="d"></span>탭 → 랜딩 <span class="s">내 응모 · 미당첨 카드</span></div>
+        <div class="phone"><div class="scr">
+          <div class="sb"><span>9:41</span><span>▪▪▪ 📶 🔋</span></div>
+          <div class="sgnb"><span class="bk">←</span><span class="tt">내 응모</span></div>
+          <div style="display:flex;gap:16px;padding:8px 14px 0;border-bottom:1px solid var(--border);flex-shrink:0">
+            <span style="font-size:11px;font-weight:700;color:var(--text1);padding-bottom:7px;border-bottom:2px solid var(--text1)">경품 응모</span>
+            <span style="font-size:11px;color:var(--text4);padding-bottom:7px">경기 응모</span>
+          </div>
+          <div class="bd" style="padding-top:10px">
+            <div style="background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;position:relative;box-shadow:0 0 0 2px var(--accent-onprimary)">
+              <div style="display:flex;align-items:center;gap:9px;padding:10px">
+                <div class="th" style="background:#E7F7EE;font-size:13px;font-weight:800;color:#03C75A">N</div>
+                <div class="gi"><span class="tag tag-gray" style="font-size:8px">미당첨</span><div class="gn" style="margin-top:2px">네이버페이 포인트쿠폰 1만원권</div></div>
+              </div>
+              <div style="display:flex;border-top:1px solid var(--border);background:var(--bg)">
+                <div style="flex:1;text-align:center;padding:7px"><div style="font-size:8px;color:var(--text4)">사용 볼</div><div style="font-size:12px;font-weight:800">31개</div></div>
+                <div style="flex:1;text-align:center;padding:7px;border-left:1px solid var(--border)"><div style="font-size:8px;color:var(--text4)">당첨자 발표</div><div style="font-size:10.5px;font-weight:800">06.27(월)</div></div>
+              </div>
+              <div class="btn b-soft" style="margin:0;height:34px;border-radius:0;font-size:11px">광고 보고 볼 환급 받기 ›<span class="callno" style="right:-6px;top:-8px">3</span></div>
+            </div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+    <div class="mk-cap">① 푸시 배너(잠금화면·상단) 노출 ② 미탭 시 알림함에 <b>응모</b> 분류로 적재(최근 30일 보관, 미열람 dot) ③ 탭 → 내 응모 미당첨 카드로 랜딩 → [광고 보고 볼 환급 받기] → <a class="plink" href="#sSC1">RC-03-1</a> 환급 UI.</div></div>
+    <div class="scr2-desc">
+      <div class="sx"><span class="n">1</span><h3>푸시 문구</h3></div>
+      <table><tr><th style="width:90px">구분</th><th>내용</th></tr>
+        <tr><td class="td-label">헤더</td><td><b>돌려받지 않은 볼이 있어요</b></td></tr>
+        <tr><td class="td-label">본문</td><td>(광고) 경품 응모에 사용했던 볼을 돌려받을 수 있어요. 환급 기한이 <b>2일</b> 남았어요.</td></tr>
+        <tr><td class="td-label">푸터</td><td><span style="color:var(--text4)">* 알림끄기는 폴리볼 앱에서</span></td></tr>
+      </table>
+      <div class="sx"><span class="n">2</span><h3>동작 플로우</h3></div>
+      <div class="fc">
+        <div class="node act">배치 · 발표 + 5일 경과 <small>(환급 기한 발표+7일 기준 D-2)</small></div>
+        <div class="ar">↓</div>
+        <div class="node">발송 대상 판정<br><small>결과 확인 완료 · 잔여 회차 ≥ 1 · 기한 미경과 · (광고 수신 동의)</small></div>
+        <div class="ar">↓ <span class="l">대상</span></div>
+        <div class="node act">푸시 발송 · 분류 = 응모</div>
+        <div class="ar">↓</div>
+        <div class="fcbranch">
+          <div class="col">
+            <div class="lbl">① 즉시 탭</div>
+            <div class="node soft">딥링크 실행</div>
+          </div>
+          <div class="col">
+            <div class="lbl">② 미탭(무시)</div>
+            <div class="node soft">알림함 적재<br><small>응모 분류 · 30일 보관 · 미열람 dot</small></div>
+            <div class="ar">↓ <span class="l">이후 탭</span></div>
+          </div>
+        </div>
+        <div class="ar">↓ <span class="l">합류</span></div>
+        <div class="node">내 응모 &gt; 미당첨 카드 (경로 2)</div>
+        <div class="ar">↓</div>
+        <div class="node act">[광고 보고 볼 환급 받기] → RC-03-1 환급 UI</div>
+      </div>
+      <div class="sx"><span class="n">3</span><h3>정책 · CASE</h3></div>
+      <table><tr><th style="width:150px">항목</th><th>처리</th></tr>
+        <tr><td class="td-label">알림함 분류</td><td><b>응모</b> 카테고리로 노출(전체·응모 필터에 표시)</td></tr>
+        <tr><td class="td-label">보관 기간</td><td>알림함 <b>최근 30일</b> 보관(공통 규격)</td></tr>
+        <tr><td class="td-label">광고성 표기</td><td><b class="req">(광고)</b> 표기 필수 + "알림끄기는 폴리볼 앱에서" 안내(정보통신망법 광고성 정보)</td></tr>
+        <tr><td class="td-label">발송 시간</td><td><b>야간(21:00~08:00) 제외</b> — 발표+5일 도달이 야간이면 <b>익일 오전</b> 발송</td></tr>
+        <tr><td class="td-label">수신 대상</td><td>광고성 알림 <b>수신 동의자</b> 대상(미동의자 제외) — 광고성/서비스 분류 확정 필요 <span class="tbd">TBD</span></td></tr>
+        <tr><td class="td-label">미탭 · 재발송</td><td>미탭 시 알림함에만 남고 <b>재발송 없음</b>(1회). 알림함에서 탭 시 동일 랜딩</td></tr>
+        <tr><td class="td-label">탭 랜딩</td><td>딥링크 → 내 응모 &gt; 미당첨 카드. 미소진 건이 여러 개면 목록으로</td></tr>
+      </table>
+      <div class="callout callout-warn"><b>광고성/서비스 분류 확인</b> — "(광고)" 표기·수신 동의·야간 제한은 <b>광고성(마케팅)</b> 전제. 만약 <b>거래·서비스 알림</b>으로 분류하면 수신 동의·야간 제한이 달라지므로 법무/CRM과 분류 확정 필요 → <a class="plink" href="#sTODO">TODO</a></div>
+    </div>
+    </div>
+  </div>
+
+  <!-- 대상·재화 -->
+  <div class="section" id="sTARGET">
+    <div class="section-header"><div class="section-num">TG</div><div><div class="section-title">대상 · 재화 정책</div><div class="section-subtitle">환급 base · 대상 확정 · 환급 볼 성격</div></div></div>
+    <div class="section-body">
+      <div class="sub-title">환급 base = 실제 차감(유료) 볼</div>
+      <table><tr><th style="width:150px">항목</th><th>정책</th></tr>
+        <tr><td class="td-label">계산 기준</td><td>해당 경품에 <b>실제 차감된 볼</b>만. "광고 보고 1번 더 응모"로 얻은 <b>무료 응모분·환급받은 볼은 base에서 제외</b>(이중 보상·무한 환급 루프 방지)</td></tr>
+      </table>
+      <div class="sub-title">대상 확정</div>
+      <table><tr><th style="width:150px">항목</th><th>정책</th></tr>
+        <tr><td class="td-label">대상</td><td>발표 후 <b>낙첨 확정 건</b>. 당첨자 및 당첨 후 <b>기한 미수령 취소자는 제외</b>(취소자는 낙첨이 아님)</td></tr>
+        <tr><td class="td-label">단위</td><td>여러 경품 낙첨 시 <b>경품별 독립 3회</b>(유저 총상한 없음)</td></tr>
+      </table>
+      <div class="sub-title">환급 볼의 성격</div>
+      <table><tr><th style="width:150px">항목</th><th>정책</th></tr>
+        <tr><td class="td-label">종류</td><td>응모에 쓴 것과 <b>동일 종류 볼</b>로 지급(일반/월드컵)</td></tr>
+        <tr><td class="td-label">사용처</td><td>잔액 적립 → <b>다음 회차 재응모에 사용 가능</b></td></tr>
+        <tr><td class="td-label">유효기간</td><td><b>볼 기본 정책</b>을 따름(별도 만료 규칙 없음)</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 어드민 -->
+  <div class="section" id="sDT">
+    <div class="section-header"><div class="section-num">DT</div><div><div class="section-title">어드민 · 데이터 필드</div><div class="section-subtitle">환급 산정·카운터·기한</div></div><span class="sec-badge">8월 반영</span></div>
+    <div class="section-body">
+      <table>
+        <tr><th style="width:230px">필드</th><th>정의</th></tr>
+        <tr><td class="mono">ad_refund_ball_per_view</td><td><b>내림(사용 볼 × 10%)</b> — 회당 환급 볼. <span class="tag tag-red" style="font-size:9px">변경</span> 기존 "올림·최소 1볼" 폐기</td></tr>
+        <tr><td class="mono">ad_refund_count</td><td>경품별 광고 시청 환급 횟수, <b>0 ~ 3</b></td></tr>
+        <tr><td class="mono">ad_refund_deadline</td><td>발표일 + 7일</td></tr>
+        <tr><td class="mono">ad_refund_ball_total</td><td>지급 누계 = <span class="mono">per_view × count</span> (모니터링용)</td></tr>
+      </table>
+      <div class="callout callout-danger"><b>변경점</b> — 회당 계산을 <b>올림 → 내림</b>으로 교체하고 <b>최소 1볼 바닥값 삭제</b>. 이 두 가지로 10볼 미만 자동 제외 및 30% 상한이 성립 → <a class="plink" href="#sRULE">환급 규칙</a></div>
+      <div class="callout callout-warn"><b>재화 원장</b> — 환급 볼이 다음 응모의 base에서 제외되도록 볼 이력에 <b>유료/무료(환급) 구분 태깅</b>이 필요 → <a class="plink" href="#sTODO">TODO</a></div>
+    </div>
+  </div>
+
+  <!-- BM 측정 -->
+  <div class="section" id="sBM">
+    <div class="section-header"><div class="section-num">BM</div><div><div class="section-title">측정 지표</div><div class="section-subtitle">광고 노출 · 완료율 · 재응모 전환</div></div></div>
+    <div class="section-body">
+      <table><tr><th style="width:220px">지표</th><th>정의 · 목적</th></tr>
+        <tr><td class="td-label">낙첨 환급 광고 노출 수</td><td>신규 RV 구좌 노출·매출 — <b>BM 직접 기여</b></td></tr>
+        <tr><td class="td-label">시청 완료율</td><td>버튼 노출 대비 완료 시청, 회차별(1/2/3)</td></tr>
+        <tr><td class="td-label">환급 후 재응모 전환율</td><td>환급 볼로 다음 회차 재응모한 비율 — 리텐션·사이클 유지</td></tr>
+        <tr><td class="td-label">경로별 진입 비중</td><td>1(결과 배너)/2(미당첨 카드)/3(푸시) 유입 기여 — 진입점 ROI</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 확인·TODO -->
+  <div class="section" id="sTODO">
+    <div class="section-header"><div class="section-num">✓</div><div><div class="section-title">확인 · 미결 사항</div><div class="section-subtitle">확정 전 협의 항목</div></div></div>
+    <div class="section-body">
+      <table><tr><th style="width:220px">항목</th><th>내용 · 담당</th></tr>
+        <tr><td class="td-label">D-2 리마인드 푸시</td><td>최종 적용 여부(현재 절제형 포함) — 기획/UX</td></tr>
+        <tr><td class="td-label">푸시 광고성/서비스 분류</td><td>"(광고)" 표기·수신 동의·야간 발송 제한 적용 여부 결정 — 법무/CRM → <a class="plink" href="#sSC4">RC-03-4</a></td></tr>
+        <tr><td class="td-label">버튼 문구·시안</td><td>회당 환급 볼 표기 방식 — 디자인 가이드 반영 시안 별도</td></tr>
+        <tr><td class="td-label">SDK 서버 검증 콜백</td><td>애드팝콘 리워드 검증 연동 방식 — 개발 확인</td></tr>
+        <tr><td class="td-label">no-fill 빈도</td><td>연속 3회 시 재고 충족률 실측 후 안내 카피 조정 — 개발/광고</td></tr>
+        <tr><td class="td-label">재화 원장 태깅</td><td>환급 볼이 다음 응모 base에서 제외되도록 유료/무료 이력 태깅 — 개발</td></tr>
+        <tr><td class="td-label">리소스·난이도</td><td>우선순위 점수의 리소스·난이도 값 확정(임팩트 재산정 포함) — 기획/개발</td></tr>
+      </table>
+      <div class="callout callout-info"><b>범위 정리</b> — 사행성/대가성 법령 검토는 본 건에서 <b>제외</b>(무료 재화 볼의 환전 불가 전제). 필요 시 상위 WL <span class="mono">P</span> 법령 섹션에서 별도 처리.</div>
+    </div>
+  </div>
+
+  <footer>기능정의서_낙첨광고환급_RC-03_v1_0 · 2026-07-24 · 사업기획팀 차상호 · 상위: 보유경품(WL) apply_1.8 · 2026년 8월(PH2) 반영</footer>
+
+</main>
+</div>
+</body>
+</html>
