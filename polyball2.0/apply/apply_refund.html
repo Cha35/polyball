@@ -165,7 +165,7 @@ footer { text-align: center; font-size: 11px; color: var(--text5); margin-top: 4
   <div class="ia-scr">
     <a href="#sSC1"><span class="sc">RC-03-1</span>낙첨 결과 · 환급 진입</a>
     <a href="#sSC2"><span class="sc">RC-03-2</span>재진입 경로 · 알림</a>
-    <a href="#sSC3"><span class="sc">RC-03-3</span>광고 시청 · 상태 전이</a>
+    <a href="#sSC3"><span class="sc">RC-03-3</span>광고 시청 · 환급 진행·완료</a>
     <a href="#sSC4"><span class="sc">RC-03-4</span>푸시 · 알림함 · 랜딩</a>
   </div>
   <div class="ia-sep">대상 · 재화</div>
@@ -216,7 +216,7 @@ footer { text-align: center; font-size: 11px; color: var(--text5); margin-top: 4
       <a href="#sRULE">PL 환급 규칙·계산</a>
       <a href="#sSC1">RC-03-1 낙첨 결과·진입</a>
       <a href="#sSC2">RC-03-2 재진입 경로·알림</a>
-      <a href="#sSC3">RC-03-3 광고 시청·상태</a>
+      <a href="#sSC3">RC-03-3 광고 시청·환급</a>
       <a href="#sSC4">RC-03-4 푸시·알림함</a>
       <a href="#sTARGET">대상·재화</a>
       <a href="#sDT">어드민 필드</a>
@@ -263,56 +263,58 @@ footer { text-align: center; font-size: 11px; color: var(--text5); margin-top: 4
   <div class="screen" id="sSC1">
     <div class="scrhead"><span class="sid">RC-03-1</span><div class="info">
       <h2>낙첨 결과 확인 · 환급 진입 <span class="tag tag-orange" style="font-size:9px">8월 반영</span></h2>
-      <div class="desc">발표 후 결과 확인 시 진입하는 <b>낙첨 결과 풀스크린</b>. 낙첨을 데드엔드로 두지 않고, <b>광고 시청을 매개로 볼 일부를 환급</b>해 재응모를 유도한다.</div>
-      <div class="kv"><span class="p">뎁스 <b>풀스크린</b></span><span class="p">진입 <b>RC-01 [결과 확인하기]</b></span><span class="p">뒤로 <b>목록(RC-01)</b></span><span class="p">권한 <b>광고 SDK(RV)</b></span></div>
+      <div class="desc">발표 후 결과 확인 시 진입하는 <b>낙첨 결과 풀스크린</b>. 낙첨을 데드엔드로 두지 않고 <b>광고 시청 매개 볼 환급</b>으로 재응모를 유도한다. <b class="req">이 화면에서는 시청 횟수(n/3)를 노출하지 않고</b> "최대 환급 가능 볼 · 최대 30%"만 안내한다(디자인 확정 ①).</div>
+      <div class="kv"><span class="p">뎁스 <b>풀스크린</b></span><span class="p">진입 <b>내 응모 [결과 확인하기] / 미당첨 카드</b></span><span class="p">뒤로 <b>목록(내 응모)</b></span><span class="p">권한 <b>광고 SDK(RV)</b></span></div>
     </div></div>
     <div class="scr2"><div class="scr2-mk">
     <div class="mk"><div class="mk-row"><div class="mk-fw">
-      <div class="mk-lab"><span class="d"></span>낙첨 결과 <span class="s">풀스크린 · 최초 진입(0/3)</span></div>
+      <div class="mk-lab"><span class="d"></span>낙첨 결과 <span class="s">풀스크린 · 진입(횟수 미노출)</span></div>
       <div class="phone"><div class="scr">
-        <div class="sb"><span>9:41</span><span>▪▪▪ 📶 🔋</span></div>
-        <div class="sgnb"><span class="bk">‹</span><span class="tt">응모 결과</span></div>
-        <div class="bd w" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:22px 16px">
-          <div style="font-size:34px">😅</div>
-          <div style="font-size:14px;font-weight:800;margin-top:8px">아쉽게 낙첨됐어요</div>
-          <div style="font-size:10px;color:var(--text3);margin-top:4px">닌텐도 스위치2 · 사용 볼 30개</div>
-          <div class="refbox">
-            <div class="hd"><span class="t">광고 보고 볼 돌려받기</span><span class="c">0/3</span></div>
-            <div class="pgb"><i></i><i></i><i></i></div>
-            <div class="note">1회 시청당 <b>3볼</b> 환급 (사용 볼의 10%, 내림) · 10볼 미만은 대상 아님</div>
+        <div class="sb"><span>13:48</span><span>▪▪▪ 📶 🔋</span></div>
+        <div class="sgnb"><span class="bk">←</span></div>
+        <div class="bd w" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:22px 18px 18px">
+          <div style="font-size:40px;margin-top:16px">😥</div>
+          <div style="font-size:17px;font-weight:800;margin-top:20px">아쉽게 낙첨됐어요</div>
+          <div style="width:100%;background:#F3F4F8;border-radius:14px;padding:12px;display:flex;align-items:center;gap:10px;margin-top:24px;text-align:left">
+            <div class="th" style="width:44px;height:44px;background:#FDEEE0;font-size:22px">🍗</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:11px;font-weight:800">BBQ 황금올리브치킨 + 콜라1.25L</div>
+              <div style="font-size:9.5px;color:var(--text4);margin-top:4px">사용 볼 30개 <span style="color:#cdd3e0">|</span> <b style="color:var(--primary)">최대 환급 가능 볼 9개</b></div>
+            </div>
           </div>
-          <div class="btn b-pri" style="width:100%;margin-top:14px">▶ 광고 보고 3볼 받기</div>
-          <div class="dcap">7.31(월)까지 시청 가능 · D-6</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:22px;line-height:1.7">놓친 아쉬움을 조금 덜어드릴게요.<br>광고 시청 시 사용한 볼의 <b style="color:var(--text2)">최대 30%</b>를 환급해드려요!</div>
+          <div style="flex:1"></div>
+          <div style="display:inline-block;background:#09FFEE;color:var(--navy);font-size:9px;font-weight:800;padding:4px 11px;border-radius:11px;margin-bottom:7px">7.13(월)까지 <b>최대 30% 환급!</b></div>
+          <div class="btn b-pri" style="width:100%;margin:0">🟢 광고 보고 볼 환급 받기<span class="callno" style="right:-6px;top:-8px">1</span></div>
+          <div style="font-size:10px;color:var(--text5);margin-top:14px">목록으로 가기</div>
         </div>
       </div></div>
     </div></div>
-    <div class="mk-cap">진행바(0/3) + 환급 계산 안내 + [광고 보고 n볼 받기]. 환급 예시(3볼)는 30볼×10%=3.0(내림) 결과이며 고정값 아님.</div></div>
+    <div class="mk-cap">[광고 보고 볼 환급 받기] — <b class="req">횟수(n/3) 미노출</b>. "최대 환급 가능 볼 9개 · 최대 30%"만 안내. 예시(30볼→최대 9볼)는 <span class="mono">내림(30×10%)×3=9</span> 결과이며 고정값 아님.</div></div>
     <div class="scr2-desc">
       <div class="sx"><span class="n">1</span><h3>화면 상태</h3></div>
       <table><tr><th style="width:150px">상태</th><th>조건</th><th>표시</th></tr>
-        <tr><td><span class="tag tag-gray">LOSE</span></td><td>낙첨 결과 최초 열람</td><td>낙첨 카피 + 환급 UI(0/3)</td></tr>
-        <tr><td><span class="tag tag-blue">AD_AVAILABLE</span></td><td>시청 1~2회 완료, 기한 내</td><td>진행바 갱신 + 버튼 유지</td></tr>
-        <tr><td><span class="tag tag-gray">AD_EXHAUSTED</span></td><td>3회 소진</td><td>버튼 제거, 낙첨 종결 표시</td></tr>
-        <tr><td><span class="tag tag-red">EXPIRED</span></td><td>발표 + 7일 경과</td><td>버튼 제거, 낙첨 종결 표시</td></tr>
+        <tr><td><span class="tag tag-gray">LOSE</span></td><td>낙첨 결과 최초 열람</td><td>낙첨 카피 + <b>최대 환급 가능 볼 · 최대 30%</b> (횟수 미노출)</td></tr>
+        <tr><td><span class="tag tag-red">EXPIRED</span></td><td>발표 + 7일 경과 · 미시도</td><td>버튼 제거, 낙첨 종결 표시</td></tr>
       </table>
       <div class="sx"><span class="n">2</span><h3>구성 요소</h3></div>
-      <table><tr><th style="width:30px">#</th><th style="width:120px">요소</th><th>상세 설명</th></tr>
-        <tr><td class="td-label ct">1</td><td class="td-label">환급 진행바</td><td>n/3 카운터 + 진행바. 회당 환급 볼 계산 안내 텍스트 상시 노출(<span class="mono">내림(사용 볼 × 10%)</span>)</td></tr>
-        <tr><td class="td-label ct">2</td><td class="td-label">[광고 보고 n볼 받기]</td><td>탭 → RV 광고 시청 → 완료 콜백 시 볼 즉시 지급 + 진행바 갱신. n = 회당 환급 볼</td></tr>
-        <tr><td class="td-label ct">3</td><td class="td-label">기한 안내</td><td>발표 + 7일 · D-day 표기</td></tr>
+      <table><tr><th style="width:30px">#</th><th style="width:130px">요소</th><th>상세 설명</th></tr>
+        <tr><td class="td-label ct">1</td><td class="td-label">낙첨 카피 · 제품 카드</td><td>"아쉽게 낙첨됐어요" + 경품명 · <b>사용 볼</b> · <b>최대 환급 가능 볼</b>(= 내림(사용볼×10%)×3)</td></tr>
+        <tr><td class="td-label ct">2</td><td class="td-label">환급 안내 문구</td><td>"광고 시청 시 사용한 볼의 <b>최대 30%</b>를 환급해드려요" — <b class="req">회차(n/3) 미노출</b></td></tr>
+        <tr><td class="td-label ct">3</td><td class="td-label">[광고 보고 볼 환급 받기]</td><td>탭 → 광고 시청 플로우 진입. 상단 툴팁 "○.○(요일)까지 최대 30% 환급!"(기한 안내)</td></tr>
+        <tr><td class="td-label ct">4</td><td class="td-label">목록으로 가기</td><td>내 응모 목록으로 복귀(환급은 미당첨 카드에서 상시 재진입 → <a class="plink" href="#sSC2">RC-03-2</a>)</td></tr>
       </table>
       <div class="sx"><span class="n">3</span><h3>인터랙션 · 플로우</h3></div>
-      <table><tr><th style="width:180px">단계</th><th>처리</th></tr>
-        <tr><td>① [광고 보고 n볼 받기] 탭</td><td>광고 시청 → 완료 콜백 → 해당 회차 볼 지급 → <span class="mono">ad_refund_count +1</span></td></tr>
-        <tr><td>② 완료 직후</td><td>진행바·잔액 즉시 갱신. <b>연속 시청 허용</b>(바로 다음 회차 가능) → <a class="plink" href="#sSC3">RC-03-3</a></td></tr>
-        <tr><td>③ 3회 소진 / 기한 경과</td><td>버튼 제거, "낙첨 종결" 표시로 전환</td></tr>
+      <table><tr><th style="width:200px">단계</th><th>처리</th></tr>
+        <tr><td>① [광고 보고 볼 환급 받기] 탭</td><td><b>사전 안내 팝업(최초 1회)</b> → 광고 로딩(약 3초) → 광고 재생 → 완료 시 볼 지급 → <a class="plink" href="#sSC3">RC-03-3</a> 환급 진행</td></tr>
+        <tr><td>② 이후</td><td>환급 진행/완료 화면에서 <b>회차(n/3)·돌려받은 볼</b>을 노출(본 화면은 미노출)</td></tr>
       </table>
       <div class="sx"><span class="n">4</span><h3>검증 · 정책</h3></div>
       <table><tr><th style="width:150px">항목</th><th>정책</th></tr>
-        <tr><td class="td-label">환급 기준</td><td><b>경품 단위</b> — 해당 낙첨 경품에 <b>실제 차감된(유료) 볼</b> 기준. 무료 응모분·환급 볼 제외 → <a class="plink" href="#sTARGET">대상·재화</a></td></tr>
-        <tr><td class="td-label">회당 환급량</td><td><span class="mono">내림(사용 볼 × 10%)</span>, 최소볼 없음. 예) 30볼→3볼, 11볼→1볼, 9볼→0볼(대상 아님) → <a class="plink" href="#sRULE">환급 규칙</a></td></tr>
-        <tr><td class="td-label">최대 시청 횟수</td><td><b>경품 1건당 최대 3회</b>(계정 일괄 아님, 카드별 귀속)</td></tr>
-        <tr><td class="td-label">기한</td><td><b>발표 + 7일</b>(당첨 수령 기한과 동일 정책, 공용 리마인드)</td></tr>
+        <tr><td class="td-label">횟수 노출</td><td><b class="req">본 화면 미노출</b>(디자인 확정 ①). "최대 환급 가능 볼 · 최대 30%"만. 회차는 <a class="plink" href="#sSC3">RC-03-3</a>에서 노출</td></tr>
+        <tr><td class="td-label">환급 기준</td><td><b>경품 단위</b> — 해당 낙첨 경품에 <b>실제 차감된(유료) 볼</b> 기준(무료 응모분·환급 볼 제외) → <a class="plink" href="#sTARGET">대상·재화</a></td></tr>
+        <tr><td class="td-label">최대 환급 가능 볼</td><td><span class="mono">내림(사용 볼 × 10%) × 3</span>. 예) 30볼→9볼, 11볼→3볼, 9볼→0볼(대상 아님) → <a class="plink" href="#sRULE">환급 규칙</a></td></tr>
+        <tr><td class="td-label">기한</td><td><b>발표 + 7일</b>(당첨 수령 기한과 동일, 공용 리마인드)</td></tr>
       </table>
       <div class="callout callout-info"><b>BM 연결</b> — 낙첨은 지금까지 완전한 데드엔드였다. 광고 시청을 매개로 볼을 환급하면 <b>가장 이탈 위험이 큰 순간을 RV 시청 기회로 전환</b>하고, 환급 볼은 재응모로 돌아와 픽/응모 지속 동기에 재기여한다. 낙첨자 수가 당첨자보다 압도적으로 많아 RV 인벤토리 확대 효과가 크다.</div>
     </div>
@@ -432,99 +434,122 @@ footer { text-align: center; font-size: 11px; color: var(--text5); margin-top: 4
   <!-- 화면 3 -->
   <div class="screen" id="sSC3">
     <div class="scrhead"><span class="sid">RC-03-3</span><div class="info">
-      <h2>광고 시청 처리 · 상태 전이 <span class="tag tag-orange" style="font-size:9px">8월 반영</span></h2>
-      <div class="desc">RV 광고 <b>완료 콜백 시에만</b> 지급하며, <b class="req">연속 시청을 허용</b>해(쿨다운 없음) 한자리에서 최대 3회까지 확보한다. 3회 소진 또는 기한 경과 시 자연 종결한다.</div>
-      <div class="kv"><span class="p">지급 <b>완료 콜백 시</b></span><span class="p">시청 <b>연속 허용</b></span><span class="p">상한 <b>서버 count 3</b></span></div>
+      <h2>광고 시청 · 환급 진행 · 완료 <span class="tag tag-orange" style="font-size:9px">8월 반영</span></h2>
+      <div class="desc">[광고 보고 볼 환급 받기] 탭 후 <b>사전 안내 팝업(최초 1회) → 광고 로딩 → 광고 재생 → 환급 성공</b> 순으로 진행. <b class="req">이 단계부터 회차(dots·n/3)·돌려받은 볼을 노출</b>한다(디자인 확정 ②). 완료 콜백 시에만 지급하며 <b>연속 시청 허용</b>.</div>
+      <div class="kv"><span class="p">지급 <b>완료 콜백 시</b></span><span class="p">시청 <b>연속 허용</b></span><span class="p">상한 <b>서버 count 3</b></span><span class="p">횟수 <b>노출(dots · n/3)</b></span></div>
     </div></div>
     <div class="scr2"><div class="scr2-mk">
     <div class="mk"><div class="mk-row">
       <div class="mk-fw">
-        <div class="mk-lab"><span class="d"></span>진행 중 <span class="s">1/3 · 기한 내</span></div>
+        <div class="mk-lab"><span class="d"></span>① 사전 안내 팝업 <span class="s">최초 1회</span></div>
         <div class="phone"><div class="scr">
-          <div class="sb"><span>9:41</span><span>▪▪▪ 📶 🔋</span></div>
-          <div class="sgnb"><span class="bk">‹</span><span class="tt">응모 결과</span></div>
-          <div class="bd w" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:22px 16px">
-            <div style="font-size:34px">😅</div>
-            <div style="font-size:14px;font-weight:800;margin-top:8px">아쉽게 낙첨됐어요</div>
-            <div style="font-size:10px;color:var(--text3);margin-top:4px">닌텐도 스위치2 · 사용 볼 30개</div>
-            <div class="refbox">
-              <div class="hd"><span class="t">광고 보고 볼 돌려받기</span><span class="c">1/3</span></div>
-              <div class="pgb"><i class="on"></i><i></i><i></i></div>
-              <div class="note">지금까지 <b>3볼</b> 환급 · 남은 2회 시청 시 +6볼</div>
+          <div class="sb"><span>13:48</span><span>▪▪▪ 📶 🔋</span></div>
+          <div style="flex:1;background:rgba(15,23,42,.5);display:flex;align-items:center;justify-content:center;padding:16px">
+            <div style="background:#fff;border-radius:18px;padding:20px 16px;text-align:center;width:100%">
+              <div style="display:flex;gap:5px;justify-content:center;margin-bottom:12px"><span style="width:6px;height:6px;border-radius:50%;background:var(--primary)"></span><span style="width:6px;height:6px;border-radius:50%;background:var(--border)"></span><span style="width:6px;height:6px;border-radius:50%;background:var(--border)"></span><span style="width:6px;height:6px;border-radius:50%;background:var(--border)"></span></div>
+              <div style="width:66px;height:66px;border:2px dashed var(--border);border-radius:12px;margin:4px auto 14px;display:flex;align-items:center;justify-content:center;color:var(--text5);font-size:22px">▦</div>
+              <div style="font-size:13px;font-weight:800">곧 광고가 나와요</div>
+              <div style="font-size:9.5px;color:var(--text3);margin-top:9px;line-height:1.65">광고를 다 보면 보상이 적용돼요.<br>광고가 끝나면 닫기(X) 또는 스킵(▶)<br>버튼을 눌러 광고를 닫아주세요.</div>
             </div>
-            <div class="btn b-pri" style="width:100%;margin-top:14px">▶ 이어서 광고 보고 3볼 받기</div>
-            <div class="dcap">D-5 · 연속 시청 가능</div>
           </div>
         </div></div>
       </div>
       <div class="mk-fw">
-        <div class="mk-lab"><span class="d"></span>소진 완료 <span class="s">3/3 · 종결</span></div>
-        <div class="phone"><div class="scr">
-          <div class="sb"><span>9:41</span><span>▪▪▪ 📶 🔋</span></div>
-          <div class="sgnb"><span class="bk">‹</span><span class="tt">응모 결과</span></div>
-          <div class="bd w" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:22px 16px">
-            <div style="font-size:34px">🎉</div>
-            <div style="font-size:14px;font-weight:800;margin-top:8px">볼을 모두 돌려받았어요</div>
-            <div style="font-size:10px;color:var(--text3);margin-top:4px">닌텐도 스위치2 · 사용 볼 30개</div>
-            <div class="refbox">
-              <div class="hd"><span class="t">광고 보고 볼 돌려받기</span><span class="c" style="color:var(--green)">3/3</span></div>
-              <div class="pgb"><i class="on"></i><i class="on"></i><i class="on"></i></div>
-              <div class="note">총 <b>9볼</b> 환급 완료 · 내 지갑에 적립됐어요</div>
-            </div>
-            <div class="btn b-soft" style="width:100%;margin-top:14px">환급된 볼로 다시 응모하기 ›</div>
-            <div class="dcap">환급 완료 · 버튼 종결</div>
+        <div class="mk-lab"><span class="d"></span>② 광고 로딩 <span class="s">약 3초</span></div>
+        <div class="phone"><div class="scr" style="background:#0F1116">
+          <div class="sb" style="color:#fff"><span>13:48</span><span>▪▪▪ 📶 🔋</span></div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:18px">
+            <div style="width:34px;height:34px;border:3px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;margin-bottom:18px"></div>
+            <div style="font-size:12px;font-weight:700">광고가 끝나면 보상 혜택이 적용돼요</div>
+            <div style="font-size:10px;opacity:.7;margin-top:6px">광고를 불러오고 있어요.</div>
           </div>
         </div></div>
       </div>
       <div class="mk-fw">
-        <div class="mk-lab"><span class="d"></span>기한 종료 <span class="s">EXPIRED · 딤</span></div>
+        <div class="mk-lab"><span class="d"></span>③ 환급 성공 <span class="s">1/3 · 회차 노출</span></div>
         <div class="phone"><div class="scr">
-          <div class="sb"><span>9:41</span><span>▪▪▪ 📶 🔋</span></div>
-          <div class="sgnb"><span class="bk">‹</span><span class="tt">응모 결과</span></div>
-          <div class="bd w" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:22px 16px">
-            <div style="font-size:34px;opacity:.5">😅</div>
-            <div style="font-size:14px;font-weight:800;margin-top:8px">아쉽게 낙첨됐어요</div>
-            <div style="font-size:10px;color:var(--text3);margin-top:4px">닌텐도 스위치2 · 사용 볼 30개</div>
-            <div class="refbox" style="opacity:.55">
-              <div class="hd"><span class="t">광고 보고 볼 돌려받기</span><span class="c" style="color:var(--text4)">1/3</span></div>
-              <div class="pgb"><i class="on"></i><i></i><i></i></div>
-              <div class="note">환급 기간이 종료됐어요 (발표 + 7일)</div>
+          <div class="sb"><span>13:48</span><span>▪▪▪ 📶 🔋</span></div>
+          <div class="sgnb"><span class="bk">←</span></div>
+          <div class="bd w" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:20px 18px 18px">
+            <div style="display:flex;align-items:center;justify-content:center;margin-top:12px">
+              <span style="width:26px;height:26px;border-radius:50%;background:var(--primary);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">✓</span>
+              <span style="width:18px;height:2px;background:var(--border)"></span>
+              <span style="width:26px;height:26px;border-radius:50%;background:#E2E8F0"></span>
+              <span style="width:18px;height:2px;background:var(--border)"></span>
+              <span style="width:26px;height:26px;border-radius:50%;background:#E2E8F0"></span>
             </div>
-            <div class="btn b-dis" style="width:100%;margin-top:14px">환급 기간 종료</div>
-            <div class="dcap">기한 경과 · 미소진분 소멸</div>
+            <div style="font-size:17px;font-weight:800;margin-top:18px">환급 성공!</div>
+            <div style="width:100%;background:#F3F4F8;border-radius:14px;padding:12px;display:flex;align-items:center;gap:10px;margin-top:18px;text-align:left">
+              <div class="th" style="width:44px;height:44px;background:#FDEEE0;font-size:22px">🍗</div>
+              <div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:800">BBQ 황금올리브치킨 + 콜라1.25L</div><div style="font-size:9.5px;color:var(--text4);margin-top:4px">사용 볼 30개 <span style="color:#cdd3e0">|</span> <b style="color:var(--primary)">돌려받은 볼 3개</b></div></div>
+            </div>
+            <div style="font-size:11px;color:var(--text3);margin-top:16px;line-height:1.7">광고보고 볼 3개를 환급 받았어요.<br>2번 더 참여하면 총 볼 9개를 받을 수 있어요!</div>
+            <div style="flex:1"></div>
+            <div style="display:inline-block;background:#09FFEE;color:var(--navy);font-size:9px;font-weight:800;padding:4px 11px;border-radius:11px;margin-bottom:7px">7.13(월)까지 환급이 가능해요</div>
+            <div class="btn b-pri" style="width:100%;margin:0">🟢 광고 보고 볼 3개 받기 <span style="background:rgba(255,255,255,.25);border-radius:6px;padding:1px 6px;font-size:10px;margin-left:5px">1/3</span></div>
+            <div style="font-size:10px;color:var(--text5);margin-top:12px">목록으로 가기</div>
+          </div>
+        </div></div>
+      </div>
+      <div class="mk-fw">
+        <div class="mk-lab"><span class="d"></span>④ 환급 모두 완료 <span class="s">3/3 · 버튼 종결</span></div>
+        <div class="phone"><div class="scr">
+          <div class="sb"><span>13:48</span><span>▪▪▪ 📶 🔋</span></div>
+          <div class="sgnb"><span class="bk">←</span></div>
+          <div class="bd w" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:20px 18px 18px">
+            <div style="display:flex;align-items:center;justify-content:center;margin-top:12px">
+              <span style="width:26px;height:26px;border-radius:50%;background:var(--primary);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">✓</span>
+              <span style="width:18px;height:2px;background:var(--primary)"></span>
+              <span style="width:26px;height:26px;border-radius:50%;background:var(--primary);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">✓</span>
+              <span style="width:18px;height:2px;background:var(--primary)"></span>
+              <span style="width:26px;height:26px;border-radius:50%;background:var(--primary);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">✓</span>
+            </div>
+            <div style="font-size:17px;font-weight:800;margin-top:18px">환급 모두 완료!</div>
+            <div style="width:100%;background:#F3F4F8;border-radius:14px;padding:12px;display:flex;align-items:center;gap:10px;margin-top:18px;text-align:left">
+              <div class="th" style="width:44px;height:44px;background:#FDEEE0;font-size:22px">🍗</div>
+              <div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:800">BBQ 황금올리브치킨 + 콜라1.25L</div><div style="font-size:9.5px;color:var(--text4);margin-top:4px">사용 볼 30개 <span style="color:#cdd3e0">|</span> <b style="color:var(--primary)">돌려받은 볼 9개</b></div></div>
+            </div>
+            <div style="font-size:11px;color:var(--text3);margin-top:16px;line-height:1.7">총 볼 9개를 모두 받았어요.<br>받은 볼로 다시 응모해 보세요!</div>
+            <div style="flex:1"></div>
+            <div class="btn b-dis" style="width:100%;margin:0">볼 환급 완료</div>
+            <div style="font-size:10px;color:var(--text5);margin-top:12px">목록으로 가기</div>
           </div>
         </div></div>
       </div>
     </div>
-    <div class="mk-cap">진행(1/3) → 소진(3/3, 재응모 유도) → 기한 종료(딤·종결). 소진·기한 경과 시 버튼이 자연스럽게 사라진다.</div></div>
+    <div class="mk-cap">① 사전 안내 팝업(최초 1회) → ② 광고 로딩(약 3초) → 광고 재생 → ③ 환급 성공(회차·돌려받은 볼 노출) → ④ 3/3 시 [볼 환급 완료] 비활성. 버튼 문구는 <b>[광고 보고 볼 환급 받기] → [광고 보고 볼 N개 받기 (x/3)] → [볼 환급 완료]</b>로 전이.</div></div>
     <div class="scr2-desc">
-      <div class="sx"><span class="n">1</span><h3>시청 완료 판정</h3></div>
-      <table><tr><th style="width:170px">처리</th><th>내용</th></tr>
-        <tr><td class="td-label">완료 판정</td><td>RV <b>완료 콜백 수신 시에만</b> 지급</td></tr>
-        <tr><td class="td-label">중도 이탈 · 실패</td><td>스킵·닫기·재생 실패 → <b>미지급 · 카운터 미증가</b>, "끝까지 시청해야 볼을 받아요" 토스트 후 재시도</td></tr>
-        <tr><td class="td-label">지급 · 검증</td><td>완료 즉시 서버 지급 + <span class="mono">ad_refund_count +1</span> + 잔액 반영. 경품별 <b>count 상한 3</b>, 중복 콜백 무시, SDK 서버 검증 콜백으로 위·변조 차단</td></tr>
+      <div class="sx"><span class="n">1</span><h3>시청 플로우 · 완료 판정</h3></div>
+      <table><tr><th style="width:150px">단계</th><th>처리</th></tr>
+        <tr><td class="td-label">① 사전 안내 팝업</td><td><b>최초 1회</b> 노출 — "곧 광고가 나와요"(닫기/스킵 안내). 2회차부터 생략</td></tr>
+        <tr><td class="td-label">② 광고 로딩</td><td>약 3초 로딩("광고가 끝나면 보상 혜택이 적용돼요")</td></tr>
+        <tr><td class="td-label">③ 광고 재생 → 완료</td><td>RV <b>완료 콜백 수신 시에만</b> 지급. 중도 이탈·실패 시 미지급·카운터 미증가</td></tr>
+        <tr><td class="td-label">④ 환급 성공</td><td>서버 지급 + <span class="mono">ad_refund_count +1</span> + 잔액 반영. 회차(dots·n/3)·돌려받은 볼 노출</td></tr>
       </table>
-      <div class="sx"><span class="n">2</span><h3>연속 시청 정책 <span class="hint">확정: 연속 허용</span></h3></div>
+      <div class="sx"><span class="n">2</span><h3>회차 노출 · 버튼 전이 <span class="hint">디자인 확정 ②</span></h3></div>
+      <table><tr><th style="width:150px">시점</th><th>화면 · 버튼</th></tr>
+        <tr><td class="td-label">낙첨 확인(진입)</td><td><b class="req">회차 미노출</b> · 버튼 <b>[광고 보고 볼 환급 받기]</b> → <a class="plink" href="#sSC1">RC-03-1</a></td></tr>
+        <tr><td class="td-label">1~2회 환급 성공</td><td>dots(✓○○ / ✓✓○) + "환급 성공!" + 돌려받은 볼 · 버튼 <b>[광고 보고 볼 N개 받기 (x/3)]</b></td></tr>
+        <tr><td class="td-label">3회 완료</td><td>dots(✓✓✓) + "환급 모두 완료!" + 총 돌려받은 볼 · 버튼 <b>[볼 환급 완료]</b>(비활성)</td></tr>
+      </table>
+      <div class="callout callout-info"><b>회차 노출 원칙</b> — 낙첨 확인 화면은 기대만 제시("최대 30% · 최대 환급 가능 볼"), <b>실제 회차·누적 환급 볼은 광고 시청 후 화면부터 노출</b>한다. N(회당 환급 볼) = <span class="mono">내림(사용 볼 × 10%)</span> — 예 30볼→3개, 총 9개.</div>
+      <div class="sx"><span class="n">3</span><h3>연속 시청 정책 <span class="hint">확정: 연속 허용</span></h3></div>
       <table><tr><th style="width:170px">항목</th><th>정책</th></tr>
         <tr><td class="td-label">연속 허용</td><td>1회 완료 후 <b>바로 다음 광고 시청 가능</b> — 한자리에서 최대 3회 연속. 쿨다운·텀 없음</td></tr>
-        <tr><td class="td-label">근거</td><td>환급 기한이 7일로 짧고 이탈 리스크가 커, <b>온 김에 다 보게 하는 편이 노출 확보에 유리</b></td></tr>
-      </table>
-      <div class="sx"><span class="n">3</span><h3>상태 전이</h3></div>
-      <table><tr><th style="width:150px">상태</th><th>조건 · 표시</th></tr>
-        <tr><td><span class="tag tag-blue">진행 중</span></td><td>x&lt;3 · 기한 내 → 진행바 갱신 + 버튼 유지("이어서 광고 보고 n볼 받기")</td></tr>
-        <tr><td><span class="tag tag-green">소진 완료</span></td><td>3/3 → 총 환급 볼 표시 + <b>재응모 유도 버튼</b>, 환급 버튼 종결</td></tr>
-        <tr><td><span class="tag tag-red">기한 종료</span></td><td>발표 + 7일 경과 → 버튼 비활성·딤, 미소진분 <b>소멸(별도 보상 없음)</b></td></tr>
+        <tr><td class="td-label">근거</td><td>기한이 7일로 짧고 이탈 리스크가 커, <b>온 김에 다 보게 하는 편이 노출 확보에 유리</b></td></tr>
+        <tr><td class="td-label">서버 검증</td><td>경품별 <b>count 상한 3</b>, 중복 콜백 무시, SDK 서버 검증 콜백으로 위·변조 차단</td></tr>
       </table>
       <div class="sx"><span class="n">4</span><h3>예외 · 에러</h3></div>
       <table><tr><th style="width:170px">예외</th><th>처리</th></tr>
         <tr><td><b>공통 규격</b></td><td>로딩·오프라인·세션 만료 등 → <b>폴리볼 공통 스펙 준수</b></td></tr>
         <tr><td>광고 재고 없음(no-fill)</td><td>"잠시 후 다시 시도해주세요" 안내, <b>카운터 미증가·버튼 유지</b> → 기한 내 재시도</td></tr>
         <tr><td>시청 실패(SDK 오류·중도 이탈)</td><td>지급하지 않고 재시청 유도 — 카운터 미증가</td></tr>
+        <tr><td><span class="tag tag-red">EXPIRED</span> 기한 경과</td><td>발표 + 7일 경과 시 버튼 비활성·딤, 미소진분 <b>소멸(별도 보상 없음)</b></td></tr>
       </table>
       <div class="sx"><span class="n">5</span><h3>수용기준</h3></div>
       <table><tr><th style="width:190px">기준</th><th>충족 조건</th></tr>
-        <tr><td>재응모 동기 전환</td><td>환급된 볼이 재응모로 이어지도록 소진 화면에서 재응모 경로를 제공해야 함</td></tr>
-        <tr><td>자연스러운 종결</td><td>3회 소진·기한 경과 시 버튼이 자연스럽게 사라지고 종결 상태로 전환되어야 함</td></tr>
+        <tr><td>회차 노출 분리</td><td>낙첨 확인은 회차 미노출, 시청 후 화면부터 회차·돌려받은 볼 노출(디자인 ①②)</td></tr>
+        <tr><td>재응모 동기 전환</td><td>완료(3/3) 화면에서 재응모 유도 문구·경로 제공</td></tr>
         <tr><td>노출 무결성</td><td>완료 콜백 외 지급 불가, 경품별 3회 초과 지급 불가(서버 검증)</td></tr>
       </table>
     </div>
