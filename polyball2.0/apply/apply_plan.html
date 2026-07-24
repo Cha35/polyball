@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>경품 응모 — 운영·KPI 검증 종합</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap');
+:root{ --primary:#363E8D; --accent:#F5A623; --bg:#F5F6FA; --card:#fff; --line:#E2E8F0; --t1:#1A2033; --t2:#4A5268; --t3:#8B92A8; --red:#C7273C; --green:#0E8A5F; }
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--t1);font-size:13.5px;line-height:1.7;padding:40px 24px;}
+.wrap{max-width:1040px;margin:0 auto;}
+.cover{background:linear-gradient(120deg,var(--primary),#252B66);border-radius:14px;color:#fff;padding:30px 34px;margin-bottom:20px;}
+.cover .k{font-size:11px;letter-spacing:2px;color:#A7AEE0;font-weight:700;}
+.cover h1{font-size:23px;font-weight:800;margin:6px 0 8px;}
+.cover .meta{font-size:12px;color:#C6CBF0;}
+.toc{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 22px;margin-bottom:18px;font-size:12.5px;color:var(--t2);}
+.toc b{color:var(--primary);}
+.sec{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:24px 30px;margin-bottom:18px;}
+.sec h2{font-size:16.5px;font-weight:800;color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.sec h2 .n{width:25px;height:25px;border-radius:7px;background:var(--primary);color:#fff;font-size:12px;display:inline-flex;align-items:center;justify-content:center;}
+h3.blk{font-size:14px;font-weight:800;margin:18px 0 6px;color:var(--t1);border-left:4px solid var(--primary);padding-left:10px;}
+p.lead{color:var(--t2);font-size:13.5px;margin:4px 0 8px;}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin:8px 0;}
+th{background:#EEF0F8;color:var(--primary);text-align:left;padding:8px 11px;font-size:11.5px;border:1px solid var(--line);}
+td{padding:8px 11px;border:1px solid var(--line);vertical-align:top;color:var(--t2);}
+td b{color:var(--t1);} td.c{text-align:center;} td.r{text-align:right;}
+.pill{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:11px;}
+.pill.kbo{background:#FDECEE;color:var(--red);} .pill.non{background:#E7F6EF;color:var(--green);} .pill.must{background:#FFF4E1;color:#8A5A00;}
+.callout{border-left:4px solid var(--accent);background:#FFF9EE;border-radius:0 8px 8px 0;padding:11px 15px;font-size:12.5px;color:#7A5A12;margin:10px 0;} .callout b{color:#5C430A;}
+.callout.blue{border-left-color:var(--primary);background:#EEF0F8;color:#3A4170;} .callout.blue b{color:var(--primary);}
+.callout.red{border-left-color:var(--red);background:#FEF2F2;color:#8A2231;} .callout.red b{color:var(--red);}
+/* summary */
+.sumgrid{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;}
+.sumcard{flex:1;min-width:220px;border:1px solid var(--line);border-radius:10px;padding:13px 15px;}
+.sumcard .st{font-size:11px;font-weight:800;color:var(--primary);margin-bottom:4px;}
+.sumcard .sv{font-size:12.5px;color:var(--t2);}
+/* 주기 타임라인 */
+.tl{display:flex;gap:0;flex-wrap:wrap;margin:8px 0;}
+.tlcol{flex:1;min-width:80px;text-align:center;}
+.tlbar{background:#EEF0F8;border:1px solid #DfE3F3;border-radius:8px;padding:7px 4px;font-size:11px;font-weight:700;color:var(--primary);}
+.tlbar.mon{background:var(--primary);color:#fff;} .tlbar.sun{background:#E7EAFB;}
+.tld{font-size:9.5px;color:var(--t3);margin-top:3px;}
+.flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:10px 0;}
+.fstep{background:#EEF0F8;border-radius:9px;padding:9px 14px;font-size:12px;font-weight:700;text-align:center;}
+.fstep .s{display:block;font-size:9px;color:var(--t3);font-weight:600;margin-top:2px;}
+.farr{color:var(--primary);font-weight:800;font-size:15px;}
+/* 목업 (compact) */
+.phones{display:flex;gap:14px;flex-wrap:wrap;margin:8px 0;}
+.pcell{width:186px;}
+.pcap{font-size:10px;font-weight:700;color:var(--t2);text-align:center;margin-bottom:5px;}
+.phone{width:186px;height:380px;background:#000;border-radius:24px;padding:6px;position:relative;box-shadow:0 6px 18px rgba(0,0,0,.15);}
+.psc{width:100%;height:100%;background:#fff;border-radius:19px;overflow:hidden;display:flex;flex-direction:column;font-size:8.5px;position:relative;}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:52px;height:11px;background:#000;border-radius:0 0 8px 8px;z-index:5;}
+.pt{height:16px;display:flex;align-items:center;justify-content:space-between;padding:0 11px;font-size:6.5px;font-weight:600;flex-shrink:0;}
+.pg{display:flex;align-items:center;justify-content:space-between;padding:4px 10px;flex-shrink:0;font-weight:800;font-size:9px;}
+.pg .lg{color:var(--primary);font-style:italic;font-size:10px;}
+.pbg{display:flex;gap:3px;} .pbg span{background:#EEF2FF;color:var(--primary);padding:1px 5px;border-radius:7px;font-size:6.5px;font-weight:700;}
+.sect{font-size:9px;font-weight:800;padding:6px 10px 3px;flex-shrink:0;}
+.dl{margin:0 9px 5px;background:#FEF2F2;border-radius:5px;padding:3px 7px;font-size:6.5px;color:var(--red);font-weight:700;flex-shrink:0;}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:0 9px;}
+.cd{border:1px solid #F1F5F9;border-radius:7px;padding:4px;}
+.cd .im{height:30px;border-radius:5px;background:linear-gradient(135deg,#F1F5F9,#E2E8F0);display:flex;align-items:center;justify-content:center;font-size:14px;margin-bottom:3px;}
+.cd .nm{font-size:6.5px;font-weight:700;line-height:1.2;} .cd .ct{margin-top:3px;background:#EEF2FF;color:var(--primary);border-radius:8px;text-align:center;font-size:6.5px;font-weight:700;padding:2px 0;}
+.dimg{height:56px;margin:9px 11px 5px;border-radius:9px;background:linear-gradient(135deg,#F1F5F9,#E2E8F0);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.pn{text-align:center;font-size:8.5px;font-weight:800;padding:0 11px 5px;flex-shrink:0;}
+.stat{display:flex;border-top:1px solid #F1F5F9;border-bottom:1px solid #F1F5F9;flex-shrink:0;}
+.stat div{flex:1;text-align:center;padding:4px 0;} .stat .kk{font-size:6px;color:var(--t3);} .stat .vv{font-size:8px;font-weight:800;}
+.stp{margin:7px 11px;background:#EEF2FF;border-radius:7px;display:flex;align-items:center;justify-content:space-between;padding:5px 13px;flex-shrink:0;font-weight:800;font-size:11px;color:var(--primary);}
+.cta{margin:auto 11px 11px;background:var(--primary);color:#fff;text-align:center;padding:7px 0;border-radius:14px;font-size:8.5px;font-weight:700;flex-shrink:0;}
+.cta.gray{background:#EEF2FF;color:var(--primary);}
+.chk{text-align:center;padding:18px 0 6px;flex-shrink:0;} .chk .c{width:30px;height:30px;border-radius:50%;background:var(--primary);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:15px;}
+.msg{text-align:center;font-size:9.5px;font-weight:800;padding:5px 11px;flex-shrink:0;} .msg .sub{display:block;font-size:7px;color:var(--t2);font-weight:500;margin-top:2px;}
+.barcode{margin:12px 13px 5px;height:36px;background:repeating-linear-gradient(90deg,#111 0 2px,#fff 2px 5px);border-radius:3px;flex-shrink:0;}
+.pin{text-align:center;font-size:8px;font-weight:700;letter-spacing:1px;flex-shrink:0;}
+.field{margin:5px 11px;border:1px solid var(--line);border-radius:6px;padding:5px 8px;font-size:7px;color:var(--t3);flex-shrink:0;}
+.judge{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;}
+.jb{flex:1;min-width:200px;border-radius:10px;padding:12px 14px;font-size:12.5px;}
+.jb.ok{background:#E7F6EF;border:1px solid #B6E3CC;} .jb.warn{background:#FFF9EE;border:1px solid #F3E2B8;} .jb.no{background:#FEF2F2;border:1px solid #F3C6CD;}
+.jb .jt{font-weight:800;margin-bottom:3px;} .jb.ok .jt{color:var(--green);} .jb.warn .jt{color:#8A5A00;} .jb.no .jt{color:var(--red);}
+.diag{display:flex;gap:22px;flex-wrap:wrap;align-items:center;margin:8px 0 4px;}
+.diag .cbox{flex:0 0 auto;}
+.diag .cinfo{flex:1;min-width:250px;}
+.legend{font-size:11px;color:var(--t2);margin-top:6px;line-height:1.9;}
+.legend span{display:inline-flex;align-items:center;gap:5px;margin-right:14px;}
+.legend i{width:11px;height:11px;border-radius:2px;display:inline-block;}
+.hcard{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;}
+.hc{flex:1;min-width:250px;border:1px solid var(--line);border-radius:10px;padding:13px 15px;border-top:3px solid var(--primary);}
+.hc.non{border-top-color:var(--green);} .hc.must{border-top-color:var(--accent);} .hc.kbo{border-top-color:var(--red);}
+.hc .ht{font-size:12.5px;font-weight:800;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;gap:6px;}
+.hc .hd{font-size:12px;color:var(--t2);}
+.chartcap{font-size:11px;color:var(--t3);text-align:center;margin-top:4px;}
+.keyfig{display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 2px;}
+.kf{flex:1;min-width:110px;background:#F4F5FB;border-radius:8px;padding:9px 11px;}
+.kf .kfn{font-size:16px;font-weight:800;color:var(--primary);} .kf .kfl{font-size:10.5px;color:var(--t2);}
+ul.q{margin:6px 0 0;list-style:none;} ul.q li{padding:8px 0 8px 24px;position:relative;font-size:12.5px;color:var(--t2);border-top:1px solid #F1F2F7;}
+ul.q li:first-child{border-top:none;} ul.q li::before{content:"?";position:absolute;left:0;top:8px;width:17px;height:17px;border-radius:50%;background:var(--primary);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+footer{font-size:11px;color:var(--t3);text-align:center;padding:12px 0 4px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="cover">
+  <div class="k">POLYBALL 2.0 · PRIZE ENTRY — 운영 · KPI 검증 종합</div>
+  <h1>경품 응모 운영·KPI 검증 종합</h1>
+  <div class="meta">작성 2026-07-22 · 사업기획팀 차상호<br>근거: 그로스 대시보드 · 영상광고 노출수 파일 · 개발 추출 데이터 · 광고 매출 계획</div>
+</div>
+
+<div class="toc"><b>목차</b> &nbsp; 0. 핵심 요약 &nbsp;·&nbsp; <b>1. 대체 로드맵</b> &nbsp;·&nbsp; 2. 기본 응모 루프 &nbsp;·&nbsp; 3. 정규 회차 상품·예산 &nbsp;·&nbsp; 4. 현황 진단 & 검증 가설 &nbsp;·&nbsp; 5. KPI 성공/실패 &nbsp;·&nbsp; 6. 확인·후속</div>
+
+<!-- 0 요약 -->
+<div class="sec">
+  <h2><span class="n">0</span>핵심 요약</h2>
+  <p class="lead">경품 응모는 KBO 직관 티켓에 이은 <b>두 번째 보상 트랙</b>으로, ① 야구 시즌 종료 시 광고 매출 하락 리스크를 방어하고 ② 볼(P) 사용을 촉진해 광고 노출(BM)을 확대하기 위한 서비스다.</p>
+  <div class="sumgrid">
+    <div class="sumcard"><div class="st">① 참여는 대체 가능</div><div class="sv">월드컵(비KBO 예측→볼→경품 응모)이 KBO의 <b>75% 규모</b>로 실제 작동. "야구 없으면 이탈" 우려는 데이터상 약함.</div></div>
+    <div class="sumcard"><div class="st">② 노출은 재설계 필요</div><div class="sv">광고 노출이 <b>사실상 전량 KBO 종속</b>(미니게임 포함). 올스타 브레이크 때 총 노출 <b>−25%</b> — 완충 장치 없음.</div></div>
+    <div class="sumcard"><div class="st">③ 성패 = 지면·재화</div><div class="sv">비KBO 지면 광고 구좌 신설 + 미니게임 재화 볼 전환이 대체의 필수 조건. <b>KPI = 실제 광고매출이 계획의 70% 이상.</b></div></div>
+  </div>
+</div>
+
+<!-- 1 대체 로드맵 -->
+<div class="sec" style="border:2px solid var(--accent);box-shadow:0 3px 14px rgba(245,166,35,.18);">
+  <h2><span class="n">1</span>대체 로드맵 — 광고 노출 재설계</h2>
+  <div class="callout blue"><b>실행 핵심</b> — 현황 진단(§4)의 "KBO 공백 = 노출 공백"을 메우는 실행 계획. <b>4·5·6(비KBO 지면·재화 재설계)은 시즌 종료 전 반드시.</b></div>
+  <table>
+    <tr><th style="width:24px">#</th><th>이니셔티브</th><th>신설 노출 지면 / 작용</th><th style="width:150px">시점</th></tr>
+    <tr><td class="c">1</td><td>경품 응모 시 광고 보고 볼 1회 더(1일 5회)</td><td>경품 응모 지면 광고(티켓 AD 모델 이식)</td><td>7월 론칭 동시</td></tr>
+    <tr><td class="c">2</td><td>낙첨자 케어(광고 3회·최대 30% 볼 환급)</td><td>경품 낙첨 지면 광고 + 이탈 방지</td><td>8월</td></tr>
+    <tr><td class="c">3</td><td>스페셜 응모(월단위, 광고로 추가 응모)*</td><td>스페셜 경품 지면 광고 + 마케팅 후킹</td><td>8월</td></tr>
+    <tr><td class="c">4</td><td>비KBO 예측 '광고 보고 보상 2배'</td><td>비KBO 예측 지면 광고(경제·사회이슈 등)</td><td><span class="pill must">적용 가능 시 빠른 반영(8월 예상)</span></td></tr>
+    <tr><td class="c">5</td><td>광고 보고 볼 받기(1일 n회)</td><td>볼 적립 전용 광고 구좌 신설</td><td><span class="pill must">적용 가능 시 빠른 반영(8월 예상)</span></td></tr>
+    <tr><td class="c">6</td><td>미니게임 재화 볼로 전환 + 볼 미니게임 신설</td><td>기존 최대 노출장치(주 2.2만)를 비KBO로 전환</td><td><span class="pill must">적용 가능 시 빠른 반영(8월 예상)</span></td></tr>
+  </table>
+  <p style="font-size:11.5px;color:var(--t3);margin-top:4px">* 스페셜 응모 상품 = 기보유(이전 최저가 경매용 구매) 실물 경품 활용, 응모는 정규 추첨 방식.</p>
+  <div class="callout"><b>시퀀싱</b> — 1~3은 경품 트랙 강화, <b>4·5·6은 노출 구조 재설계로 적용 가능 시점에 즉시(8월 예상) 반영.</b> 특히 6번(미니게임 볼 전환)은 "지금 노출의 33%를 만드는 미니게임이 응모권=티켓에 묶여 위험"을 직접 해소하므로 최우선. 4·5·6이 안 깔리면 참여가 옮겨가도 노출은 0 → 검증 자동 실패.</div>
+</div>
+
+<!-- 2 기본 루프 -->
+<div class="sec">
+  <h2><span class="n">2</span>기본 응모 루프</h2>
+  <h3 class="blk">회차 주기 — 1주 단위 (월~일 응모 → 차주 월 발표)</h3>
+  <div class="tl">
+    <div class="tlcol"><div class="tlbar mon">월</div><div class="tld">응모 시작</div></div>
+    <div class="tlcol"><div class="tlbar">화</div></div><div class="tlcol"><div class="tlbar">수</div></div>
+    <div class="tlcol"><div class="tlbar">목</div></div><div class="tlcol"><div class="tlbar">금</div></div>
+    <div class="tlcol"><div class="tlbar">토</div></div>
+    <div class="tlcol"><div class="tlbar sun">일</div><div class="tld">응모 마감</div></div>
+    <div class="tlcol"><div class="tlbar mon">차주 월</div><div class="tld">당첨 발표</div></div>
+  </div>
+  <div class="flow">
+    <div class="fstep">① 응모<span class="s">볼(P) 사용</span></div><div class="farr">→</div>
+    <div class="fstep">② 발표·확인<span class="s">차주 월</span></div><div class="farr">→</div>
+    <div class="fstep">③ 수령<span class="s">기프티콘/실물</span></div><div class="farr">→</div>
+    <div class="fstep">④ 사용<span class="s">매장·배송</span></div>
+  </div>
+  <div class="callout"><b>수령 기한</b> — 발표일로부터 <b>7일</b> 내 결과 확인·수령(실물은 배송지 입력)을 완료해야 하며, 기한 경과 시 당첨 자동 취소. 결과·경품은 마이 &gt; 내 지갑 &gt; 보유 경품에서 보관·사용.</div>
+  <div class="phones">
+    <div class="pcell"><div class="pcap">① 경품 리스트</div><div class="phone"><div class="notch"></div><div class="psc">
+      <div class="pt"><span>13:48</span><span>🔋</span></div><div class="pg"><span class="lg">응모</span><span class="pbg"><span>◉2</span><span>🎫12</span></span></div>
+      <div style="display:flex;font-size:7px;font-weight:700;padding:2px 10px 4px;gap:10px;flex-shrink:0"><span style="color:var(--t3)">경기</span><span style="color:var(--t1);border-bottom:2px solid var(--t1)">경품</span></div>
+      <div class="sect">◉ 취향대로 고르는 경품</div><div class="dl">🔴 응모 마감까지 2일</div>
+      <div class="cards"><div class="cd"><div class="im">🎮</div><div class="nm">닌텐도 스위치2</div><div class="ct">응모하기</div></div><div class="cd"><div class="im">🍗</div><div class="nm">BBQ 치킨</div><div class="ct">응모하기</div></div><div class="cd"><div class="im">🅝</div><div class="nm">네이버페이 1만</div><div class="ct">응모하기</div></div><div class="cd"><div class="im">🥤</div><div class="nm">메가 아메리카노</div><div class="ct">응모하기</div></div></div>
+    </div></div></div>
+    <div class="pcell"><div class="pcap">② 응모 상세(볼 사용)</div><div class="phone"><div class="notch"></div><div class="psc">
+      <div class="pt"><span>13:48</span><span>🔋</span></div><div class="pg"><span style="font-size:8px">‹ 응모 상세</span><span>↗</span></div>
+      <div class="dimg">🍗</div><div class="pn">BBQ 황금올리브치킨</div>
+      <div class="stat"><div><div class="kk">당첨</div><div class="vv">5명</div></div><div><div class="kk">수량</div><div class="vv">1인1개</div></div><div><div class="kk">발표</div><div class="vv">차주월</div></div></div>
+      <div style="text-align:center;font-size:6.5px;color:var(--t3);padding-top:5px;flex-shrink:0">볼 많이 쓸수록 확률↑</div>
+      <div class="stp"><span>−</span><span style="color:var(--t1)">2</span><span>＋</span></div><div class="cta">응모하기</div>
+    </div></div></div>
+    <div class="pcell"><div class="pcap">③ 응모 완료</div><div class="phone"><div class="notch"></div><div class="psc">
+      <div class="pt"><span>13:48</span><span>🔋</span></div><div class="pg"><span style="font-size:8px">‹ 응모 상세</span><span></span></div>
+      <div class="chk"><div class="c">✓</div></div><div class="msg">응모 완료!<span class="sub">차주 월요일 발표</span></div>
+      <div class="dimg" style="height:40px">🍗</div><div class="stat"><div><div class="kk">사용한 볼</div><div class="vv">7개</div></div><div><div class="kk">발표</div><div class="vv">차주월</div></div></div>
+      <div class="cta gray" style="margin-top:8px">📺 광고 보고 1번 더 응모</div>
+    </div></div></div>
+    <div class="pcell"><div class="pcap">④ 당첨 결과 확인</div><div class="phone"><div class="notch"></div><div class="psc">
+      <div class="pt"><span>13:48</span><span>🔋</span></div><div class="pg"><span style="font-size:8px">응모 현황</span><span></span></div>
+      <div style="background:linear-gradient(120deg,#363E8D,#252B66);margin:7px 10px;border-radius:9px;padding:10px;color:#fff;flex-shrink:0"><div style="font-size:9.5px;font-weight:800">🎉 당첨됐어요!</div><div style="font-size:7px;color:#C6CBF0;margin-top:2px">BBQ 황금올리브치킨</div><div style="background:#fff;color:var(--primary);border-radius:10px;text-align:center;font-size:7.5px;font-weight:700;padding:4px 0;margin-top:8px">결과 확인하기</div></div>
+      <div style="font-size:6.5px;color:var(--t3);text-align:center;padding:3px 11px;flex-shrink:0">본인인증 후 확인 · 발표+7일 내</div>
+    </div></div></div>
+    <div class="pcell"><div class="pcap">⑤ 기프티콘 수령·사용</div><div class="phone"><div class="notch"></div><div class="psc">
+      <div class="pt"><span>13:48</span><span>🔋</span></div><div class="pg"><span style="font-size:8px">‹ 기프티콘</span><span>↗</span></div>
+      <div class="dimg" style="height:42px">🍗</div><div class="pn">BBQ 황금올리브치킨</div><div class="barcode"></div><div class="pin">1234 5678 9012</div>
+      <div style="text-align:center;font-size:6.5px;color:var(--t3);padding:8px 11px 0;flex-shrink:0">매장에서 바코드·핀번호로 사용</div>
+    </div></div></div>
+    <div class="pcell"><div class="pcap">⑤' 실물 배송지 입력</div><div class="phone"><div class="notch"></div><div class="psc">
+      <div class="pt"><span>13:48</span><span>🔋</span></div><div class="pg"><span style="font-size:8px">‹ 배송지 입력</span><span></span></div>
+      <div class="dimg" style="height:40px">🎮</div><div class="pn" style="font-size:7.5px">닌텐도 스위치 2</div>
+      <div class="field">수령인명</div><div class="field">연락처</div><div class="field">우편번호 · 주소</div><div class="cta">배송지 입력하기</div>
+    </div></div></div>
+  </div>
+</div>
+
+<!-- 3 상품·예산 -->
+<div class="sec">
+  <h2><span class="n">3</span>정규 회차 상품 · 예산</h2>
+  <h3 class="blk">예산 책정·셋팅 방식</h3>
+  <table>
+    <tr><th style="width:130px">항목</th><th>방식</th></tr>
+    <tr><td>기준 지표</td><td>광고 매출 계획('광고 매출 합계')</td></tr>
+    <tr><td>예산 규율</td><td>티켓 외 리워드(경품 포함) 비용 ≤ 광고 매출의 <b>최대 80%(상한)</b>, 운영 목표 <b>~70%</b></td></tr>
+    <tr><td>초기 셋팅</td><td>정규 회차 경품 = CASE 1 <b>주 312,800원</b> = <b>월(5주) 1,564,000원</b></td></tr>
+    <tr><td>확대 규칙</td><td>광고 매출 성장에 따라 CASE 2로 상향(70% 선 내). 조정: 월 1회 직전월 실적 기준 재산정</td></tr>
+  </table>
+
+  <h3 class="blk">CASE 1 — 현재 실행안 (월 156.4만)</h3>
+  <table>
+    <tr><th style="width:24px">#</th><th>브랜드</th><th>상품</th><th class="r">판매가</th><th class="r">할인가</th><th class="c">당첨</th><th class="r">예상비용</th></tr>
+    <tr><td>1</td><td>배달의민족</td><td>모바일 상품권 2만원</td><td class="r">20,000</td><td class="r">19,400</td><td class="c">5</td><td class="r">97,000</td></tr>
+    <tr><td>2</td><td>BHC</td><td>핫후라이드 + 콜라 1.25L</td><td class="r">22,500</td><td class="r">19,740</td><td class="c">5</td><td class="r">98,700</td></tr>
+    <tr><td>3</td><td>티빙</td><td>티빙 스탠다드 1개월</td><td class="r">13,500</td><td class="r">11,340</td><td class="c">5</td><td class="r">56,700</td></tr>
+    <tr><td>4</td><td>올리브영</td><td>기프트카드 5천원권</td><td class="r">5,000</td><td class="r">4,800</td><td class="c">5</td><td class="r">24,000</td></tr>
+    <tr><td>5</td><td>메가MGC커피</td><td>(ICE)아메리카노</td><td class="r">2,000</td><td class="r">1,680</td><td class="c">10</td><td class="r">16,800</td></tr>
+    <tr><td>6</td><td>네이버페이</td><td>포인트 쿠폰</td><td class="r">1,000</td><td class="r">980</td><td class="c">20</td><td class="r">19,600</td></tr>
+    <tr><td colspan="5" class="r"><b>합계 (주)</b></td><td class="c"><b>50</b></td><td class="r"><b>312,800</b></td></tr>
+  </table>
+  <p style="font-size:12px;color:var(--t2)">광고 매출 성장 시 <b>CASE 2(당첨 인원 확대, 주 490,100원)</b>로 상향. 이후엔 인기·응모 집중 경품을 트래킹해 <b>품목 확대</b> 방향으로 최적화.</p>
+  <table>
+    <tr><th>월</th><th class="r">광고매출 계획</th><th class="r">경품비(초기)</th><th class="r">경품/매출</th><th class="r">70% 선</th></tr>
+    <tr><td>7월</td><td class="r">2,670,850</td><td class="r">1,564,000</td><td class="r">58.6%</td><td class="r">1,869,595</td></tr>
+    <tr><td>9월</td><td class="r">3,930,850</td><td class="r">1,564,000</td><td class="r">39.8%</td><td class="r">2,751,595</td></tr>
+    <tr><td>12월</td><td class="r">6,575,075</td><td class="r">1,564,000</td><td class="r">23.8%</td><td class="r">4,602,553</td></tr>
+  </table>
+</div>
+
+<!-- 4 진단·가설 -->
+<div class="sec">
+  <h2><span class="n">4</span>현황 진단 & 검증 가설</h2>
+
+  <h3 class="blk">3-1. 광고 노출 구조 — 사실상 전량 KBO 종속</h3>
+  <div class="diag">
+    <div class="cbox">
+      <svg width="150" height="150" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+        <g transform="rotate(-90 70 70)" fill="none" stroke-width="22">
+          <circle cx="70" cy="70" r="60" stroke="#EEF0F8"/>
+          <circle cx="70" cy="70" r="60" stroke="#363E8D" stroke-dasharray="197.5 179.5" stroke-dashoffset="0"/>
+          <circle cx="70" cy="70" r="60" stroke="#F5A623" stroke-dasharray="124.8 252.2" stroke-dashoffset="-197.5"/>
+          <circle cx="70" cy="70" r="60" stroke="#6B74C4" stroke-dasharray="46.7 330.3" stroke-dashoffset="-322.3"/>
+          <circle cx="70" cy="70" r="60" stroke="#C4CAD6" stroke-dasharray="7.9 369.1" stroke-dashoffset="-369.0"/>
+        </g>
+        <text x="70" y="66" text-anchor="middle" font-size="13" font-weight="800" fill="#C7273C" font-family="Noto Sans KR">KBO 종속</text>
+        <text x="70" y="84" text-anchor="middle" font-size="12" font-weight="700" fill="#4A5268" font-family="Noto Sans KR">≈ 100%</text>
+      </svg>
+    </div>
+    <div class="cinfo">
+      <div class="legend">
+        <span><i style="background:#363E8D"></i>픽·승부예측 52.4% <b style="color:#1A2033">(KBO 직접)</b></span><br>
+        <span><i style="background:#F5A623"></i>미니게임 33.1% <b style="color:#1A2033">(KBO 간접 · 응모권→티켓)</b></span><br>
+        <span><i style="background:#6B74C4"></i>직관 티켓 응모 12.4% <b style="color:#1A2033">(KBO 직접)</b></span><br>
+        <span><i style="background:#C4CAD6"></i>팀 응원전 2.1% <b style="color:#1A2033">(야구 연계)</b></span>
+      </div>
+      <div class="callout red" style="margin-top:8px"><b>순수 비KBO 광고 노출 ≈ 0.</b> 미니게임도 응모권(티켓 전용) 파밍 수단이라 KBO 간접 종속이고, 월드컵·경품 응모 지면엔 광고 구좌가 없다. 현재 광고 노출의 거의 전부가 야구 종료 시 흔들린다.</div>
+    </div>
+  </div>
+
+  <h3 class="blk">3-2. 자연 실험 A — 월드컵 (비KBO가 채울 수 있나 · 공급)</h3>
+  <div class="diag">
+    <div class="cbox">
+      <svg width="360" height="178" viewBox="0 0 360 178" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans KR">
+        <line x1="34" y1="150" x2="340" y2="150" stroke="#E2E8F0"/>
+        <polyline fill="none" stroke="#363E8D" stroke-width="2.5" points="40,61.9 96,55.0 152,23.4 208,47.9 264,49.6 320,52.3"/>
+        <polyline fill="none" stroke="#F5A623" stroke-width="2.5" points="40,83.1 96,74.8 152,55.6 208,99.6 264,100.7 320,110.3"/>
+        <g fill="#363E8D"><circle cx="40" cy="61.9" r="3"/><circle cx="96" cy="55" r="3"/><circle cx="152" cy="23.4" r="3"/><circle cx="208" cy="47.9" r="3"/><circle cx="264" cy="49.6" r="3"/><circle cx="320" cy="52.3" r="3"/></g>
+        <g fill="#F5A623"><circle cx="40" cy="83.1" r="3"/><circle cx="96" cy="74.8" r="3"/><circle cx="152" cy="55.6" r="3"/><circle cx="208" cy="99.6" r="3"/><circle cx="264" cy="100.7" r="3"/><circle cx="320" cy="110.3" r="3"/></g>
+        <text x="152" y="18" text-anchor="middle" font-size="9" font-weight="700" fill="#363E8D">8,763</text>
+        <text x="152" y="52" text-anchor="middle" font-size="9" font-weight="700" fill="#B45309">6,535 (75%)</text>
+        <g font-size="8.5" fill="#94A3B8" text-anchor="middle"><text x="40" y="164">6/8</text><text x="96" y="164">6/15</text><text x="152" y="164">6/22</text><text x="208" y="164">6/29</text><text x="264" y="164">7/6</text><text x="320" y="164">7/13</text></g>
+      </svg>
+      <div class="legend"><span><i style="background:#363E8D"></i>KBO 메인예측 참여</span><span><i style="background:#F5A623"></i>월드컵 예측 참여</span> <span style="color:var(--t3)">(주간 유저수)</span></div>
+    </div>
+    <div class="cinfo">
+      <div class="keyfig">
+        <div class="kf"><div class="kfn">75%</div><div class="kfl">월드컵 예측이 KBO 규모의 (피크 6,535명)</div></div>
+        <div class="kf"><div class="kfn">40,717</div><div class="kfl">주간 월드컵 볼 소진(경품 응모)</div></div>
+      </div>
+      <div class="callout"><b>야구 없이도 (예측→볼→경품) 루프가 KBO 근접 규모로 작동.</b> "이탈" 우려의 반증. 단, 이 루프의 <b>광고 노출은 0</b>(지면 구좌 없음) — 참여는 대체됐으나 BM은 미대체.</div>
+    </div>
+  </div>
+
+  <h3 class="blk">3-3. 자연 실험 B — 올스타 브레이크 (KBO 빠지면 · 수요)</h3>
+  <div class="diag">
+    <div class="cbox">
+      <svg width="360" height="196" viewBox="0 0 360 196" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans KR">
+        <line x1="24" y1="170" x2="344" y2="170" stroke="#E2E8F0"/>
+        <!-- 06/01 -->
+        <rect x="30" y="107.5" width="30" height="62.5" fill="#363E8D"/><rect x="30" y="50.3" width="30" height="57.2" fill="#F5A623"/>
+        <rect x="76" y="99.4" width="30" height="70.6" fill="#363E8D"/><rect x="76" y="45.3" width="30" height="54.1" fill="#F5A623"/>
+        <rect x="122" y="89.7" width="30" height="80.3" fill="#363E8D"/><rect x="122" y="28.6" width="30" height="61.1" fill="#F5A623"/>
+        <rect x="168" y="84.3" width="30" height="85.7" fill="#363E8D"/><rect x="168" y="20.3" width="30" height="64.0" fill="#F5A623"/>
+        <rect x="214" y="97.2" width="30" height="72.8" fill="#363E8D"/><rect x="214" y="45.3" width="30" height="51.9" fill="#F5A623"/>
+        <rect x="260" y="117.4" width="30" height="52.6" fill="#363E8D"/><rect x="260" y="62.5" width="30" height="54.9" fill="#F5A623"/>
+        <rect x="306" y="116.4" width="30" height="53.6" fill="#363E8D"/><rect x="306" y="58.2" width="30" height="58.2" fill="#F5A623"/>
+        <!-- 올스타 브레이크 표시 -->
+        <line x1="254" y1="14" x2="342" y2="14" stroke="#C7273C" stroke-width="1.5"/>
+        <text x="298" y="11" text-anchor="middle" font-size="8.5" font-weight="700" fill="#C7273C">올스타 브레이크</text>
+        <text x="183" y="16" text-anchor="middle" font-size="9" font-weight="800" fill="#C7273C">54,888</text>
+        <text x="321" y="52" text-anchor="middle" font-size="9" font-weight="800" fill="#C7273C">−25%</text>
+        <g font-size="8.5" fill="#94A3B8" text-anchor="middle"><text x="45" y="184">6/1</text><text x="91" y="184">6/8</text><text x="137" y="184">6/15</text><text x="183" y="184">6/22</text><text x="229" y="184">6/29</text><text x="275" y="184">7/6</text><text x="321" y="184">7/13</text></g>
+      </svg>
+      <div class="legend"><span><i style="background:#363E8D"></i>KBO 지면 노출</span><span><i style="background:#F5A623"></i>비KBO 표기 지면(미니게임 등)</span> <span style="color:var(--t3)">(주간 노출수)</span></div>
+    </div>
+    <div class="cinfo">
+      <div class="callout red"><b>KBO 공백 = 노출 공백.</b> 경기 없는 구간에 KBO 지면 노출이 눌리며 총 노출이 6/22 피크 54,888 → 7/13 40,985로 <b>−25%</b>. 이때 "미니게임 비중 상승"은 미니게임이 커진 게 아니라 KBO 지면이 빠져 <b>분모가 줄어든 착시</b> — 완충한 진짜 비KBO 지면은 없었다. 시즌 종료(픽까지 영구 소멸)는 임팩트가 더 크다.</div>
+    </div>
+  </div>
+
+  <h3 class="blk">3-4. 검증 가설</h3>
+  <div class="hcard">
+    <div class="hc non"><div class="ht">H1 · 수요 이동 <span class="pill non">월드컵 실측 지지</span></div><div class="hd">KBO 공백 시 유저는 비KBO 콘텐츠(월드컵 등)로 이동해 <b>참여·DAU가 유지</b>된다.</div></div>
+    <div class="hc must"><div class="ht">H2 · 노출 대체 <span class="pill must">이니셔티브 조건부</span></div><div class="hd">비KBO <b>지면·재화가 신설</b>되면 이동한 참여가 광고 노출로 전환돼 매출을 방어한다.</div></div>
+    <div class="hc kbo"><div class="ht">H3 · 구조적 공백 <span class="pill kbo">확인됨</span></div><div class="hd">현 구조 그대로면 <b>KBO 공백 = 노출 공백</b>. 지면·재화 재설계 없이는 대체 불가.</div></div>
+  </div>
+</div>
+
+<!-- 5 KPI -->
+<div class="sec">
+  <h2><span class="n">5</span>KPI — 성공 / 실패 기준</h2>
+  <div class="callout blue"><b>기준선</b> — 광고 매출 계획은 시즌 종료(9월) 후에도 성장(9월 393만 → 12월 657만)하는 전망치다. 이 성장은 야구가 빠진 뒤에도 매출이 오른다는 뜻이므로, <b>계획 자체가 "대체 성공 시나리오"</b>. KPI = 실제 매출이 이 계획을 얼마나 따라가는가.</div>
+  <div class="judge">
+    <div class="jb ok"><div class="jt">✅ 성공</div>실제 광고 매출이 <b>계획의 70% 이상</b>(특히 시즌 종료 후 9~12월). 비KBO 지면이 KBO 상실분 흡수.</div>
+    <div class="jb warn"><div class="jt">△ 주의</div>계획의 <b>60~70%</b>. 대체 부분적 → 이니셔티브 보강·예산 조정.</div>
+    <div class="jb no"><div class="jt">✕ 실패</div>계획의 <b>60% 미만</b>. 비KBO 노출이 KBO 상실분 미흡수 = 대체 실패.</div>
+  </div>
+  <h3 class="blk">선행 지표 (월별 체크포인트)</h3>
+  <ul class="q" style="list-style:none">
+    <li>비KBO 지면(이니셔티브 1~6) 노출 증가분이 KBO 노출 감소분을 따라오는가</li>
+    <li>비KBO 예측·경품 응모 참여·볼 소진이 유지·성장하는가</li>
+    <li>미니게임 볼 전환 후 미니게임 노출이 유지되는가</li>
+    <li>DAU/WAU·리텐션이 시즌 종료 후에도 유지되는가(H1)</li>
+  </ul>
+  <div class="callout"><b>임계값</b> — 성공선 70%는 사업부 운영 계획(광고 매출의 ~70% 운영)과 정합하는 <b>잠정값</b>. 최종 밴드는 데이터팀·사업부 합의로 고정.</div>
+</div>
+
+<!-- 6 확인 -->
+<div class="sec">
+  <h2><span class="n">6</span>확인 · 후속</h2>
+  <ul class="q">
+    <li><b>미니게임 노출 유지 이유</b> — 올스타 브레이크에도 유지된 게 응모권 비축(→시즌 종료 시 무너짐)인지, 게임 재미인지. 6번 이니셔티브 시급성 근거</li>
+    <li><b>브레이크 구간 지면별·D-14 정밀 분해</b> — KBO 지면별 감소폭 실측 → 시즌 종료 시 필요한 비KBO 노출 신설 규모 역산</li>
+    <li><b>성공/실패 임계값 확정</b> — 데이터팀·사업부 합의</li>
+    <li><b>KBO 시즌 종료 예정일</b> — 검증 측정 구간(before/after) 설정</li>
+    <li><b>선결 과제</b> — 이니셔티브 4·5·6을 적용 가능 시점(8월 예상)에 반영. 미이행 시 검증 자동 실패</li>
+  </ul>
+</div>
+
+<footer>경품응모_종합기획검증_v1_0 · 2026-07-22 · 통합: 기본 응모 루프 + 운영 실행안 + KPI 검증 설계</footer>
+</div>
+</body>
+</html>
